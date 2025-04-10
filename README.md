@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Foodino - Online Food Ordering Platform 🍔
+
+A modern web application for online food ordering, built with Next.js, TypeScript, and styled-components.
+
+## Features
+
+- **Responsive Design**: Optimized for mobile, tablet, and desktop devices
+- **Persian Language Support**: Using Vazirmatn font with RTL layout
+- **Restaurant Browsing**: Browse through a variety of restaurants
+- **Category Filtering**: Filter restaurants by food categories
+- **Menu Exploration**: View restaurant menus with details
+- **Shopping Cart**: Add, remove, and manage food items
+- **Favorites**: Save your favorite restaurants
+- **Order Tracking**: Track your orders in real-time
+
+## Technology Stack
+
+- **Frontend Framework**: Next.js with App Router
+- **Language**: TypeScript
+- **Styling**: styled-components
+- **Font**: Vazirmatn (Google Fonts)
+- **UI/UX**: Custom design system with theming
+- **Responsive Design**: Media queries and flexible layouts
+- **State Management**: React Hooks (useState, useEffect)
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+- Node.js (v18 or later)
+- npm or yarn
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Installation
+1. Clone the repository
+   ```bash
+   git clone https://github.com/yourusername/foodino.git
+   cd foodino
+   ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Run the development server
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser to see the application
 
-## Learn More
+## Project Structure
+- `/src/app` - Next.js App Router pages
+- `/src/components` - Reusable React components
+- `/src/styles` - Global styles and theme configuration
+- `/public` - Static assets
 
-To learn more about Next.js, take a look at the following resources:
+## License
+MIT
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Acknowledgments
+- Inspired by modern food delivery platforms
+- Icons provided by [Feather Icons](https://feathericons.com/)
