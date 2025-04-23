@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import Link from 'next/link';
 import { vazirmatn } from '@/app/fonts';
+import { categories as allCategoriesData } from '@/data/categories';
 
 // تعریف انواع داده
 interface Category {
@@ -292,24 +293,7 @@ const EmptyDescription = styled.p`
 `;
 
 // داده‌های نمونه
-const allCategories: Category[] = [
-  { id: '1', name: 'پیتزا', icon: '🍕', count: 48 },
-  { id: '2', name: 'برگر', icon: '🍔', count: 36 },
-  { id: '3', name: 'ساندویچ', icon: '🥪', count: 27 },
-  { id: '4', name: 'غذای ایرانی', icon: '🍚', count: 42 },
-  { id: '5', name: 'غذای دریایی', icon: '🦞', count: 18 },
-  { id: '6', name: 'سالاد', icon: '🥗', count: 24 },
-  { id: '7', name: 'پاستا', icon: '🍝', count: 15 },
-  { id: '8', name: 'استیک', icon: '🥩', count: 12 },
-  { id: '9', name: 'بستنی و دسر', icon: '🍨', count: 30 },
-  { id: '10', name: 'نوشیدنی', icon: '🥤', count: 21 },
-  { id: '11', name: 'صبحانه', icon: '🍳', count: 16 },
-  { id: '12', name: 'فست فود', icon: '🌭', count: 33 },
-  { id: '13', name: 'کباب', icon: '🍢', count: 28 },
-  { id: '14', name: 'سوشی', icon: '🍣', count: 9 },
-  { id: '15', name: 'سوپ', icon: '🍲', count: 14 },
-  { id: '16', name: 'آبمیوه و اسموتی', icon: '🧃', count: 22 },
-];
+const allCategories = allCategoriesData;
 
 // فیلترهای نمونه
 const filters = [
@@ -321,7 +305,6 @@ const filters = [
   { id: 'dessert', name: 'دسر و شیرینی' },
   { id: 'drinks', name: 'نوشیدنی‌ها' },
 ];
-
 // کامپوننت اصلی
 const CategoriesPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -443,7 +426,7 @@ const CategoriesPage = () => {
             <>
               <CategoriesGrid>
                 {currentCategories.map(category => (
-                  <CategoryCard href={`/category/${category.id}`} key={category.id}>
+                  <CategoryCard href={`/categories/${category.id}`} key={category.id}>
                     <CategoryImageContainer>
                       {category.icon}
                     </CategoryImageContainer>

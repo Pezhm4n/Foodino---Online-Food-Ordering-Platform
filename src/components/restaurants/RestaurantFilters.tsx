@@ -91,8 +91,8 @@ const Stars = styled.div`
   display: flex;
 `;
 
-const Star = styled.span<{ filled: boolean }>`
-  color: ${props => props.filled ? props.theme.colors.warning[500] : props.theme.colors.neutral[300]};
+const Star = styled.span<{ $filled: boolean }>`
+  color: ${props => props.$filled ? props.theme.colors.warning[500] : props.theme.colors.neutral[300]};
 `;
 
 const ResetButton = styled.button`
@@ -186,11 +186,10 @@ const RestaurantFilters = () => {
               key={stars} 
               $isActive={rating === stars}
               onClick={() => setRating(stars === rating ? null : stars)}
-              data-is-active={rating === stars ? 'true' : 'false'}
             >
               <Stars>
                 {[1, 2, 3, 4, 5].map(i => (
-                  <Star key={i} filled={i <= stars} data-filled={i <= stars ? 'true' : 'false'}>★</Star>
+                  <Star key={i} $filled={i <= stars}>★</Star>
                 ))}
               </Stars>
               {stars === 5 ? 'عالی' : 

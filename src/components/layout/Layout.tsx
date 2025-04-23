@@ -5,35 +5,12 @@ import styled, { ThemeProvider } from 'styled-components';
 import Header from './Header';
 import Footer from './Footer';
 import { theme } from '../../styles/theme';
-import { createGlobalStyle } from 'styled-components';
 import { CartProvider } from '@/contexts/CartContext';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { LanguageProvider } from '@/contexts/LanguageContext';
+import { ToastProvider } from '@/components/common/Toast';
 
-// تعریف استایل‌های سراسری
-const GlobalStyle = createGlobalStyle`
-  @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap');
-  
-  * {
-    box-sizing: border-box;
-    padding: 0;
-    margin: 0;
-  }
-  
-  html,
-  body {
-    max-width: 100vw;
-    overflow-x: hidden;
-    font-family: ${theme.typography.fontFamily};
-    background-color: ${theme.colors.neutral[50]};
-    direction: rtl;
-  }
-  
-  a {
-    color: inherit;
-    text-decoration: none;
-  }
-`;
-
+// استایل‌های کامپوننت Main
 const Main = styled.main`
   min-height: 100vh;
 `;
@@ -54,14 +31,17 @@ const Layout = ({ children }: LayoutProps) => {
 
   return (
     <ThemeProvider theme={theme}>
-      <AuthProvider>
-        <CartProvider>
-          <GlobalStyle />
-          <Header />
-          <Main>{children}</Main>
-          <Footer />
-        </CartProvider>
-      </AuthProvider>
+      <LanguageProvider>
+        <AuthProvider>
+          <CartProvider>
+            <ToastProvider>
+              <Header />
+              <Main>{children}</Main>
+              <Footer />
+            </ToastProvider>
+          </CartProvider>
+        </AuthProvider>
+      </LanguageProvider>
     </ThemeProvider>
   );
 };

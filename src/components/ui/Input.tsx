@@ -7,10 +7,12 @@ import styled, { css } from 'styled-components';
 type InputVariant = 'default' | 'outlined' | 'filled';
 type InputSize = 'sm' | 'md' | 'lg';
 
-// تعریف پراپ‌های کامپوننت
-interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+// تعریف پراپ‌های کامپوننت با حذف تداخل size
+type InputPropsWithoutSize = Omit<InputHTMLAttributes<HTMLInputElement>, 'size'>;
+
+interface InputProps extends InputPropsWithoutSize {
   variant?: InputVariant;
-  size?: InputSize;
+  inputSize?: InputSize; // تغییر نام به inputSize برای جلوگیری از تداخل
   fullWidth?: boolean;
   label?: string;
   error?: string;
@@ -127,7 +129,7 @@ const baseInputStyles = css<{
 const InputContainer = styled.div<{ $fullWidth: boolean }>`
   position: relative;
   width: ${props => props.$fullWidth ? '100%' : 'auto'};
-  margin-bottom: ${props => props.theme.spacing.md};
+  margin-bottom: ${props => props.theme.spacing[4]};
 `;
 
 const StyledInput = styled.input<{
@@ -175,7 +177,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
   (
     {
       variant = 'default',
-      size = 'md',
+      inputSize = 'md',
       fullWidth = false,
       label,
       error,
@@ -196,7 +198,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         <div style={{ position: 'relative' }}>
           <StyledInput
             $variant={variant}
-            $size={size}
+            $size={inputSize}
             $fullWidth={fullWidth}
             $hasIcon={hasIcon}
             $iconPosition={iconPosition}
@@ -216,4 +218,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       </InputContainer>
     );
   }
-); 
+);
+
+// اضافه کردن displayName
+Input.displayName = 'Input'; 

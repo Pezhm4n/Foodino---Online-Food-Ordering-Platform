@@ -3,6 +3,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import Link from 'next/link';
+import { Restaurant as RestaurantModel } from '@/types/models';
 
 const HeaderContainer = styled.div`
   background-color: white;
@@ -157,24 +158,8 @@ const ShareButton = styled(ActionButton)`
   }
 `;
 
-interface Restaurant {
-  id: number;
-  name: string;
-  type: string;
-  icon: string;
-  rating: number;
-  tags: string[];
-  description: string;
-  deliveryTime: string;
-  minOrder: string;
-  slug: string;
-  address: string;
-  workingHours: string;
-  contactNumber: string;
-}
-
 interface RestaurantHeaderProps {
-  restaurant: Restaurant;
+  restaurant: RestaurantModel;
 }
 
 const RestaurantHeader = ({ restaurant }: RestaurantHeaderProps) => {
@@ -198,7 +183,7 @@ const RestaurantHeader = ({ restaurant }: RestaurantHeaderProps) => {
             <Title>{restaurant.name}</Title>
             
             <TagsContainer>
-              {restaurant.tags.map((tag, index) => (
+              {restaurant.tags?.map((tag, index) => (
                 <Tag key={index}>{tag}</Tag>
               ))}
             </TagsContainer>

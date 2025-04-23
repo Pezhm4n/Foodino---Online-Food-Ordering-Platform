@@ -458,7 +458,7 @@ export default function OrderPage() {
                         type="radio" 
                         name="paymentMethod" 
                         value="online" 
-                        checked={true}
+                        defaultChecked={true}
                       />
                       <RadioLabel>پرداخت آنلاین</RadioLabel>
                     </RadioOption>

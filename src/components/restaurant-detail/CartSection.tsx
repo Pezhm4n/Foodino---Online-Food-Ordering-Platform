@@ -2,8 +2,10 @@
 
 import React from 'react';
 import styled from 'styled-components';
-import Link from 'next/link';
 import { CartItem } from '@/types/models';
+import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
+import { useFormatPrice } from '@/hooks/useFormatPrice';
 
 const CartContainer = styled.div`
   background-color: white;
@@ -50,7 +52,7 @@ const CartItemsList = styled.div`
   }
 `;
 
-const CartItem = styled.div`
+const CartItemRow = styled.div`
   display: flex;
   justify-content: space-between;
   padding: 1rem 0;
@@ -133,21 +135,6 @@ const TotalRow = styled.div`
   font-weight: ${props => props.theme.typography.fontWeights.semibold};
   color: ${props => props.theme.colors.secondary[500]};
   margin-top: 1rem;
-`;
-
-const CheckoutLink = styled(Link)`
-  display: block;
-  width: 100%;
-  text-align: center;
-  text-decoration: none;
-  margin-bottom: 0.75rem;
-  position: relative;
-  cursor: pointer;
-  
-  &:hover::before {
-    opacity: 1;
-    right: 1rem;
-  }
 `;
 
 const CheckoutButton = styled.button`
@@ -236,6 +223,7 @@ interface Restaurant {
   name: string;
   deliveryTime: string;
   minOrder: string;
+  discount?: number;
 }
 
 interface CartSectionProps {
@@ -253,28 +241,83 @@ const CartSection = ({
   onClearCart,
   restaurant 
 }: CartSectionProps) => {
-  const formatPrice = (price: number) => {
-    return price.toLocaleString('fa-IR') + ' تومان';
-  };
+  const router = useRouter();
+  const { formatPrice } = useFormatPrice();
   
   const calculateSubtotal = () => {
     return cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   };
   
-  const deliveryFee = 15000;
   const subtotal = calculateSubtotal();
-  const total = subtotal + deliveryFee;
+  
+  const calculateTotal = () => {
+    let total = subtotal;
+    
+    if (restaurant.discount && restaurant.discount > 0) {
+      const discountAmount = (subtotal * restaurant.discount) / 100;
+      total = subtotal - discountAmount;
+    }
+    
+    return total;
+  };
+  
+  const total = calculateTotal();
   
   const convertPersianToEnglish = (str: string) => {
+    if (!str) return '0';
     const persianNumbers = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
     return str.replace(/[۰-۹]/g, function(match) {
       return persianNumbers.indexOf(match).toString();
     });
   };
   
-  const minOrderValueStr = convertPersianToEnglish(restaurant.minOrder).replace(/[^0-9]/g, '');
-  const minOrderValue = parseInt(minOrderValueStr) || 0;
+  const parseMinOrderValue = (minOrderStr: string) => {
+    try {
+      if (!minOrderStr) return 0;
+      // تبدیل اعداد فارسی به انگلیسی
+      const englishStr = convertPersianToEnglish(minOrderStr);
+      // استخراج فقط اعداد
+      const numericStr = englishStr.replace(/[^0-9]/g, '');
+      return parseInt(numericStr) || 0;
+    } catch (error) {
+      console.error('Error parsing min order value:', error);
+      return 0; // در صورت خطا، مقدار پیش‌فرض 0 را برمی‌گرداند
+    }
+  };
+  
+  const minOrderValue = parseMinOrderValue(restaurant?.minOrder || '0');
   const isMinOrderMet = subtotal >= minOrderValue;
+  
+  const addItemToCart = (item: CartItem) => {
+    onAddItem(item);
+  };
+  
+  const handleCheckout = () => {
+    try {
+      if (!isMinOrderMet) {
+        toast.error(`حداقل سفارش ${restaurant.minOrder} می‌باشد.`);
+        return;
+      }
+      
+      localStorage.setItem('restaurant', JSON.stringify({
+        id: restaurant.id,
+        name: restaurant.name,
+        deliveryTime: restaurant.deliveryTime,
+        minOrder: restaurant.minOrder,
+        discount: restaurant.discount
+      }));
+      
+      if (cartItems.length === 0) {
+        toast.error('سبد خرید شما خالی است.');
+        return;
+      }
+      
+      router.push('/checkout');
+    } catch (error) {
+      console.error('Error during checkout:', error);
+      toast.error('خطایی در فرآیند تکمیل خرید رخ داد. لطفاً دوباره تلاش کنید.');
+    }
+  };
   
   return (
     <CartContainer>
@@ -293,7 +336,7 @@ const CartSection = ({
         <>
           <CartItemsList>
             {cartItems.map(item => (
-              <CartItem key={item.id}>
+              <CartItemRow key={item.id}>
                 <ItemInfo>
                   <ItemName>{item.name}</ItemName>
                   <ItemPrice>{formatPrice(item.price)}</ItemPrice>
@@ -301,9 +344,9 @@ const CartSection = ({
                 <ItemControls>
                   <ItemButton onClick={() => onRemoveItem(item.id)}>-</ItemButton>
                   <ItemQuantity>{item.quantity}</ItemQuantity>
-                  <ItemButton onClick={() => onAddItem(item)}>+</ItemButton>
+                  <ItemButton onClick={() => addItemToCart(item)}>+</ItemButton>
                 </ItemControls>
-              </CartItem>
+              </CartItemRow>
             ))}
           </CartItemsList>
           
@@ -316,7 +359,7 @@ const CartSection = ({
             </PricingRow>
             <PricingRow>
               <span>هزینه ارسال:</span>
-              <span>{formatPrice(deliveryFee)}</span>
+              <span>{formatPrice(15000)}</span>
             </PricingRow>
             {!isMinOrderMet && (
               <PricingRow style={{ color: '#EF4444' }}>
@@ -330,17 +373,12 @@ const CartSection = ({
             </TotalRow>
           </PricingSummary>
           
-          {isMinOrderMet ? (
-            <CheckoutLink href="/checkout">
-              <CheckoutButton as="div">
-                تکمیل خرید و پرداخت
-              </CheckoutButton>
-            </CheckoutLink>
-          ) : (
-            <CheckoutButton disabled>
-              {`حداقل سفارش ${restaurant.minOrder}`}
-            </CheckoutButton>
-          )}
+          <CheckoutButton 
+            disabled={!isMinOrderMet} 
+            onClick={handleCheckout}
+          >
+            تکمیل خرید
+          </CheckoutButton>
           
           <ClearButton onClick={onClearCart} disabled={cartItems.length === 0}>
             پاک کردن سبد خرید

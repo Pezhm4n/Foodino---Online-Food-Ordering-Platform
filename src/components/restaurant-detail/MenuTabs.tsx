@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import FoodCard from './FoodCard';
 import CartSection from './CartSection';
 import { useCart } from '@/contexts/CartContext';
 import { CartItem } from '@/types/models';
+import toast from 'react-hot-toast';
 
 const TabsContainer = styled.div`
   max-width: 1200px;
@@ -39,14 +40,14 @@ const TabButtons = styled.div`
   }
 `;
 
-const TabButton = styled.button<{ active: boolean }>`
+const TabButton = styled.button<{ $active: boolean }>`
   padding: 1rem 1.5rem;
   background: none;
   border: none;
   font-size: ${props => props.theme.typography.fontSizes.md};
-  font-weight: ${props => props.active ? props.theme.typography.fontWeights.semibold : props.theme.typography.fontWeights.normal};
-  color: ${props => props.active ? props.theme.colors.primary[500] : props.theme.colors.neutral[700]};
-  border-bottom: 2px solid ${props => props.active ? props.theme.colors.primary[500] : 'transparent'};
+  font-weight: ${props => props.$active ? props.theme.typography.fontWeights.semibold : props.theme.typography.fontWeights.normal};
+  color: ${props => props.$active ? props.theme.colors.primary[500] : props.theme.colors.neutral[700]};
+  border-bottom: 2px solid ${props => props.$active ? props.theme.colors.primary[500] : 'transparent'};
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
@@ -237,8 +238,21 @@ const menuData = {
   ]
 };
 
+// Define a food menu item interface
+interface FoodMenuItem {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  image: string;
+  popular: boolean;
+  spicy: boolean;
+  vegetarian: boolean;
+}
+
+// Keep the interfaces as they were
 interface Restaurant {
-  id: number;
+  id: number | string;
   name: string;
   type: string;
   icon: string;
@@ -246,11 +260,20 @@ interface Restaurant {
   tags: string[];
   description: string;
   deliveryTime: string;
-  minOrder: string;
+  minOrder: string | number;
   slug: string;
   address: string;
   workingHours: string;
   contactNumber: string;
+}
+
+// Fix CartSection props to match our local state
+interface RestaurantForCart {
+  id: number;
+  name: string;
+  deliveryTime: string;
+  minOrder: string;
+  discount?: number;
 }
 
 interface MenuTabsProps {
@@ -259,51 +282,58 @@ interface MenuTabsProps {
 
 const MenuTabs = ({ restaurant }: MenuTabsProps) => {
   const [activeTab, setActiveTab] = useState('main');
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const { addItem, removeItem, clearCart } = useCart();
+  const { state, addItem, removeItem, clearCart } = useCart();
+  // استفاده مستقیم از کانتکست سبد خرید به جای وضعیت محلی
+  const [cartItems, setCartItems] = useState<CartItem[]>(state.items);
   
-  const handleAddToCart = (item: any) => {
-    const cartItem: CartItem = {
-      id: item.id,
-      name: item.name,
-      price: item.price,
-      quantity: 1,
-      restaurantId: restaurant.id.toString(),
-      restaurantName: restaurant.name
-    };
-    
-    addItem(cartItem);
-    
-    // به‌روزرسانی state محلی برای نمایش
-    const existingItem = cartItems.find(i => i.id === item.id);
-    if (existingItem) {
-      const updatedItems = cartItems.map(i => 
-        i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
-      );
-      setCartItems(updatedItems);
-    } else {
-      setCartItems([...cartItems, cartItem]);
+  // به‌روزرسانی cartItems هر زمان که state.items تغییر می‌کند
+  useEffect(() => {
+    setCartItems(state.items);
+  }, [state.items]);
+  
+  // Convert our restaurant to the format CartSection expects
+  const restaurantForCart: RestaurantForCart = {
+    id: typeof restaurant.id === 'string' ? parseInt(restaurant.id) || 0 : restaurant.id,
+    name: restaurant.name,
+    deliveryTime: restaurant.deliveryTime,
+    minOrder: typeof restaurant.minOrder === 'number' ? restaurant.minOrder.toString() : restaurant.minOrder || '0',
+    discount: 0
+  };
+  
+  const handleAddToCart = (item: FoodMenuItem) => {
+    try {
+      const cartItem: CartItem = {
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        quantity: 1,
+        restaurantId: restaurant.id?.toString(),
+        restaurantName: restaurant.name
+      };
+      
+      addItem(cartItem);
+    } catch (error) {
+      console.error('Error adding item to cart:', error);
+      toast.error('خطایی در افزودن محصول به سبد خرید رخ داد. لطفاً دوباره تلاش کنید.');
     }
   };
   
   const handleRemoveFromCart = (itemId: string) => {
-    removeItem(itemId);
-    
-    // به‌روزرسانی state محلی برای نمایش
-    const existingItem = cartItems.find(i => i.id === itemId);
-    if (existingItem && existingItem.quantity > 1) {
-      const updatedItems = cartItems.map(i => 
-        i.id === itemId ? { ...i, quantity: i.quantity - 1 } : i
-      );
-      setCartItems(updatedItems);
-    } else {
-      setCartItems(cartItems.filter(i => i.id !== itemId));
+    try {
+      removeItem(itemId);
+    } catch (error) {
+      console.error('Error removing item from cart:', error);
+      toast.error('خطایی در حذف محصول از سبد خرید رخ داد. لطفاً دوباره تلاش کنید.');
     }
   };
   
   const handleClearCart = () => {
-    clearCart();
-    setCartItems([]);
+    try {
+      clearCart();
+    } catch (error) {
+      console.error('Error clearing cart:', error);
+      toast.error('خطایی در پاک کردن سبد خرید رخ داد. لطفاً دوباره تلاش کنید.');
+    }
   };
   
   const tabs = [
@@ -320,9 +350,8 @@ const MenuTabs = ({ restaurant }: MenuTabsProps) => {
           {tabs.map(tab => (
             <TabButton 
               key={tab.id} 
-              active={activeTab === tab.id}
+              $active={activeTab === tab.id}
               onClick={() => setActiveTab(tab.id)}
-              data-active={activeTab === tab.id}
             >
               {tab.label}
             </TabButton>
@@ -337,7 +366,7 @@ const MenuTabs = ({ restaurant }: MenuTabsProps) => {
                 <FoodCard 
                   key={item.id} 
                   food={item} 
-                  onAddToCart={() => handleAddToCart(item)}
+                  onAddToCart={() => handleAddToCart(item as FoodMenuItem)}
                 />
               ))}
             </FoodList>
@@ -349,9 +378,9 @@ const MenuTabs = ({ restaurant }: MenuTabsProps) => {
         <CartSection 
           cartItems={cartItems} 
           onRemoveItem={handleRemoveFromCart}
-          onAddItem={handleAddToCart}
+          onAddItem={(item: CartItem) => handleAddToCart(item as unknown as FoodMenuItem)}
           onClearCart={handleClearCart}
-          restaurant={restaurant}
+          restaurant={restaurantForCart}
         />
       </CartContainer>
     </TabsContainer>

@@ -37,14 +37,14 @@ const CategoriesContainer = styled.div`
   flex-wrap: wrap;
 `;
 
-const CategoryButton = styled.button<{ active: boolean }>`
+const CategoryButton = styled.button<{ $active: boolean }>`
   padding: 0.75rem 1.5rem;
   border-radius: ${props => props.theme.borderRadius.md};
   border: none;
-  background-color: ${props => props.active ? props.theme.colors.primary[500] : 'white'};
-  color: ${props => props.active ? 'white' : props.theme.colors.neutral[700]};
+  background-color: ${props => props.$active ? props.theme.colors.primary[500] : 'white'};
+  color: ${props => props.$active ? 'white' : props.theme.colors.neutral[700]};
   font-size: ${props => props.theme.typography.fontSizes.md};
-  font-weight: ${props => props.active ? props.theme.typography.fontWeights.medium : props.theme.typography.fontWeights.normal};
+  font-weight: ${props => props.$active ? props.theme.typography.fontWeights.medium : props.theme.typography.fontWeights.normal};
   cursor: pointer;
   box-shadow: ${props => props.theme.boxShadow.sm};
   transition: all 0.2s;
@@ -273,7 +273,7 @@ const FAQPage = () => {
         {categories.map(category => (
           <CategoryButton 
             key={category}
-            active={activeCategory === category}
+            $active={activeCategory === category}
             onClick={() => setActiveCategory(category)}
             data-active={activeCategory === category}
           >

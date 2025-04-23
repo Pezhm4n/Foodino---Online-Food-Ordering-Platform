@@ -80,19 +80,19 @@ const TabsContainer = styled.div`
   margin-bottom: 2rem;
 `;
 
-const Tab = styled.button<{ active: boolean }>`
+const Tab = styled.button<{ $active: boolean }>`
   padding: 0.75rem 1.5rem;
   background: none;
   border: none;
   cursor: pointer;
   font-size: ${props => props.theme.typography.fontSizes.md};
-  font-weight: ${props => props.active 
+  font-weight: ${props => props.$active 
     ? props.theme.typography.fontWeights.semibold 
     : props.theme.typography.fontWeights.normal};
-  color: ${props => props.active 
+  color: ${props => props.$active 
     ? props.theme.colors.primary[500] 
     : props.theme.colors.neutral[600]};
-  border-bottom: 2px solid ${props => props.active 
+  border-bottom: 2px solid ${props => props.$active 
     ? props.theme.colors.primary[500] 
     : 'transparent'};
   transition: all 0.2s;
@@ -399,6 +399,27 @@ const NoResultsDescription = styled.p`
   margin: 0 auto;
 `;
 
+const BackToHomeButton = styled(Link)`
+  display: block;
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto;
+  padding: 0.75rem 1.5rem;
+  background-color: white;
+  color: ${props => props.theme.colors.primary[500]};
+  border: 1px solid ${props => props.theme.colors.primary[500]};
+  border-radius: ${props => props.theme.borderRadius.md};
+  font-size: ${props => props.theme.typography.fontSizes.md};
+  font-weight: ${props => props.theme.typography.fontWeights.medium};
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-vazirmatn);
+  
+  &:hover {
+    background-color: ${props => props.theme.colors.primary[50]};
+  }
+`;
+
 // داده‌های نمونه
 const categoryData = {
   'pizza': {
@@ -430,6 +451,41 @@ const categoryData = {
     name: 'نوشیدنی',
     icon: '🥤',
     description: 'انواع نوشیدنی‌های سرد و گرم'
+  },
+  'fastfood': {
+    name: 'فست فود',
+    icon: '🌭',
+    description: 'انواع فست فود‌های خوشمزه و پرطرفدار'
+  },
+  'italian': {
+    name: 'ایتالیایی',
+    icon: '🍝',
+    description: 'غذاهای ایتالیایی اصیل با طعم بی‌نظیر'
+  },
+  'traditional': {
+    name: 'سنتی',
+    icon: '🍚',
+    description: 'غذاهای سنتی ایرانی با طعم خانگی و اصیل'
+  },
+  'healthy': {
+    name: 'غذای سالم',
+    icon: '🥑',
+    description: 'غذاهای سالم و مغذی برای سبک زندگی سالم'
+  },
+  'japanese': {
+    name: 'ژاپنی',
+    icon: '🍱',
+    description: 'غذاهای ژاپنی اصیل با طعم شرقی'
+  },
+  'kebab': {
+    name: 'کباب',
+    icon: '🍢',
+    description: 'انواع کباب‌های خوشمزه و لذیذ'
+  },
+  'cafe': {
+    name: 'کافه',
+    icon: '☕',
+    description: 'نوشیدنی‌های گرم و دسرهای خوشمزه'
   }
 };
 
@@ -598,6 +654,57 @@ const CategoryPage = () => {
     description: 'رستوران‌ها و غذاهای مرتبط با این دسته‌بندی'
   };
   
+  // اضافه کردن جستجو در نام محصولات و رستوران‌ها
+  const searchedRestaurants = filteredRestaurants.filter(restaurant => 
+    restaurant.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  
+  const searchedMenuItems = filteredMenuItems.filter(item => 
+    item.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  
+  // مرتب‌سازی نتایج
+  const getSortedRestaurants = () => {
+    switch (sortOption) {
+      case 'rating':
+        return [...searchedRestaurants].sort((a, b) => b.rating - a.rating);
+      case 'deliveryTime':
+        return [...searchedRestaurants].sort((a, b) => {
+          const timeA = parseInt(a.deliveryTime.replace(/[^0-9]/g, ''));
+          const timeB = parseInt(b.deliveryTime.replace(/[^0-9]/g, ''));
+          return timeA - timeB;
+        });
+      case 'minOrder':
+        return [...searchedRestaurants].sort((a, b) => {
+          const orderA = parseInt(a.minOrder.replace(/[^0-9]/g, ''));
+          const orderB = parseInt(b.minOrder.replace(/[^0-9]/g, ''));
+          return orderA - orderB;
+        });
+      default:
+        return searchedRestaurants;
+    }
+  };
+  
+  const sortedRestaurants = getSortedRestaurants();
+  
+  // در صورت ناموجود بودن دسته‌بندی، نمایش صفحه خطا
+  if (!categoryData[slug as keyof typeof categoryData]) {
+    return (
+      <CategoryPageContainer>
+        <NoResultsContainer>
+          <NoResultsIcon>🔍</NoResultsIcon>
+          <NoResultsTitle>دسته‌بندی مورد نظر یافت نشد</NoResultsTitle>
+          <NoResultsDescription>
+            متأسفانه دسته‌بندی مورد نظر شما در سیستم موجود نیست. لطفاً یکی از دسته‌بندی‌های موجود را انتخاب کنید.
+          </NoResultsDescription>
+          <BackToHomeButton href="/categories">
+            بازگشت به صفحه دسته‌بندی‌ها
+          </BackToHomeButton>
+        </NoResultsContainer>
+      </CategoryPageContainer>
+    );
+  }
+  
   return (
     <CategoryPageContainer>
       <CategoryHeader>
@@ -612,14 +719,16 @@ const CategoryPage = () => {
       
       <TabsContainer>
         <Tab 
-          active={activeTab === 'restaurants'} 
+          $active={activeTab === 'restaurants'} 
           onClick={() => setActiveTab('restaurants')}
+          data-active={activeTab === 'restaurants' ? 'true' : 'false'}
         >
           رستوران‌ها
         </Tab>
         <Tab 
-          active={activeTab === 'foods'} 
+          $active={activeTab === 'foods'} 
           onClick={() => setActiveTab('foods')}
+          data-active={activeTab === 'foods' ? 'true' : 'false'}
         >
           غذاها
         </Tab>
@@ -682,7 +791,7 @@ const CategoryPage = () => {
         <>
           {filteredRestaurants.length > 0 ? (
             <RestaurantsGrid>
-              {filteredRestaurants.map(restaurant => (
+              {sortedRestaurants.map(restaurant => (
                 <RestaurantCard key={restaurant.id} href={`/restaurant/${restaurant.id}`}>
                   <RestaurantCover>
                     <LogoContainer>{restaurant.logo}</LogoContainer>
@@ -729,7 +838,7 @@ const CategoryPage = () => {
         <>
           {filteredMenuItems.length > 0 ? (
             <MenuItemsGrid>
-              {filteredMenuItems.map(item => (
+              {searchedMenuItems.map(item => (
                 <MenuItemCard key={item.id} href={`/restaurant/${item.restaurantId}?item=${item.id}`}>
                   <MenuItemImage>{item.image}</MenuItemImage>
                   <MenuItemContent>

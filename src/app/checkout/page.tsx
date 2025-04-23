@@ -2,23 +2,36 @@
 
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { useCart } from '@/contexts/CartContext';
 import Link from 'next/link';
 import {
-  RadioOption,
-  RadioInput,
-  StepContent,
-  StepItem,
-  StepNumber,
-  StepLabel,
+  Button,
   FormInput,
-  Button
-} from '@/components/common/StyledComponents';
+  RadioInput,
+  RadioLabel,
+  StepItem,
+  StepLabel,
+  StepNumber
+} from "@/components/common/StyledComponents";
+import { toast } from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
+import { useFormatPrice } from '@/hooks/useFormatPrice';
+
+// تعاریف انواع
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+interface CartItem {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+  image?: string;
+}
 
 // کامپوننت‌های استایل شده
 const CheckoutPageContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: 20px;
 `;
 
 const PageTitle = styled.h1`
@@ -72,10 +85,6 @@ const FormTitle = styled.h2`
   gap: 0.5rem;
 `;
 
-const FormIcon = styled.span`
-  color: ${props => props.theme.colors.primary[500]};
-`;
-
 const FormSection = styled.div`
   margin-bottom: 1.5rem;
 `;
@@ -100,16 +109,6 @@ const FormLabel = styled.label`
   margin-bottom: 0.5rem;
   font-size: ${props => props.theme.typography.fontSizes.sm};
   color: ${props => props.theme.colors.neutral[700]};
-`;
-
-const RadioGroup = styled.div`
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
-  
-  @media (max-width: 768px) {
-    flex-direction: column;
-  }
 `;
 
 const IconContainer = styled.div`
@@ -197,50 +196,124 @@ const CheckoutSteps = styled.div`
 
 const BackButton = styled(Button).attrs({ $variant: 'secondary' })``;
 const NextButton = styled(Button).attrs({ $variant: 'primary' })``;
-const CheckoutButton = styled(Button).attrs({ $variant: 'primary' })`
+
+const PayButton = styled(Button).attrs({ $variant: 'success' })`
   width: 100%;
+  padding: 0.75rem 1.5rem;
+  font-size: 1.1rem;
   margin-top: 1rem;
+  background-color: ${props => props.theme.colors.success[500]};
+  border-radius: 0.75rem;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+  font-weight: ${props => props.theme.typography.fontWeights.bold};
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  
+  &:hover {
+    background-color: ${props => props.theme.colors.success[600]};
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  &:active {
+    background-color: ${props => props.theme.colors.success[700]};
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  @media (max-width: 768px) {
+    padding: 1rem 1.5rem;
+    font-size: 1.2rem;
+    position: sticky;
+    bottom: 1rem;
+    z-index: 10;
+  }
 `;
 
-// تعریف انواع داده
-interface CartItem {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-}
+const BackLink = styled(Link)`
+  display: inline-flex;
+  align-items: center;
+  margin-top: 1rem;
+  color: ${props => props.theme.colors.primary[600]};
+  font-weight: ${props => props.theme.typography.fontWeights.medium};
+  text-decoration: none;
+  transition: color 0.2s ease;
+  
+  &:hover {
+    color: ${props => props.theme.colors.primary[700]};
+    text-decoration: underline;
+  }
+  
+  svg {
+    margin-left: 0.5rem;
+    transition: transform 0.2s ease;
+  }
+  
+  &:hover svg {
+    transform: translateX(-3px);
+  }
+  
+  @media (max-width: 768px) {
+    margin-top: 0.75rem;
+    font-size: 0.9rem;
+  }
+`;
 
-// داده‌های نمونه
-const sampleCartItems: CartItem[] = [
-  { id: '1', name: 'پیتزا قارچ و گوشت', price: 158000, quantity: 1 },
-  { id: '2', name: 'نوشابه', price: 12000, quantity: 2 },
-  { id: '3', name: 'سالاد سزار', price: 45000, quantity: 1 }
-];
+const FormActions = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.5rem;
+`;
+
+// تغییر نام به MyStepContent برای جلوگیری از تداخل
+const StepContent = styled.div<{ active: boolean }>`
+  display: ${({ active }) => (active ? 'block' : 'none')};
+  margin-top: 20px;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+`;
 
 // نوع پرداخت
-type PaymentMethod = 'credit-card' | 'online-payment' | 'wallet';
+type PaymentMethod = 'cash-on-delivery' | 'online-payment' | 'wallet';
+
+// اصلاح PaymentOptionContainer برای استفاده از selected به جای $selected
+const PaymentOptionContainer = styled.div<{ selected: boolean }>`
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid ${props => props.selected ? '#FF5A5F' : '#E0E0E0'};
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  background-color: ${props => props.selected ? '#FFF0F0' : 'white'};
+  transition: all 0.2s ease-in-out;
+  
+  &:hover {
+    border-color: #FF5A5F;
+    background-color: #FFEFEF;
+  }
+`;
 
 // کامپوننت اصلی
 const CheckoutPage = () => {
-  // استیت‌ها
-  const [cartItems] = useState<CartItem[]>(sampleCartItems);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('online-payment');
+  const { cartItems, clearCart } = useCart();
   const [currentStep, setCurrentStep] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('online-payment');
   const [deliveryInfo, setDeliveryInfo] = useState({
     name: '',
     phone: '',
     address: '',
     notes: ''
   });
+  const router = useRouter();
+  const { formatPrice } = useFormatPrice();
   
   // محاسبه جمع سبد خرید
   const calculateSubtotal = () => {
     return cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  };
-  
-  // فرمت قیمت‌ها
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('fa-IR').format(price) + ' تومان';
   };
   
   // محاسبه هزینه‌ها
@@ -249,10 +322,50 @@ const CheckoutPage = () => {
   const tax = Math.round(subtotal * 0.09);
   const total = subtotal + deliveryFee + tax;
   
-  // پردازش پرداخت
-  const handlePayment = () => {
-    alert('سفارش شما با موفقیت ثبت شد!');
-    // انتقال به صفحه پیگیری سفارش یا خانه
+  const handlePayment = async () => {
+    if (currentStep !== 2) {
+      setCurrentStep(currentStep + 1);
+      return;
+    }
+    
+    if (!paymentMethod) {
+      alert('لطفاً یک روش پرداخت انتخاب کنید');
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    try {
+      // شبیه‌سازی درخواست API برای پرداخت
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // ذخیره اطلاعات سفارش در localStorage
+      const orderData = {
+        id: `ORDER-${Math.floor(Math.random() * 10000)}`,
+        items: cartItems,
+        total: total,
+        deliveryInfo,
+        paymentMethod,
+        status: 'پرداخت شده',
+        date: new Date().toISOString(),
+      };
+      
+      // ذخیره در localStorage
+      const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');
+      localStorage.setItem('orders', JSON.stringify([...existingOrders, orderData]));
+      
+      // پاک کردن سبد خرید
+      clearCart();
+      
+      // انتقال به صفحه تایید سفارش
+      toast.success('پرداخت با موفقیت انجام شد');
+      router.push(`/order-confirmation?id=${orderData.id}`);
+    } catch (error) {
+      console.error('خطا در پرداخت:', error);
+      toast.error('خطا در پرداخت. لطفا دوباره تلاش کنید.');
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   // تغییر مرحله
@@ -293,7 +406,7 @@ const CheckoutPage = () => {
       
       <CheckoutContent>
         <CheckoutFormSection>
-          <StepContent $active={currentStep === 1}>
+          <StepContent active={currentStep === 1}>
             <FormCard>
               <FormTitle>
                 <IconContainer>
@@ -365,7 +478,7 @@ const CheckoutPage = () => {
             </FormCard>
           </StepContent>
           
-          <StepContent $active={currentStep === 2}>
+          <StepContent active={currentStep === 2}>
             <FormCard>
               <FormTitle>
                 <IconContainer>
@@ -379,72 +492,79 @@ const CheckoutPage = () => {
                 انتخاب روش پرداخت
               </FormTitle>
               
-              <RadioGroup>
-                <RadioOption $selected={paymentMethod === 'online-payment'}>
-                  <RadioInput 
-                    type="radio" 
-                    name="payment-method" 
-                    id="online-payment" 
-                    checked={paymentMethod === 'online-payment'} 
-                    onChange={() => setPaymentMethod('online-payment')}
-                  />
-                  <IconContainer>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M2 8.50488H22" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-                      <path d="M6 16.5049H8" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-                      <path d="M10.5 16.5049H14.5" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-                      <path d="M6.44 3.50488H17.55C21.11 3.50488 22 4.38488 22 7.89488V16.1049C22 19.6149 21.11 20.4949 17.56 20.4949H6.44C2.89 20.5049 2 19.6249 2 16.1149V7.89488C2 4.38488 2.89 3.50488 6.44 3.50488Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </IconContainer>
-                  <RadioLabel>پرداخت آنلاین</RadioLabel>
-                </RadioOption>
-                
-                <RadioOption $selected={paymentMethod === 'credit-card'}>
-                  <RadioInput 
-                    type="radio" 
-                    name="payment-method" 
-                    id="credit-card" 
-                    checked={paymentMethod === 'credit-card'} 
-                    onChange={() => setPaymentMethod('credit-card')}
-                  />
-                  <IconContainer>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M13 9H7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      <path d="M22 10.9699V13.03C22 13.58 21.56 14.0299 21 14.0499H19.0399C17.9599 14.0499 16.97 13.2599 16.88 12.1799C16.82 11.5499 17.0599 10.9599 17.4799 10.5499C17.8499 10.1699 18.36 9.94995 18.92 9.94995H21C21.56 9.96995 22 10.4199 22 10.9699Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      <path d="M2 8.5V3.5C2 2.91 2.44 2.5 3 2.5H13.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      <path d="M2 12V15.5C2 16.09 2.44 16.5 3 16.5H7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      <path d="M16.88 12.18C16.97 13.26 17.96 14.05 19.04 14.05H21V17.5C21 19.99 19.99 21 17.5 21H6.5C4.01 21 3 19.99 3 17.5V8.5C3 6.01 4.01 5 6.5 5H17.5C19.99 5 21 6.01 21 8.5V9.95H18.92C18.36 9.95 17.85 10.17 17.48 10.55C17.06 10.96 16.82 11.55 16.88 12.18Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </IconContainer>
-                  <RadioLabel>کارت به کارت</RadioLabel>
-                </RadioOption>
-                
-                <RadioOption $selected={paymentMethod === 'wallet'}>
-                  <RadioInput 
-                    type="radio" 
-                    name="payment-method" 
-                    id="wallet" 
-                    checked={paymentMethod === 'wallet'} 
-                    onChange={() => setPaymentMethod('wallet')}
-                  />
-                  <IconContainer>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M2 12.61H19" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-                      <path d="M19 10.28V17.43C19 20.43 17.7 22 14.3 22H5.7C2.3 22 1 20.43 1 17.43V10.28C1 7.58 2.1 6.14 4.85 5.8C5.18 5.76 5.54 5.74 5.9 5.74H14.1C14.46 5.74 14.82 5.76 15.15 5.8C17.9 6.14 19 7.58 19 10.28Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      <path d="M22.9991 6.13V13.28C22.9991 16.28 21.6991 17.85 18.2991 17.85H17.9991V10.28C17.9991 7.58 16.8991 6.14 14.1491 5.8C13.8191 5.76 13.4591 5.74 13.0991 5.74H4.89914V5.56C4.89914 2.56 6.19914 1 9.59914 1H18.1991C21.5991 1 22.9991 2.56 22.9991 5.56V6.13Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      <path d="M5.25 16.25H6.75" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-                      <path d="M9.25 16.25H13.75" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </IconContainer>
-                  <RadioLabel>کیف پول</RadioLabel>
-                </RadioOption>
-              </RadioGroup>
+              <PaymentOptionContainer 
+                selected={paymentMethod === 'online-payment'} 
+                onClick={() => setPaymentMethod('online-payment')}
+              >
+                <RadioInput 
+                  type="radio" 
+                  name="payment-method" 
+                  id="online-payment" 
+                  checked={paymentMethod === 'online-payment'} 
+                  onChange={() => setPaymentMethod('online-payment')}
+                />
+                <IconContainer>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2 8.50488H22" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M6 16.5049H8" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M10.5 16.5049H14.5" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M6.44 3.50488H17.55C21.11 3.50488 22 4.38488 22 7.89488V16.1049C22 19.6149 21.11 20.4949 17.56 20.4949H6.44C2.89 20.5049 2 19.6249 2 16.1149V7.89488C2 4.38488 2.89 3.50488 6.44 3.50488Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </IconContainer>
+                <RadioLabel>پرداخت آنلاین</RadioLabel>
+              </PaymentOptionContainer>
               
-              {paymentMethod === 'credit-card' && (
+              <PaymentOptionContainer 
+                selected={paymentMethod === 'cash-on-delivery'} 
+                onClick={() => setPaymentMethod('cash-on-delivery')}
+              >
+                <RadioInput 
+                  type="radio" 
+                  name="payment-method" 
+                  id="cash-on-delivery" 
+                  checked={paymentMethod === 'cash-on-delivery'} 
+                  onChange={() => setPaymentMethod('cash-on-delivery')}
+                />
+                <IconContainer>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M22 11.5V13.5C22 17.5 20 19.5 16 19.5H15.5C15.19 19.5 14.89 19.65 14.7 19.9L13.2 22.15C12.54 23.11 11.46 23.11 10.8 22.15L9.3 19.9C9.14 19.69 8.78 19.5 8.5 19.5H8C4 19.5 2 18.5 2 13.5V7.5C2 3.5 4 1.5 8 1.5H12.55" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M17 3.5V11.5L19 9.5" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M17 11.5L15 9.5" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M8 8.50001H12" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M8 13.5H11" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </IconContainer>
+                <RadioLabel>پرداخت در محل</RadioLabel>
+              </PaymentOptionContainer>
+              
+              <PaymentOptionContainer 
+                selected={paymentMethod === 'wallet'} 
+                onClick={() => setPaymentMethod('wallet')}
+              >
+                <RadioInput 
+                  type="radio" 
+                  name="payment-method" 
+                  id="wallet" 
+                  checked={paymentMethod === 'wallet'} 
+                  onChange={() => setPaymentMethod('wallet')}
+                />
+                <IconContainer>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2 12.61H19" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M19 10.28V17.43C19 20.43 17.7 22 14.3 22H5.7C2.3 22 1 20.43 1 17.43V10.28C1 7.58 2.1 6.14 4.85 5.8C5.18 5.76 5.54 5.74 5.9 5.74H14.1C14.46 5.74 14.82 5.76 15.15 5.8C17.9 6.14 19 7.58 19 10.28Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M22.9991 6.13V13.28C22.9991 16.28 21.6991 17.85 18.2991 17.85H17.9991V10.28C17.9991 7.58 16.8991 6.14 14.1491 5.8C13.8191 5.76 13.4591 5.74 13.0991 5.74H4.89914V5.56C4.89914 2.56 6.19914 1 9.59914 1H18.1991C21.5991 1 22.9991 2.56 22.9991 5.56V6.13Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M5.25 16.25H6.75" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M9.25 16.25H13.75" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </IconContainer>
+                <RadioLabel>کیف پول</RadioLabel>
+              </PaymentOptionContainer>
+              
+              {paymentMethod === 'cash-on-delivery' && (
                 <CreditCardForm>
                   <FormField>
-                    <FormLabel>شماره کارت</FormLabel>
-                    <FormInput type="text" placeholder="شماره کارت 16 رقمی" />
+                    <FormLabel>توضیحات</FormLabel>
+                    <FormInput as="textarea" placeholder="در صورت نیاز به توضیحات برای پرداخت در محل" />
                   </FormField>
                 </CreditCardForm>
               )}
@@ -453,8 +573,11 @@ const CheckoutPage = () => {
                 <BackButton type="button" onClick={goToPreviousStep}>
                   بازگشت
                 </BackButton>
-                <NextButton type="button" onClick={handlePayment}>
-                  پرداخت و ثبت سفارش
+                <NextButton 
+                  onClick={handlePayment} 
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'در حال پردازش...' : currentStep === 3 ? 'پرداخت نهایی' : 'مرحله بعد'}
                 </NextButton>
               </FormActions>
             </FormCard>
@@ -501,9 +624,17 @@ const CheckoutPage = () => {
           </PricingRow>
           
           {currentStep === 2 && (
-            <CheckoutButton onClick={handlePayment}>
-              پرداخت و ثبت سفارش
-            </CheckoutButton>
+            <>
+              <PayButton onClick={handlePayment} disabled={isLoading}>
+                {isLoading ? 'در حال پردازش...' : 'پرداخت'}
+              </PayButton>
+              <BackLink href="/cart">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M15 18l-6-6 6-6" />
+                </svg>
+                بازگشت به سبد خرید
+              </BackLink>
+            </>
           )}
         </OrderSummarySection>
       </CheckoutContent>

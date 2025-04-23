@@ -6,6 +6,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const HeaderContainer = styled.header`
   display: flex;
@@ -115,6 +117,29 @@ const ActionButtons = styled.div`
   display: flex;
   gap: 1rem;
   align-items: center;
+`;
+
+const LanguageToggle = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: ${(props) => props.theme.colors.neutral[50]};
+  border: 1px solid ${(props) => props.theme.colors.neutral[200]};
+  transition: all 0.3s ease;
+  color: ${(props) => props.theme.colors.neutral[700]};
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 500;
+
+  &:hover {
+    background-color: ${(props) => props.theme.colors.neutral[100]};
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    color: ${(props) => props.theme.colors.primary[500]};
+  }
 `;
 
 const SearchContainer = styled.div`
@@ -471,6 +496,8 @@ const Header = () => {
   const router = useRouter();
   const { getTotalItems } = useCart();
   const { user, isAuthenticated, logout } = useAuth();
+  const { language, toggleLanguage } = useLanguage();
+  const { t } = useTranslation("header");
 
   useEffect(() => {
     const handleScroll = () => {
@@ -524,12 +551,12 @@ const Header = () => {
         </Logo>
 
         <Navigation>
-          <NavLink href="/">خانه</NavLink>
-          <NavLink href="/restaurants">رستوران‌ها</NavLink>
-          <NavLink href="/categories">دسته‌بندی‌ها</NavLink>
-          <NavLink href="/order-tracking">پیگیری سفارش</NavLink>
-          <NavLink href="/about">درباره ما</NavLink>
-          <NavLink href="/contact">تماس با ما</NavLink>
+          <NavLink href="/">{t("home")}</NavLink>
+          <NavLink href="/restaurants">{t("restaurants")}</NavLink>
+          <NavLink href="/categories">{t("categories")}</NavLink>
+          <NavLink href="/order-tracking">{t("orderTracking")}</NavLink>
+          <NavLink href="/about">{t("about")}</NavLink>
+          <NavLink href="/contact">{t("contact")}</NavLink>
         </Navigation>
 
         <SearchContainer>
@@ -561,7 +588,7 @@ const Header = () => {
               </SearchIcon>
               <SearchInput
                 type="text"
-                placeholder="جستجوی رستوران یا غذا..."
+                placeholder={t("search")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -570,6 +597,10 @@ const Header = () => {
         </SearchContainer>
 
         <ActionButtons>
+          <LanguageToggle onClick={toggleLanguage} aria-label={language === "fa" ? t("changeToEnglish") : t("changeToPersian")}>
+            {language === "fa" ? "EN" : "فا"}
+          </LanguageToggle>
+
           <IconButtonMobile
             href="/favorite-restaurants"
             aria-label="علاقه‌مندی‌ها"
@@ -718,7 +749,7 @@ const Header = () => {
                     strokeLinejoin="round"
                   />
                 </svg>
-                <span>ورود</span>
+                <span>{t("login")}</span>
               </LoginButtonMobile>
               <SignupButtonMobile
                 href="/auth?tab=register"
@@ -760,7 +791,7 @@ const Header = () => {
                     strokeLinejoin="round"
                   />
                 </svg>
-                <span>ثبت‌نام</span>
+                <span>{t("signup")}</span>
               </SignupButtonMobile>
             </>
           )}
@@ -845,7 +876,7 @@ const Header = () => {
             </SearchIcon>
             <SearchInput
               type="text"
-              placeholder="جستجوی رستوران یا غذا..."
+              placeholder={t("search")}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -872,7 +903,7 @@ const Header = () => {
                 strokeLinejoin="round"
               />
             </svg>
-            <MobileIconLabel>علاقه‌مندی‌ها</MobileIconLabel>
+            <MobileIconLabel>{t("favorites")}</MobileIconLabel>
           </MobileIconButton>
 
           <MobileIconButton href="/cart" onClick={closeMobileMenu}>
@@ -908,7 +939,7 @@ const Header = () => {
               </svg>
               {getTotalItems() > 0 && <CartBadge>{getTotalItems()}</CartBadge>}
             </div>
-            <MobileIconLabel>سبد خرید</MobileIconLabel>
+            <MobileIconLabel>{t("cart")}</MobileIconLabel>
           </MobileIconButton>
 
           {isAuthenticated ? (
@@ -935,7 +966,7 @@ const Header = () => {
                   strokeLinejoin="round"
                 />
               </svg>
-              <MobileIconLabel>پروفایل</MobileIconLabel>
+              <MobileIconLabel>{t("profile")}</MobileIconLabel>
             </MobileIconButton>
           ) : (
             <MobileIconButton href="/auth" onClick={closeMobileMenu}>
@@ -968,29 +999,42 @@ const Header = () => {
                   strokeLinejoin="round"
                 />
               </svg>
-              <MobileIconLabel>ورود/ثبت‌نام</MobileIconLabel>
+              <MobileIconLabel>{t("login")}/{t("signup")}</MobileIconLabel>
             </MobileIconButton>
           )}
         </MobileIconContainer>
 
+        <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
+          <LanguageToggle 
+            onClick={toggleLanguage} 
+            aria-label={language === "fa" ? t("changeToEnglish") : t("changeToPersian")}
+            style={{ margin: '0 auto' }}
+          >
+            {language === "fa" ? "EN" : "فا"}
+          </LanguageToggle>
+          <div style={{ fontSize: '0.75rem', marginTop: '0.5rem' }}>
+            {language === "fa" ? t("changeToEnglish") : t("changeToPersian")}
+          </div>
+        </div>
+
         <MobileNavLinks>
           <MobileNavLink href="/" onClick={closeMobileMenu}>
-            خانه
+            {t("home")}
           </MobileNavLink>
           <MobileNavLink href="/restaurants" onClick={closeMobileMenu}>
-            رستوران‌ها
+            {t("restaurants")}
           </MobileNavLink>
           <MobileNavLink href="/categories" onClick={closeMobileMenu}>
-            دسته‌بندی‌ها
+            {t("categories")}
           </MobileNavLink>
           <MobileNavLink href="/order-tracking" onClick={closeMobileMenu}>
-            پیگیری سفارش
+            {t("orderTracking")}
           </MobileNavLink>
           <MobileNavLink href="/about" onClick={closeMobileMenu}>
-            درباره ما
+            {t("about")}
           </MobileNavLink>
           <MobileNavLink href="/contact" onClick={closeMobileMenu}>
-            تماس با ما
+            {t("contact")}
           </MobileNavLink>
         </MobileNavLinks>
 
@@ -998,7 +1042,7 @@ const Header = () => {
           {isAuthenticated ? (
             <>
               <MobileNavLink href="/profile" onClick={closeMobileMenu}>
-                پروفایل کاربری
+                {t("profile")}
               </MobileNavLink>
               <button
                 onClick={handleLogout}
@@ -1013,7 +1057,7 @@ const Header = () => {
                   fontWeight: "500",
                 }}
               >
-                خروج از حساب کاربری
+                {t("logout")}
               </button>
             </>
           ) : null}

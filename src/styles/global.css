@@ -1,0 +1,44 @@
+@import './fonts.css';
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  font-family: var(--font-vazirmatn);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* استایل‌های عمومی */
+button, input, select, textarea {
+  font-family: var(--font-vazirmatn);
+}
+
+/* برای اسکرول‌بارها */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+} 

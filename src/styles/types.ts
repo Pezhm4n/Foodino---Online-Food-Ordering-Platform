@@ -11,4 +11,5 @@ export interface ThemeColors {
   error: ColorObject;
   warning: ColorObject;
   neutral: ColorObject;
+  gray: ColorObject;
 } 
