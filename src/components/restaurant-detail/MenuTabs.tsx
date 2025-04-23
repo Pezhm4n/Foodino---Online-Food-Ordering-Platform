@@ -277,7 +277,7 @@ interface RestaurantForCart {
 }
 
 interface MenuTabsProps {
-  restaurant: Restaurant;
+  restaurant: Restaurant; // بازگشت به استفاده از interface Restaurant تعریف شده
 }
 
 const MenuTabs = ({ restaurant }: MenuTabsProps) => {

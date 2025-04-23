@@ -117,6 +117,10 @@ const ActionButtons = styled.div`
   display: flex;
   gap: 1rem;
   align-items: center;
+  
+  @media (max-width: ${props => props.theme.breakpoints.md}) {
+    gap: 0.5rem;
+  }
 `;
 
 const LanguageToggle = styled.button`
@@ -139,6 +143,10 @@ const LanguageToggle = styled.button`
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
     color: ${(props) => props.theme.colors.primary[500]};
+  }
+  
+  @media (max-width: ${props => props.theme.breakpoints.md}) {
+    display: none;
   }
 `;
 
@@ -206,6 +214,10 @@ const LoginButton = styled(Link)`
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
   }
+  
+  @media (max-width: ${props => props.theme.breakpoints.md}) {
+    display: none;
+  }
 `;
 
 const SignupButton = styled(Link)`
@@ -223,6 +235,10 @@ const SignupButton = styled(Link)`
     background-color: ${(props) => props.theme.colors.primary[400]};
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  @media (max-width: ${props => props.theme.breakpoints.md}) {
+    display: none;
   }
 `;
 
@@ -245,6 +261,10 @@ const IconButton = styled(Link)`
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
     color: ${(props) => props.theme.colors.primary[500]};
+  }
+  
+  @media (max-width: ${props => props.theme.breakpoints.md}) {
+    display: none;
   }
 `;
 
@@ -415,17 +435,10 @@ const MobileIconLabel = styled.span`
   font-weight: 500;
 `;
 
-const ActionButtonsMobile = styled.div`
-  @media (max-width: ${(props) => props.theme.breakpoints.md}) {
-    display: flex;
-    gap: 0.5rem;
-  }
-`;
-
-const IconButtonMobile = styled(Link)`
+const MobileCartButton = styled(Link)`
   position: relative;
   text-decoration: none;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   width: 36px;
@@ -442,50 +455,9 @@ const IconButtonMobile = styled(Link)`
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
     color: ${(props) => props.theme.colors.primary[500]};
   }
-`;
 
-const LoginButtonMobile = styled(Link)`
-  padding: 0.4rem 0.75rem;
-  border-radius: ${(props) => props.theme.borderRadius.md};
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-decoration: none;
-  background: transparent;
-  border: 1px solid ${(props) => props.theme.colors.neutral[300]};
-  color: ${(props) => props.theme.colors.neutral[700]};
-  font-size: 0.8rem;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-
-  &:hover {
-    border-color: ${(props) => props.theme.colors.primary[500]};
-    color: ${(props) => props.theme.colors.primary[500]};
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-  }
-`;
-
-const SignupButtonMobile = styled(Link)`
-  padding: 0.4rem 0.75rem;
-  border-radius: ${(props) => props.theme.borderRadius.md};
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-decoration: none;
-  background-color: ${(props) => props.theme.colors.primary[500]};
-  border: none;
-  color: white;
-  font-size: 0.8rem;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-
-  &:hover {
-    background-color: ${(props) => props.theme.colors.primary[400]};
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  @media (max-width: ${(props) => props.theme.breakpoints.md}) {
+    display: flex;
   }
 `;
 
@@ -495,7 +467,7 @@ const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const router = useRouter();
   const { getTotalItems } = useCart();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
   const { language, toggleLanguage } = useLanguage();
   const { t } = useTranslation("header");
 
@@ -601,7 +573,7 @@ const Header = () => {
             {language === "fa" ? "EN" : "فا"}
           </LanguageToggle>
 
-          <IconButtonMobile
+          <IconButton
             href="/favorite-restaurants"
             aria-label="علاقه‌مندی‌ها"
           >
@@ -620,9 +592,9 @@ const Header = () => {
                 strokeLinejoin="round"
               />
             </svg>
-          </IconButtonMobile>
+          </IconButton>
 
-          <IconButtonMobile href="/cart" aria-label="سبد خرید">
+          <IconButton href="/cart" aria-label="سبد خرید">
             <svg
               width="16"
               height="16"
@@ -653,11 +625,11 @@ const Header = () => {
               />
             </svg>
             {getTotalItems() > 0 && <CartBadge>{getTotalItems()}</CartBadge>}
-          </IconButtonMobile>
+          </IconButton>
 
           {isAuthenticated ? (
             <>
-              <IconButtonMobile
+              <IconButton
                 href="/profile"
                 onClick={closeMobileMenu}
                 aria-label="حساب کاربری"
@@ -684,7 +656,7 @@ const Header = () => {
                     strokeLinejoin="round"
                   />
                 </svg>
-              </IconButtonMobile>
+              </IconButton>
               <LogoutIconButton onClick={handleLogout} aria-label="خروج">
                 <svg
                   width="16"
@@ -719,82 +691,50 @@ const Header = () => {
             </>
           ) : (
             <>
-              <LoginButtonMobile href="/auth" onClick={closeMobileMenu}>
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M15 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H15"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M10 17L15 12L10 7"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M15 12H3"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                <span>{t("login")}</span>
-              </LoginButtonMobile>
-              <SignupButtonMobile
+              <LoginButton href="/auth" onClick={closeMobileMenu}>
+                {t("login")}
+              </LoginButton>
+              <SignupButton
                 href="/auth?tab=register"
                 onClick={closeMobileMenu}
               >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M16 21V19C16 17.9391 15.5786 16.9217 14.8284 16.1716C14.0783 15.4214 13.0609 15 12 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21"
-                    stroke="white"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M8.5 11C10.7091 11 12.5 9.20914 12.5 7C12.5 4.79086 10.7091 3 8.5 3C6.29086 3 4.5 4.79086 4.5 7C4.5 9.20914 6.29086 11 8.5 11Z"
-                    stroke="white"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M20 8V14"
-                    stroke="white"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M23 11H17"
-                    stroke="white"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                <span>{t("signup")}</span>
-              </SignupButtonMobile>
+                {t("signup")}
+              </SignupButton>
             </>
           )}
+          
+          <MobileCartButton href="/cart" aria-label="سبد خرید">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M9 22C9.55228 22 10 21.5523 10 21C10 20.4477 9.55228 20 9 20C8.44772 20 8 20.4477 8 21C8 21.5523 8.44772 22 9 22Z"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M20 22C20.5523 22 21 21.5523 21 21C21 20.4477 20.5523 20 20 20C19.4477 20 19 20.4477 19 21C19 21.5523 19.4477 22 20 22Z"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M1 1H5L7.68 14.39C7.77144 14.8504 8.02191 15.264 8.38755 15.5583C8.75318 15.8526 9.2107 16.009 9.68 16H19.4C19.8693 16.009 20.3268 15.8526 20.6925 15.5583C21.0581 15.264 21.3086 14.8504 21.4 14.39L23 6H6"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            {getTotalItems() > 0 && <CartBadge>{getTotalItems()}</CartBadge>}
+          </MobileCartButton>
 
           <MobileMenuButton onClick={toggleMobileMenu} aria-label="منوی موبایل">
             <svg
@@ -1005,13 +945,31 @@ const Header = () => {
         </MobileIconContainer>
 
         <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-          <LanguageToggle 
-            onClick={toggleLanguage} 
+          <button 
+            onClick={() => {
+              toggleLanguage();
+              setTimeout(closeMobileMenu, 500);
+            }}
             aria-label={language === "fa" ? t("changeToEnglish") : t("changeToPersian")}
-            style={{ margin: '0 auto' }}
+            style={{ 
+              margin: '0 auto',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '40px',
+              height: '40px',
+              borderRadius: '50%',
+              backgroundColor: '#F9FAFB',
+              border: '1px solid #E5E7EB',
+              transition: 'all 0.3s ease',
+              color: '#374151',
+              cursor: 'pointer',
+              fontSize: '0.8rem',
+              fontWeight: 500
+            }}
           >
             {language === "fa" ? "EN" : "فا"}
-          </LanguageToggle>
+          </button>
           <div style={{ fontSize: '0.75rem', marginTop: '0.5rem' }}>
             {language === "fa" ? t("changeToEnglish") : t("changeToPersian")}
           </div>
@@ -1060,7 +1018,16 @@ const Header = () => {
                 {t("logout")}
               </button>
             </>
-          ) : null}
+          ) : (
+            <>
+              <MobileNavLink href="/auth" onClick={closeMobileMenu}>
+                {t("login")}
+              </MobileNavLink>
+              <MobileNavLink href="/auth?tab=register" onClick={closeMobileMenu}>
+                {t("signup")}
+              </MobileNavLink>
+            </>
+          )}
         </MobileNavActions>
       </MobileNavigation>
     </>

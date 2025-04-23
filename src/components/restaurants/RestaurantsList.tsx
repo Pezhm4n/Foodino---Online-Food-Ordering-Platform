@@ -190,23 +190,25 @@ const PaginationContainer = styled.div`
   margin-top: 2rem;
 `;
 
-const PageButton = styled.button<{ active?: boolean }>`
-  width: 35px;
-  height: 35px;
-  display: flex;
+const PageButton = styled.button<{ isActive?: boolean }>`
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: ${props => props.theme.borderRadius.md};
-  border: 1px solid ${props => props.active ? props.theme.colors.primary[500] : props.theme.colors.neutral[300]};
-  background-color: ${props => props.active ? props.theme.colors.primary[500] : 'white'};
-  color: ${props => props.active ? 'white' : props.theme.colors.neutral[700]};
-  font-weight: ${props => props.active ? props.theme.typography.fontWeights.medium : 'normal'};
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  margin: 0 4px;
+  font-size: 14px;
+  border: 1px solid ${props => props.isActive ? props.theme.colors.primary[500] : props.theme.colors.neutral[300]};
+  background-color: ${props => props.isActive ? props.theme.colors.primary[500] : 'white'};
+  color: ${props => props.isActive ? 'white' : props.theme.colors.neutral[700]};
+  font-weight: ${props => props.isActive ? props.theme.typography.fontWeights.medium : 'normal'};
   cursor: pointer;
   transition: all 0.2s ease;
   
   &:hover {
     border-color: ${props => props.theme.colors.primary[500]};
-    color: ${props => props.active ? 'white' : props.theme.colors.primary[500]};
+    color: ${props => props.isActive ? 'white' : props.theme.colors.primary[500]};
   }
   
   &:disabled {
@@ -376,7 +378,7 @@ const RestaurantsList = () => {
           {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
             <PageButton 
               key={page} 
-              active={page === currentPage}
+              isActive={page === currentPage}
               data-active={page === currentPage}
               onClick={() => handlePageChange(page)}
             >

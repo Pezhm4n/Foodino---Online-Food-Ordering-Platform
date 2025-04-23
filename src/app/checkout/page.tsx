@@ -266,8 +266,8 @@ const FormActions = styled.div`
 `;
 
 // تغییر نام به MyStepContent برای جلوگیری از تداخل
-const StepContent = styled.div<{ active: boolean }>`
-  display: ${({ active }) => (active ? 'block' : 'none')};
+const StepContent = styled.div<{ $active: boolean }>`
+  display: ${({ $active }) => ($active ? 'block' : 'none')};
   margin-top: 20px;
   background-color: #fff;
   padding: 20px;
@@ -406,7 +406,7 @@ const CheckoutPage = () => {
       
       <CheckoutContent>
         <CheckoutFormSection>
-          <StepContent active={currentStep === 1}>
+          <StepContent $active={currentStep === 1}>
             <FormCard>
               <FormTitle>
                 <IconContainer>
@@ -478,7 +478,7 @@ const CheckoutPage = () => {
             </FormCard>
           </StepContent>
           
-          <StepContent active={currentStep === 2}>
+          <StepContent $active={currentStep === 2}>
             <FormCard>
               <FormTitle>
                 <IconContainer>
