@@ -29,12 +29,10 @@ A modern, responsive online food ordering platform built with Next.js 14, TypeSc
 - **User Profiles** - Secure authentication with user preferences and order history
 - **Favorites** - Save and manage your favorite restaurants
 - **Order Tracking** - Real-time order status and delivery tracking
-- **Theme Switching** - Toggle between light and dark modes
-- **Multi-language** - Switch between Persian and English interfaces
+- **Theme Switching** - Toggle between light and dark modes (Not yet, soon)
+- **Multi-language** - Switch between Persian and English interfaces (Not yet, soon)
 
 ## 📸 Screenshots
-
-*Add your screenshots here to showcase the application's UI. For example:*
 
 <div align="center">
   <img src="public/screenshots/homepage.png" alt="Homepage" width="45%">
