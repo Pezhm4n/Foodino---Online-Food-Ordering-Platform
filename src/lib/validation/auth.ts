@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { iranPhoneSchema } from '@/lib/validation/common';
 
 const emailSchema = z.email().trim().toLowerCase().max(254);
 const passwordSchema = z.string().min(12).max(128);
@@ -13,6 +14,7 @@ export const registerSchema = z.object({
   password: passwordSchema,
   firstName: z.string().trim().min(1).max(80),
   lastName: z.string().trim().min(1).max(80),
+  phone: iranPhoneSchema,
 }).strict();
 
 export const forgotPasswordSchema = z.object({ email: emailSchema }).strict();

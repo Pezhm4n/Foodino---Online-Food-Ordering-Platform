@@ -3,6 +3,7 @@ import { checkoutSchema } from './checkout';
 import { localCartSchema } from './cart';
 import { searchSchema } from './search';
 import { serverEnvSchema } from './env';
+import { registerSchema } from './auth';
 
 const uuidA = '8b0be7d5-7277-45a4-a957-3ae16c3075f4';
 const uuidB = '4bdcbcb6-3c5b-48b5-82c1-a340b9355bba';
@@ -33,6 +34,18 @@ describe('boundary validation', () => {
   it('allowlists search sorting', () => {
     expect(searchSchema.parse({ sort: 'rating_desc' }).sort).toBe('rating_desc');
     expect(searchSchema.safeParse({ sort: 'DROP TABLE restaurants' }).success).toBe(false);
+  });
+
+  it('requires a valid Iranian phone number during registration', () => {
+    const registration = {
+      email: 'user@example.test',
+      password: 'SecurePass1234',
+      firstName: 'کاربر',
+      lastName: 'نمونه',
+      phone: '09123456789',
+    };
+    expect(registerSchema.safeParse(registration).success).toBe(true);
+    expect(registerSchema.safeParse({ ...registration, phone: '1234' }).success).toBe(false);
   });
 
   it('fails closed for development payments in production', () => {

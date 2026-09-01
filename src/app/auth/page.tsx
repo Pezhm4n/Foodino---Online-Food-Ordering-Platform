@@ -3,6 +3,7 @@
 import React, { Suspense, useState } from 'react';
 import styled from 'styled-components';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { loginAction, registerAction } from '@/app/auth/actions';
 
 // استایل‌های صفحه
 const AuthPageContainer = styled.div`
@@ -39,22 +40,22 @@ const TabContainer = styled.div`
   border-bottom: 1px solid ${props => props.theme.colors.neutral[300]};
 `;
 
-const TabButton = styled.button<{ active: boolean }>`
+const TabButton = styled.button<{ $active: boolean }>`
   flex: 1;
   padding: 1rem;
   background: none;
   border: none;
   font-size: ${props => props.theme.typography.fontSizes.lg};
-  font-weight: ${props => props.active ? props.theme.typography.fontWeights.semibold : props.theme.typography.fontWeights.normal};
-  color: ${props => props.active ? props.theme.colors.primary[500] : props.theme.colors.neutral[500]};
-  border-bottom: 2px solid ${props => props.active ? props.theme.colors.primary[500] : 'transparent'};
+  font-weight: ${props => props.$active ? props.theme.typography.fontWeights.semibold : props.theme.typography.fontWeights.normal};
+  color: ${props => props.$active ? props.theme.colors.primary[500] : props.theme.colors.neutral[500]};
+  border-bottom: 2px solid ${props => props.$active ? props.theme.colors.primary[500] : 'transparent'};
   margin-bottom: -1px;
   cursor: pointer;
   transition: all 0.2s;
   font-family: var(--font-vazirmatn);
   
   &:hover {
-    color: ${props => props.active ? props.theme.colors.primary[500] : props.theme.colors.primary[400]};
+    color: ${props => props.$active ? props.theme.colors.primary[500] : props.theme.colors.primary[400]};
   }
 `;
 
@@ -126,50 +127,9 @@ const SubmitButton = styled.button`
   }
 `;
 
-const OrDivider = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin: 1.5rem 0;
-  
-  &:before, &:after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background-color: ${props => props.theme.colors.neutral[300]};
-  }
-`;
-
-const SocialButtonsContainer = styled.div`
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-`;
-
-const SocialButton = styled.button`
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem;
-  background-color: white;
-  border: 1px solid ${props => props.theme.colors.neutral[300]};
-  border-radius: ${props => props.theme.borderRadius.md};
-  font-size: ${props => props.theme.typography.fontSizes.md};
-  color: ${props => props.theme.colors.neutral[700]};
-  cursor: pointer;
-  transition: all 0.2s;
-  font-family: var(--font-vazirmatn);
-  
-  &:hover {
-    background-color: ${props => props.theme.colors.neutral[50]};
-    border-color: ${props => props.theme.colors.neutral[300]};
-  }
-`;
-
-const SocialIcon = styled.span`
-  font-size: 1.25rem;
+const FormMessage = styled.p<{ $error?: boolean }>`
+  margin: 0 0 1rem;
+  color: ${({ $error, theme }) => $error ? theme.colors.error[600] : theme.colors.success[600]};
 `;
 
 const TermsText = styled.p`
@@ -213,6 +173,7 @@ const AuthContent = () => {
     searchParams.get('tab') === 'register' ? 'register' : 'login'
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formMessage, setFormMessage] = useState<{ text: string; error: boolean } | null>(null);
   
   const [loginForm, setLoginForm] = useState<LoginFormData>({
     email: '',
@@ -239,32 +200,47 @@ const AuthContent = () => {
     setRegisterForm(prev => ({ ...prev, [name]: value }));
   };
   
-  const handleLoginSubmit = (e: React.FormEvent) => {
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    // اینجا کد ارسال فرم ورود به سرور اضافه می‌شود
-    
-    setTimeout(() => {
-      setIsSubmitting(false);
-      // پس از ورود موفق، کاربر به صفحه اصلی هدایت می‌شود
-      alert('ورود با موفقیت انجام شد!');
+    setFormMessage(null);
+    const result = await loginAction(loginForm);
+    setIsSubmitting(false);
+    if (result.ok) {
+      router.refresh();
       router.push('/');
-    }, 1500);
+      return;
+    }
+    setFormMessage({ text: 'ایمیل یا رمز عبور صحیح نیست.', error: true });
   };
   
-  const handleRegisterSubmit = (e: React.FormEvent) => {
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (registerForm.password !== registerForm.confirmPassword) {
+      setFormMessage({ text: 'تکرار رمز عبور با رمز عبور یکسان نیست.', error: true });
+      return;
+    }
     setIsSubmitting(true);
-    
-    // اینجا کد ارسال فرم ثبت‌نام به سرور اضافه می‌شود
-    
-    setTimeout(() => {
-      setIsSubmitting(false);
-      // پس از ثبت‌نام موفق، کاربر به صفحه ورود هدایت می‌شود
-      alert('ثبت‌نام با موفقیت انجام شد!');
+    setFormMessage(null);
+    const result = await registerAction({
+      email: registerForm.email,
+      password: registerForm.password,
+      firstName: registerForm.firstName,
+      lastName: registerForm.lastName,
+      phone: registerForm.phone,
+    });
+    setIsSubmitting(false);
+    if (result.ok) {
+      setFormMessage({
+        text: result.code === 'EMAIL_CONFIRMATION_REQUIRED'
+          ? 'لینک تأیید به ایمیل شما ارسال شد.'
+          : 'ثبت‌نام با موفقیت انجام شد.',
+        error: false,
+      });
       setActiveTab('login');
-    }, 1500);
+      return;
+    }
+    setFormMessage({ text: 'ثبت‌نام انجام نشد. اطلاعات را بررسی کنید.', error: true });
   };
   
   return (
@@ -276,13 +252,13 @@ const AuthContent = () => {
       <AuthCard>
         <TabContainer>
           <TabButton 
-            active={activeTab === 'login'} 
+            $active={activeTab === 'login'}
             onClick={() => setActiveTab('login')}
           >
             ورود
           </TabButton>
           <TabButton 
-            active={activeTab === 'register'} 
+            $active={activeTab === 'register'}
             onClick={() => setActiveTab('register')}
           >
             ثبت‌نام
@@ -291,6 +267,7 @@ const AuthContent = () => {
         
         {activeTab === 'login' ? (
           <>
+            {formMessage && <FormMessage $error={formMessage.error}>{formMessage.text}</FormMessage>}
             <Form onSubmit={handleLoginSubmit}>
               <FormGroup>
                 <FormLabel htmlFor="email">ایمیل یا شماره موبایل</FormLabel>
@@ -314,7 +291,7 @@ const AuthContent = () => {
                   onChange={handleLoginInputChange}
                   required
                 />
-                <ForgotPassword href="#">رمز عبور خود را فراموش کرده‌اید؟</ForgotPassword>
+                <ForgotPassword href="/auth/forgot-password">رمز عبور خود را فراموش کرده‌اید؟</ForgotPassword>
               </FormGroup>
               
               <SubmitButton type="submit" disabled={isSubmitting}>
@@ -322,17 +299,10 @@ const AuthContent = () => {
               </SubmitButton>
             </Form>
             
-            <OrDivider>یا</OrDivider>
-            
-            <SocialButtonsContainer>
-              <SocialButton type="button">
-                <SocialIcon>G</SocialIcon>
-                <span>گوگل</span>
-              </SocialButton>
-            </SocialButtonsContainer>
           </>
         ) : (
           <>
+            {formMessage && <FormMessage $error={formMessage.error}>{formMessage.text}</FormMessage>}
             <Form onSubmit={handleRegisterSubmit}>
               <FormGroup>
                 <FormLabel htmlFor="firstName">نام</FormLabel>
@@ -411,14 +381,6 @@ const AuthContent = () => {
               </SubmitButton>
             </Form>
             
-            <OrDivider>یا</OrDivider>
-            
-            <SocialButtonsContainer>
-              <SocialButton type="button">
-                <SocialIcon>G</SocialIcon>
-                <span>ثبت‌نام با گوگل</span>
-              </SocialButton>
-            </SocialButtonsContainer>
           </>
         )}
         

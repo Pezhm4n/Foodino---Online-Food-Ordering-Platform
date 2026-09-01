@@ -6,7 +6,6 @@ import Header from './Header';
 import Footer from './Footer';
 import { theme } from '../../styles/theme';
 import { CartProvider } from '@/contexts/CartContext';
-import { AuthProvider } from '@/contexts/AuthContext';
 import { ToastProvider } from '@/components/common/Toast';
 import { GlobalStyle } from '@/styles/GlobalStyle';
 
@@ -17,21 +16,20 @@ const Main = styled.main`
 
 interface LayoutProps {
   children: ReactNode;
+  isAuthenticated: boolean;
 }
 
-const Layout = ({ children }: LayoutProps) => {
+const Layout = ({ children, isAuthenticated }: LayoutProps) => {
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
-      <AuthProvider>
-        <CartProvider>
-          <ToastProvider>
-            <Header />
-            <Main>{children}</Main>
-            <Footer />
-          </ToastProvider>
-        </CartProvider>
-      </AuthProvider>
+      <CartProvider>
+        <ToastProvider>
+          <Header isAuthenticated={isAuthenticated} />
+          <Main>{children}</Main>
+          <Footer />
+        </ToastProvider>
+      </CartProvider>
     </ThemeProvider>
   );
 };

@@ -5,7 +5,7 @@ import styled from "styled-components";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/contexts/CartContext";
-import { useAuth } from "@/contexts/AuthContext";
+import { logoutAction } from '@/app/auth/actions';
 
 const headerCopy = {
   home: 'خانه',
@@ -450,13 +450,12 @@ const MobileCartButton = styled(Link)`
   }
 `;
 
-const Header = () => {
+const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const router = useRouter();
   const { getTotalItems } = useCart();
-  const { isAuthenticated, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -487,9 +486,8 @@ const Header = () => {
   };
 
   const handleLogout = () => {
-    logout();
     closeMobileMenu();
-    router.push("/");
+    void logoutAction();
   };
 
   return (
