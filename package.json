@@ -18,6 +18,11 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
+    "db:start": "supabase start",
+    "db:reset": "supabase db reset --local",
+    "db:test": "supabase db test --local",
+    "db:types": "node scripts/generate-database-types.mjs",
+    "db:types:check": "node scripts/generate-database-types.mjs --check",
     "security": "npm audit --audit-level=high",
     "ci": "npm run lint && npm run typecheck && npm run test:coverage && npm run build"
   },
