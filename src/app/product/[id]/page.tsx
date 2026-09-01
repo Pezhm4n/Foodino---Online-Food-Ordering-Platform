@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { use, useState } from 'react';
 import styled from 'styled-components';
 import Link from 'next/link';
-import { vazirmatn } from '@/app/fonts';
 
 // استایل‌های صفحه
 const ProductPageContainer = styled.div`
@@ -310,21 +309,9 @@ const FavoriteButton = styled.button`
   }
 `;
 
-// انواع داده
-interface SizeOption {
-  id: string;
-  name: string;
-  price: number;
-}
-
-interface Addon {
-  id: string;
-  name: string;
-  price: number;
-}
-
 // کامپوننت اصلی
-const ProductPage = ({ params }: { params: { id: string } }) => {
+const ProductPage = ({ params }: { params: Promise<{ id: string }> }) => {
+  const { id } = use(params);
   // استیت‌ها
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState<string>('1');
@@ -333,7 +320,7 @@ const ProductPage = ({ params }: { params: { id: string } }) => {
   
   // داده‌های نمونه محصول
   const product = {
-    id: params.id,
+    id,
     name: 'پیتزا مخصوص',
     restaurant: {
       id: '123',

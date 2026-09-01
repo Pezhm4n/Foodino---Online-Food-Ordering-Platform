@@ -16,14 +16,6 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
   const [language, setLanguage] = useState<Language>("fa");
 
   useEffect(() => {
-    // بازیابی زبان از localStorage در صورت وجود
-    const savedLanguage = localStorage.getItem("language") as Language;
-    if (savedLanguage && (savedLanguage === "fa" || savedLanguage === "en")) {
-      setLanguage(savedLanguage);
-    }
-  }, []);
-
-  useEffect(() => {
     // ذخیره زبان در localStorage هنگام تغییر
     localStorage.setItem("language", language);
     // تنظیم جهت document بر اساس زبان

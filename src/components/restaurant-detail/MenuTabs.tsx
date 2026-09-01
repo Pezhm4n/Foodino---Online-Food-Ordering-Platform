@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import FoodCard from './FoodCard';
 import CartSection from './CartSection';
@@ -283,13 +283,7 @@ interface MenuTabsProps {
 const MenuTabs = ({ restaurant }: MenuTabsProps) => {
   const [activeTab, setActiveTab] = useState('main');
   const { state, addItem, removeItem, clearCart } = useCart();
-  // استفاده مستقیم از کانتکست سبد خرید به جای وضعیت محلی
-  const [cartItems, setCartItems] = useState<CartItem[]>(state.items);
-  
-  // به‌روزرسانی cartItems هر زمان که state.items تغییر می‌کند
-  useEffect(() => {
-    setCartItems(state.items);
-  }, [state.items]);
+  const cartItems = state.items;
   
   // Convert our restaurant to the format CartSection expects
   const restaurantForCart: RestaurantForCart = {

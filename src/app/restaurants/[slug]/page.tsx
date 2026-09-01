@@ -7,13 +7,13 @@ import Container from '@/components/ui/Container';
 import { getRestaurantBySlug } from '@/lib/api';
 
 type RestaurantDetailProps = {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 };
 
 export async function generateMetadata({ params }: RestaurantDetailProps): Promise<Metadata> {
-  const slug = params.slug;
+  const { slug } = await params;
   const restaurant = await getRestaurantBySlug(slug);
 
   if (!restaurant) {
@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: RestaurantDetailProps): Promi
 }
 
 export default async function RestaurantDetailPage({ params }: RestaurantDetailProps) {
-  const slug = params.slug;
+  const { slug } = await params;
   const restaurant = await getRestaurantBySlug(slug);
 
   if (!restaurant) {

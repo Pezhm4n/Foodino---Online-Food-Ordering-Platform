@@ -1,10 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { Suspense, useState } from 'react';
 import styled from 'styled-components';
-import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
-import { vazirmatn } from '@/app/fonts';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 // استایل‌های صفحه
 const AuthPageContainer = styled.div`
@@ -207,21 +205,14 @@ interface RegisterFormData {
 }
 
 // کامپوننت اصلی
-const AuthPage = () => {
+const AuthContent = () => {
   const searchParams = useSearchParams();
+  const router = useRouter();
   // استیت‌ها
-  const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
+  const [activeTab, setActiveTab] = useState<'login' | 'register'>(() =>
+    searchParams.get('tab') === 'register' ? 'register' : 'login'
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  // تنظیم تب فعال براساس پارامتر URL
-  useEffect(() => {
-    const tab = searchParams.get('tab');
-    if (tab === 'register') {
-      setActiveTab('register');
-    } else {
-      setActiveTab('login');
-    }
-  }, [searchParams]);
   
   const [loginForm, setLoginForm] = useState<LoginFormData>({
     email: '',
@@ -258,7 +249,7 @@ const AuthPage = () => {
       setIsSubmitting(false);
       // پس از ورود موفق، کاربر به صفحه اصلی هدایت می‌شود
       alert('ورود با موفقیت انجام شد!');
-      window.location.href = '/';
+      router.push('/');
     }, 1500);
   };
   
@@ -441,4 +432,10 @@ const AuthPage = () => {
   );
 };
 
-export default AuthPage; 
+export default function AuthPage() {
+  return (
+    <Suspense fallback={null}>
+      <AuthContent />
+    </Suspense>
+  );
+}

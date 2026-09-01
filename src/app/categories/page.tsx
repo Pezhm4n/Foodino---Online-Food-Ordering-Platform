@@ -321,7 +321,7 @@ const CategoriesPage = () => {
   // مرتب‌سازی دسته‌بندی‌ها
   const sortedCategories = [...filteredCategories].sort((a, b) => {
     if (sortBy === 'popularity') {
-      return b.count - a.count;
+      return (b.count ?? 0) - (a.count ?? 0);
     }
     if (sortBy === 'name-asc') {
       return a.name.localeCompare(b.name);

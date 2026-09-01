@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { Suspense, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { vazirmatn } from '@/app/fonts';
 
 // تعریف انواع داده
 interface Restaurant {
@@ -490,6 +489,9 @@ const sampleRestaurants: Restaurant[] = [
   }
 ];
 
+// دادهٔ منوی نمونه هنوز در prototype تعریف نشده است.
+const sampleMenuItems: MenuItem[] = [];
+
 const categoryFilters: FilterOption[] = [
   { id: 'pizza', label: 'پیتزا' },
   { id: 'fastfood', label: 'فست فود' },
@@ -517,13 +519,16 @@ const formatPrice = (price: number) => {
 };
 
 // کامپوننت اصلی
-const SearchPage = () => {
+const SearchContent = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
-  const [activeTab, setActiveTab] = useState<'all' | 'restaurants' | 'menu'>('all');
-  const [activeFilter, setActiveFilter] = useState('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'restaurants' | 'menu'>(() => {
+    const tab = searchParams.get('tab');
+    return tab === 'restaurants' || tab === 'menu' ? tab : 'all';
+  });
+  const [activeFilter, setActiveFilter] = useState(() => searchParams.get('filter') || 'all');
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -533,16 +538,11 @@ const SearchPage = () => {
     const filter = searchParams.get('filter') || 'all';
     const tab = searchParams.get('tab') || 'all';
     
-    setSearchQuery(query);
-    setActiveFilter(filter);
-    setActiveTab(tab as 'all' | 'restaurants' | 'menu');
-    
-    // در حالت واقعی، اینجا از API برای جستجو استفاده می‌شود
-    const fetchResults = () => {
-      setLoading(true);
-      
-      // شبیه‌سازی تاخیر شبکه
-      setTimeout(() => {
+    // شبیه‌سازی درخواست API بدون به‌روزرسانی هم‌زمان state در effect
+    const timeoutId = window.setTimeout(() => {
+        setSearchQuery(query);
+        setActiveFilter(filter);
+        setActiveTab(tab === 'restaurants' || tab === 'menu' ? tab : 'all');
         // جستجو در رستوران‌ها
         const filteredRestaurants = sampleRestaurants.filter(restaurant => {
           // فیلتر بر اساس دسته‌بندی
@@ -560,7 +560,7 @@ const SearchPage = () => {
         });
         
         // جستجو در منوی غذاها
-        const filteredMenuItems = menuItems.filter(item => {
+        const filteredMenuItems = sampleMenuItems.filter(item => {
           // فیلتر بر اساس رستوران‌های فیلتر شده
           const restaurantMatches = filteredRestaurants.some(r => r.id === item.restaurantId);
           
@@ -576,9 +576,8 @@ const SearchPage = () => {
         setMenuItems(filteredMenuItems);
         setLoading(false);
       }, 500);
-    };
-    
-    fetchResults();
+
+    return () => window.clearTimeout(timeoutId);
   }, [searchParams]);
   
   const handleSearch = (e: React.FormEvent) => {
@@ -811,4 +810,10 @@ const SearchPage = () => {
   );
 };
 
-export default SearchPage; 
+export default function SearchPage() {
+  return (
+    <Suspense fallback={null}>
+      <SearchContent />
+    </Suspense>
+  );
+}
