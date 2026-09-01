@@ -3,16 +3,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import Link from 'next/link';
-import { vazirmatn } from '@/app/fonts';
 import { categories as allCategoriesData } from '@/data/categories';
-
-// تعریف انواع داده
-interface Category {
-  id: string;
-  name: string;
-  icon: string;
-  count: number;
-}
 
 // استایل‌های صفحه
 const CategoriesPageContainer = styled.div`
@@ -114,12 +105,6 @@ const FilterCheckbox = styled.input`
 const FilterLabel = styled.span`
   font-size: ${props => props.theme.typography.fontSizes.md};
   color: ${props => props.theme.colors.neutral[700]};
-`;
-
-const FilterCount = styled.span`
-  font-size: ${props => props.theme.typography.fontSizes.sm};
-  color: ${props => props.theme.colors.neutral[500]};
-  margin-right: auto;
 `;
 
 const ClearFiltersButton = styled.button`

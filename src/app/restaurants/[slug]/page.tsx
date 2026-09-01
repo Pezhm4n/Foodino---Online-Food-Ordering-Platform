@@ -5,6 +5,19 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import Container from '@/components/ui/Container';
 import { getRestaurantBySlug } from '@/lib/api';
+import styled from 'styled-components';
+
+const NotFoundState = styled.div`
+  padding: 3rem 0;
+  text-align: center;
+`;
+const NotFoundTitle = styled.h1`margin: 0 0 1rem; font-size: 1.5rem; font-weight: 700;`;
+const NotFoundText = styled.p`margin: 0 0 2rem;`;
+const RestaurantsLink = styled(Link)`
+  display: inline-block; padding: 0.5rem 1.5rem;
+  border-radius: 0.375rem;
+  background: #0ea5e9; color: white;
+`;
 
 type RestaurantDetailProps = {
   params: Promise<{
@@ -35,12 +48,12 @@ export default async function RestaurantDetailPage({ params }: RestaurantDetailP
 
   if (!restaurant) {
     return (
-      <Container className="py-12 text-center">
-        <h1 className="text-2xl font-bold mb-4">متأسفانه رستوران مورد نظر یافت نشد!</h1>
-        <p className="mb-8">رستورانی با این شناسه در سیستم ما موجود نیست.</p>
-        <Link href="/restaurants" className="bg-primary-500 text-white px-6 py-2 rounded-md">
-          بازگشت به لیست رستوران‌ها
-        </Link>
+      <Container>
+        <NotFoundState>
+          <NotFoundTitle>متأسفانه رستوران مورد نظر یافت نشد!</NotFoundTitle>
+          <NotFoundText>رستورانی با این شناسه در سیستم ما موجود نیست.</NotFoundText>
+          <RestaurantsLink href="/restaurants">بازگشت به لیست رستوران‌ها</RestaurantsLink>
+        </NotFoundState>
       </Container>
     );
   }

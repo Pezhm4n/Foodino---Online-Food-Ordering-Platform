@@ -272,10 +272,6 @@ const RestaurantRating = styled.div`
   color: ${props => props.theme.colors.neutral[800]};
 `;
 
-const StarIcon = styled.span`
-  color: ${props => props.theme.colors.warning[400]};
-`;
-
 const RestaurantDescription = styled.p`
   font-size: ${props => props.theme.typography.fontSizes.md};
   color: ${props => props.theme.colors.neutral[600]};
@@ -580,18 +576,6 @@ const SearchContent = () => {
     return () => window.clearTimeout(timeoutId);
   }, [searchParams]);
   
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    const params = new URLSearchParams();
-    if (searchQuery) params.set('q', searchQuery);
-    if (activeFilter !== 'all') params.set('filter', activeFilter);
-    if (activeTab !== 'all') params.set('tab', activeTab);
-    
-    const queryString = params.toString();
-    router.push(`/search${queryString ? '?' + queryString : ''}`);
-  };
-  
   const handleFilterChange = (filterId: string) => {
     setActiveFilter(filterId);
     
@@ -600,19 +584,6 @@ const SearchContent = () => {
       params.set('filter', filterId);
     } else {
       params.delete('filter');
-    }
-    
-    router.push(`/search?${params.toString()}`);
-  };
-  
-  const handleTabChange = (tab: 'all' | 'restaurants' | 'menu') => {
-    setActiveTab(tab);
-    
-    const params = new URLSearchParams(searchParams.toString());
-    if (tab !== 'all') {
-      params.set('tab', tab);
-    } else {
-      params.delete('tab');
     }
     
     router.push(`/search?${params.toString()}`);

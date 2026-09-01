@@ -1,8 +1,8 @@
 import React from 'react';
 import { Metadata } from 'next';
 import Layout from '@/components/layout/Layout';
-import '@/styles/fonts.css';
-import '@/styles/global.css';
+import StyledComponentsRegistry from '@/styles/StyledComponentsRegistry';
+import { vazirmatn } from '@/app/fonts';
 
 export const metadata: Metadata = {
   title: 'فودینو | سفارش آنلاین غذا',
@@ -16,10 +16,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fa" dir="rtl">
-      <body suppressHydrationWarning>
-        <Layout>
-          {children}
-        </Layout>
+      <body className={vazirmatn.variable}>
+        <StyledComponentsRegistry>
+          <Layout>{children}</Layout>
+        </StyledComponentsRegistry>
       </body>
     </html>
   );

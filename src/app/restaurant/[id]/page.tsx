@@ -5,6 +5,14 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { getRestaurantById } from '@/lib/api';
 import Loading from '@/components/ui/Loading';
+import styled from 'styled-components';
+
+const RedirectState = styled.div`
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+`;
 
 export default function RestaurantIdRedirect() {
   const router = useRouter();
@@ -36,12 +44,12 @@ export default function RestaurantIdRedirect() {
   }, [id, router]);
 
   return (
-    <div className="flex justify-center items-center min-h-screen">
+    <RedirectState>
       {isLoading ? (
         <Loading />
       ) : (
         <p>در حال هدایت به صفحه رستوران...</p>
       )}
-    </div>
+    </RedirectState>
   );
 } 

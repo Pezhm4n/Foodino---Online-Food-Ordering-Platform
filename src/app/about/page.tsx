@@ -2,7 +2,6 @@
 
 import React from 'react';
 import styled from 'styled-components';
-import Link from 'next/link';
 
 // کامپوننت‌های استایل شده
 const AboutPageContainer = styled.div`

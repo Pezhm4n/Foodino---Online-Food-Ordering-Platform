@@ -3,6 +3,32 @@ import RestaurantsList from '@/components/restaurants/RestaurantsList';
 import RestaurantFilters from '@/components/restaurants/RestaurantFilters';
 import SearchSection from '@/components/restaurants/SearchSection';
 import { Metadata } from 'next';
+import styled from 'styled-components';
+
+const RestaurantsLayout = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+
+  @media (min-width: 1024px) {
+    flex-direction: row;
+  }
+`;
+
+const FiltersColumn = styled.aside`
+  @media (min-width: 1024px) {
+    width: 25%;
+  }
+`;
+
+const ResultsColumn = styled.section`
+  @media (min-width: 1024px) {
+    width: 75%;
+  }
+`;
 
 export const metadata: Metadata = {
   title: 'رستوران‌ها | فودینو',
@@ -13,14 +39,14 @@ export default function RestaurantsPage() {
   return (
     <div>
       <SearchSection />
-      <div className="container mx-auto px-4 py-8 flex flex-col lg:flex-row gap-6">
-        <div className="lg:w-1/4">
+      <RestaurantsLayout>
+        <FiltersColumn>
           <RestaurantFilters />
-        </div>
-        <div className="lg:w-3/4">
+        </FiltersColumn>
+        <ResultsColumn>
           <RestaurantsList />
-        </div>
-      </div>
+        </ResultsColumn>
+      </RestaurantsLayout>
     </div>
   );
 } 

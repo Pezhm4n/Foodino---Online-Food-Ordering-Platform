@@ -1,4 +1,11 @@
 import React, { ReactNode } from 'react';
+import styled from 'styled-components';
+
+const Heading = styled.h2`
+  color: ${({ theme }) => theme.colors.neutral[900]};
+  font-size: 1.5rem;
+  font-weight: 700;
+`;
 
 interface SectionTitleProps {
   title?: string;
@@ -12,9 +19,9 @@ const SectionTitle: React.FC<SectionTitleProps> = ({
   className = '' 
 }) => {
   return (
-    <h2 className={`text-2xl font-bold text-gray-900 ${className}`}>
+    <Heading className={className}>
       {title || children}
-    </h2>
+    </Heading>
   );
 };
 

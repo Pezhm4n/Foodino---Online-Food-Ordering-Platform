@@ -1,35 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import Link from 'next/link';
-import { vazirmatn } from '@/app/fonts';
 import { useParams } from 'next/navigation';
-
-// تعریف انواع داده
-interface Restaurant {
-  id: string;
-  name: string;
-  logo: string;
-  cover: string;
-  rating: number;
-  reviewCount: number;
-  deliveryTime: string;
-  deliveryFee: string;
-  minOrder: string;
-  categories: string[];
-}
-
-interface MenuItem {
-  id: string;
-  name: string;
-  description: string;
-  price: string;
-  image: string;
-  restaurantId: string;
-  restaurantName: string;
-  category: string;
-}
 
 // استایل‌های صفحه
 const CategoryPageContainer = styled.div`
@@ -183,25 +157,6 @@ const ResultHighlight = styled.span`
   font-weight: ${props => props.theme.typography.fontWeights.semibold};
 `;
 
-const SortContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-`;
-
-const SortLabel = styled.span`
-  font-size: ${props => props.theme.typography.fontSizes.md};
-  color: ${props => props.theme.colors.neutral[700]};
-`;
-
-const SortSelect = styled.select`
-  padding: 0.5rem 1rem;
-  border: 1px solid ${props => props.theme.colors.neutral[300]};
-  border-radius: ${props => props.theme.borderRadius.md};
-  font-size: ${props => props.theme.typography.fontSizes.md};
-  font-family: var(--font-vazirmatn);
-`;
-
 const RestaurantsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -351,27 +306,6 @@ const MenuItemPrice = styled.div`
   font-size: ${props => props.theme.typography.fontSizes.md};
   font-weight: ${props => props.theme.typography.fontWeights.medium};
   color: ${props => props.theme.colors.primary[500]};
-`;
-
-const LoadMoreButton = styled.button`
-  display: block;
-  width: 100%;
-  max-width: 300px;
-  margin: 0 auto;
-  padding: 0.75rem 1.5rem;
-  background-color: white;
-  color: ${props => props.theme.colors.primary[500]};
-  border: 1px solid ${props => props.theme.colors.primary[500]};
-  border-radius: ${props => props.theme.borderRadius.md};
-  font-size: ${props => props.theme.typography.fontSizes.md};
-  font-weight: ${props => props.theme.typography.fontWeights.medium};
-  cursor: pointer;
-  transition: all 0.2s;
-  font-family: var(--font-vazirmatn);
-  
-  &:hover {
-    background-color: ${props => props.theme.colors.primary[50]};
-  }
 `;
 
 const NoResultsContainer = styled.div`

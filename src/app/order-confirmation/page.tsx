@@ -10,6 +10,51 @@ import Loading from "@/components/ui/Loading";
 import { formatCurrency } from "@/lib/utils";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
+import styled from 'styled-components';
+
+const CenteredState = styled.div`
+  display: flex; min-height: 50vh; flex-direction: column;
+  align-items: center; justify-content: center; text-align: center;
+`;
+const MutedText = styled.p`margin-top: 1rem; color: ${({ theme }) => theme.colors.neutral[600]};`;
+const HomeLink = styled(Link)`display: inline-block; margin-top: 1.5rem;`;
+const Confirmation = styled.div`max-width: 42rem; margin: 0 auto; padding: 2rem 0;`;
+const SuccessBox = styled.section`
+  margin-bottom: 2rem; padding: 1.5rem; border-radius: ${({ theme }) => theme.borderRadius.lg};
+  background: ${({ theme }) => theme.colors.success[50]}; text-align: center;
+`;
+const SuccessIcon = styled.svg`
+  width: 4rem; height: 4rem; margin: 0 auto 1rem; color: ${({ theme }) => theme.colors.success[500]};
+`;
+const SuccessText = styled.p`margin-top: 0.5rem; color: ${({ theme }) => theme.colors.neutral[700]};`;
+const OrderId = styled.p`margin-top: 0.5rem; font-weight: 500;`;
+const SummaryCard = styled.section`
+  overflow: hidden; border: 1px solid ${({ theme }) => theme.colors.neutral[200]};
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
+`;
+const SummaryHeader = styled.header`
+  padding: 1rem 1.5rem; border-bottom: 1px solid ${({ theme }) => theme.colors.neutral[200]};
+  background: ${({ theme }) => theme.colors.neutral[50]};
+`;
+const SummaryTitle = styled.h3`margin: 0; font-weight: 500;`;
+const SummaryContent = styled.div`padding: 1.5rem;`;
+const ItemList = styled.div`display: grid; gap: 1rem;`;
+const SummaryRow = styled.div<{ $discount?: boolean; $total?: boolean }>`
+  display: flex; justify-content: space-between;
+  margin-bottom: ${({ $total }) => $total ? 0 : '0.5rem'};
+  color: ${({ $discount, theme }) => $discount ? theme.colors.success[600] : 'inherit'};
+  font-weight: ${({ $total }) => $total ? 700 : 400};
+  ${({ $total, theme }) => $total && `margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid ${theme.colors.neutral[200]};`}
+`;
+const ItemName = styled.p`margin: 0; font-weight: 500;`;
+const ItemMeta = styled.p`margin: 0; color: ${({ theme }) => theme.colors.neutral[500]}; font-size: 0.875rem;`;
+const Totals = styled.div`
+  margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid ${({ theme }) => theme.colors.neutral[200]};
+`;
+const Actions = styled.div`
+  display: flex; flex-direction: column; justify-content: center; gap: 1rem; margin-top: 2rem;
+  @media (min-width: ${({ theme }) => theme.breakpoints.sm}) { flex-direction: row; }
+`;
 
 function OrderConfirmationContent() {
   const searchParams = useSearchParams();
@@ -51,24 +96,21 @@ function OrderConfirmationContent() {
   if (error || !order) {
     return (
       <Container>
-        <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
-          <SectionTitle title="Order Not Found" />
-          <p className="mt-4 text-gray-600">{error || "Unable to find your order details"}</p>
-          <Link href="/" className="mt-6">
-            <Button>Return Home</Button>
-          </Link>
-        </div>
+        <CenteredState>
+          <SectionTitle title="سفارش یافت نشد" />
+          <MutedText>{error || "جزئیات سفارش در دسترس نیست"}</MutedText>
+          <HomeLink href="/"><Button>بازگشت به خانه</Button></HomeLink>
+        </CenteredState>
       </Container>
     );
   }
 
   return (
     <Container>
-      <div className="max-w-2xl mx-auto py-8">
-        <div className="bg-green-50 rounded-lg p-6 mb-8 text-center">
-          <svg 
+      <Confirmation>
+        <SuccessBox>
+          <SuccessIcon
             xmlns="http://www.w3.org/2000/svg" 
-            className="h-16 w-16 text-green-500 mx-auto mb-4" 
             fill="none" 
             viewBox="0 0 24 24" 
             stroke="currentColor"
@@ -79,61 +121,59 @@ function OrderConfirmationContent() {
               strokeWidth={2} 
               d="M5 13l4 4L19 7" 
             />
-          </svg>
-          <SectionTitle title="Order Confirmed!" />
-          <p className="text-gray-700 mt-2">Your order has been successfully placed.</p>
-          <p className="font-medium mt-2">Order ID: {order.id}</p>
-        </div>
+          </SuccessIcon>
+          <SectionTitle title="سفارش با موفقیت ثبت شد" />
+          <SuccessText>سفارش شما ثبت و برای پردازش ارسال شد.</SuccessText>
+          <OrderId>شناسه سفارش: {order.id}</OrderId>
+        </SuccessBox>
 
-        <div className="border rounded-lg overflow-hidden">
-          <div className="bg-gray-50 px-6 py-4 border-b">
-            <h3 className="font-medium">Order Summary</h3>
-          </div>
-          <div className="p-6">
-            <div className="space-y-4">
+        <SummaryCard>
+          <SummaryHeader><SummaryTitle>خلاصه سفارش</SummaryTitle></SummaryHeader>
+          <SummaryContent>
+            <ItemList>
               {order.items?.map((item, index) => (
-                <div key={index} className="flex justify-between">
+                <SummaryRow key={index}>
                   <div>
-                    <p className="font-medium">{item.name}</p>
-                    <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
+                    <ItemName>{item.name}</ItemName>
+                    <ItemMeta>تعداد: {item.quantity}</ItemMeta>
                   </div>
                   <p>{formatCurrency(item.price * item.quantity)}</p>
-                </div>
+                </SummaryRow>
               ))}
-            </div>
+            </ItemList>
             
-            <div className="border-t mt-6 pt-4">
-              <div className="flex justify-between mb-2">
-                <p>Subtotal</p>
+            <Totals>
+              <SummaryRow>
+                <p>جمع اقلام</p>
                 <p>{formatCurrency(order.subtotal)}</p>
-              </div>
-              <div className="flex justify-between mb-2">
-                <p>Delivery Fee</p>
+              </SummaryRow>
+              <SummaryRow>
+                <p>هزینه ارسال</p>
                 <p>{formatCurrency(order.deliveryFee)}</p>
-              </div>
+              </SummaryRow>
               {order.discount > 0 && (
-                <div className="flex justify-between mb-2 text-green-600">
-                  <p>Discount</p>
+                <SummaryRow $discount>
+                  <p>تخفیف</p>
                   <p>-{formatCurrency(order.discount)}</p>
-                </div>
+                </SummaryRow>
               )}
-              <div className="flex justify-between font-bold mt-2 pt-2 border-t">
-                <p>Total</p>
+              <SummaryRow $total>
+                <p>مبلغ نهایی</p>
                 <p>{formatCurrency(order.total)}</p>
-              </div>
-            </div>
-          </div>
-        </div>
+              </SummaryRow>
+            </Totals>
+          </SummaryContent>
+        </SummaryCard>
 
-        <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+        <Actions>
           <Link href="/order-tracking">
-            <Button variant="outline">Track Order</Button>
+            <Button variant="outline">پیگیری سفارش</Button>
           </Link>
           <Link href="/">
-            <Button>Continue Shopping</Button>
+            <Button>ادامه خرید</Button>
           </Link>
-        </div>
-      </div>
+        </Actions>
+      </Confirmation>
     </Container>
   );
 }

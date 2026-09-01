@@ -153,6 +153,10 @@ const StyledLinkButton = styled(Link)<{ $variant: ButtonVariant; $size: ButtonSi
   text-decoration: none;
 `;
 
+const LoadingGlyph = styled.span`
+  margin-left: 0.5rem;
+`;
+
 // کامپوننت اصلی Button
 export const Button = ({
   variant = 'primary',
@@ -166,7 +170,7 @@ export const Button = ({
   // افزودن نشانگر loading
   const content = isLoading ? (
     <>
-      <span className="loading-spinner" style={{ marginLeft: '0.5rem' }}>⟳</span>
+      <LoadingGlyph aria-hidden="true">⟳</LoadingGlyph>
       {children}
     </>
   ) : children;

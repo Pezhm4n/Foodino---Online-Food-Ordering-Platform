@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import Link from 'next/link';
-import { vazirmatn } from '@/app/fonts';
 
 // تعریف ساختار داده برای مراحل پیگیری سفارش
 interface OrderStep {
@@ -37,20 +36,6 @@ interface Order {
       phone: string;
     };
   };
-}
-
-// تعریف ساختار interface برای تم رنگ‌ها
-interface ColorObject {
-  [key: string]: string;
-}
-
-interface ThemeColors {
-  primary: ColorObject;
-  secondary: ColorObject;
-  success: ColorObject;
-  error: ColorObject;
-  warning: ColorObject;
-  neutral: ColorObject;
 }
 
 // استایل‌های صفحه
@@ -709,16 +694,12 @@ const OrderTrackingPage: React.FC = () => {
   const [trackingNumber, setTrackingNumber] = useState<string>('');
   const [order, setOrder] = useState<Order | null>(null);
   const [isSearching, setIsSearching] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
   const [cancellingOrder, setCancellingOrder] = useState<boolean>(false);
   
   // در حالت واقعی، این تابع باید با API ارتباط برقرار کند
   const handleTrackOrder = (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    
     if (!trackingNumber.trim()) {
-      setError('لطفاً شماره پیگیری را وارد کنید.');
       return;
     }
     
@@ -730,7 +711,6 @@ const OrderTrackingPage: React.FC = () => {
         setOrder(sampleOrder);
       } else {
         setOrder(null);
-        setError('سفارشی با این شماره پیگیری یافت نشد.');
       }
       setIsSearching(false);
     }, 1000);
@@ -890,7 +870,7 @@ const OrderTrackingPage: React.FC = () => {
               <TrackingSteps>
                 <TrackingStepsTitle>وضعیت سفارش</TrackingStepsTitle>
                 <StepsList>
-                  {getOrderSteps().map((step, index, array) => (
+                  {getOrderSteps().map((step) => (
                     <Step 
                       key={step.id} 
                       active={step.current}

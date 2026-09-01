@@ -6,8 +6,24 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { useTranslation } from "@/hooks/useTranslation";
+
+const headerCopy = {
+  home: 'خانه',
+  restaurants: 'رستوران‌ها',
+  categories: 'دسته‌بندی‌ها',
+  orderTracking: 'پیگیری سفارش',
+  about: 'درباره ما',
+  contact: 'تماس با ما',
+  profile: 'پروفایل کاربری',
+  login: 'ورود',
+  signup: 'ثبت‌نام',
+  logout: 'خروج از حساب کاربری',
+  search: 'جستجوی رستوران یا غذا...',
+  favorites: 'علاقه‌مندی‌ها',
+  cart: 'سبد خرید',
+} as const;
+
+const t = (key: keyof typeof headerCopy) => headerCopy[key];
 
 const HeaderContainer = styled.header`
   display: flex;
@@ -120,33 +136,6 @@ const ActionButtons = styled.div`
   
   @media (max-width: ${props => props.theme.breakpoints.md}) {
     gap: 0.5rem;
-  }
-`;
-
-const LanguageToggle = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: ${(props) => props.theme.colors.neutral[50]};
-  border: 1px solid ${(props) => props.theme.colors.neutral[200]};
-  transition: all 0.3s ease;
-  color: ${(props) => props.theme.colors.neutral[700]};
-  cursor: pointer;
-  font-size: 0.8rem;
-  font-weight: 500;
-
-  &:hover {
-    background-color: ${(props) => props.theme.colors.neutral[100]};
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-    color: ${(props) => props.theme.colors.primary[500]};
-  }
-  
-  @media (max-width: ${props => props.theme.breakpoints.md}) {
-    display: none;
   }
 `;
 
@@ -468,8 +457,6 @@ const Header = () => {
   const router = useRouter();
   const { getTotalItems } = useCart();
   const { isAuthenticated, logout } = useAuth();
-  const { language, toggleLanguage } = useLanguage();
-  const { t } = useTranslation("header");
 
   useEffect(() => {
     const handleScroll = () => {
@@ -569,10 +556,6 @@ const Header = () => {
         </SearchContainer>
 
         <ActionButtons>
-          <LanguageToggle onClick={toggleLanguage} aria-label={language === "fa" ? t("changeToEnglish") : t("changeToPersian")}>
-            {language === "fa" ? "EN" : "فا"}
-          </LanguageToggle>
-
           <IconButton
             href="/favorite-restaurants"
             aria-label="علاقه‌مندی‌ها"
@@ -943,37 +926,6 @@ const Header = () => {
             </MobileIconButton>
           )}
         </MobileIconContainer>
-
-        <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-          <button 
-            onClick={() => {
-              toggleLanguage();
-              setTimeout(closeMobileMenu, 500);
-            }}
-            aria-label={language === "fa" ? t("changeToEnglish") : t("changeToPersian")}
-            style={{ 
-              margin: '0 auto',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '40px',
-              height: '40px',
-              borderRadius: '50%',
-              backgroundColor: '#F9FAFB',
-              border: '1px solid #E5E7EB',
-              transition: 'all 0.3s ease',
-              color: '#374151',
-              cursor: 'pointer',
-              fontSize: '0.8rem',
-              fontWeight: 500
-            }}
-          >
-            {language === "fa" ? "EN" : "فا"}
-          </button>
-          <div style={{ fontSize: '0.75rem', marginTop: '0.5rem' }}>
-            {language === "fa" ? t("changeToEnglish") : t("changeToPersian")}
-          </div>
-        </div>
 
         <MobileNavLinks>
           <MobileNavLink href="/" onClick={closeMobileMenu}>

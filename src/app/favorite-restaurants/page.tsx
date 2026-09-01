@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import Link from 'next/link';
-import { vazirmatn } from '@/app/fonts';
 
 // تعریف انواع داده
 interface Restaurant {

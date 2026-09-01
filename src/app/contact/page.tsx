@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { vazirmatn } from '@/app/fonts';
 
 const ContactPageContainer = styled.div`
   max-width: 1200px;

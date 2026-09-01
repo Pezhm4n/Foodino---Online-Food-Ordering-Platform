@@ -1,10 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import type { CartItem as CartItemType } from '@/types/models';
 
 // کامپوننت‌های استایل شده
 const MenuPageContainer = styled.div`
