@@ -22,10 +22,14 @@ select lives_ok($$
     '[{"product_id":"30000000-0000-4000-8000-000000000001","variant_id":"40000000-0000-4000-8000-000000000001","addon_ids":["50000000-0000-4000-8000-000000000001"],"quantity":2,"forged_total":10}]'::jsonb
   )
 $$, 'checkout accepts IDs and ignores forged amount fields');
-select is((select count(*) from public.orders), 1::bigint, 'checkout creates one order');
-select is((select subtotal_irr from public.orders limit 1), 3300000::public.irr_amount, 'server reprices product and addon');
-select is((select total_irr from public.orders limit 1), 3747000::public.irr_amount, 'server calculates delivery and tax');
-select is((select count(*) from public.order_items), 1::bigint, 'immutable order item snapshot created');
+select is((select count(*) from public.orders where user_id = 'd0000000-0000-4000-8000-000000000001'), 1::bigint, 'checkout creates one order');
+select is((select subtotal_irr from public.orders where user_id = 'd0000000-0000-4000-8000-000000000001'), 3300000::public.irr_amount, 'server reprices product and addon');
+select is((select total_irr from public.orders where user_id = 'd0000000-0000-4000-8000-000000000001'), 3747000::public.irr_amount, 'server calculates delivery and tax');
+select is((
+  select count(*) from public.order_items oi
+  join public.orders o on o.id = oi.order_id
+  where o.user_id = 'd0000000-0000-4000-8000-000000000001'
+), 1::bigint, 'immutable order item snapshot created');
 
 select lives_ok($$
   select * from api.create_pending_order(
@@ -35,7 +39,7 @@ select lives_ok($$
     '[{"product_id":"30000000-0000-4000-8000-000000000001","addon_ids":[],"quantity":1}]'::jsonb
   )
 $$, 'same idempotency key is a safe retry');
-select is((select count(*) from public.orders), 1::bigint, 'retry does not create a second order');
+select is((select count(*) from public.orders where user_id = 'd0000000-0000-4000-8000-000000000001'), 1::bigint, 'retry does not create a second order');
 
 select throws_ok($$
   select * from api.create_pending_order(
@@ -47,20 +51,21 @@ select throws_ok($$
 $$, '22023', 'product_unavailable', 'mixed-restaurant product is rejected');
 
 reset role;
-update public.payments set provider = 'development', provider_reference = 'dev-ref', status = 'pending';
+update public.payments set provider = 'development', provider_reference = 'dev-order-ref', status = 'pending'
+where order_id = (select id from public.orders where user_id = 'd0000000-0000-4000-8000-000000000001');
 set local role service_role;
 select set_config('request.jwt.claims', '{"role":"service_role"}', true);
 
 select lives_ok($$
   select * from api.apply_payment_event(
-    'development', 'event-1', 'dev-ref', 'succeeded', 3747000,
+    'development', 'event-1', 'dev-order-ref', 'succeeded', 3747000,
     extensions.digest('payload-1', 'sha256')
   )
 $$, 'verified payment callback applies atomically');
-select is((select status::text from public.orders limit 1), 'confirmed', 'successful payment confirms order');
+select is((select status::text from public.orders where user_id = 'd0000000-0000-4000-8000-000000000001'), 'confirmed', 'successful payment confirms order');
 select is(
   (select count(*) from api.apply_payment_event(
-    'development', 'event-1', 'dev-ref', 'succeeded', 3747000,
+    'development', 'event-1', 'dev-order-ref', 'succeeded', 3747000,
     extensions.digest('payload-1', 'sha256')
   ) where applied),
   0::bigint,

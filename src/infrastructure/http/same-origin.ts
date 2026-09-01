@@ -22,3 +22,15 @@ export async function assertSameOrigin(): Promise<void> {
 
   if (originHost !== host) throw new InvalidOriginError();
 }
+
+export function assertRequestSameOrigin(request: Request): void {
+  const origin = request.headers.get('origin');
+  const host = request.headers.get('host');
+  if (!origin || !host) throw new InvalidOriginError();
+  try {
+    if (new URL(origin).host !== host) throw new InvalidOriginError();
+  } catch (error) {
+    if (error instanceof InvalidOriginError) throw error;
+    throw new InvalidOriginError();
+  }
+}

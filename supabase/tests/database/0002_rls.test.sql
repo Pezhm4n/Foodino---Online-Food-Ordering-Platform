@@ -41,7 +41,10 @@ select throws_ok(
 select throws_ok('select * from public.payments', '42501', null, 'customer cannot read payments');
 
 select set_config('request.jwt.claims', '{"sub":"c0000000-0000-4000-8000-000000000003","role":"authenticated","app_metadata":{"role":"operator"}}', true);
-select is((select count(*) from public.orders), 2::bigint, 'operator sees order queue');
+select is((
+  select count(*) from public.orders
+  where id in ('a2000000-0000-4000-8000-000000000001', 'b2000000-0000-4000-8000-000000000002')
+), 2::bigint, 'operator sees the fixture order queue');
 
 select set_config('request.jwt.claims', '{"sub":"a0000000-0000-4000-8000-000000000001","role":"authenticated","app_metadata":{},"user_metadata":{"role":"operator"}}', true);
 select is((select count(*) from public.orders), 1::bigint, 'user_metadata cannot self-elevate to operator');

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import styled from 'styled-components';
-import { CartItem } from '@/types/models';
+import type { CartItem } from '@/contexts/CartContext';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { useFormatPrice } from '@/hooks/useFormatPrice';
@@ -389,4 +389,4 @@ const CartSection = ({
   );
 };
 
-export default CartSection; 
+export default CartSection;

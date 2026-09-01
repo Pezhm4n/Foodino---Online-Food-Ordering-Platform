@@ -4,8 +4,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import FoodCard from './FoodCard';
 import CartSection from './CartSection';
-import { useCart } from '@/contexts/CartContext';
-import { CartItem } from '@/types/models';
+import { useCart, type CartItem } from '@/contexts/CartContext';
 import toast from 'react-hot-toast';
 
 const TabsContainer = styled.div`
@@ -298,10 +297,12 @@ const MenuTabs = ({ restaurant }: MenuTabsProps) => {
     try {
       const cartItem: CartItem = {
         id: item.id,
+        productId: item.id,
+        addonIds: [],
         name: item.name,
         price: item.price,
         quantity: 1,
-        restaurantId: restaurant.id?.toString(),
+        restaurantId: restaurant.id.toString(),
         restaurantName: restaurant.name
       };
       

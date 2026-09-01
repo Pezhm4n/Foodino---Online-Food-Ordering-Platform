@@ -42,3 +42,8 @@ export async function requireClaims() {
   if (error || !data?.claims?.sub) return null;
   return data.claims;
 }
+
+export function claimsHaveOperatorRole(claims: { app_metadata?: unknown } | null): boolean {
+  if (!claims?.app_metadata || typeof claims.app_metadata !== 'object') return false;
+  return (claims.app_metadata as { role?: unknown }).role === 'operator';
+}

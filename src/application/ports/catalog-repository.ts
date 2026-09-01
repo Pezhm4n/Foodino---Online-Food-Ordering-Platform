@@ -21,6 +21,17 @@ export type ProductSummary = Readonly<{
   imagePath: string | null;
 }>;
 
+export type ProductOption = Readonly<{
+  id: string;
+  name: string;
+  priceAdjustmentIrr: number;
+}>;
+
+export type ProductMenuItem = ProductSummary & Readonly<{
+  variants: readonly ProductOption[];
+  addons: readonly ProductOption[];
+}>;
+
 export type CursorPage<T> = Readonly<{
   items: readonly T[];
   nextCursor: string | null;
@@ -40,4 +51,5 @@ export interface CatalogRepository {
     restaurantId: string,
     input: Readonly<{ cursor?: string; limit: number }>,
   ): Promise<CursorPage<ProductSummary>>;
+  listRestaurantMenu(restaurantId: string): Promise<readonly ProductMenuItem[]>;
 }

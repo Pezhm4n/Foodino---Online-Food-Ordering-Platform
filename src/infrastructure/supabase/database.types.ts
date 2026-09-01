@@ -30,6 +30,14 @@ export type Database = {
           order_status: Database["public"]["Enums"]["order_status"]
         }[]
       }
+      attach_payment_reference: {
+        Args: {
+          p_order_id: string
+          p_provider: string
+          p_provider_reference: string
+        }
+        Returns: Database["public"]["Enums"]["payment_status"]
+      }
       cancel_own_order: {
         Args: { p_order_id: string; p_reason?: string }
         Returns: Database["public"]["Enums"]["order_status"]

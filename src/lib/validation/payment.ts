@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const paymentProviderSchema = z.enum(['development', 'zarinpal']);
+export const paymentProviderSchema = z.enum(['development']);
 
 export const paymentCallbackSchema = z.object({
   providerEventId: z.string().trim().min(1).max(255),

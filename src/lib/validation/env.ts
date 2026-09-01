@@ -6,7 +6,7 @@ const baseEnvSchema = z.object({
   SUPABASE_URL: z.url(),
   SUPABASE_PUBLISHABLE_KEY: z.string().min(20),
   SUPABASE_SECRET_KEY: z.string().min(20),
-  PAYMENT_PROVIDER: z.enum(['development', 'zarinpal']),
+  PAYMENT_PROVIDER: z.enum(['development', 'disabled']),
   PAYMENT_CALLBACK_SECRET: z.string().min(32),
   RATE_LIMIT_ADAPTER: z.enum(['vercel', 'trusted-reverse-proxy']).optional(),
   TRUSTED_PROXY_HOPS: z.coerce.number().int().min(1).max(10).optional(),

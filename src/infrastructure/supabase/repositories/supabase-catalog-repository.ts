@@ -4,6 +4,7 @@ import type {
   CatalogRepository,
   CursorPage,
   ProductSummary,
+  ProductMenuItem,
   RestaurantSummary,
   RestaurantSort,
 } from '@/application/ports/catalog-repository';
@@ -116,5 +117,28 @@ export class SupabaseCatalogRepository implements CatalogRepository {
       items: rows.map(mapProduct),
       nextCursor: hasMore && last ? encodeCursor({ value: last.created_at, id: last.id }) : null,
     };
+  }
+
+  async listRestaurantMenu(restaurantId: string): Promise<readonly ProductMenuItem[]> {
+    const { data, error } = await this.client
+      .from('products')
+      .select('*,product_variants(id,name,price_adjustment_irr),product_addons(id,name,price_irr)')
+      .eq('restaurant_id', restaurantId)
+      .eq('is_available', true)
+      .order('created_at', { ascending: true });
+    if (error) throw error;
+    return data.map((row) => ({
+      ...mapProduct(row),
+      variants: row.product_variants.map((variant) => ({
+        id: variant.id,
+        name: variant.name,
+        priceAdjustmentIrr: variant.price_adjustment_irr,
+      })),
+      addons: row.product_addons.map((addon) => ({
+        id: addon.id,
+        name: addon.name,
+        priceAdjustmentIrr: addon.price_irr,
+      })),
+    }));
   }
 }

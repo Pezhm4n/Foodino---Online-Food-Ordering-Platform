@@ -1,67 +1,49 @@
-import React from 'react';
-import RestaurantHeader from '@/components/restaurant-detail/RestaurantHeader';
-import MenuTabs from '@/components/restaurant-detail/MenuTabs';
-import { Metadata } from 'next';
-import Link from 'next/link';
-import Container from '@/components/ui/Container';
-import { getRestaurantBySlug } from '@/lib/api';
-import styled from 'styled-components';
+import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import DatabaseMenu from '@/components/restaurant-detail/DatabaseMenu';
+import { routeSlugParamsSchema } from '@/lib/validation/common';
+import { createSupabaseServerClient } from '@/infrastructure/supabase/server';
+import { SupabaseCatalogRepository } from '@/infrastructure/supabase/repositories/supabase-catalog-repository';
 
-const NotFoundState = styled.div`
-  padding: 3rem 0;
-  text-align: center;
-`;
-const NotFoundTitle = styled.h1`margin: 0 0 1rem; font-size: 1.5rem; font-weight: 700;`;
-const NotFoundText = styled.p`margin: 0 0 2rem;`;
-const RestaurantsLink = styled(Link)`
-  display: inline-block; padding: 0.5rem 1.5rem;
-  border-radius: 0.375rem;
-  background: #0ea5e9; color: white;
-`;
+type RestaurantDetailProps = { params: Promise<{ slug: string }> };
 
-type RestaurantDetailProps = {
-  params: Promise<{
-    slug: string;
-  }>;
-};
+async function getRestaurant(slug: string) {
+  const repository = new SupabaseCatalogRepository(await createSupabaseServerClient());
+  return repository.findRestaurantBySlug(slug);
+}
 
 export async function generateMetadata({ params }: RestaurantDetailProps): Promise<Metadata> {
-  const { slug } = await params;
-  const restaurant = await getRestaurantBySlug(slug);
-
-  if (!restaurant) {
-    return {
-      title: 'رستوران یافت نشد | فودینو',
-      description: 'رستوران مورد نظر یافت نشد.',
-    };
-  }
-
+  const parsed = routeSlugParamsSchema.safeParse(await params);
+  if (!parsed.success) return { title: 'رستوران یافت نشد | فودینو' };
+  const restaurant = await getRestaurant(parsed.data.slug);
+  if (!restaurant) return { title: 'رستوران یافت نشد | فودینو' };
   return {
     title: `${restaurant.name} | فودینو`,
     description: restaurant.description || `سفارش آنلاین از ${restaurant.name}`,
+    alternates: { canonical: `/restaurants/${restaurant.slug}` },
   };
 }
 
 export default async function RestaurantDetailPage({ params }: RestaurantDetailProps) {
-  const { slug } = await params;
-  const restaurant = await getRestaurantBySlug(slug);
-
-  if (!restaurant) {
-    return (
-      <Container>
-        <NotFoundState>
-          <NotFoundTitle>متأسفانه رستوران مورد نظر یافت نشد!</NotFoundTitle>
-          <NotFoundText>رستورانی با این شناسه در سیستم ما موجود نیست.</NotFoundText>
-          <RestaurantsLink href="/restaurants">بازگشت به لیست رستوران‌ها</RestaurantsLink>
-        </NotFoundState>
-      </Container>
-    );
-  }
+  const parsed = routeSlugParamsSchema.safeParse(await params);
+  if (!parsed.success) notFound();
+  const client = await createSupabaseServerClient();
+  const repository = new SupabaseCatalogRepository(client);
+  const restaurant = await repository.findRestaurantBySlug(parsed.data.slug);
+  if (!restaurant) notFound();
+  const products = await repository.listRestaurantMenu(restaurant.id);
 
   return (
-    <div>
-      <RestaurantHeader restaurant={restaurant} />
-      <MenuTabs restaurant={restaurant} />
-    </div>
+    <main style={{ maxWidth: '960px', margin: '0 auto', padding: '2rem 1rem' }}>
+      <header>
+        <h1>{restaurant.name}</h1>
+        <p>{restaurant.description}</p>
+        <p>امتیاز {restaurant.rating} — زمان ارسال {restaurant.deliveryMinutes.min} تا {restaurant.deliveryMinutes.max} دقیقه</p>
+      </header>
+      <h2>منو</h2>
+      {products.length === 0 ? <p>در حال حاضر محصول فعالی وجود ندارد.</p> : (
+        <DatabaseMenu restaurant={{ id: restaurant.id, name: restaurant.name }} products={products} />
+      )}
+    </main>
   );
-} 
+}
