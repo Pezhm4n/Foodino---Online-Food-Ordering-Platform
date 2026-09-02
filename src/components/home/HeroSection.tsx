@@ -22,6 +22,11 @@ const HeroContainer = styled.section`
     padding: 2.5rem 1.25rem;
     gap: 2.5rem;
   }
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    padding: 1.75rem 1rem;
+    gap: 2rem;
+  }
 `;
 
 const ContentContainer = styled.div`
@@ -43,12 +48,17 @@ const Badge = styled.span`
   gap: 0.5rem;
   background: ${props => props.theme.colors.primary[50]};
   color: ${props => props.theme.colors.primary[600]};
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  padding: 0.4rem 1rem;
+  padding: 0.35rem 0.9rem;
   border-radius: 9999px;
   border: 1px solid ${props => props.theme.colors.primary[200]};
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.75rem;
+  }
 `;
 
 const Title = styled.h1`
@@ -65,6 +75,12 @@ const Title = styled.h1`
   @media (max-width: ${props => props.theme.breakpoints.md}) {
     font-size: 2rem;
   }
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 1.55rem;
+    line-height: 1.4;
+    margin-bottom: 0.85rem;
+  }
 `;
 
 const Subtitle = styled.p`
@@ -73,6 +89,12 @@ const Subtitle = styled.p`
   margin-bottom: 2rem;
   line-height: 1.8;
   max-width: 540px;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+  }
 `;
 
 const SearchContainer = styled.div`
@@ -207,10 +229,18 @@ const VisualShowcase = styled.div`
     max-width: 440px;
     height: 380px;
   }
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    max-width: 100%;
+    height: auto;
+    min-height: 290px;
+    padding: 0.5rem 0;
+  }
 `;
 
 const MainCard = styled.div`
   width: 360px;
+  max-width: 100%;
   background: white;
   border-radius: 1.75rem;
   padding: 1.75rem;
@@ -222,6 +252,11 @@ const MainCard = styled.div`
   text-align: center;
   position: relative;
   z-index: 2;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    padding: 1.25rem 1rem;
+    border-radius: 1.25rem;
+  }
 `;
 
 const FoodIconCircle = styled.div`
@@ -237,6 +272,13 @@ const FoodIconCircle = styled.div`
   box-shadow: 0 10px 20px -5px rgba(251, 146, 60, 0.3);
   animation: float 4s ease-in-out infinite;
 
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    width: 95px;
+    height: 95px;
+    font-size: 3.25rem;
+    margin-bottom: 0.75rem;
+  }
+
   @keyframes float {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-8px); }
@@ -248,12 +290,21 @@ const CardTitle = styled.h3`
   font-weight: 700;
   color: ${props => props.theme.colors.neutral[900]};
   margin-bottom: 0.35rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 1.1rem;
+  }
 `;
 
 const CardDesc = styled.p`
   font-size: 0.875rem;
   color: ${props => props.theme.colors.neutral[500]};
   margin-bottom: 1rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 0.8rem;
+    margin-bottom: 0.75rem;
+  }
 `;
 
 const PriceRow = styled.div`
@@ -285,6 +336,14 @@ const FloatingBadge1 = styled.div`
   @media (max-width: ${props => props.theme.breakpoints.md}) {
     right: 0.25rem;
   }
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    top: 0.25rem;
+    right: 0;
+    padding: 0.45rem 0.75rem;
+    font-size: 0.75rem;
+    border-radius: 0.75rem;
+  }
 `;
 
 const FloatingBadge2 = styled.div`
@@ -306,6 +365,14 @@ const FloatingBadge2 = styled.div`
 
   @media (max-width: ${props => props.theme.breakpoints.md}) {
     left: 0.25rem;
+  }
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    bottom: 0.25rem;
+    left: 0;
+    padding: 0.45rem 0.75rem;
+    font-size: 0.75rem;
+    border-radius: 0.75rem;
   }
 `;
 

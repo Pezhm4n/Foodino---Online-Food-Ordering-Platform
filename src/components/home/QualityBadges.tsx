@@ -30,6 +30,10 @@ const Badge = styled.div`
   align-items: center;
   text-align: center;
   padding: 2rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    padding: 1.25rem 0.5rem;
+  }
 `;
 
 const IconContainer = styled.div`
@@ -43,6 +47,17 @@ const IconContainer = styled.div`
   border-radius: 50%;
   margin-bottom: 1.5rem;
   color: ${props => props.theme.colors.primary[500]};
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 1rem;
+
+    svg {
+      width: 32px;
+      height: 32px;
+    }
+  }
 `;
 
 const BadgeTitle = styled.h3`
@@ -50,12 +65,21 @@ const BadgeTitle = styled.h3`
   font-weight: 700;
   color: ${props => props.theme.colors.neutral[900]};
   margin-bottom: 0.75rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 1.15rem;
+    margin-bottom: 0.4rem;
+  }
 `;
 
 const BadgeDescription = styled.p`
   font-size: ${props => props.theme.typography.fontSizes.md};
   color: ${props => props.theme.colors.neutral[600]};
   line-height: 1.6;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 0.85rem;
+  }
 `;
 
 const QualityBadges = () => {
