@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import DatabaseMenu from '@/components/restaurant-detail/DatabaseMenu';
+import FavoriteButton from '@/components/common/FavoriteButton';
 import { routeSlugParamsSchema } from '@/lib/validation/common';
-import { createSupabaseServerClient } from '@/infrastructure/supabase/server';
+import { createSupabaseServerClient, requireClaims } from '@/infrastructure/supabase/server';
 import { SupabaseCatalogRepository } from '@/infrastructure/supabase/repositories/supabase-catalog-repository';
 import { getServerEnv } from '@/infrastructure/config/server-env';
 
@@ -33,7 +34,14 @@ export default async function RestaurantDetailPage({ params }: RestaurantDetailP
   const repository = new SupabaseCatalogRepository(client);
   const restaurant = await repository.findRestaurantBySlug(parsed.data.slug);
   if (!restaurant) notFound();
-  const products = await repository.listRestaurantMenu(restaurant.id);
+  const claims = await requireClaims();
+  const [products, userFav] = await Promise.all([
+    repository.listRestaurantMenu(restaurant.id),
+    claims?.sub
+      ? client.from('favorites').select('restaurant_id').eq('user_id', claims.sub).eq('restaurant_id', restaurant.id).maybeSingle()
+      : Promise.resolve({ data: null }),
+  ]);
+  const isFavorite = Boolean(userFav.data);
   const structuredData = JSON.stringify({
     '@context': 'https://schema.org',
     '@type': 'Restaurant',
@@ -46,8 +54,18 @@ export default async function RestaurantDetailPage({ params }: RestaurantDetailP
     <div style={{ maxWidth: '960px', margin: '0 auto', padding: '2rem 1rem 4rem', direction: 'rtl' }}>
       <script dangerouslySetInnerHTML={{ __html: structuredData }} type="application/ld+json" />
       <header style={{ marginBottom: '2rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '1.5rem' }}>
-        <h1 style={{ fontSize: '2rem', fontWeight: 800, color: '#0f172a', margin: '0 0 0.5rem' }}>{restaurant.name}</h1>
-        <p style={{ color: '#475569', fontSize: '1.05rem', margin: '0 0 0.75rem', lineHeight: 1.6 }}>{restaurant.description}</p>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+          <div>
+            <h1 style={{ fontSize: '2rem', fontWeight: 800, color: '#0f172a', margin: '0 0 0.5rem' }}>{restaurant.name}</h1>
+            <p style={{ color: '#475569', fontSize: '1.05rem', margin: 0, lineHeight: 1.6 }}>{restaurant.description}</p>
+          </div>
+          <FavoriteButton
+            restaurantId={restaurant.id}
+            restaurantName={restaurant.name}
+            initialIsFavorite={isFavorite}
+            variant="button"
+          />
+        </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', fontSize: '0.9rem', color: '#64748b' }}>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', background: '#fef3c7', color: '#b45309', padding: '0.25rem 0.6rem', borderRadius: '9999px', fontWeight: 700 }}>
             ⭐ {restaurant.rating}

@@ -79,4 +79,54 @@ export async function removeFavoriteAction(formData: FormData): Promise<void> {
   const { error } = await client.from('favorites').delete().eq('restaurant_id', parsed.data.restaurantId);
   if (error) throw new Error('FAVORITE_DELETE_FAILED');
   revalidatePath('/profile');
+  revalidatePath('/favorite-restaurants');
+}
+
+export async function toggleFavoriteAction(restaurantId: string): Promise<{ isFavorite: boolean }> {
+  await assertSameOrigin();
+  const userId = await requireUserId();
+  const parsed = uuidSchema.safeParse(restaurantId);
+  if (!parsed.success) throw new Error('INVALID_INPUT');
+
+  const client = await createSupabaseServerClient();
+  const { data: existing } = await client
+    .from('favorites')
+    .select('restaurant_id')
+    .eq('user_id', userId)
+    .eq('restaurant_id', parsed.data)
+    .maybeSingle();
+
+  if (existing) {
+    const { error } = await client
+      .from('favorites')
+      .delete()
+      .eq('user_id', userId)
+      .eq('restaurant_id', parsed.data);
+    if (error) throw new Error('FAVORITE_DELETE_FAILED');
+    revalidatePath('/profile');
+    revalidatePath('/favorite-restaurants');
+    return { isFavorite: false };
+  } else {
+    const { error } = await client
+      .from('favorites')
+      .insert({
+        user_id: userId,
+        restaurant_id: parsed.data,
+      });
+    if (error) throw new Error('FAVORITE_INSERT_FAILED');
+    revalidatePath('/profile');
+    revalidatePath('/favorite-restaurants');
+    return { isFavorite: true };
+  }
+}
+
+export async function getUserFavoriteRestaurantIdsAction(): Promise<string[]> {
+  const claims = await requireClaims();
+  if (!claims?.sub) return [];
+  const client = await createSupabaseServerClient();
+  const { data } = await client
+    .from('favorites')
+    .select('restaurant_id')
+    .eq('user_id', claims.sub);
+  return (data ?? []).map((row) => row.restaurant_id);
 }

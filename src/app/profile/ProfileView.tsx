@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import styled from 'styled-components';
 import {
   createAddressAction,
@@ -330,7 +331,15 @@ export default function ProfileView({ profile, addresses, favorites, orders }: P
         </Card>
 
         <Card>
-          <h2>❤️ رستوران‌های مورد علاقه</h2>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+            <h2 style={{ margin: 0 }}>❤️ رستوران‌های مورد علاقه</h2>
+            <Link
+              href="/favorite-restaurants"
+              style={{ fontSize: '0.85rem', color: '#ff5a00', fontWeight: 700, textDecoration: 'none' }}
+            >
+              مدیریت و مشاهده کامل ←
+            </Link>
+          </div>
           {favorites.length === 0 ? (
             <EmptyNotice>رستوران مورد علاقه‌ای اضافه نشده است.</EmptyNotice>
           ) : (

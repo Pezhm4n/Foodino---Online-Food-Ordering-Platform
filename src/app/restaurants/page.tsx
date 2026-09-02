@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { RestaurantGrid, publicCatalogStyles as styles } from '@/components/catalog/PublicCatalog';
 import { searchSchema } from '@/lib/validation/search';
-import { createSupabaseServerClient } from '@/infrastructure/supabase/server';
+import { createSupabaseServerClient, requireClaims } from '@/infrastructure/supabase/server';
 import { SupabaseCatalogRepository } from '@/infrastructure/supabase/repositories/supabase-catalog-repository';
 
 export const metadata: Metadata = {
@@ -17,8 +17,10 @@ type Props = { searchParams: Promise<Record<string, string | string[] | undefine
 export default async function RestaurantsPage({ searchParams }: Props) {
   const parsed = searchSchema.safeParse(await searchParams);
   if (!parsed.success) notFound();
-  const repository = new SupabaseCatalogRepository(await createSupabaseServerClient());
-  const [page, categories] = await Promise.all([
+  const client = await createSupabaseServerClient();
+  const repository = new SupabaseCatalogRepository(client);
+  const claims = await requireClaims();
+  const [page, categories, userFavsResult] = await Promise.all([
     repository.listRestaurants({
       query: parsed.data.q || undefined,
       categorySlug: parsed.data.category,
@@ -27,7 +29,11 @@ export default async function RestaurantsPage({ searchParams }: Props) {
       limit: 12,
     }),
     repository.listCategories(),
+    claims?.sub
+      ? client.from('favorites').select('restaurant_id').eq('user_id', claims.sub)
+      : Promise.resolve({ data: null }),
   ]);
+  const userFavoriteIds = (userFavsResult.data ?? []).map((row) => row.restaurant_id);
   const nextParams = new URLSearchParams();
   if (parsed.data.q) nextParams.set('q', parsed.data.q);
   if (parsed.data.category) nextParams.set('category', parsed.data.category);
@@ -49,7 +55,7 @@ export default async function RestaurantsPage({ searchParams }: Props) {
       </select>
       <button type="submit">جست‌وجو</button>
     </form>
-    <RestaurantGrid restaurants={page.items} />
+    <RestaurantGrid restaurants={page.items} favoriteIds={userFavoriteIds} />
     {page.nextCursor ? <Link className={styles.more} href={`/restaurants?${nextParams}`}>نتایج بیشتر</Link> : null}
   </div>;
 }

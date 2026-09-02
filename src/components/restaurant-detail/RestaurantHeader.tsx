@@ -3,6 +3,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import Link from 'next/link';
+import { toast } from 'react-hot-toast';
+import FavoriteButton from '@/components/common/FavoriteButton';
 import { Restaurant as RestaurantModel } from '@/types/models';
 
 const HeaderContainer = styled.div`
@@ -138,15 +140,6 @@ const ActionButton = styled.button`
   transition: all 0.2s ease;
 `;
 
-const SaveButton = styled(ActionButton)`
-  background-color: white;
-  border: 1px solid ${props => props.theme.colors.neutral[300]};
-  color: ${props => props.theme.colors.neutral[900]};
-  
-  &:hover {
-    background-color: ${props => props.theme.colors.neutral[100]};
-  }
-`;
 
 const ShareButton = styled(ActionButton)`
   background-color: white;
@@ -220,14 +213,22 @@ const RestaurantHeader = ({ restaurant }: RestaurantHeaderProps) => {
           </RestaurantInfo>
           
           <ActionContainer>
-            <SaveButton>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M19 21L12 16L5 21V5C5 4.46957 5.21071 3.96086 5.58579 3.58579C5.96086 3.21071 6.46957 3 7 3H17C17.5304 3 18.0391 3.21071 18.4142 3.58579C18.7893 3.96086 19 4.46957 19 5V21Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              ذخیره
-            </SaveButton>
+            <FavoriteButton
+              restaurantId={String(restaurant.id)}
+              restaurantName={restaurant.name}
+              variant="button"
+              size="sm"
+            />
             
-            <ShareButton>
+            <ShareButton
+              type="button"
+              onClick={() => {
+                if (typeof window !== 'undefined') {
+                  void navigator.clipboard.writeText(window.location.href);
+                  toast.success('لینک رستوران در کلیپ‌بورد کپی شد.', { icon: '📋' });
+                }
+              }}
+            >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M4 12V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M16 6L12 2L8 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>

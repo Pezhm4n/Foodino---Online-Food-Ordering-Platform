@@ -567,7 +567,8 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
 
         <ActionButtons>
           <IconButton
-            href="/profile"
+            href="/favorite-restaurants"
+            prefetch={true}
             aria-label="علاقه‌مندی‌ها"
           >
             <svg
@@ -818,7 +819,8 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
 
         <MobileIconContainer>
           <MobileIconButton
-            href="/profile"
+            href="/favorite-restaurants"
+            prefetch={true}
             onClick={closeMobileMenu}
           >
             <svg
