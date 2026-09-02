@@ -31,14 +31,14 @@ const TitleContainer = styled.div``;
 
 const SectionTitle = styled.h2`
   font-size: ${props => props.theme.typography.fontSizes['3xl']};
-  font-weight: ${props => props.theme.typography.fontWeights.bold};
-  color: ${props => props.theme.colors.secondary[500]};
+  font-weight: 800;
+  color: ${props => props.theme.colors.neutral[900]};
   margin-bottom: 0.5rem;
 `;
 
 const SectionSubtitle = styled.p`
   font-size: ${props => props.theme.typography.fontSizes.md};
-  color: ${props => props.theme.colors.neutral[700]};
+  color: ${props => props.theme.colors.neutral[600]};
 `;
 
 const ViewAllButton = styled(Link)`
@@ -69,32 +69,35 @@ const RestaurantsGrid = styled.div`
 
 const RestaurantCard = styled.div`
   background-color: white;
-  border-radius: ${props => props.theme.borderRadius.lg};
+  border-radius: ${props => props.theme.borderRadius.xl};
   overflow: hidden;
-  box-shadow: ${props => props.theme.boxShadow.md};
+  border: 1px solid ${props => props.theme.colors.neutral[200]};
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
   
   &:hover {
-    transform: translateY(-5px);
-    box-shadow: ${props => props.theme.boxShadow.lg};
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px -4px rgba(0, 0, 0, 0.12);
   }
 `;
 
 const CardLink = styled(Link)`
   text-decoration: none;
   color: inherit;
+  display: block;
 `;
 
 const ImageContainer = styled.div`
   position: relative;
   width: 100%;
-  height: 180px;
-  background-color: ${props => props.theme.colors.primary[400]};
+  height: 160px;
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  font-size: ${props => props.theme.typography.fontSizes['2xl']};
+  font-size: 4rem;
+  border-bottom: 1px solid ${props => props.theme.colors.neutral[100]};
+  transition: transform 0.3s ease;
 `;
 
 const RestaurantInfo = styled.div`

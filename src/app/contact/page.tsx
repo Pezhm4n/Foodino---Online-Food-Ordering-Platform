@@ -12,9 +12,9 @@ const ContactPageContainer = styled.div`
 `;
 
 const PageTitle = styled.h1`
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: ${props => props.theme.colors.primary[500]};
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: ${props => props.theme.colors.neutral[900]};
   margin-bottom: 2rem;
   text-align: right;
 `;
@@ -32,17 +32,18 @@ const ContactInfoSection = styled.div`
 
 const ContactInfoCard = styled.div`
   background-color: white;
-  border-radius: ${props => props.theme.borderRadius.md};
-  padding: 1.5rem;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  border-radius: ${props => props.theme.borderRadius.xl};
+  padding: 1.75rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  border: 1px solid ${props => props.theme.colors.neutral[200]};
   flex: 1;
   text-align: right;
 `;
 
 const CardTitle = styled.h3`
   font-size: 1.25rem;
-  font-weight: 600;
-  color: ${props => props.theme.colors.primary[500]};
+  font-weight: 700;
+  color: ${props => props.theme.colors.neutral[900]};
   margin-bottom: 1rem;
   display: flex;
   align-items: center;
@@ -56,20 +57,21 @@ const InfoItem = styled.p`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  justify-content: flex-end;
+  justify-content: flex-start;
 `;
 
 const FormContainer = styled.div`
   background-color: white;
-  border-radius: ${props => props.theme.borderRadius.md};
-  padding: 2rem;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  border-radius: ${props => props.theme.borderRadius.xl};
+  padding: 2.25rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  border: 1px solid ${props => props.theme.colors.neutral[200]};
 `;
 
 const FormTitle = styled.h2`
-  font-size: 1.75rem;
-  font-weight: 600;
-  color: ${props => props.theme.colors.primary[500]};
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: ${props => props.theme.colors.neutral[900]};
   margin-bottom: 1.5rem;
   text-align: right;
 `;

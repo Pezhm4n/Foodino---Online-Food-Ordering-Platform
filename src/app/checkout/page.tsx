@@ -9,22 +9,251 @@ import { useCart } from '@/contexts/CartContext';
 
 type Address = Readonly<{ id: string; title: string; city: string; addressLine: string }>;
 
-const Page = styled.main`max-width: 880px; margin: 0 auto; padding: 2rem 1rem;`;
+const Page = styled.div`
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 2.5rem 1rem 4rem;
+  direction: rtl;
+`;
+
+const HeaderTitle = styled.h1`
+  font-size: 2rem;
+  font-weight: 800;
+  color: ${({ theme }) => theme.colors.neutral[900]};
+  margin-bottom: 1.5rem;
+  text-align: center;
+`;
+
+const Stepper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    gap: 0.5rem;
+  }
+`;
+
+const Step = styled.div<{ $active?: boolean; $completed?: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: ${({ $active }) => ($active ? 700 : 500)};
+  color: ${({ $active, $completed, theme }) =>
+    $active
+      ? theme.colors.primary[500]
+      : $completed
+      ? theme.colors.success[600]
+      : theme.colors.neutral[400]};
+`;
+
+const StepDot = styled.span<{ $active?: boolean; $completed?: boolean }>`
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  background-color: ${({ $active, $completed, theme }) =>
+    $completed
+      ? theme.colors.success[500]
+      : $active
+      ? theme.colors.primary[500]
+      : theme.colors.neutral[200]};
+  color: white;
+`;
+
+const StepDivider = styled.div<{ $completed?: boolean }>`
+  width: 40px;
+  height: 2px;
+  background-color: ${({ $completed, theme }) =>
+    $completed ? theme.colors.success[500] : theme.colors.neutral[200]};
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    width: 20px;
+  }
+`;
+
 const Card = styled.section`
-  margin-bottom: 1rem; padding: 1.5rem; background: white;
-  border-radius: ${({ theme }) => theme.borderRadius.lg};
-  box-shadow: ${({ theme }) => theme.boxShadow.sm};
+  margin-bottom: 1.5rem;
+  padding: 1.75rem;
+  background: white;
+  border-radius: ${({ theme }) => theme.borderRadius.xl};
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid ${({ theme }) => theme.colors.neutral[200]};
 `;
+
+const SectionHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+
+  h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: ${({ theme }) => theme.colors.neutral[900]};
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+  }
+`;
+
+const AddressGrid = styled.div`
+  display: grid;
+  gap: 0.75rem;
+`;
+
 const AddressButton = styled.button<{ $selected: boolean }>`
-  width: 100%; margin-top: 0.75rem; padding: 1rem; text-align: right; cursor: pointer;
-  border: 2px solid ${({ $selected, theme }) => $selected ? theme.colors.primary[500] : theme.colors.neutral[200]};
-  border-radius: ${({ theme }) => theme.borderRadius.md}; background: white;
+  width: 100%;
+  padding: 1.1rem;
+  text-align: right;
+  cursor: pointer;
+  border: 2px solid ${({ $selected, theme }) =>
+    $selected ? theme.colors.primary[500] : theme.colors.neutral[200]};
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  background: ${({ $selected }) => ($selected ? '#fff7ed' : 'white')};
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+
+  &:hover {
+    border-color: ${({ theme }) => theme.colors.primary[400]};
+  }
 `;
-const PayButton = styled.button`
-  width: 100%; padding: 0.9rem; border: 0; cursor: pointer;
+
+const RadioCircle = styled.span<{ $selected: boolean }>`
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid ${({ $selected, theme }) =>
+    $selected ? theme.colors.primary[500] : theme.colors.neutral[300]};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.2rem;
+  flex-shrink: 0;
+
+  &::after {
+    content: '';
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: ${({ $selected, theme }) =>
+      $selected ? theme.colors.primary[500] : 'transparent'};
+  }
+`;
+
+const AddressContent = styled.div`
+  flex: 1;
+
+  strong {
+    font-size: 1rem;
+    color: ${({ theme }) => theme.colors.neutral[900]};
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+
+  p {
+    font-size: 0.9rem;
+    color: ${({ theme }) => theme.colors.neutral[600]};
+    margin: 0;
+    line-height: 1.5;
+  }
+`;
+
+const ItemsList = styled.ul`
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+`;
+
+const ItemRow = styled.li`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1rem;
+  background-color: ${({ theme }) => theme.colors.neutral[50]};
   border-radius: ${({ theme }) => theme.borderRadius.md};
-  background: ${({ theme }) => theme.colors.success[500]}; color: white;
-  &:disabled { cursor: wait; opacity: 0.65; }
+  font-size: 0.95rem;
+
+  span.name {
+    font-weight: 600;
+    color: ${({ theme }) => theme.colors.neutral[800]};
+  }
+
+  span.qty {
+    background: ${({ theme }) => theme.colors.primary[100]};
+    color: ${({ theme }) => theme.colors.primary[700]};
+    padding: 0.2rem 0.6rem;
+    border-radius: 9999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+`;
+
+const NoticeBox = styled.div`
+  background: ${({ theme }) => theme.colors.neutral[50]};
+  border: 1px solid ${({ theme }) => theme.colors.neutral[200]};
+  border-radius: ${({ theme }) => theme.borderRadius.md};
+  padding: 0.75rem 1rem;
+  font-size: 0.85rem;
+  color: ${({ theme }) => theme.colors.neutral[600]};
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+const PayButton = styled.button`
+  width: 100%;
+  padding: 1.1rem;
+  border: 0;
+  cursor: pointer;
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  background: ${({ theme }) => theme.colors.success[500]};
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 14px rgba(34, 197, 94, 0.3);
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: ${({ theme }) => theme.colors.success[600]};
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+    transform: none;
+    box-shadow: none;
+  }
+`;
+
+const AddAddressLink = styled(Link)`
+  color: ${({ theme }) => theme.colors.primary[600]};
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
 `;
 
 export default function CheckoutPage() {
@@ -92,31 +321,96 @@ export default function CheckoutPage() {
 
   return (
     <Page>
-      <h1>تکمیل سفارش</h1>
+      <HeaderTitle>تکمیل و پرداخت سفارش</HeaderTitle>
+      
+      <Stepper>
+        <Step $completed>
+          <StepDot $completed>✓</StepDot>
+          <span>سبد خرید</span>
+        </Step>
+        <StepDivider $completed />
+        <Step $active>
+          <StepDot $active>۲</StepDot>
+          <span>نشانی و پرداخت</span>
+        </Step>
+        <StepDivider />
+        <Step>
+          <StepDot>۳</StepDot>
+          <span>تأیید سفارش</span>
+        </Step>
+      </Stepper>
+
       <Card>
-        <h2>آدرس تحویل</h2>
-        {loading ? <p>در حال دریافت آدرس‌ها...</p> : addresses.length === 0 ? (
-          <p>ابتدا از <Link href="/profile">پروفایل</Link> یک آدرس معتبر ثبت کنید.</p>
-        ) : addresses.map((address) => (
-          <AddressButton
-            type="button"
-            key={address.id}
-            $selected={address.id === addressId}
-            onClick={() => setAddressId(address.id)}
-          >
-            <strong>{address.title}</strong><br />{address.city}، {address.addressLine}
-          </AddressButton>
-        ))}
-      </Card>
-      <Card>
-        <h2>اقلام سبد خرید</h2>
-        {state.items.length === 0 ? <p>سبد خرید خالی است.</p> : (
-          <ul>{state.items.map((item) => <li key={item.id}>{item.name} × {item.quantity}</li>)}</ul>
+        <SectionHeader>
+          <h2>📍 آدرس تحویل سفارش</h2>
+          <AddAddressLink href="/profile">+ ثبت آدرس جدید</AddAddressLink>
+        </SectionHeader>
+
+        {loading ? (
+          <p style={{ color: '#64748b' }}>در حال دریافت آدرس‌ها...</p>
+        ) : addresses.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '1.5rem' }}>
+            <p style={{ marginBottom: '1rem', color: '#64748b' }}>هنوز هیچ آدرسی ثبت نکرده‌اید.</p>
+            <AddAddressLink href="/profile" style={{ display: 'inline-block', padding: '0.6rem 1.25rem', backgroundColor: '#ff5a00', color: 'white', borderRadius: '0.5rem' }}>
+              ثبت آدرس در پروفایل
+            </AddAddressLink>
+          </div>
+        ) : (
+          <AddressGrid>
+            {addresses.map((address) => (
+              <AddressButton
+                type="button"
+                key={address.id}
+                $selected={address.id === addressId}
+                onClick={() => setAddressId(address.id)}
+              >
+                <RadioCircle $selected={address.id === addressId} />
+                <AddressContent>
+                  <strong>{address.title}</strong>
+                  <p>{address.city}، {address.addressLine}</p>
+                </AddressContent>
+              </AddressButton>
+            ))}
+          </AddressGrid>
         )}
-        <p>مبلغ نهایی فقط روی سرور و بر اساس قیمت و موجودی لحظه‌ای محاسبه می‌شود.</p>
       </Card>
-      <PayButton type="button" onClick={checkout} disabled={submitting || loading || addresses.length === 0}>
-        {submitting ? 'در حال ثبت سفارش...' : 'ثبت سفارش و ادامه پرداخت'}
+
+      <Card>
+        <SectionHeader>
+          <h2>🛍️ اقلام سبد خرید</h2>
+          {state.restaurantName && (
+            <span style={{ fontSize: '0.9rem', color: '#ff5a00', fontWeight: 600 }}>
+              {state.restaurantName}
+            </span>
+          )}
+        </SectionHeader>
+
+        {state.items.length === 0 ? (
+          <p style={{ color: '#64748b' }}>سبد خرید شما خالی است.</p>
+        ) : (
+          <ItemsList>
+            {state.items.map((item) => (
+              <ItemRow key={item.id}>
+                <span className="name">{item.name}</span>
+                <span className="qty">{item.quantity} عدد</span>
+              </ItemRow>
+            ))}
+          </ItemsList>
+        )}
+
+        <NoticeBox>
+          <span>ℹ️</span>
+          <span>مبلغ و فاکتور نهایی بر اساس قیمت لحظه‌ای و هزینه ارسال در درگاه محاسبه خواهد شد.</span>
+        </NoticeBox>
+      </Card>
+
+      <PayButton
+        type="button"
+        onClick={checkout}
+        disabled={submitting || loading || addresses.length === 0 || state.items.length === 0}
+      >
+        <span>🔒</span>
+        <span>{submitting ? 'در حال اتصال به درگاه پرداخت...' : 'ثبت سفارش و ادامه پرداخت'}</span>
       </PayButton>
     </Page>
   );

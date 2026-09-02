@@ -65,8 +65,8 @@ const FAQSection = styled.div`
 
 const SectionTitle = styled.h2`
   font-size: ${props => props.theme.typography.fontSizes.lg};
-  font-weight: ${props => props.theme.typography.fontWeights.semibold};
-  color: ${props => props.theme.colors.secondary[500]};
+  font-weight: 700;
+  color: ${props => props.theme.colors.neutral[900]};
   margin-bottom: 1.5rem;
   padding-bottom: 0.5rem;
   border-bottom: 1px solid ${props => props.theme.colors.neutral[100]};
@@ -80,54 +80,60 @@ const FAQList = styled.div`
 
 const FAQItem = styled.div`
   background-color: white;
-  border-radius: ${props => props.theme.borderRadius.md};
+  border-radius: ${props => props.theme.borderRadius.lg};
   overflow: hidden;
-  box-shadow: ${props => props.theme.boxShadow.sm};
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid ${props => props.theme.colors.neutral[200]};
 `;
 
-const FAQQuestion = styled.div<{ isOpen: boolean }>`
-  padding: 1.25rem;
+const FAQQuestion = styled.button<{ $isOpen: boolean }>`
+  width: 100%;
+  padding: 1.25rem 1.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   cursor: pointer;
-  background-color: ${props => props.isOpen ? props.theme.colors.primary[400] + '10' : 'white'};
-  border-bottom: ${props => props.isOpen 
-    ? `1px solid ${props.theme.colors.primary[400]}30` 
+  background-color: ${props => props.$isOpen ? '#fff7ed' : 'white'};
+  border: none;
+  border-bottom: ${props => props.$isOpen 
+    ? `1px solid #fed7aa` 
     : 'none'};
+  text-align: right;
+  font-family: inherit;
+  transition: all 0.2s;
   
   &:hover {
-    background-color: ${props => props.theme.colors.neutral[50]};
+    background-color: ${props => props.$isOpen ? '#ffedd5' : props.theme.colors.neutral[50]};
   }
 `;
 
-const QuestionText = styled.h3<{ isOpen: boolean }>`
+const QuestionText = styled.h3<{ $isOpen: boolean }>`
   font-size: ${props => props.theme.typography.fontSizes.md};
-  font-weight: ${props => props.isOpen 
-    ? props.theme.typography.fontWeights.semibold 
+  font-weight: ${props => props.$isOpen 
+    ? props.theme.typography.fontWeights.bold 
     : props.theme.typography.fontWeights.medium};
-  color: ${props => props.isOpen 
-    ? props.theme.colors.primary[500] 
+  color: ${props => props.$isOpen 
+    ? props.theme.colors.primary[600] 
     : props.theme.colors.neutral[900]};
   margin: 0;
 `;
 
-const ToggleIcon = styled.span<{ isOpen: boolean }>`
-  font-size: 1.25rem;
+const ToggleIcon = styled.span<{ $isOpen: boolean }>`
+  font-size: 1.1rem;
   transition: transform 0.3s;
-  transform: ${props => props.isOpen ? 'rotate(180deg)' : 'rotate(0)'};
-  color: ${props => props.isOpen ? props.theme.colors.primary[500] : props.theme.colors.neutral[500]};
+  transform: ${props => props.$isOpen ? 'rotate(180deg)' : 'rotate(0)'};
+  color: ${props => props.$isOpen ? props.theme.colors.primary[500] : props.theme.colors.neutral[400]};
 `;
 
-const FAQAnswer = styled.div<{ isOpen: boolean }>`
-  max-height: ${props => props.isOpen ? '500px' : '0'};
+const FAQAnswer = styled.div<{ $isOpen: boolean }>`
+  max-height: ${props => props.$isOpen ? '500px' : '0'};
   overflow: hidden;
-  padding: ${props => props.isOpen ? '1.25rem' : '0 1.25rem'};
+  padding: ${props => props.$isOpen ? '1.25rem 1.5rem' : '0 1.5rem'};
   transition: all 0.3s ease-in-out;
-  opacity: ${props => props.isOpen ? '1' : '0'};
+  opacity: ${props => props.$isOpen ? '1' : '0'};
   font-size: ${props => props.theme.typography.fontSizes.md};
   color: ${props => props.theme.colors.neutral[700]};
-  line-height: 1.6;
+  line-height: 1.7;
 `;
 
 const SearchContainer = styled.div`
@@ -290,14 +296,16 @@ const FAQPage = () => {
               {items.map(item => (
                 <FAQItem key={item.id}>
                   <FAQQuestion 
-                    isOpen={openItemId === item.id}
+                    type="button"
+                    $isOpen={openItemId === item.id}
                     onClick={() => toggleItem(item.id)}
+                    aria-expanded={openItemId === item.id}
                     data-open={openItemId === item.id}
                   >
-                    <QuestionText isOpen={openItemId === item.id}>{item.question}</QuestionText>
-                    <ToggleIcon isOpen={openItemId === item.id}>▼</ToggleIcon>
+                    <QuestionText $isOpen={openItemId === item.id}>{item.question}</QuestionText>
+                    <ToggleIcon $isOpen={openItemId === item.id}>▼</ToggleIcon>
                   </FAQQuestion>
-                  <FAQAnswer isOpen={openItemId === item.id} data-open={openItemId === item.id}>
+                  <FAQAnswer $isOpen={openItemId === item.id} data-open={openItemId === item.id}>
                     {item.answer}
                   </FAQAnswer>
                 </FAQItem>

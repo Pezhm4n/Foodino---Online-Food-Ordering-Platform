@@ -38,7 +38,8 @@ const IconContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: ${props => props.theme.colors.neutral[50]};
+  background-color: #fff7ed;
+  border: 1px solid #ffedd5;
   border-radius: 50%;
   margin-bottom: 1.5rem;
   color: ${props => props.theme.colors.primary[500]};
@@ -46,14 +47,14 @@ const IconContainer = styled.div`
 
 const BadgeTitle = styled.h3`
   font-size: ${props => props.theme.typography.fontSizes.xl};
-  font-weight: ${props => props.theme.typography.fontWeights.semibold};
-  color: ${props => props.theme.colors.secondary[500]};
-  margin-bottom: 1rem;
+  font-weight: 700;
+  color: ${props => props.theme.colors.neutral[900]};
+  margin-bottom: 0.75rem;
 `;
 
 const BadgeDescription = styled.p`
   font-size: ${props => props.theme.typography.fontSizes.md};
-  color: ${props => props.theme.colors.neutral[700]};
+  color: ${props => props.theme.colors.neutral[600]};
   line-height: 1.6;
 `;
 

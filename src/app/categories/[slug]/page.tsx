@@ -23,5 +23,5 @@ export default async function CategoryPage({ params }: Props) {
   if (!parsed.success) notFound();
   const result = await load(parsed.data.slug);
   if (!result) notFound();
-  return <main className={styles.page}><header className={styles.header}><h1>{result.category.icon} {result.category.name}</h1><p>{result.category.description}</p></header><RestaurantGrid restaurants={result.page.items} /></main>;
+  return <div className={styles.page}><header className={styles.header}><h1>{result.category.icon} {result.category.name}</h1><p>{result.category.description}</p></header><RestaurantGrid restaurants={result.page.items} /></div>;
 }

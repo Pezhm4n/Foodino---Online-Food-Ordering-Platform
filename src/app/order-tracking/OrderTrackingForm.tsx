@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import styled from 'styled-components';
 
-const Container = styled.main`
+const Container = styled.div`
   max-width: 680px;
   margin: 3rem auto;
   padding: 2rem 1.5rem;
@@ -14,15 +14,16 @@ const Container = styled.main`
 
 const Card = styled.section`
   background: white;
-  border-radius: ${({ theme }) => theme.borderRadius.lg};
-  box-shadow: ${({ theme }) => theme.boxShadow.md};
-  padding: 2rem;
+  border-radius: ${({ theme }) => theme.borderRadius.xl};
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  border: 1px solid ${({ theme }) => theme.colors.neutral[200]};
+  padding: 2.25rem;
 `;
 
 const Title = styled.h1`
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: ${({ theme }) => theme.colors.secondary[500]};
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: ${({ theme }) => theme.colors.neutral[900]};
   margin-bottom: 0.75rem;
 `;
 

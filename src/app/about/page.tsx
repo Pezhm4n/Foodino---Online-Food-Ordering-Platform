@@ -7,7 +7,8 @@ import styled from 'styled-components';
 const AboutPageContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: 3rem 1.5rem 5rem;
+  direction: rtl;
 `;
 
 const HeroSection = styled.div`
@@ -16,9 +17,9 @@ const HeroSection = styled.div`
 `;
 
 const PageTitle = styled.h1`
-  font-size: ${props => props.theme.typography.fontSizes.xl};
-  font-weight: ${props => props.theme.typography.fontWeights.bold};
-  color: ${props => props.theme.colors.secondary[500]};
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: ${props => props.theme.colors.neutral[900]};
   margin-bottom: 1rem;
 `;
 
@@ -36,20 +37,20 @@ const Section = styled.section`
 `;
 
 const SectionTitle = styled.h2`
-  font-size: ${props => props.theme.typography.fontSizes.lg};
-  font-weight: ${props => props.theme.typography.fontWeights.semibold};
-  color: ${props => props.theme.colors.secondary[500]};
-  margin-bottom: 1.5rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: ${props => props.theme.colors.neutral[900]};
+  margin-bottom: 1rem;
   text-align: center;
 `;
 
 const SectionDescription = styled.p`
-  font-size: ${props => props.theme.typography.fontSizes.md};
-  color: ${props => props.theme.colors.neutral[700]};
+  font-size: 1.05rem;
+  color: ${props => props.theme.colors.neutral[600]};
   text-align: center;
   max-width: 800px;
-  margin: 0 auto 2rem;
-  line-height: 1.6;
+  margin: 0 auto 2.5rem;
+  line-height: 1.7;
 `;
 
 const FeaturesContainer = styled.div`
@@ -90,16 +91,16 @@ const IconContainer = styled.div`
 `;
 
 const FeatureTitle = styled.h3`
-  font-size: ${props => props.theme.typography.fontSizes.md};
-  font-weight: ${props => props.theme.typography.fontWeights.semibold};
-  color: ${props => props.theme.colors.secondary[500]};
-  margin-bottom: 1rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: ${props => props.theme.colors.neutral[900]};
+  margin-bottom: 0.75rem;
 `;
 
 const FeatureDescription = styled.p`
-  font-size: ${props => props.theme.typography.fontSizes.sm};
-  color: ${props => props.theme.colors.neutral[700]};
-  line-height: 1.6;
+  font-size: 0.95rem;
+  color: ${props => props.theme.colors.neutral[600]};
+  line-height: 1.7;
 `;
 
 const TeamContainer = styled.div`

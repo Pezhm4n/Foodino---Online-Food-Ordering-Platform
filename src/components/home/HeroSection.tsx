@@ -6,241 +6,387 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 const HeroContainer = styled.section`
-  background-color: ${props => props.theme.colors.neutral[100]};
-  padding: 4rem 2rem;
+  background: linear-gradient(135deg, ${props => props.theme.colors.neutral[100]} 0%, white 100%);
+  padding: 4.5rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   position: relative;
   overflow: hidden;
+  max-width: 1300px;
+  margin: 0 auto;
+  gap: 3rem;
   
   @media (max-width: ${props => props.theme.breakpoints.lg}) {
     flex-direction: column;
-    padding: 2rem 1rem;
-    gap: 2rem;
+    padding: 2.5rem 1.25rem;
+    gap: 2.5rem;
   }
 `;
 
 const ContentContainer = styled.div`
-  max-width: 600px;
+  flex: 1;
+  max-width: 620px;
   
   @media (max-width: ${props => props.theme.breakpoints.lg}) {
     text-align: center;
     display: flex;
     flex-direction: column;
     align-items: center;
+    max-width: 100%;
   }
 `;
 
+const Badge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: ${props => props.theme.colors.primary[50]};
+  color: ${props => props.theme.colors.primary[600]};
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.4rem 1rem;
+  border-radius: 9999px;
+  border: 1px solid ${props => props.theme.colors.primary[200]};
+  margin-bottom: 1.25rem;
+`;
+
 const Title = styled.h1`
-  font-size: ${props => props.theme.typography.fontSizes['4xl']};
-  font-weight: ${props => props.theme.typography.fontWeights.bold};
-  color: ${props => props.theme.colors.secondary[500]};
-  margin-bottom: 1.5rem;
+  font-size: 2.75rem;
+  font-weight: 800;
+  color: ${props => props.theme.colors.neutral[900]};
+  margin-bottom: 1.25rem;
+  line-height: 1.35;
   
+  span {
+    color: ${props => props.theme.colors.primary[500]};
+  }
+
   @media (max-width: ${props => props.theme.breakpoints.md}) {
-    font-size: ${props => props.theme.typography.fontSizes['3xl']};
+    font-size: 2rem;
   }
 `;
 
 const Subtitle = styled.p`
-  font-size: ${props => props.theme.typography.fontSizes.lg};
-  color: ${props => props.theme.colors.neutral[700]};
-  margin-bottom: 2.5rem;
-  line-height: 1.7;
+  font-size: 1.125rem;
+  color: ${props => props.theme.colors.neutral[600]};
+  margin-bottom: 2rem;
+  line-height: 1.8;
+  max-width: 540px;
 `;
 
 const SearchContainer = styled.div`
   display: flex;
-  max-width: 500px;
+  max-width: 520px;
+  width: 100%;
   position: relative;
   flex-direction: column;
-  
-  @media (max-width: ${props => props.theme.breakpoints.md}) {
-    width: 100%;
-  }
 `;
 
 const SearchInputContainer = styled.div`
   display: flex;
   position: relative;
-`;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+  border-radius: ${props => props.theme.borderRadius.xl};
+  background: white;
+  border: 1.5px solid ${props => props.theme.colors.neutral[200]};
+  transition: all 0.2s;
 
-const SearchError = styled.div`
-  color: ${props => props.theme.colors.error["500"]};
-  font-size: 0.875rem;
-  margin-top: 0.5rem;
-  text-align: right;
+  &:focus-within {
+    border-color: ${props => props.theme.colors.primary[500]};
+    box-shadow: 0 0 0 4px rgba(255, 90, 0, 0.15);
+  }
 `;
 
 const SearchInput = styled.input`
   width: 100%;
-  padding: 1rem 1.5rem;
-  border-radius: ${props => props.theme.borderRadius.lg};
-  border: 1px solid ${props => props.theme.colors.neutral[300]};
-  font-size: ${props => props.theme.typography.fontSizes.md};
+  padding: 1rem 3rem 1rem 1.25rem;
+  border: none;
+  background: transparent;
+  font-size: 1rem;
   outline: none;
-  transition: all 0.2s ease;
-  padding-right: 3rem;
-  
-  &:focus {
-    border-color: ${props => props.theme.colors.primary[500]};
-    box-shadow: 0 0 0 3px rgba(255, 90, 0, 0.1);
+  font-family: inherit;
+  direction: rtl;
+  text-align: right;
+
+  &::placeholder {
+    color: ${props => props.theme.colors.neutral[400]};
   }
 `;
 
 const SearchIcon = styled.div`
   position: absolute;
-  right: 1rem;
+  right: 1.1rem;
   top: 50%;
   transform: translateY(-50%);
   display: flex;
   align-items: center;
   justify-content: center;
+  color: ${props => props.theme.colors.neutral[400]};
+  font-size: 1.25rem;
 `;
 
 const SearchButton = styled.button`
   background-color: ${props => props.theme.colors.primary[500]};
   color: white;
-  font-weight: ${props => props.theme.typography.fontWeights.semibold};
+  font-weight: 600;
   border: none;
-  padding: 1rem 2rem;
+  padding: 0.85rem 1.75rem;
+  min-height: 44px;
   border-radius: ${props => props.theme.borderRadius.lg};
-  margin-right: 0.5rem;
+  margin: 0.35rem;
   cursor: pointer;
   transition: all 0.2s ease;
+  white-space: nowrap;
   
   &:hover {
-    background-color: ${props => props.theme.colors.primary[400]};
-  }
-  
-  @media (max-width: ${props => props.theme.breakpoints.md}) {
-    padding: 0.75rem 1.5rem;
-  }
-`;
-
-const ImageContainer = styled.div`
-  position: relative;
-  width: 550px;
-  height: 500px;
-  background-color: ${props => props.theme.colors.primary[400]};
-  border-radius: ${props => props.theme.borderRadius.lg};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: ${props => props.theme.typography.fontSizes['2xl']};
-  
-  @media (max-width: ${props => props.theme.breakpoints.xl}) {
-    width: 450px;
-    height: 400px;
-  }
-  
-  @media (max-width: ${props => props.theme.breakpoints.lg}) {
-    width: 100%;
-    height: 350px;
+    background-color: ${props => props.theme.colors.primary[600]};
   }
 `;
 
 const ActionButtons = styled.div`
   display: flex;
   gap: 1rem;
-  margin-top: 2rem;
+  margin-top: 1.75rem;
   
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
     flex-direction: column;
+    width: 100%;
   }
 `;
 
 const PrimaryButton = styled(Link)`
-  padding: 0.75rem 1.5rem;
+  padding: 0.85rem 1.75rem;
   background-color: ${props => props.theme.colors.primary[500]};
   color: white;
-  font-weight: ${props => props.theme.typography.fontWeights.medium};
-  border-radius: ${props => props.theme.borderRadius.md};
-  border: none;
-  cursor: pointer;
+  font-weight: 600;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: ${props => props.theme.borderRadius.lg};
   text-decoration: none;
   text-align: center;
-  display: inline-block;
+  box-shadow: 0 4px 12px rgba(255, 90, 0, 0.25);
+  transition: all 0.2s;
   
   &:hover {
-    background-color: ${props => props.theme.colors.primary[400]};
+    background-color: ${props => props.theme.colors.primary[600]};
+    transform: translateY(-1px);
   }
 `;
 
 const SecondaryButton = styled(Link)`
-  padding: 0.75rem 1.5rem;
-  background-color: transparent;
-  color: ${props => props.theme.colors.primary[500]};
-  font-weight: ${props => props.theme.typography.fontWeights.medium};
-  border-radius: ${props => props.theme.borderRadius.md};
-  border: 1px solid ${props => props.theme.colors.primary[500]};
-  cursor: pointer;
+  padding: 0.85rem 1.75rem;
+  background-color: white;
+  color: ${props => props.theme.colors.neutral[700]};
+  font-weight: 600;
+  border-radius: ${props => props.theme.borderRadius.lg};
+  border: 1.5px solid ${props => props.theme.colors.neutral[200]};
   text-decoration: none;
   text-align: center;
-  display: inline-block;
+  transition: all 0.2s;
   
   &:hover {
-    background-color: ${props => props.theme.colors.primary[500] + '10'};
+    border-color: ${props => props.theme.colors.neutral[300]};
+    background-color: ${props => props.theme.colors.neutral[50]};
+  }
+`;
+
+// بخش گرافیکی شیک جایگزین کادر فلت قبلی
+const VisualShowcase = styled.div`
+  position: relative;
+  width: 480px;
+  height: 440px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  @media (max-width: ${props => props.theme.breakpoints.lg}) {
+    width: 100%;
+    max-width: 440px;
+    height: 380px;
+  }
+`;
+
+const MainCard = styled.div`
+  width: 360px;
+  background: white;
+  border-radius: 1.75rem;
+  padding: 1.75rem;
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1), 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+  border: 1px solid ${props => props.theme.colors.neutral[200]};
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+`;
+
+const FoodIconCircle = styled.div`
+  width: 130px;
+  height: 130px;
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4.5rem;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 10px 20px -5px rgba(251, 146, 60, 0.3);
+  animation: float 4s ease-in-out infinite;
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+`;
+
+const CardTitle = styled.h3`
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: ${props => props.theme.colors.neutral[900]};
+  margin-bottom: 0.35rem;
+`;
+
+const CardDesc = styled.p`
+  font-size: 0.875rem;
+  color: ${props => props.theme.colors.neutral[500]};
+  margin-bottom: 1rem;
+`;
+
+const PriceRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding-top: 0.85rem;
+  border-top: 1px solid ${props => props.theme.colors.neutral[100]};
+`;
+
+const FloatingBadge1 = styled.div`
+  position: absolute;
+  top: 1rem;
+  right: -1rem;
+  background: white;
+  padding: 0.75rem 1.1rem;
+  border-radius: 1rem;
+  box-shadow: 0 12px 24px -4px rgba(0, 0, 0, 0.12);
+  border: 1px solid ${props => props.theme.colors.neutral[100]};
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  z-index: 3;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: ${props => props.theme.colors.neutral[800]};
+
+  @media (max-width: ${props => props.theme.breakpoints.md}) {
+    right: 0.25rem;
+  }
+`;
+
+const FloatingBadge2 = styled.div`
+  position: absolute;
+  bottom: 1.5rem;
+  left: -1rem;
+  background: white;
+  padding: 0.75rem 1.1rem;
+  border-radius: 1rem;
+  box-shadow: 0 12px 24px -4px rgba(0, 0, 0, 0.12);
+  border: 1px solid ${props => props.theme.colors.neutral[100]};
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  z-index: 3;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: ${props => props.theme.colors.neutral[800]};
+
+  @media (max-width: ${props => props.theme.breakpoints.md}) {
+    left: 0.25rem;
   }
 `;
 
 const HeroSection = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchError, setSearchError] = useState('');
   const router = useRouter();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    setSearchError('');
-    
-    if (!searchTerm.trim()) {
-      setSearchError('لطفاً عبارت جستجو را وارد کنید');
-      return;
+    if (searchTerm.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
+    } else {
+      router.push('/restaurants');
     }
-    
-    router.push(`/restaurants?q=${encodeURIComponent(searchTerm.trim())}`);
   };
 
   return (
     <HeroContainer>
       <ContentContainer>
-        <Title>سفارش غذای آنلاین از بهترین رستوران‌ها</Title>
+        <Badge>
+          <span>🔥</span> سریع‌ترین پلتفرم سفارش آنلاین غذا
+        </Badge>
+        
+        <Title>
+          سفارش آنلاین غذا از <span>بهترین رستوران‌ها</span>
+        </Title>
+        
         <Subtitle>
-          سریع‌ترین سرویس تحویل غذا در شهر شما. غذای مورد علاقه خود را پیدا کنید و با چند کلیک سفارش دهید!
+          غذای دلخواهت رو از برترین رستوران‌ها، فست‌فودها و کافه‌های شهر انتخاب کن و در کمترین زمان داغ و تازه تحویل بگیر!
         </Subtitle>
-        <form onSubmit={handleSearch}>
-          <SearchContainer>
+        
+        <SearchContainer>
+          <form onSubmit={handleSearch}>
             <SearchInputContainer>
-              <SearchInput 
-                placeholder="جستجوی غذا یا رستوران..." 
+              <SearchIcon>🔍</SearchIcon>
+              <SearchInput
+                type="text"
+                placeholder="جستجوی نام رستوران، پیتزا، برگر..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                aria-label="جستجوی غذا یا رستوران"
               />
-              <SearchIcon>
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z" stroke="#9E9E9E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M21 21L16.65 16.65" stroke="#9E9E9E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </SearchIcon>
               <SearchButton type="submit">جستجو</SearchButton>
             </SearchInputContainer>
-            {searchError && <SearchError>{searchError}</SearchError>}
-          </SearchContainer>
-        </form>
+          </form>
+        </SearchContainer>
+        
         <ActionButtons>
-          <PrimaryButton href="/restaurants">سفارش غذا</PrimaryButton>
-          <SecondaryButton href="/about">درباره ما</SecondaryButton>
+          <PrimaryButton href="/restaurants">مشاهده رستوران‌ها</PrimaryButton>
+          <SecondaryButton href="/categories">دسته‌بندی‌های غذا</SecondaryButton>
         </ActionButtons>
       </ContentContainer>
       
-      <ImageContainer>
-        تصویر غذا
-      </ImageContainer>
+      <VisualShowcase>
+        <FloatingBadge1>
+          <span style={{ fontSize: '1.25rem' }}>⚡</span>
+          <div>
+            <div>تحویل اکسپرس</div>
+            <div style={{ fontSize: '0.75rem', color: '#16a34a' }}>زیر ۳۰ دقیقه</div>
+          </div>
+        </FloatingBadge1>
+
+        <MainCard>
+          <FoodIconCircle>🍔</FoodIconCircle>
+          <CardTitle>برگر دوبل ذغالی با پنیر گودا</CardTitle>
+          <CardDesc>گوشت خالص ۱۰۰٪ با سس مخصوص و قارچ</CardDesc>
+          <PriceRow>
+            <span style={{ fontSize: '0.85rem', color: '#f59e0b', fontWeight: 600 }}>⭐ ۴.۹ (۵۲۰+ نظر)</span>
+            <span style={{ fontSize: '0.9rem', color: '#16a34a', fontWeight: 700 }}>تحویل رایگان</span>
+          </PriceRow>
+        </MainCard>
+
+        <FloatingBadge2>
+          <span style={{ fontSize: '1.25rem' }}>🍕</span>
+          <div>
+            <div>تنوع بی‌نظیر</div>
+            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>بیش از ۱۰۰ رستوران</div>
+          </div>
+        </FloatingBadge2>
+      </VisualShowcase>
     </HeroContainer>
   );
 };
 
-export default HeroSection; 
+export default HeroSection;

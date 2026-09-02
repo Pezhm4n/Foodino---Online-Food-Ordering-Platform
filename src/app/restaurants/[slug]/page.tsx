@@ -43,17 +43,22 @@ export default async function RestaurantDetailPage({ params }: RestaurantDetailP
   }).replace(/</g, '\\u003c');
 
   return (
-    <main style={{ maxWidth: '960px', margin: '0 auto', padding: '2rem 1rem' }}>
+    <div style={{ maxWidth: '960px', margin: '0 auto', padding: '2rem 1rem 4rem', direction: 'rtl' }}>
       <script dangerouslySetInnerHTML={{ __html: structuredData }} type="application/ld+json" />
-      <header>
-        <h1>{restaurant.name}</h1>
-        <p>{restaurant.description}</p>
-        <p>امتیاز {restaurant.rating} — زمان ارسال {restaurant.deliveryMinutes.min} تا {restaurant.deliveryMinutes.max} دقیقه</p>
+      <header style={{ marginBottom: '2rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '1.5rem' }}>
+        <h1 style={{ fontSize: '2rem', fontWeight: 800, color: '#0f172a', margin: '0 0 0.5rem' }}>{restaurant.name}</h1>
+        <p style={{ color: '#475569', fontSize: '1.05rem', margin: '0 0 0.75rem', lineHeight: 1.6 }}>{restaurant.description}</p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', fontSize: '0.9rem', color: '#64748b' }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', background: '#fef3c7', color: '#b45309', padding: '0.25rem 0.6rem', borderRadius: '9999px', fontWeight: 700 }}>
+            ⭐ {restaurant.rating}
+          </span>
+          <span>⏱️ زمان ارسال: {restaurant.deliveryMinutes.min} تا {restaurant.deliveryMinutes.max} دقیقه</span>
+        </div>
       </header>
-      <h2>منو</h2>
-      {products.length === 0 ? <p>در حال حاضر محصول فعالی وجود ندارد.</p> : (
+      <h2 style={{ fontSize: '1.35rem', fontWeight: 700, color: '#0f172a', marginBottom: '1.25rem' }}>منوی غذا</h2>
+      {products.length === 0 ? <p style={{ color: '#64748b' }}>در حال حاضر محصول فعالی وجود ندارد.</p> : (
         <DatabaseMenu restaurant={{ id: restaurant.id, name: restaurant.name }} products={products} />
       )}
-    </main>
+    </div>
   );
 }

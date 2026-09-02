@@ -16,9 +16,9 @@ const PageHeader = styled.div`
 `;
 
 const PageTitle = styled.h1`
-  font-size: ${props => props.theme.typography.fontSizes.xl};
-  font-weight: ${props => props.theme.typography.fontWeights.bold};
-  color: ${props => props.theme.colors.secondary[500]};
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: ${props => props.theme.colors.neutral[900]};
   margin-bottom: 1rem;
 `;
 
@@ -29,9 +29,10 @@ const UpdatedDate = styled.p`
 
 const TermsContent = styled.div`
   background-color: white;
-  padding: 2rem;
-  border-radius: ${props => props.theme.borderRadius.lg};
-  box-shadow: ${props => props.theme.boxShadow.md};
+  padding: 2.5rem;
+  border-radius: ${props => props.theme.borderRadius.xl};
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  border: 1px solid ${props => props.theme.colors.neutral[200]};
 `;
 
 const Section = styled.section`
@@ -39,10 +40,10 @@ const Section = styled.section`
 `;
 
 const SectionTitle = styled.h2`
-  font-size: ${props => props.theme.typography.fontSizes.lg};
-  font-weight: ${props => props.theme.typography.fontWeights.semibold};
-  color: ${props => props.theme.colors.secondary[500]};
-  margin-bottom: 1.5rem;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: ${props => props.theme.colors.neutral[900]};
+  margin-bottom: 1.25rem;
   padding-bottom: 0.5rem;
   border-bottom: 1px solid ${props => props.theme.colors.neutral[100]};
 `;

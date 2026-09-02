@@ -190,29 +190,31 @@ const PaginationContainer = styled.div`
   margin-top: 2rem;
 `;
 
-const PageButton = styled.button<{ isActive?: boolean }>`
+const PageButton = styled.button<{ $isActive?: boolean }>`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 6px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 8px;
   margin: 0 4px;
   font-size: 14px;
-  border: 1px solid ${props => props.isActive ? props.theme.colors.primary[500] : props.theme.colors.neutral[300]};
-  background-color: ${props => props.isActive ? props.theme.colors.primary[500] : 'white'};
-  color: ${props => props.isActive ? 'white' : props.theme.colors.neutral[700]};
-  font-weight: ${props => props.isActive ? props.theme.typography.fontWeights.medium : 'normal'};
+  font-weight: ${props => props.$isActive ? props.theme.typography.fontWeights.bold : props.theme.typography.fontWeights.medium};
+  border: 1px solid ${props => props.$isActive ? props.theme.colors.primary[500] : props.theme.colors.neutral[300]};
+  background-color: ${props => props.$isActive ? props.theme.colors.primary[500] : 'white'};
+  color: ${props => props.$isActive ? 'white' : props.theme.colors.neutral[700]};
   cursor: pointer;
   transition: all 0.2s ease;
   
-  &:hover {
+  &:hover:not(:disabled) {
     border-color: ${props => props.theme.colors.primary[500]};
-    color: ${props => props.isActive ? 'white' : props.theme.colors.primary[500]};
+    color: ${props => props.$isActive ? 'white' : props.theme.colors.primary[500]};
   }
   
   &:disabled {
-    opacity: 0.5;
+    opacity: 0.4;
     cursor: not-allowed;
   }
 `;
@@ -371,16 +373,19 @@ const RestaurantsList = () => {
           <PageButton 
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
+            aria-label="صفحه قبلی"
           >
-            &lt;
+            &gt;
           </PageButton>
           
           {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
             <PageButton 
               key={page} 
-              isActive={page === currentPage}
+              $isActive={page === currentPage}
               data-active={page === currentPage}
               onClick={() => handlePageChange(page)}
+              aria-label={`صفحه ${page}`}
+              aria-current={page === currentPage ? 'page' : undefined}
             >
               {page}
             </PageButton>
@@ -389,8 +394,9 @@ const RestaurantsList = () => {
           <PageButton 
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
+            aria-label="صفحه بعدی"
           >
-            &gt;
+            &lt;
           </PageButton>
         </PaginationContainer>
       )}

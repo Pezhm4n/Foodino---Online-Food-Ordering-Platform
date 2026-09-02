@@ -8,5 +8,5 @@ export const metadata: Metadata = { title: 'دسته‌بندی غذا | فود�
 export default async function CategoriesPage() {
   const repository = new SupabaseCatalogRepository(await createSupabaseServerClient());
   const categories = await repository.listCategories();
-  return <main className={styles.page}><header className={styles.header}><h1>دسته‌بندی‌های غذایی</h1><p>غذای دلخواهتان را بر اساس دسته‌بندی پیدا کنید.</p></header><CategoryGrid categories={categories} /></main>;
+  return <div className={styles.page}><header className={styles.header}><h1>دسته‌بندی‌های غذایی</h1><p>غذای دلخواهتان را بر اساس دسته‌بندی پیدا کنید.</p></header><CategoryGrid categories={categories} /></div>;
 }

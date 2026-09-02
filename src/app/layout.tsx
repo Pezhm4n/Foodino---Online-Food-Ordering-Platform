@@ -29,7 +29,7 @@ export default async function RootLayout({
   const claims = await requireClaims();
   return (
     <html lang="fa" dir="rtl">
-      <body className={vazirmatn.variable}>
+      <body className={`${vazirmatn.className} ${vazirmatn.variable}`}>
         <StyledComponentsRegistry>
           <Layout isAuthenticated={claims !== null}>{children}</Layout>
         </StyledComponentsRegistry>

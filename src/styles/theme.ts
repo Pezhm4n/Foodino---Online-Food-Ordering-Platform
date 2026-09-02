@@ -3,16 +3,17 @@ import { ThemeColors } from './types';
 // تعریف رنگ‌ها
 const colors: ThemeColors = {
   primary: {
-    '50': '#f0f9ff',
-    '100': '#e0f2fe',
-    '200': '#bae6fd',
-    '300': '#7dd3fc',
-    '400': '#38bdf8',
-    '500': '#0ea5e9',
-    '600': '#0284c7',
-    '700': '#0369a1',
-    '800': '#075985',
-    '900': '#0c4a6e',
+    '50': '#fff7ed',
+    '100': '#ffedd5',
+    '200': '#fed7aa',
+    '300': '#fdba74',
+    '400': '#fb923c',
+    '500': '#ff5a00',
+    '600': '#ea580c',
+    '700': '#c2410c',
+    '800': '#9a3412',
+    '900': '#7c2d12',
+    main: '#ff5a00',
   },
   secondary: {
     '50': '#f8fafc',
@@ -25,6 +26,7 @@ const colors: ThemeColors = {
     '700': '#334155',
     '800': '#1e293b',
     '900': '#0f172a',
+    main: '#1e293b',
   },
   success: {
     '50': '#f0fdf4',
@@ -126,9 +128,12 @@ export const theme = {
   },
   boxShadow: {
     sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-    md: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-    lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+    md: '0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -1px rgba(0, 0, 0, 0.04)',
+    lg: '0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04)',
     xl: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+    subtle: '0 2px 10px rgba(15, 23, 42, 0.05)',
+    cardHover: '0 16px 32px -8px rgba(15, 23, 42, 0.12), 0 4px 8px -2px rgba(15, 23, 42, 0.04)',
+    primaryGlow: '0 8px 20px -4px rgba(255, 90, 0, 0.3)',
   },
   breakpoints: {
     xs: '480px',

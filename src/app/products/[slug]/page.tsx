@@ -42,5 +42,5 @@ export default async function ProductPage({ params }: Props) {
       url: productUrl,
     },
   }).replace(/</g, '\\u003c');
-  return <main className={styles.page}><script dangerouslySetInnerHTML={{ __html: structuredData }} type="application/ld+json" /><header className={styles.header}><h1>{result.product.name}</h1><p>{result.product.description}</p></header><DatabaseMenu restaurant={{ id: result.restaurant.id, name: result.restaurant.name }} products={[result.product]} /><Link className={styles.back} href={`/restaurants/${result.restaurant.slug}`}>مشاهده منوی {result.restaurant.name}</Link></main>;
+  return <div className={styles.page}><script dangerouslySetInnerHTML={{ __html: structuredData }} type="application/ld+json" /><header className={styles.header}><h1>{result.product.name}</h1><p>{result.product.description}</p></header><DatabaseMenu restaurant={{ id: result.restaurant.id, name: result.restaurant.name }} products={[result.product]} /><Link className={styles.back} href={`/restaurants/${result.restaurant.slug}`}>مشاهده منوی {result.restaurant.name}</Link></div>;
 }

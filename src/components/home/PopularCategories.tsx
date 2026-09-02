@@ -14,15 +14,15 @@ const SectionContainer = styled.section`
 
 const SectionTitle = styled.h2`
   font-size: ${props => props.theme.typography.fontSizes['3xl']};
-  font-weight: ${props => props.theme.typography.fontWeights.bold};
-  color: ${props => props.theme.colors.secondary[500]};
+  font-weight: 800;
+  color: ${props => props.theme.colors.neutral[900]};
   text-align: center;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 `;
 
 const SectionSubtitle = styled.p`
   font-size: ${props => props.theme.typography.fontSizes.lg};
-  color: ${props => props.theme.colors.neutral[700]};
+  color: ${props => props.theme.colors.neutral[600]};
   text-align: center;
   max-width: 700px;
   margin: 0 auto 3rem;
@@ -40,16 +40,18 @@ const CategoryCard = styled(Link)`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 1.5rem;
-  border-radius: ${props => props.theme.borderRadius.lg};
-  box-shadow: ${props => props.theme.boxShadow.md};
+  padding: 1.75rem 1.5rem;
+  border-radius: ${props => props.theme.borderRadius.xl};
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
   background-color: white;
+  border: 1px solid ${props => props.theme.colors.neutral[200]};
   transition: all 0.3s ease;
   text-decoration: none;
   
   &:hover {
-    transform: translateY(-5px);
-    box-shadow: ${props => props.theme.boxShadow.lg};
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px -4px rgba(255, 90, 0, 0.12), 0 8px 16px -4px rgba(0, 0, 0, 0.04);
+    border-color: ${props => props.theme.colors.primary[300]};
   }
 `;
 
@@ -58,13 +60,13 @@ const IconContainer = styled.div`
   height: 80px;
   position: relative;
   margin-bottom: 1rem;
-  background-color: ${props => props.theme.colors.neutral[100]};
+  background: linear-gradient(135deg, ${props => props.theme.colors.primary[50]} 0%, ${props => props.theme.colors.primary[100]} 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: ${props => props.theme.colors.primary[500]};
-  font-size: ${props => props.theme.typography.fontSizes.lg};
+  font-size: 2.5rem;
+  transition: transform 0.3s ease;
 `;
 
 const CategoryName = styled.h3`

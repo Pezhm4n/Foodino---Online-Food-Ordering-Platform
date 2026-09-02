@@ -237,8 +237,8 @@ const IconButton = styled(Link)`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background-color: ${(props) => props.theme.colors.neutral[50]};
   border: 1px solid ${(props) => props.theme.colors.neutral[200]};
@@ -290,8 +290,8 @@ const MobileMenuButton = styled.button`
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     background-color: ${(props) => props.theme.colors.neutral[50]};
     border: 1px solid ${(props) => props.theme.colors.neutral[200]};
@@ -332,6 +332,18 @@ const MobileNavCloseButton = styled.button`
   color: ${(props) => props.theme.colors.neutral[500]};
   font-size: 1.5rem;
   cursor: pointer;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: ${(props) => props.theme.colors.neutral[100]};
+    color: ${(props) => props.theme.colors.neutral[900]};
+  }
 `;
 
 const MobileNavLinks = styled.div`
@@ -394,7 +406,7 @@ const LogoutIconButton = styled.button`
 
   &:hover {
     background-color: ${(props) => props.theme.colors.neutral[100]};
-    color: ${(props) => props.theme.colors.primary.main};
+    color: ${(props) => props.theme.colors.primary[500]};
   }
 `;
 
@@ -430,8 +442,8 @@ const MobileCartButton = styled(Link)`
   display: none;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background-color: ${(props) => props.theme.colors.neutral[50]};
   border: 1px solid ${(props) => props.theme.colors.neutral[200]};

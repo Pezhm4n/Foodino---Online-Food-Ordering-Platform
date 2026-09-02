@@ -34,7 +34,7 @@ export default async function RestaurantsPage({ searchParams }: Props) {
   if (parsed.data.sort !== 'relevance') nextParams.set('sort', parsed.data.sort);
   if (page.nextCursor) nextParams.set('cursor', page.nextCursor);
 
-  return <main className={styles.page}>
+  return <div className={styles.page}>
     <header className={styles.header}><h1>رستوران‌ها</h1><p>نتیجه‌ها مستقیماً از فهرست فعال فودینو خوانده می‌شوند.</p></header>
     <form action="/restaurants" className={styles.search} method="get" role="search">
       <input aria-label="عبارت جست‌وجو" defaultValue={parsed.data.q ?? ''} name="q" placeholder="نام رستوران" />
@@ -51,5 +51,5 @@ export default async function RestaurantsPage({ searchParams }: Props) {
     </form>
     <RestaurantGrid restaurants={page.items} />
     {page.nextCursor ? <Link className={styles.more} href={`/restaurants?${nextParams}`}>نتایج بیشتر</Link> : null}
-  </main>;
+  </div>;
 }

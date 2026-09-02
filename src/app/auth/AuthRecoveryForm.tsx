@@ -6,19 +6,21 @@ import { useRouter } from 'next/navigation';
 import styled from 'styled-components';
 import { forgotPasswordAction, resetPasswordAction } from '@/app/auth/actions';
 
-const Page = styled.main`
+const Page = styled.div`
   display: grid;
   min-height: 60vh;
   place-items: center;
-  padding: 2rem 1rem;
+  padding: 3rem 1rem;
+  direction: rtl;
 `;
 
 const Card = styled.section`
-  width: min(100%, 30rem);
-  padding: 2rem;
-  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  width: min(100%, 28rem);
+  padding: 2.25rem;
+  border-radius: ${({ theme }) => theme.borderRadius.xl};
   background: white;
-  box-shadow: ${({ theme }) => theme.boxShadow.md};
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+  border: 1px solid ${({ theme }) => theme.colors.neutral[200]};
 `;
 
 const Form = styled.form`display: grid; gap: 1rem;`;
