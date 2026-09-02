@@ -25,6 +25,61 @@ const headerCopy = {
 
 const t = (key: keyof typeof headerCopy) => headerCopy[key];
 
+const TopPromoBarContainer = styled.div<{ $visible: boolean }>`
+  display: ${({ $visible }) => ($visible ? 'flex' : 'none')};
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  background: linear-gradient(90deg, #ea580c 0%, #ff5a00 50%, #f97316 100%);
+  color: white;
+  padding: 0.45rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  position: relative;
+  z-index: 101;
+  direction: rtl;
+  text-align: center;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    font-size: 0.75rem;
+    padding: 0.35rem 2rem 0.35rem 0.75rem;
+    gap: 0.4rem;
+  }
+`;
+
+const PromoCodeBadge = styled.span`
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(4px);
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  border: 1px dashed rgba(255, 255, 255, 0.7);
+  font-family: monospace;
+`;
+
+const PromoCloseButton = styled.button`
+  position: absolute;
+  left: 0.75rem;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+
+  &:hover {
+    color: white;
+    background: rgba(0, 0, 0, 0.15);
+  }
+`;
+
 const HeaderContainer = styled.header<{ $isScrolled: boolean }>`
   display: flex;
   justify-content: space-between;
@@ -487,8 +542,21 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isPromoVisible, setIsPromoVisible] = useState(() => {
+    if (typeof window !== "undefined") {
+      return sessionStorage.getItem("foodino:hide_promo") !== "true";
+    }
+    return true;
+  });
   const router = useRouter();
   const { getTotalItems } = useCart();
+
+  const handleDismissPromo = () => {
+    setIsPromoVisible(false);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("foodino:hide_promo", "true");
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -525,6 +593,12 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
 
   return (
     <>
+      <TopPromoBarContainer $visible={isPromoVisible}>
+        <span>🎉 تخفیف ویژه اولین سفارش با کد:</span>
+        <PromoCodeBadge>FOODINO</PromoCodeBadge>
+        <span>(۲۰٪ تخفیف تا ۵۰,۰۰۰ تومان)</span>
+        <PromoCloseButton onClick={handleDismissPromo} aria-label="بستن اعلان">✕</PromoCloseButton>
+      </TopPromoBarContainer>
       <HeaderContainer $isScrolled={isScrolled}>
         <Logo>
           <LogoLink href="/">

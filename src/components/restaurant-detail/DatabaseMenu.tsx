@@ -1,11 +1,177 @@
-'use client';
+"use client";
 
-import styled from 'styled-components';
-import type { ProductMenuItem } from '@/application/ports/catalog-repository';
-import { useCart } from '@/contexts/CartContext';
-import { irrToToman } from '@/domain/money/money';
-import { toast } from 'react-hot-toast';
-import Link from 'next/link';
+import React, { useState, useMemo } from "react";
+import styled from "styled-components";
+import type { ProductMenuItem } from "@/application/ports/catalog-repository";
+import { useCart } from "@/contexts/CartContext";
+import { irrToToman } from "@/domain/money/money";
+import { toast } from "react-hot-toast";
+import FoodDetailModal, { type DishDetails } from "@/components/common/FoodDetailModal";
+
+function getDishEmoji(name: string): string {
+  if (name.includes("پیتزا")) return "🍕";
+  if (name.includes("برگر") || name.includes("ساندویچ")) return "🍔";
+  if (name.includes("سوشی")) return "🍣";
+  if (name.includes("کباب") || name.includes("جوجه") || name.includes("چلو")) return "🍚";
+  if (name.includes("سالاد")) return "🥗";
+  if (name.includes("پاستا") || name.includes("اسپاگتی")) return "🍝";
+  if (name.includes("سوپ")) return "🍲";
+  if (name.includes("نوشابه") || name.includes("دوغ") || name.includes("آب")) return "🥤";
+  if (name.includes("دسر") || name.includes("کیک")) return "🍰";
+  return "🍽️";
+}
+
+function getDishCategory(name: string): string {
+  if (name.includes("پیتزا")) return "پیتزا";
+  if (name.includes("برگر") || name.includes("ساندویچ")) return "برگر و ساندویچ";
+  if (name.includes("سوشی")) return "سوشی و غذاهای آسیایی";
+  if (name.includes("کباب") || name.includes("جوجه") || name.includes("چلو") || name.includes("خورشت")) return "غذای اصلی";
+  if (name.includes("سالاد") || name.includes("سوپ") || name.includes("سیب‌زمینی")) return "پیش‌غذا و سالاد";
+  if (name.includes("نوشابه") || name.includes("دوغ") || name.includes("آب") || name.includes("موهیتو")) return "نوشیدنی";
+  return "منوی اصلی";
+}
+
+function getDishNutrition(category: string) {
+  switch (category) {
+    case "پیتزا":
+      return { calories: 750, protein: 34, fat: 28, carbs: 68 };
+    case "برگر و ساندویچ":
+      return { calories: 680, protein: 36, fat: 30, carbs: 52 };
+    case "سوشی و غذاهای آسیایی":
+      return { calories: 460, protein: 28, fat: 12, carbs: 55 };
+    case "پیش‌غذا و سالاد":
+      return { calories: 340, protein: 18, fat: 14, carbs: 24 };
+    case "نوشیدنی":
+      return { calories: 120, protein: 0, fat: 0, carbs: 30 };
+    default:
+      return { calories: 820, protein: 40, fat: 34, carbs: 75 };
+  }
+}
+
+function getDishIngredients(description: string): string[] {
+  if (description && (description.includes("با") || description.includes("و"))) {
+    const parts = description.split(/[،,و]|با|همراه/);
+    const cleaned = parts
+      .map((p) => p.trim())
+      .filter((p) => p.length > 2 && p.length < 30 && !p.includes("پیتزا") && !p.includes("مخصوص"));
+    if (cleaned.length > 0) return cleaned;
+  }
+  return ["مواد اولیه تازه روز", "ادویه مخصوص سرآشپز", "روغن درجه یک"];
+}
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+`;
+
+const ControlsBar = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: white;
+  padding: 1rem;
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  border: 1px solid ${({ theme }) => theme.colors.neutral[200]};
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    padding: 0.75rem;
+    gap: 0.75rem;
+  }
+`;
+
+const SearchBox = styled.div`
+  position: relative;
+  width: 100%;
+`;
+
+const SearchInput = styled.input`
+  width: 100%;
+  padding: 0.65rem 2.5rem 0.65rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-family: inherit;
+  outline: none;
+  background: #f8fafc;
+  transition: all 0.2s;
+
+  &:focus {
+    background: white;
+    border-color: #ff5a00;
+    box-shadow: 0 0 0 3px rgba(255, 90, 0, 0.1);
+  }
+`;
+
+const SearchIconWrapper = styled.div`
+  position: absolute;
+  right: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  pointer-events: none;
+  font-size: 0.95rem;
+`;
+
+const ClearSearchBtn = styled.button`
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0.2rem;
+  font-size: 0.85rem;
+
+  &:hover {
+    color: #0f172a;
+  }
+`;
+
+const TabsWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`;
+
+const CategoryTab = styled.button<{ $active: boolean }>`
+  background: ${({ $active }) => ($active ? "#ff5a00" : "#f1f5f9")};
+  color: ${({ $active }) => ($active ? "white" : "#475569")};
+  border: none;
+  padding: 0.45rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+
+  &:hover {
+    background: ${({ $active }) => ($active ? "#e04e00" : "#e2e8f0")};
+  }
+
+  span.count {
+    background: ${({ $active }) => ($active ? "rgba(255, 255, 255, 0.25)" : "#cbd5e1")};
+    color: ${({ $active }) => ($active ? "white" : "#334155")};
+    padding: 0.1rem 0.4rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+`;
 
 const List = styled.ul`
   display: grid;
@@ -19,18 +185,43 @@ const Item = styled.li`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.85rem;
-  padding: 1rem;
+  gap: 1rem;
+  padding: 1.1rem;
   border: 1px solid ${({ theme }) => theme.colors.neutral[200]};
   border-radius: ${({ theme }) => theme.borderRadius.lg};
   background: white;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   transition: all 0.2s ease;
+  cursor: pointer;
+
+  &:hover {
+    border-color: #fdba74;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    transform: translateY(-1px);
+  }
 
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
     padding: 0.85rem;
     gap: 0.75rem;
     border-radius: 0.75rem;
+  }
+`;
+
+const DishIconBox = styled.div`
+  width: 54px;
+  height: 54px;
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.85rem;
+  flex-shrink: 0;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    width: 44px;
+    height: 44px;
+    font-size: 1.5rem;
   }
 `;
 
@@ -42,19 +233,12 @@ const ItemDetails = styled.div`
     display: block;
     font-size: 1rem;
     font-weight: 700;
+    color: ${({ theme }) => theme.colors.neutral[900]};
     margin-bottom: 0.25rem;
 
     @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
       font-size: 0.925rem;
       margin-bottom: 0.2rem;
-    }
-
-    a {
-      text-decoration: none;
-      color: ${({ theme }) => theme.colors.neutral[900]};
-      &:hover {
-        color: ${({ theme }) => theme.colors.primary[500]};
-      }
     }
   }
 
@@ -74,19 +258,38 @@ const ItemDetails = styled.div`
     }
   }
 
-  span {
+  .meta-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  span.price {
     display: inline-block;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     font-weight: 700;
     color: ${({ theme }) => theme.colors.primary[600]};
 
     @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-      font-size: 0.825rem;
+      font-size: 0.85rem;
     }
+  }
+
+  span.details-hint {
+    font-size: 0.75rem;
+    color: #94a3b8;
   }
 `;
 
-const Button = styled.button`
+const ActionBox = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+`;
+
+const AddButton = styled.button`
   padding: 0.55rem 1rem;
   border: 0;
   border-radius: ${({ theme }) => theme.borderRadius.md};
@@ -97,11 +300,11 @@ const Button = styled.button`
   font-size: 0.875rem;
   min-height: 40px;
   min-width: 72px;
-  flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(255, 90, 0, 0.2);
 
   &:hover {
     background: ${({ theme }) => theme.colors.primary[600]};
@@ -119,6 +322,31 @@ const Button = styled.button`
   }
 `;
 
+const EmptyState = styled.div`
+  text-align: center;
+  padding: 3rem 1.5rem;
+  background: white;
+  border-radius: 1rem;
+  border: 1px dashed #cbd5e1;
+  color: #64748b;
+
+  .emoji {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  h4 {
+    margin: 0 0 0.35rem;
+    color: #0f172a;
+    font-size: 1.1rem;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.875rem;
+  }
+`;
+
 export default function DatabaseMenu({
   restaurant,
   products,
@@ -127,34 +355,149 @@ export default function DatabaseMenu({
   products: readonly ProductMenuItem[];
 }>) {
   const { addItem } = useCart();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeCategory, setActiveCategory] = useState("همه");
+  const [selectedDish, setSelectedDish] = useState<DishDetails | null>(null);
+
+  const categoriesWithCounts = useMemo(() => {
+    const counts: Record<string, number> = { همه: products.length };
+    products.forEach((p) => {
+      const cat = getDishCategory(p.name);
+      counts[cat] = (counts[cat] || 0) + 1;
+    });
+    return counts;
+  }, [products]);
+
+  const categories = useMemo(() => Object.keys(categoriesWithCounts), [categoriesWithCounts]);
+
+  const filteredProducts = useMemo(() => {
+    return products.filter((p) => {
+      const cat = getDishCategory(p.name);
+      const matchesCat = activeCategory === "همه" || cat === activeCategory;
+      const q = searchQuery.trim().toLowerCase();
+      const matchesSearch =
+        !q ||
+        p.name.toLowerCase().includes(q) ||
+        p.description.toLowerCase().includes(q);
+      return matchesCat && matchesSearch;
+    });
+  }, [products, activeCategory, searchQuery]);
+
+  const handleProductClick = (product: ProductMenuItem) => {
+    const priceToman = irrToToman(product.price);
+    const category = getDishCategory(product.name);
+    setSelectedDish({
+      id: product.id,
+      name: product.name,
+      description: product.description,
+      price: priceToman,
+      image: getDishEmoji(product.name),
+      restaurantId: restaurant.id,
+      restaurantName: restaurant.name,
+      category,
+      ingredients: getDishIngredients(product.description),
+      nutrition: getDishNutrition(category),
+      isPopular: true,
+    });
+  };
+
+  const handleQuickAdd = (e: React.MouseEvent, product: ProductMenuItem) => {
+    e.stopPropagation();
+    try {
+      const priceToman = irrToToman(product.price);
+      addItem({
+        id: product.id,
+        productId: product.id,
+        restaurantId: restaurant.id,
+        restaurantName: restaurant.name,
+        name: product.name,
+        price: priceToman,
+        quantity: 1,
+        addonIds: [],
+      });
+      toast.success(`${product.name} به سبد خرید اضافه شد`);
+    } catch {
+      toast.error("سبد خرید فقط می‌تواند شامل محصولات یک رستوران باشد.");
+    }
+  };
+
   return (
-    <List>
-      {products.map((product) => (
-        <Item key={product.id}>
-          <ItemDetails>
-            <strong><Link href={`/products/${product.slug}`}>{product.name}</Link></strong>
-            <p>{product.description}</p>
-            <span>{new Intl.NumberFormat('fa-IR').format(irrToToman(product.price))} تومان</span>
-          </ItemDetails>
-          <Button type="button" onClick={() => {
-            try {
-              addItem({
-                id: product.id,
-                productId: product.id,
-                restaurantId: restaurant.id,
-                addonIds: [],
-                name: product.name,
-                price: product.price.amountIrr,
-                quantity: 1,
-                restaurantName: restaurant.name,
-              });
-              toast.success('به سبد خرید افزوده شد.');
-            } catch {
-              toast.error('سبد خرید فقط می‌تواند شامل محصولات یک رستوران باشد.');
-            }
-          }}>افزودن</Button>
-        </Item>
-      ))}
-    </List>
+    <Container>
+      <ControlsBar>
+        <SearchBox>
+          <SearchInput
+            type="text"
+            placeholder="جستجو در منوی این رستوران..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <SearchIconWrapper>🔍</SearchIconWrapper>
+          {searchQuery && (
+            <ClearSearchBtn type="button" onClick={() => setSearchQuery("")}>
+              ✕
+            </ClearSearchBtn>
+          )}
+        </SearchBox>
+
+        <TabsWrapper>
+          {categories.map((cat) => (
+            <CategoryTab
+              key={cat}
+              type="button"
+              $active={activeCategory === cat}
+              onClick={() => setActiveCategory(cat)}
+            >
+              <span>{cat}</span>
+              <span className="count">{categoriesWithCounts[cat]}</span>
+            </CategoryTab>
+          ))}
+        </TabsWrapper>
+      </ControlsBar>
+
+      {filteredProducts.length === 0 ? (
+        <EmptyState>
+          <div className="emoji">🍽️</div>
+          <h4>غذایی یافت نشد</h4>
+          <p>موردی با مشخصات جستجوی شما در منوی این رستوران پیدا نشد.</p>
+        </EmptyState>
+      ) : (
+        <List>
+          {filteredProducts.map((product) => {
+            const priceToman = irrToToman(product.price);
+            const emoji = getDishEmoji(product.name);
+            return (
+              <Item key={product.id} onClick={() => handleProductClick(product)}>
+                <DishIconBox>{emoji}</DishIconBox>
+                <ItemDetails>
+                  <strong>{product.name}</strong>
+                  <p>{product.description}</p>
+                  <div className="meta-row">
+                    <span className="price">
+                      {new Intl.NumberFormat("fa-IR").format(priceToman)} تومان
+                    </span>
+                    <span className="details-hint">💡 کلیک برای ارزش غذایی و ترکیبات</span>
+                  </div>
+                </ItemDetails>
+                <ActionBox>
+                  <AddButton
+                    type="button"
+                    onClick={(e) => handleQuickAdd(e, product)}
+                    aria-label={`افزودن ${product.name}`}
+                  >
+                    + افزودن
+                  </AddButton>
+                </ActionBox>
+              </Item>
+            );
+          })}
+        </List>
+      )}
+
+      <FoodDetailModal
+        dish={selectedDish}
+        isOpen={!!selectedDish}
+        onClose={() => setSelectedDish(null)}
+      />
+    </Container>
   );
 }

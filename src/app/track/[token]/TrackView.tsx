@@ -21,6 +21,33 @@ const labels: Record<string, string> = {
   canceled: 'لغو شد',
 };
 
+function getEstimatedDeliveryWindow(createdAt: string): { start: string; end: string } {
+  try {
+    const created = new Date(createdAt);
+    const start = new Date(created.getTime() + 30 * 60 * 1000);
+    const end = new Date(created.getTime() + 50 * 60 * 1000);
+    const timeOpts: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit' };
+    return {
+      start: start.toLocaleTimeString('fa-IR', timeOpts),
+      end: end.toLocaleTimeString('fa-IR', timeOpts),
+    };
+  } catch {
+    return { start: '۳۵', end: '۵۰ دقیقه' };
+  }
+}
+
+function getProgressPercent(status: string): number {
+  switch (status) {
+    case 'pending_payment': return 10;
+    case 'confirmed': return 30;
+    case 'preparing': return 55;
+    case 'ready': return 75;
+    case 'delivering': return 90;
+    case 'delivered': return 100;
+    default: return 0;
+  }
+}
+
 const PageContainer = styled.div`
   max-width: 720px;
   margin: 0 auto;
@@ -90,6 +117,105 @@ const RestaurantHeader = styled.div`
     color: ${({ theme }) => theme.colors.neutral[500]};
     display: block;
     margin-top: 0.2rem;
+  }
+`;
+
+const DeliveryWindowCard = styled.div`
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+  border: 1px solid #fed7aa;
+  border-radius: 1rem;
+  padding: 1.15rem 1.25rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    padding: 0.85rem 1rem;
+  }
+`;
+
+const DeliveryTimeText = styled.div`
+  .label {
+    font-size: 0.825rem;
+    color: #9a3412;
+    margin-bottom: 0.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-weight: 600;
+  }
+  .window {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #c2410c;
+    letter-spacing: -0.5px;
+
+    @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+      font-size: 1.15rem;
+    }
+  }
+`;
+
+const CourierVisual = styled.div`
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+
+  .node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #475569;
+    z-index: 2;
+
+    .icon-box {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      background: white;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      border: 2px solid #e2e8f0;
+      transition: all 0.3s;
+    }
+
+    &.active .icon-box {
+      border-color: #ff5a00;
+      background: #fff7ed;
+      transform: scale(1.1);
+    }
+  }
+
+  .progress-line {
+    position: absolute;
+    top: 30px;
+    right: 45px;
+    left: 45px;
+    height: 3px;
+    background: #e2e8f0;
+    z-index: 1;
+
+    .fill {
+      height: 100%;
+      background: #ff5a00;
+      border-radius: 9999px;
+      transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
   }
 `;
 
@@ -307,6 +433,50 @@ export default function TrackView({ token }: Readonly<{ token: string }>) {
               <span>{labels[tracking.status] ?? tracking.status}</span>
             </StatusPill>
           </RestaurantHeader>
+
+          {tracking.status !== 'canceled' && (
+            <>
+              {(() => {
+                const window = getEstimatedDeliveryWindow(tracking.createdAt);
+                const progress = getProgressPercent(tracking.status);
+                return (
+                  <>
+                    <DeliveryWindowCard>
+                      <DeliveryTimeText>
+                        <div className="label">⏱️ زمان تقریبی تحویل سفارش</div>
+                        <div className="window">{window.start} تا {window.end}</div>
+                      </DeliveryTimeText>
+                      <div style={{ fontSize: '0.825rem', color: '#7c2d12', background: 'rgba(255,255,255,0.8)', padding: '0.35rem 0.75rem', borderRadius: '9999px', fontWeight: 700 }}>
+                        ارسال اکسپرس فودینو 🚀
+                      </div>
+                    </DeliveryWindowCard>
+
+                    <CourierVisual>
+                      <div className="progress-line">
+                        <div className="fill" style={{ width: `${progress}%` }} />
+                      </div>
+                      <div className={`node ${progress >= 25 ? 'active' : ''}`}>
+                        <div className="icon-box">🏪</div>
+                        <span>رستوران</span>
+                      </div>
+                      <div className={`node ${progress >= 50 ? 'active' : ''}`}>
+                        <div className="icon-box">👨‍🍳</div>
+                        <span>آماده‌سازی</span>
+                      </div>
+                      <div className={`node ${progress >= 85 ? 'active' : ''}`}>
+                        <div className="icon-box">🛵</div>
+                        <span>پیک در مسیر</span>
+                      </div>
+                      <div className={`node ${progress >= 100 ? 'active' : ''}`}>
+                        <div className="icon-box">📍</div>
+                        <span>تحویل شما</span>
+                      </div>
+                    </CourierVisual>
+                  </>
+                );
+              })()}
+            </>
+          )}
 
           {tracking.status === 'canceled' ? (
             <div style={{ textAlign: 'center', padding: '2rem', color: '#dc2626' }}>

@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import Link from 'next/link';
 import { useCart } from '@/contexts/CartContext';
@@ -345,14 +345,142 @@ const SummaryTitle = styled.h2`
   margin-bottom: 1.5rem;
 `;
 
-const SummaryRow = styled.div`
+const SummaryRow = styled.div<{ $isDiscount?: boolean }>`
   display: flex;
   justify-content: space-between;
   padding: 0.75rem 0;
+  color: ${props => (props.$isDiscount ? '#16a34a' : 'inherit')};
   
   &:not(:last-child) {
     border-bottom: 1px solid ${props => props.theme.colors.neutral[100]};
   }
+`;
+
+const CouponSection = styled.div`
+  margin: 1.25rem 0;
+  padding: 1rem;
+  background-color: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: ${props => props.theme.borderRadius.md};
+`;
+
+const CouponTitle = styled.div`
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: ${props => props.theme.colors.neutral[700]};
+  margin-bottom: 0.5rem;
+`;
+
+const CouponInputContainer = styled.div`
+  display: flex;
+  gap: 0.5rem;
+`;
+
+const CouponInput = styled.input`
+  flex: 1;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: ${props => props.theme.borderRadius.md};
+  font-size: 0.85rem;
+  outline: none;
+  font-family: inherit;
+  direction: ltr;
+  text-align: right;
+
+  &:focus {
+    border-color: ${props => props.theme.colors.primary[500]};
+  }
+
+  &:disabled {
+    background: #e2e8f0;
+    color: #64748b;
+  }
+`;
+
+const CouponApplyBtn = styled.button`
+  background: ${props => props.theme.colors.primary[500]};
+  color: white;
+  border: none;
+  padding: 0.55rem 1rem;
+  border-radius: ${props => props.theme.borderRadius.md};
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+
+  &:hover {
+    background: ${props => props.theme.colors.primary[600]};
+  }
+`;
+
+const CouponRemoveBtn = styled.button`
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 0.55rem 0.85rem;
+  border-radius: ${props => props.theme.borderRadius.md};
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #dc2626;
+  }
+`;
+
+const CouponActiveBadge = styled.div`
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: #16a34a;
+  background: #dcfce7;
+  padding: 0.35rem 0.6rem;
+  border-radius: ${props => props.theme.borderRadius.sm};
+  display: flex;
+  align-items: center;
+`;
+
+const OrderNoteContainer = styled.div`
+  margin-top: 1.25rem;
+  background: white;
+  padding: 1rem 1.25rem;
+  border-radius: ${props => props.theme.borderRadius.lg};
+  border: 1px solid ${props => props.theme.colors.neutral[200]};
+`;
+
+const OrderNoteLabel = styled.label`
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: ${props => props.theme.colors.neutral[700]};
+  margin-bottom: 0.5rem;
+`;
+
+const OrderNoteTextarea = styled.textarea`
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: ${props => props.theme.borderRadius.md};
+  font-size: 0.85rem;
+  font-family: inherit;
+  resize: vertical;
+  outline: none;
+
+  &:focus {
+    border-color: ${props => props.theme.colors.primary[500]};
+  }
+`;
+
+const ItemNoteTag = styled.div`
+  margin-top: 0.35rem;
+  font-size: 0.78rem;
+  color: #475569;
+  background: #f1f5f9;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  display: inline-block;
 `;
 
 const SummaryLabel = styled.span`
@@ -473,7 +601,22 @@ const formatPrice = (price: number): string => {
 
 // کامپوننت اصلی صفحه سبد خرید
 const CartPage = () => {
-  const { state, removeItem, increaseQuantity, decreaseQuantity, clearCart, calculateSubtotal, calculateTotal } = useCart();
+  const {
+    state,
+    removeItem,
+    increaseQuantity,
+    decreaseQuantity,
+    clearCart,
+    calculateSubtotal,
+    calculateTotal,
+    appliedCoupon,
+    discountToman,
+    orderNote,
+    setOrderNote,
+    applyCouponCode,
+    removeCoupon,
+  } = useCart();
+  const [couponInput, setCouponInput] = useState('');
   const router = useRouter();
   
   // هزینه ارسال ثابت
@@ -528,6 +671,11 @@ const CartPage = () => {
                   <ItemDetails>
                     <ItemName>{item.name}</ItemName>
                     <ItemPrice>{formatPrice(item.price)}</ItemPrice>
+                    {item.notes && (
+                      <ItemNoteTag>
+                        <span style={{ fontWeight: 600 }}>📝 یادداشت:</span> {item.notes}
+                      </ItemNoteTag>
+                    )}
                   </ItemDetails>
                   <ItemControls>
                     <QuantityControl>
@@ -544,6 +692,16 @@ const CartPage = () => {
                   </ItemControls>
                 </CartItemCard>
               ))}
+
+              <OrderNoteContainer>
+                <OrderNoteLabel>✍️ یادداشت سفارش برای رستوران و پیک (اختیاری):</OrderNoteLabel>
+                <OrderNoteTextarea
+                  placeholder="مثلاً: بدون پیاز، سس مخصوص بیشتر، زنگ طبقه سوم..."
+                  value={orderNote}
+                  onChange={(e) => setOrderNote(e.target.value)}
+                  rows={2}
+                />
+              </OrderNoteContainer>
             </CartItems>
             
             <CartSummary>
@@ -552,10 +710,71 @@ const CartPage = () => {
                 <SummaryLabel>جمع سبد خرید:</SummaryLabel>
                 <SummaryValue>{formatPrice(subtotal)}</SummaryValue>
               </SummaryRow>
+
+              {discountToman > 0 && (
+                <SummaryRow $isDiscount>
+                  <SummaryLabel>تخفیف ({appliedCoupon?.code}):</SummaryLabel>
+                  <SummaryValue style={{ color: '#16a34a', fontWeight: 700 }}>
+                    - {formatPrice(discountToman)}
+                  </SummaryValue>
+                </SummaryRow>
+              )}
+
               <SummaryRow>
                 <SummaryLabel>هزینه ارسال:</SummaryLabel>
-                <SummaryValue>{formatPrice(deliveryFee)}</SummaryValue>
+                <SummaryValue>
+                  {appliedCoupon?.type === 'free_delivery' ? (
+                    <span style={{ color: '#16a34a', fontWeight: 700 }}>رایگان</span>
+                  ) : (
+                    formatPrice(deliveryFee)
+                  )}
+                </SummaryValue>
               </SummaryRow>
+
+              <CouponSection>
+                <CouponTitle>🎁 کد تخفیف</CouponTitle>
+                <CouponInputContainer>
+                  <CouponInput
+                    type="text"
+                    placeholder="کد تخفیف (مثلاً FOODINO)"
+                    value={couponInput}
+                    onChange={(e) => setCouponInput(e.target.value)}
+                    disabled={!!appliedCoupon}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (!appliedCoupon && couponInput.trim()) {
+                          applyCouponCode(couponInput, deliveryFee);
+                        }
+                      }
+                    }}
+                  />
+                  {appliedCoupon ? (
+                    <CouponRemoveBtn type="button" onClick={removeCoupon}>
+                      حذف
+                    </CouponRemoveBtn>
+                  ) : (
+                    <CouponApplyBtn
+                      type="button"
+                      onClick={() => {
+                        if (!couponInput.trim()) {
+                          toast.error('لطفاً کد تخفیف را وارد کنید');
+                          return;
+                        }
+                        applyCouponCode(couponInput, deliveryFee);
+                      }}
+                    >
+                      اعمال
+                    </CouponApplyBtn>
+                  )}
+                </CouponInputContainer>
+                {appliedCoupon && (
+                  <CouponActiveBadge>
+                    <span>✓ کد <strong>{appliedCoupon.code}</strong> فعال شد: {appliedCoupon.description}</span>
+                  </CouponActiveBadge>
+                )}
+              </CouponSection>
+
               <TotalRow>
                 <TotalLabel>مبلغ قابل پرداخت:</TotalLabel>
                 <TotalValue>{formatPrice(total)}</TotalValue>
@@ -575,6 +794,11 @@ const CartPage = () => {
             <div>
               <div style={{ fontSize: '0.8rem', color: '#64748b' }}>مبلغ قابل پرداخت:</div>
               <strong style={{ fontSize: '1.05rem', color: '#0f172a' }}>{formatPrice(total)}</strong>
+              {discountToman > 0 && (
+                <div style={{ fontSize: '0.72rem', color: '#16a34a' }}>
+                  با {formatPrice(discountToman)} تخفیف
+                </div>
+              )}
             </div>
             <MobileCheckoutBtn onClick={handleCheckout}>
               ثبت و ادامه خرید

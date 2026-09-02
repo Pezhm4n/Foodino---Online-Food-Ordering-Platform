@@ -1,6 +1,7 @@
 import React from 'react';
 import HeroSection from '@/components/home/HeroSection';
 import PopularCategories, { type CategoryItem } from '@/components/home/PopularCategories';
+import FeaturedDishes from '@/components/home/FeaturedDishes';
 import TopRestaurants from '@/components/home/TopRestaurants';
 import QualityBadges from '@/components/home/QualityBadges';
 import { createSupabaseServerClient } from '@/infrastructure/supabase/server';
@@ -49,6 +50,7 @@ export default async function HomePage() {
     <>
       <HeroSection />
       <PopularCategories initialCategories={categories.length > 0 ? categories : undefined} />
+      <FeaturedDishes />
       <TopRestaurants />
       <QualityBadges />
     </>

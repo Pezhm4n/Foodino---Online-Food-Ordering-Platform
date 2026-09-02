@@ -467,11 +467,30 @@ export default function CheckoutPage() {
           <ItemsList>
             {state.items.map((item) => (
               <ItemRow key={item.id}>
-                <span className="name">{item.name}</span>
+                <div>
+                  <span className="name">{item.name}</span>
+                  {item.notes && (
+                    <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '0.2rem' }}>
+                      📝 یادداشت: {item.notes}
+                    </div>
+                  )}
+                </div>
                 <span className="qty">{item.quantity} عدد</span>
               </ItemRow>
             ))}
           </ItemsList>
+        )}
+
+        {state.orderNote && (
+          <div style={{ marginTop: '0.75rem', padding: '0.6rem 0.85rem', background: '#f8fafc', borderRadius: '8px', fontSize: '0.85rem', color: '#475569' }}>
+            <strong>✍️ یادداشت شما برای سفارش:</strong> {state.orderNote}
+          </div>
+        )}
+
+        {state.appliedCoupon && (
+          <div style={{ marginTop: '0.6rem', padding: '0.6rem 0.85rem', background: '#dcfce7', borderRadius: '8px', fontSize: '0.85rem', color: '#16a34a' }}>
+            <strong>🎁 کد تخفیف فعال:</strong> {state.appliedCoupon.code} ({state.appliedCoupon.description})
+          </div>
         )}
 
         <NoticeBox>
