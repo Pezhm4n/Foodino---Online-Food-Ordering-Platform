@@ -3,7 +3,9 @@
 import { useEffect } from 'react';
 
 export default function ErrorBoundary({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
-  useEffect(() => { console.error('app_boundary_error', { digest: error.digest }); }, [error]);
+  useEffect(() => {
+    console.error('app_boundary_error', { digest: error.digest, message: error.message, stack: error.stack });
+  }, [error]);
   return (
     <div
       role="alert"

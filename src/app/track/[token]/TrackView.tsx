@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 import Link from 'next/link';
 
 type Tracking = Readonly<{
@@ -21,34 +21,41 @@ const labels: Record<string, string> = {
   canceled: 'لغو شد',
 };
 
-const pulse = keyframes`
-  0% { box-shadow: 0 0 0 0 rgba(255, 90, 0, 0.4); }
-  70% { box-shadow: 0 0 0 10px rgba(255, 90, 0, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(255, 90, 0, 0); }
-`;
-
 const PageContainer = styled.div`
   max-width: 720px;
   margin: 0 auto;
-  padding: 3rem 1rem 5rem;
+  padding: 1.5rem 1rem 3.5rem;
   direction: rtl;
+
+  @media (min-width: 768px) {
+    padding: 3rem 1.5rem 5rem;
+  }
 `;
 
 const Title = styled.h1`
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 800;
   color: ${({ theme }) => theme.colors.neutral[900]};
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   text-align: center;
+
+  @media (min-width: 768px) {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+  }
 `;
 
 const TrackingCard = styled.section`
   background: white;
   border-radius: ${({ theme }) => theme.borderRadius.xl};
-  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.07);
   border: 1px solid ${({ theme }) => theme.colors.neutral[200]};
-  padding: 2.25rem;
+  padding: 1.25rem;
   margin-bottom: 1.5rem;
+
+  @media (min-width: 768px) {
+    padding: 2.25rem;
+  }
 `;
 
 const RestaurantHeader = styled.div`
@@ -56,47 +63,81 @@ const RestaurantHeader = styled.div`
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid ${({ theme }) => theme.colors.neutral[100]};
-  padding-bottom: 1.25rem;
-  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+
+  @media (min-width: 768px) {
+    padding-bottom: 1.25rem;
+    margin-bottom: 2rem;
+  }
 
   h2 {
-    font-size: 1.35rem;
+    font-size: 1.2rem;
     font-weight: 700;
     color: ${({ theme }) => theme.colors.neutral[900]};
     margin: 0;
+
+    @media (min-width: 768px) {
+      font-size: 1.35rem;
+    }
   }
 
   span.tag {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: ${({ theme }) => theme.colors.neutral[500]};
+    display: block;
+    margin-top: 0.2rem;
   }
 `;
 
 const StepperTrack = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
   position: relative;
-  margin: 2rem 0;
-  padding-right: 1.5rem;
+  margin: 1.5rem 0;
+  padding-right: 1.25rem;
+
+  @media (min-width: 768px) {
+    gap: 1.5rem;
+    margin: 2rem 0;
+    padding-right: 1.5rem;
+  }
 
   &::before {
     content: '';
     position: absolute;
-    top: 15px;
-    bottom: 15px;
-    right: 27px;
-    width: 3px;
+    top: 14px;
+    bottom: 14px;
+    right: 25px;
+    width: 2px;
     background-color: ${({ theme }) => theme.colors.neutral[200]};
+
+    @media (min-width: 768px) {
+      right: 27px;
+      width: 3px;
+    }
   }
 `;
 
 const StepItem = styled.div<{ $state: 'completed' | 'current' | 'upcoming' }>`
+  @keyframes pulseGlow {
+    0% { box-shadow: 0 0 0 0 rgba(255, 90, 0, 0.4); }
+    70% { box-shadow: 0 0 0 8px rgba(255, 90, 0, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 90, 0, 0); }
+  }
+
   display: flex;
   align-items: flex-start;
-  gap: 1.25rem;
+  gap: 1rem;
   position: relative;
   z-index: 1;
+
+  @media (min-width: 768px) {
+    gap: 1.25rem;
+  }
 
   .step-icon {
     width: 28px;
@@ -115,22 +156,31 @@ const StepItem = styled.div<{ $state: 'completed' | 'current' | 'upcoming' }>`
         : theme.colors.neutral[200]};
     color: white;
     flex-shrink: 0;
-    ${({ $state }) => $state === 'current' && `animation: ${pulse} 2s infinite;`}
+    animation: ${({ $state }) => ($state === 'current' ? 'pulseGlow 2s infinite' : 'none')};
   }
 
   .step-content {
     h3 {
-      font-size: 1rem;
+      font-size: 0.95rem;
       font-weight: 700;
       color: ${({ $state, theme }) =>
         $state === 'upcoming' ? theme.colors.neutral[400] : theme.colors.neutral[900]};
-      margin: 0 0 0.25rem;
+      margin: 0 0 0.2rem;
+
+      @media (min-width: 768px) {
+        font-size: 1rem;
+      }
     }
 
     p {
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       color: ${({ theme }) => theme.colors.neutral[500]};
       margin: 0;
+      line-height: 1.5;
+
+      @media (min-width: 768px) {
+        font-size: 0.85rem;
+      }
     }
   }
 `;
@@ -282,8 +332,15 @@ export default function TrackView({ token }: Readonly<{ token: string }>) {
           )}
 
           <LastUpdated>
-            آخرین به‌روزرسانی: {new Date(tracking.updatedAt).toLocaleTimeString('fa-IR')} —{' '}
-            {new Date(tracking.updatedAt).toLocaleDateString('fa-IR')}
+            آخرین به‌روزرسانی:{' '}
+            {(() => {
+              try {
+                const d = new Date(tracking.updatedAt);
+                return `${d.toLocaleTimeString('fa-IR')} — ${d.toLocaleDateString('fa-IR')}`;
+              } catch {
+                return tracking.updatedAt;
+              }
+            })()}
           </LastUpdated>
         </TrackingCard>
       )}
