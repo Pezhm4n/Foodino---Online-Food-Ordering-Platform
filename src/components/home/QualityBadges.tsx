@@ -8,7 +8,11 @@ const SectionContainer = styled.section`
   background-color: white;
   
   @media (max-width: ${props => props.theme.breakpoints.md}) {
-    padding: 3rem 1rem;
+    padding: 2.25rem 1rem;
+  }
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    padding: 1.5rem 0.875rem;
   }
 `;
 
@@ -21,6 +25,7 @@ const BadgesContainer = styled.div`
   
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
     grid-template-columns: 1fr;
+    gap: 0.85rem;
   }
 `;
 
@@ -30,6 +35,10 @@ const Badge = styled.div`
   align-items: center;
   text-align: center;
   padding: 2rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    padding: 0.75rem 0.5rem;
+  }
 `;
 
 const IconContainer = styled.div`
@@ -38,23 +47,45 @@ const IconContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: ${props => props.theme.colors.neutral[50]};
+  background-color: #fff7ed;
+  border: 1px solid #ffedd5;
   border-radius: 50%;
   margin-bottom: 1.5rem;
   color: ${props => props.theme.colors.primary[500]};
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    width: 52px;
+    height: 52px;
+    margin-bottom: 0.65rem;
+
+    svg {
+      width: 26px;
+      height: 26px;
+    }
+  }
 `;
 
 const BadgeTitle = styled.h3`
   font-size: ${props => props.theme.typography.fontSizes.xl};
-  font-weight: ${props => props.theme.typography.fontWeights.semibold};
-  color: ${props => props.theme.colors.secondary[500]};
-  margin-bottom: 1rem;
+  font-weight: 700;
+  color: ${props => props.theme.colors.neutral[900]};
+  margin-bottom: 0.75rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 1.05rem;
+    margin-bottom: 0.25rem;
+  }
 `;
 
 const BadgeDescription = styled.p`
   font-size: ${props => props.theme.typography.fontSizes.md};
-  color: ${props => props.theme.colors.neutral[700]};
+  color: ${props => props.theme.colors.neutral[600]};
   line-height: 1.6;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 0.8rem;
+    line-height: 1.5;
+  }
 `;
 
 const QualityBadges = () => {

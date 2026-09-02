@@ -139,17 +139,11 @@ const ToastContainer: React.FC<{ toasts: ToastInfo[]; removeToast: (id: string) 
   toasts,
   removeToast 
 }) => {
-  const [isBrowser, setIsBrowser] = useState(false);
-
-  useEffect(() => {
-    setIsBrowser(true);
-  }, []);
-
-  if (!isBrowser) {
+  if (typeof document === 'undefined') {
     return null;
   }
 
-  return isBrowser ? createPortal(
+  return createPortal(
     <>
       {toasts.map(toast => (
         <Toast 
@@ -160,7 +154,7 @@ const ToastContainer: React.FC<{ toasts: ToastInfo[]; removeToast: (id: string) 
       ))}
     </>,
     document.body
-  ) : null;
+  );
 };
 
 // Context برای مدیریت Toast‌ها

@@ -5,30 +5,49 @@ import styled from 'styled-components';
 import Link from 'next/link';
 import { useCart } from '@/contexts/CartContext';
 import { useRouter } from 'next/navigation';
+import { toast } from 'react-hot-toast';
 
 // کامپوننت‌های استایل شده
 const PageContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 2rem 1.5rem 4rem;
   direction: rtl;
+
+  @media (max-width: ${props => props.theme.breakpoints.md}) {
+    padding: 1.25rem 0.85rem calc(6rem + env(safe-area-inset-bottom, 0px));
+  }
 `;
 
 const PageHeader = styled.div`
   margin-bottom: 2rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    margin-bottom: 1.25rem;
+  }
 `;
 
 const PageTitle = styled.h1`
-  font-size: 2rem;
-  font-weight: 700;
-  color: ${props => props.theme.colors.neutral[700]};
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: ${props => props.theme.colors.neutral[900]};
   margin-bottom: 0.5rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 1.45rem;
+    margin-bottom: 0.25rem;
+  }
 `;
 
 const PageDescription = styled.p`
   font-size: 1rem;
   color: ${props => props.theme.colors.neutral[500]};
   margin-bottom: 2rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 0.85rem;
+    margin-bottom: 1.25rem;
+  }
 `;
 
 const EmptyCart = styled.div`
@@ -75,6 +94,8 @@ const CartContent = styled.div`
   
   @media (max-width: ${props => props.theme.breakpoints.lg}) {
     grid-template-columns: 1fr;
+    gap: 1.25rem;
+    margin-top: 1.25rem;
   }
 `;
 
@@ -82,6 +103,10 @@ const CartItems = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    gap: 0.65rem;
+  }
 `;
 
 const CartItemCard = styled.div`
@@ -92,6 +117,12 @@ const CartItemCard = styled.div`
   background-color: white;
   border-radius: ${props => props.theme.borderRadius.lg};
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+    gap: 0.5rem;
+  }
 `;
 
 const RestaurantInfo = styled.div`
@@ -124,10 +155,19 @@ const ItemImage = styled.div`
   justify-content: center;
   font-size: 1.5rem;
   margin-left: 1rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    width: 46px;
+    height: 46px;
+    font-size: 1.25rem;
+    margin-left: 0.5rem;
+    flex-shrink: 0;
+  }
 `;
 
 const ItemDetails = styled.div`
   flex: 1;
+  min-width: 0;
 `;
 
 const ItemName = styled.h3`
@@ -135,29 +175,48 @@ const ItemName = styled.h3`
   font-weight: 600;
   color: ${props => props.theme.colors.neutral[700]};
   margin-bottom: 0.25rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 0.95rem;
+    margin-bottom: 0.15rem;
+  }
 `;
 
 const ItemPrice = styled.p`
   font-size: 1rem;
   font-weight: 500;
   color: ${props => props.theme.colors.neutral[700]};
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 0.85rem;
+  }
 `;
 
 const ItemControls = styled.div`
   display: flex;
   align-items: center;
   gap: 1rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    gap: 0.35rem;
+  }
 `;
 
 const QuantityControl = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    gap: 0.25rem;
+  }
 `;
 
 const QuantityButton = styled.button`
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
   border-radius: 50%;
   border: 1px solid ${props => props.theme.colors.neutral[300]};
   background-color: white;
@@ -165,17 +224,40 @@ const QuantityButton = styled.button`
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: ${props => props.theme.colors.neutral[700]};
   transition: all 0.2s ease;
   
   &:hover {
     background-color: ${props => props.theme.colors.neutral[100]};
+    border-color: ${props => props.theme.colors.neutral[400]};
+  }
+
+  &:active {
+    transform: scale(0.94);
+  }
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+    font-size: 1rem;
   }
 `;
 
 const Quantity = styled.span`
-  min-width: 1.5rem;
+  min-width: 2rem;
   text-align: center;
-  font-weight: ${props => props.theme.typography.fontWeights.medium};
+  font-weight: 700;
+  font-size: 1rem;
+  color: ${props => props.theme.colors.neutral[900]};
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 0.9rem;
+    min-width: 1.5rem;
+  }
 `;
 
 const RemoveButton = styled.button`
@@ -183,10 +265,67 @@ const RemoveButton = styled.button`
   border: none;
   color: ${props => props.theme.colors.error[500]};
   cursor: pointer;
-  padding: 0.5rem;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
   
   &:hover {
+    background-color: ${props => props.theme.colors.error[50]};
     color: ${props => props.theme.colors.error[600]};
+  }
+
+  &:active {
+    transform: scale(0.92);
+  }
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+  }
+`;
+
+const MobileStickyBar = styled.div`
+  display: none;
+  @media (max-width: ${props => props.theme.breakpoints.md}) {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+    padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom, 0px));
+    z-index: 95;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid ${props => props.theme.colors.neutral[200]};
+    direction: rtl;
+  }
+`;
+
+const MobileCheckoutBtn = styled.button`
+  background: ${props => props.theme.colors.primary[500]};
+  color: white;
+  border: none;
+  padding: 0.65rem 1.35rem;
+  border-radius: ${props => props.theme.borderRadius.md};
+  font-weight: 700;
+  font-size: 0.925rem;
+  min-height: 42px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(255, 90, 0, 0.25);
+  transition: all 0.2s;
+
+  &:active {
+    transform: scale(0.97);
   }
 `;
 
@@ -350,7 +489,7 @@ const CartPage = () => {
       // ذخیره اطلاعات سبد خرید در localStorage قبل از انتقال
       router.push('/checkout');
     } else {
-      alert('سبد خرید شما خالی است');
+      toast.error('سبد خرید شما خالی است');
     }
   };
   
@@ -392,12 +531,12 @@ const CartPage = () => {
                   </ItemDetails>
                   <ItemControls>
                     <QuantityControl>
-                      <QuantityButton onClick={() => decreaseQuantity(item.id)}>-</QuantityButton>
+                      <QuantityButton onClick={() => decreaseQuantity(item.id)} aria-label="کاهش تعداد">-</QuantityButton>
                       <Quantity>{item.quantity}</Quantity>
-                      <QuantityButton onClick={() => increaseQuantity(item.id)}>+</QuantityButton>
+                      <QuantityButton onClick={() => increaseQuantity(item.id)} aria-label="افزایش تعداد">+</QuantityButton>
                     </QuantityControl>
-                    <RemoveButton onClick={() => removeItem(item.id)}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <RemoveButton onClick={() => removeItem(item.id)} aria-label="حذف از سبد خرید">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                         <path d="M3 6H5H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                         <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
@@ -431,6 +570,16 @@ const CartPage = () => {
               </ClearCartButton>
             </CartSummary>
           </CartContent>
+
+          <MobileStickyBar>
+            <div>
+              <div style={{ fontSize: '0.8rem', color: '#64748b' }}>مبلغ قابل پرداخت:</div>
+              <strong style={{ fontSize: '1.05rem', color: '#0f172a' }}>{formatPrice(total)}</strong>
+            </div>
+            <MobileCheckoutBtn onClick={handleCheckout}>
+              ثبت و ادامه خرید
+            </MobileCheckoutBtn>
+          </MobileStickyBar>
         </>
       )}
     </PageContainer>

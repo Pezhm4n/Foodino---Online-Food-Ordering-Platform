@@ -277,7 +277,7 @@ export const Card = styled.div`
   margin-bottom: 1.5rem;
 `;
 
-export default {
+const styledComponents = {
   RadioOption,
   RadioInput,
   RadioLabel,
@@ -292,4 +292,6 @@ export default {
   Button,
   LinkButton,
   Card
-}; 
+};
+
+export default styledComponents;

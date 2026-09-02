@@ -4,5 +4,7 @@ import { theme } from './theme';
 type ThemeType = typeof theme;
  
 declare module 'styled-components' {
-  export interface DefaultTheme extends ThemeType {}
+  export interface DefaultTheme extends ThemeType {
+    readonly __foodinoThemeBrand?: never;
+  }
 } 

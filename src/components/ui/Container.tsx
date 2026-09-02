@@ -1,4 +1,28 @@
 import React, { ReactNode } from 'react';
+import styled from 'styled-components';
+
+const StyledContainer = styled.div`
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding-right: 0.875rem;
+  padding-left: 0.875rem;
+
+  @media (min-width: ${({ theme }) => theme.breakpoints.xs}) {
+    padding-right: 1rem;
+    padding-left: 1rem;
+  }
+
+  @media (min-width: ${({ theme }) => theme.breakpoints.sm}) {
+    padding-right: 1.5rem;
+    padding-left: 1.5rem;
+  }
+
+  @media (min-width: ${({ theme }) => theme.breakpoints.lg}) {
+    padding-right: 2rem;
+    padding-left: 2rem;
+  }
+`;
 
 interface ContainerProps {
   children: ReactNode;
@@ -7,9 +31,9 @@ interface ContainerProps {
 
 const Container: React.FC<ContainerProps> = ({ children, className = '' }) => {
   return (
-    <div className={`container mx-auto px-4 sm:px-6 lg:px-8 ${className}`}>
+    <StyledContainer className={className}>
       {children}
-    </div>
+    </StyledContainer>
   );
 };
 

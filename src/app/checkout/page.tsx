@@ -1,645 +1,493 @@
-"use client";
+'use client';
 
-import React, { useState } from 'react';
-import styled from 'styled-components';
-import { useCart } from '@/contexts/CartContext';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import {
-  Button,
-  FormInput,
-  RadioInput,
-  RadioLabel,
-  StepItem,
-  StepLabel,
-  StepNumber
-} from "@/components/common/StyledComponents";
-import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
-import { useFormatPrice } from '@/hooks/useFormatPrice';
+import styled from 'styled-components';
+import { toast } from 'react-hot-toast';
+import { useCart } from '@/contexts/CartContext';
 
-// تعاریف انواع
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-interface CartItem {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  image?: string;
-}
+type Address = Readonly<{ id: string; title: string; city: string; addressLine: string }>;
 
-// کامپوننت‌های استایل شده
-const CheckoutPageContainer = styled.div`
-  max-width: 1200px;
+const Page = styled.div`
+  max-width: 860px;
   margin: 0 auto;
-  padding: 20px;
-`;
-
-const PageTitle = styled.h1`
-  font-size: ${props => props.theme.typography.fontSizes.xl};
-  font-weight: ${props => props.theme.typography.fontWeights.bold};
-  color: ${props => props.theme.colors.secondary[500]};
-  margin-bottom: 2rem;
-  text-align: center;
-`;
-
-const CheckoutContent = styled.div`
-  display: flex;
-  gap: 2rem;
+  padding: 2.5rem 1rem 4rem;
   direction: rtl;
-  
-  @media (max-width: 768px) {
-    flex-direction: column;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    padding: 1.25rem 0.85rem 3rem;
   }
 `;
 
-const CheckoutFormSection = styled.div`
-  flex: 2;
-`;
-
-const OrderSummarySection = styled.div`
-  flex: 1;
-  position: sticky;
-  top: 2rem;
-  height: fit-content;
-  background-color: white;
-  border-radius: ${props => props.theme.borderRadius.lg};
-  padding: 1.5rem;
-  box-shadow: ${props => props.theme.boxShadow.md};
-`;
-
-const FormCard = styled.div`
-  background-color: white;
-  border-radius: ${props => props.theme.borderRadius.lg};
-  box-shadow: ${props => props.theme.boxShadow.md};
-  padding: 1.5rem;
+const HeaderTitle = styled.h1`
+  font-size: 2rem;
+  font-weight: 800;
+  color: ${({ theme }) => theme.colors.neutral[900]};
   margin-bottom: 1.5rem;
+  text-align: center;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+  }
 `;
 
-const FormTitle = styled.h2`
-  font-size: ${props => props.theme.typography.fontSizes.lg};
-  font-weight: ${props => props.theme.typography.fontWeights.semibold};
-  color: ${props => props.theme.colors.secondary[500]};
-  margin-bottom: 1.5rem;
+const Stepper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    gap: 0.35rem;
+    margin-bottom: 1.5rem;
+  }
+`;
+
+const Step = styled.div<{ $active?: boolean; $completed?: boolean }>`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-`;
+  font-size: 0.9rem;
+  font-weight: ${({ $active }) => ($active ? 700 : 500)};
+  color: ${({ $active, $completed, theme }) =>
+    $active
+      ? theme.colors.primary[500]
+      : $completed
+      ? theme.colors.success[600]
+      : theme.colors.neutral[400]};
 
-const FormSection = styled.div`
-  margin-bottom: 1.5rem;
-`;
-
-const FormRow = styled.div`
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
-  
-  @media (max-width: 768px) {
-    flex-direction: column;
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    font-size: 0.78rem;
+    gap: 0.35rem;
   }
 `;
 
-const FormField = styled.div`
-  flex: 1;
-  margin-bottom: 1rem;
-`;
-
-const FormLabel = styled.label`
-  display: block;
-  margin-bottom: 0.5rem;
-  font-size: ${props => props.theme.typography.fontSizes.sm};
-  color: ${props => props.theme.colors.neutral[700]};
-`;
-
-const IconContainer = styled.div`
-  margin-left: 1rem;
-  font-size: 1.5rem;
+const StepDot = styled.span<{ $active?: boolean; $completed?: boolean }>`
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-`;
+  font-size: 0.8rem;
+  font-weight: 700;
+  background-color: ${({ $active, $completed, theme }) =>
+    $completed
+      ? theme.colors.success[500]
+      : $active
+      ? theme.colors.primary[500]
+      : theme.colors.neutral[200]};
+  color: white;
 
-const CreditCardForm = styled.div`
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid ${props => props.theme.colors.neutral[100]};
-`;
-
-const OrderItems = styled.div`
-  margin-bottom: 1.5rem;
-`;
-
-const OrderItem = styled.div`
-  display: flex;
-  justify-content: space-between;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid ${props => props.theme.colors.neutral[100]};
-  
-  &:last-of-type {
-    border-bottom: none;
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    width: 24px;
+    height: 24px;
+    font-size: 0.72rem;
   }
 `;
 
-const ItemInfo = styled.div`
-  display: flex;
-`;
+const StepDivider = styled.div<{ $completed?: boolean }>`
+  width: 40px;
+  height: 2px;
+  background-color: ${({ $completed, theme }) =>
+    $completed ? theme.colors.success[500] : theme.colors.neutral[200]};
 
-const ItemQuantity = styled.span`
-  color: ${props => props.theme.colors.primary[500]};
-  margin-left: 0.5rem;
-  min-width: 1.5rem;
-`;
-
-const ItemName = styled.span`
-  color: ${props => props.theme.colors.neutral[700]};
-`;
-
-const ItemPrice = styled.span`
-  font-weight: ${props => props.theme.typography.fontWeights.medium};
-  color: ${props => props.theme.colors.neutral[700]};
-`;
-
-const Divider = styled.hr`
-  border: none;
-  border-top: 1px dashed ${props => props.theme.colors.neutral[300]};
-  margin: 1.5rem 0;
-`;
-
-const PricingSummary = styled.div`
-  margin-bottom: 1.5rem;
-`;
-
-const PricingRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.75rem;
-  font-size: ${props => props.theme.typography.fontSizes.md};
-  
-  &:last-of-type {
-    margin-bottom: 0;
-    font-weight: ${props => props.theme.typography.fontWeights.bold};
-    color: ${props => props.theme.colors.neutral[800]};
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    width: 16px;
   }
 `;
 
-const PricingLabel = styled.span`
-  color: ${props => props.theme.colors.neutral[700]};
+const Card = styled.section`
+  margin-bottom: 1.5rem;
+  padding: 1.75rem;
+  background: white;
+  border-radius: ${({ theme }) => theme.borderRadius.xl};
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid ${({ theme }) => theme.colors.neutral[200]};
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    padding: 1rem 0.85rem;
+    border-radius: 0.85rem;
+    margin-bottom: 1rem;
+  }
 `;
 
-const PricingValue = styled.span``;
-
-const CheckoutSteps = styled.div`
+const SectionHeader = styled.div`
   display: flex;
-  justify-content: center;
-  margin-bottom: 2rem;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+
+  h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: ${({ theme }) => theme.colors.neutral[900]};
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+
+    @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+      font-size: 1.05rem;
+    }
+  }
 `;
 
-const BackButton = styled(Button).attrs({ $variant: 'secondary' })``;
-const NextButton = styled(Button).attrs({ $variant: 'primary' })``;
+const AddressGrid = styled.div`
+  display: grid;
+  gap: 0.75rem;
+`;
 
-const PayButton = styled(Button).attrs({ $variant: 'success' })`
+const AddressButton = styled.button<{ $selected: boolean }>`
   width: 100%;
-  padding: 0.75rem 1.5rem;
-  font-size: 1.1rem;
-  margin-top: 1rem;
-  background-color: ${props => props.theme.colors.success[500]};
-  border-radius: 0.75rem;
-  transition: transform 0.2s ease, background-color 0.2s ease;
-  font-weight: ${props => props.theme.typography.fontWeights.bold};
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  
+  padding: 1.1rem;
+  text-align: right;
+  cursor: pointer;
+  border: 2px solid ${({ $selected, theme }) =>
+    $selected ? theme.colors.primary[500] : theme.colors.neutral[200]};
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  background: ${({ $selected }) => ($selected ? '#fff7ed' : 'white')};
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+
   &:hover {
-    background-color: ${props => props.theme.colors.success[600]};
-    transform: translateY(-2px);
-    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+    border-color: ${({ theme }) => theme.colors.primary[400]};
   }
-  
-  &:active {
-    background-color: ${props => props.theme.colors.success[700]};
-    transform: translateY(0);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  @media (max-width: 768px) {
-    padding: 1rem 1.5rem;
-    font-size: 1.2rem;
-    position: sticky;
-    bottom: 1rem;
-    z-index: 10;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    padding: 0.75rem 0.85rem;
+    gap: 0.65rem;
   }
 `;
 
-const BackLink = styled(Link)`
-  display: inline-flex;
+const RadioCircle = styled.span<{ $selected: boolean }>`
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid ${({ $selected, theme }) =>
+    $selected ? theme.colors.primary[500] : theme.colors.neutral[300]};
+  display: flex;
   align-items: center;
-  margin-top: 1rem;
-  color: ${props => props.theme.colors.primary[600]};
-  font-weight: ${props => props.theme.typography.fontWeights.medium};
+  justify-content: center;
+  margin-top: 0.2rem;
+  flex-shrink: 0;
+
+  &::after {
+    content: '';
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: ${({ $selected, theme }) =>
+      $selected ? theme.colors.primary[500] : 'transparent'};
+  }
+`;
+
+const AddressContent = styled.div`
+  flex: 1;
+
+  strong {
+    font-size: 1rem;
+    color: ${({ theme }) => theme.colors.neutral[900]};
+    display: block;
+    margin-bottom: 0.25rem;
+
+    @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+      font-size: 0.9rem;
+      margin-bottom: 0.15rem;
+    }
+  }
+
+  p {
+    font-size: 0.9rem;
+    color: ${({ theme }) => theme.colors.neutral[600]};
+    margin: 0;
+    line-height: 1.5;
+
+    @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+      font-size: 0.8rem;
+    }
+  }
+`;
+
+const ItemsList = styled.ul`
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+`;
+
+const ItemRow = styled.li`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1rem;
+  background-color: ${({ theme }) => theme.colors.neutral[50]};
+  border-radius: ${({ theme }) => theme.borderRadius.md};
+  font-size: 0.95rem;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    padding: 0.65rem 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  span.name {
+    font-weight: 600;
+    color: ${({ theme }) => theme.colors.neutral[800]};
+  }
+
+  span.qty {
+    background: ${({ theme }) => theme.colors.primary[100]};
+    color: ${({ theme }) => theme.colors.primary[700]};
+    padding: 0.2rem 0.6rem;
+    border-radius: 9999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+
+    @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+      font-size: 0.75rem;
+      padding: 0.15rem 0.5rem;
+    }
+  }
+`;
+
+const NoticeBox = styled.div`
+  background: ${({ theme }) => theme.colors.neutral[50]};
+  border: 1px solid ${({ theme }) => theme.colors.neutral[200]};
+  border-radius: ${({ theme }) => theme.borderRadius.md};
+  padding: 0.75rem 1rem;
+  font-size: 0.85rem;
+  color: ${({ theme }) => theme.colors.neutral[600]};
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    padding: 0.6rem 0.75rem;
+    font-size: 0.78rem;
+  }
+`;
+
+const PayButton = styled.button`
+  width: 100%;
+  padding: 1.1rem;
+  border: 0;
+  cursor: pointer;
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  background: ${({ theme }) => theme.colors.success[500]};
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 14px rgba(34, 197, 94, 0.3);
+  transition: all 0.2s ease;
+  min-height: 44px;
+
+  &:hover:not(:disabled) {
+    background: ${({ theme }) => theme.colors.success[600]};
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    border-radius: 0.65rem;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+    transform: none;
+    box-shadow: none;
+  }
+`;
+
+const AddAddressLink = styled(Link)`
+  color: ${({ theme }) => theme.colors.primary[600]};
+  font-size: 0.9rem;
+  font-weight: 600;
   text-decoration: none;
-  transition: color 0.2s ease;
-  
+
   &:hover {
-    color: ${props => props.theme.colors.primary[700]};
     text-decoration: underline;
   }
-  
-  svg {
-    margin-left: 0.5rem;
-    transition: transform 0.2s ease;
-  }
-  
-  &:hover svg {
-    transform: translateX(-3px);
-  }
-  
-  @media (max-width: 768px) {
-    margin-top: 0.75rem;
-    font-size: 0.9rem;
-  }
 `;
 
-const FormActions = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 1.5rem;
-`;
-
-// تغییر نام به MyStepContent برای جلوگیری از تداخل
-const StepContent = styled.div<{ $active: boolean }>`
-  display: ${({ $active }) => ($active ? 'block' : 'none')};
-  margin-top: 20px;
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-`;
-
-// نوع پرداخت
-type PaymentMethod = 'cash-on-delivery' | 'online-payment' | 'wallet';
-
-// اصلاح PaymentOptionContainer برای استفاده از selected به جای $selected
-const PaymentOptionContainer = styled.div<{ selected: boolean }>`
-  display: flex;
-  align-items: center;
-  padding: 1rem;
-  border: 1px solid ${props => props.selected ? '#FF5A5F' : '#E0E0E0'};
-  border-radius: 8px;
-  margin-bottom: 1rem;
-  cursor: pointer;
-  background-color: ${props => props.selected ? '#FFF0F0' : 'white'};
-  transition: all 0.2s ease-in-out;
-  
-  &:hover {
-    border-color: #FF5A5F;
-    background-color: #FFEFEF;
-  }
-`;
-
-// کامپوننت اصلی
-const CheckoutPage = () => {
-  const { cartItems, clearCart } = useCart();
-  const [currentStep, setCurrentStep] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('online-payment');
-  const [deliveryInfo, setDeliveryInfo] = useState({
-    name: '',
-    phone: '',
-    address: '',
-    notes: ''
-  });
+export default function CheckoutPage() {
   const router = useRouter();
-  const { formatPrice } = useFormatPrice();
-  
-  // محاسبه جمع سبد خرید
-  const calculateSubtotal = () => {
-    return cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  };
-  
-  // محاسبه هزینه‌ها
-  const subtotal = calculateSubtotal();
-  const deliveryFee = 15000;
-  const tax = Math.round(subtotal * 0.09);
-  const total = subtotal + deliveryFee + tax;
-  
-  const handlePayment = async () => {
-    if (currentStep !== 2) {
-      setCurrentStep(currentStep + 1);
-      return;
-    }
-    
-    if (!paymentMethod) {
-      alert('لطفاً یک روش پرداخت انتخاب کنید');
-      return;
-    }
-    
-    setIsLoading(true);
-    
-    try {
-      // شبیه‌سازی درخواست API برای پرداخت
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // ذخیره اطلاعات سفارش در localStorage
-      const orderData = {
-        id: `ORDER-${Math.floor(Math.random() * 10000)}`,
-        items: cartItems,
-        total: total,
-        deliveryInfo,
-        paymentMethod,
-        status: 'پرداخت شده',
-        date: new Date().toISOString(),
-      };
-      
-      // ذخیره در localStorage
-      const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');
-      localStorage.setItem('orders', JSON.stringify([...existingOrders, orderData]));
-      
-      // پاک کردن سبد خرید
-      clearCart();
-      
-      // انتقال به صفحه تایید سفارش
-      toast.success('پرداخت با موفقیت انجام شد');
-      router.push(`/order-confirmation?id=${orderData.id}`);
-    } catch (error) {
-      console.error('خطا در پرداخت:', error);
-      toast.error('خطا در پرداخت. لطفا دوباره تلاش کنید.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  
-  // تغییر مرحله
-  const goToNextStep = () => {
-    setCurrentStep(prev => Math.min(prev + 1, 2));
-  };
-  
-  const goToPreviousStep = () => {
-    setCurrentStep(prev => Math.max(prev - 1, 1));
-  };
-  
-  // تغییر اطلاعات تحویل
-  const handleDeliveryInfoChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setDeliveryInfo(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-  
-  return (
-    <CheckoutPageContainer>
-      <PageTitle>تکمیل سفارش</PageTitle>
-      
-      <CheckoutSteps>
-        <StepItem $active={currentStep === 1} $completed={currentStep > 1}>
-          <StepNumber $active={currentStep === 1} $completed={currentStep > 1}>
-            {currentStep > 1 ? '✓' : '1'}
-          </StepNumber>
-          <StepLabel $active={currentStep === 1} $completed={currentStep > 1}>اطلاعات ارسال</StepLabel>
-        </StepItem>
-        
-        <StepItem $active={currentStep === 2}>
-          <StepNumber $active={currentStep === 2}>2</StepNumber>
-          <StepLabel $active={currentStep === 2}>پرداخت و تأیید</StepLabel>
-        </StepItem>
-      </CheckoutSteps>
-      
-      <CheckoutContent>
-        <CheckoutFormSection>
-          <StepContent $active={currentStep === 1}>
-            <FormCard>
-              <FormTitle>
-                <IconContainer>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 13.43C13.7231 13.43 15.12 12.0331 15.12 10.31C15.12 8.58687 13.7231 7.19 12 7.19C10.2769 7.19 8.88 8.58687 8.88 10.31C8.88 12.0331 10.2769 13.43 12 13.43Z" stroke="currentColor" strokeWidth="1.5"/>
-                    <path d="M3.62 8.49C5.59 -0.170 18.42 -0.160 20.38 8.5C21.53 13.58 18.37 17.88 15.6 20.54C13.59 22.48 9.41 22.48 7.39 20.54C4.63 17.88 1.47 13.57 3.62 8.49Z" stroke="currentColor" strokeWidth="1.5"/>
-                  </svg>
-                </IconContainer>
-                اطلاعات تحویل
-              </FormTitle>
-              
-              <FormSection>
-                <FormRow>
-                  <FormField>
-                    <FormLabel>نام و نام خانوادگی</FormLabel>
-                    <FormInput 
-                      type="text" 
-                      name="name" 
-                      value={deliveryInfo.name} 
-                      onChange={handleDeliveryInfoChange} 
-                      placeholder="نام گیرنده سفارش" 
-                    />
-                  </FormField>
-                  
-                  <FormField>
-                    <FormLabel>شماره موبایل</FormLabel>
-                    <FormInput 
-                      type="tel" 
-                      name="phone" 
-                      value={deliveryInfo.phone} 
-                      onChange={handleDeliveryInfoChange} 
-                      placeholder="09xxxxxxxxx" 
-                    />
-                  </FormField>
-                </FormRow>
-                
-                <FormField>
-                  <FormLabel>آدرس کامل</FormLabel>
-                  <FormInput 
-                    type="text" 
-                    name="address" 
-                    value={deliveryInfo.address} 
-                    onChange={handleDeliveryInfoChange} 
-                    placeholder="آدرس دقیق محل تحویل" 
-                  />
-                </FormField>
-                
-                <FormField>
-                  <FormLabel>توضیحات سفارش (اختیاری)</FormLabel>
-                  <FormInput 
-                    as="textarea" 
-                    name="notes" 
-                    value={deliveryInfo.notes} 
-                    onChange={handleDeliveryInfoChange} 
-                    placeholder="هرگونه توضیحات اضافی برای تحویل سفارش" 
-                    style={{ minHeight: '100px' }} 
-                  />
-                </FormField>
-              </FormSection>
-              
-              <FormActions>
-                <BackButton type="button" onClick={() => window.history.back()}>
-                  بازگشت به سبد خرید
-                </BackButton>
-                <NextButton type="button" onClick={goToNextStep}>
-                  ادامه به پرداخت
-                </NextButton>
-              </FormActions>
-            </FormCard>
-          </StepContent>
-          
-          <StepContent $active={currentStep === 2}>
-            <FormCard>
-              <FormTitle>
-                <IconContainer>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M2 8.50488H22" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M6 16.5049H8" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M10.5 16.5049H14.5" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M6.44 3.50488H17.55C21.11 3.50488 22 4.38488 22 7.89488V16.1049C22 19.6149 21.11 20.4949 17.56 20.4949H6.44C2.89 20.5049 2 19.6249 2 16.1149V7.89488C2 4.38488 2.89 3.50488 6.44 3.50488Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </IconContainer>
-                انتخاب روش پرداخت
-              </FormTitle>
-              
-              <PaymentOptionContainer 
-                selected={paymentMethod === 'online-payment'} 
-                onClick={() => setPaymentMethod('online-payment')}
-              >
-                <RadioInput 
-                  type="radio" 
-                  name="payment-method" 
-                  id="online-payment" 
-                  checked={paymentMethod === 'online-payment'} 
-                  onChange={() => setPaymentMethod('online-payment')}
-                />
-                <IconContainer>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M2 8.50488H22" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M6 16.5049H8" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M10.5 16.5049H14.5" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M6.44 3.50488H17.55C21.11 3.50488 22 4.38488 22 7.89488V16.1049C22 19.6149 21.11 20.4949 17.56 20.4949H6.44C2.89 20.5049 2 19.6249 2 16.1149V7.89488C2 4.38488 2.89 3.50488 6.44 3.50488Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </IconContainer>
-                <RadioLabel>پرداخت آنلاین</RadioLabel>
-              </PaymentOptionContainer>
-              
-              <PaymentOptionContainer 
-                selected={paymentMethod === 'cash-on-delivery'} 
-                onClick={() => setPaymentMethod('cash-on-delivery')}
-              >
-                <RadioInput 
-                  type="radio" 
-                  name="payment-method" 
-                  id="cash-on-delivery" 
-                  checked={paymentMethod === 'cash-on-delivery'} 
-                  onChange={() => setPaymentMethod('cash-on-delivery')}
-                />
-                <IconContainer>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M22 11.5V13.5C22 17.5 20 19.5 16 19.5H15.5C15.19 19.5 14.89 19.65 14.7 19.9L13.2 22.15C12.54 23.11 11.46 23.11 10.8 22.15L9.3 19.9C9.14 19.69 8.78 19.5 8.5 19.5H8C4 19.5 2 18.5 2 13.5V7.5C2 3.5 4 1.5 8 1.5H12.55" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M17 3.5V11.5L19 9.5" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M17 11.5L15 9.5" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M8 8.50001H12" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M8 13.5H11" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </IconContainer>
-                <RadioLabel>پرداخت در محل</RadioLabel>
-              </PaymentOptionContainer>
-              
-              <PaymentOptionContainer 
-                selected={paymentMethod === 'wallet'} 
-                onClick={() => setPaymentMethod('wallet')}
-              >
-                <RadioInput 
-                  type="radio" 
-                  name="payment-method" 
-                  id="wallet" 
-                  checked={paymentMethod === 'wallet'} 
-                  onChange={() => setPaymentMethod('wallet')}
-                />
-                <IconContainer>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M2 12.61H19" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M19 10.28V17.43C19 20.43 17.7 22 14.3 22H5.7C2.3 22 1 20.43 1 17.43V10.28C1 7.58 2.1 6.14 4.85 5.8C5.18 5.76 5.54 5.74 5.9 5.74H14.1C14.46 5.74 14.82 5.76 15.15 5.8C17.9 6.14 19 7.58 19 10.28Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M22.9991 6.13V13.28C22.9991 16.28 21.6991 17.85 18.2991 17.85H17.9991V10.28C17.9991 7.58 16.8991 6.14 14.1491 5.8C13.8191 5.76 13.4591 5.74 13.0991 5.74H4.89914V5.56C4.89914 2.56 6.19914 1 9.59914 1H18.1991C21.5991 1 22.9991 2.56 22.9991 5.56V6.13Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M5.25 16.25H6.75" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M9.25 16.25H13.75" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </IconContainer>
-                <RadioLabel>کیف پول</RadioLabel>
-              </PaymentOptionContainer>
-              
-              {paymentMethod === 'cash-on-delivery' && (
-                <CreditCardForm>
-                  <FormField>
-                    <FormLabel>توضیحات</FormLabel>
-                    <FormInput as="textarea" placeholder="در صورت نیاز به توضیحات برای پرداخت در محل" />
-                  </FormField>
-                </CreditCardForm>
-              )}
-              
-              <FormActions>
-                <BackButton type="button" onClick={goToPreviousStep}>
-                  بازگشت
-                </BackButton>
-                <NextButton 
-                  onClick={handlePayment} 
-                  disabled={isLoading}
-                >
-                  {isLoading ? 'در حال پردازش...' : currentStep === 3 ? 'پرداخت نهایی' : 'مرحله بعد'}
-                </NextButton>
-              </FormActions>
-            </FormCard>
-          </StepContent>
-        </CheckoutFormSection>
-        
-        <OrderSummarySection>
-          <FormTitle>خلاصه سفارش</FormTitle>
-          
-          <OrderItems>
-            {cartItems.map(item => (
-              <OrderItem key={item.id}>
-                <ItemInfo>
-                  <ItemQuantity>{item.quantity} ×</ItemQuantity>
-                  <ItemName>{item.name}</ItemName>
-                </ItemInfo>
-                <ItemPrice>{formatPrice(item.price * item.quantity)}</ItemPrice>
-              </OrderItem>
-            ))}
-          </OrderItems>
-          
-          <Divider />
-          
-          <PricingSummary>
-            <PricingRow>
-              <PricingLabel>جمع سفارش</PricingLabel>
-              <PricingValue>{formatPrice(subtotal)}</PricingValue>
-            </PricingRow>
-            <PricingRow>
-              <PricingLabel>هزینه ارسال</PricingLabel>
-              <PricingValue>{formatPrice(deliveryFee)}</PricingValue>
-            </PricingRow>
-            <PricingRow>
-              <PricingLabel>مالیات بر ارزش افزوده (9%)</PricingLabel>
-              <PricingValue>{formatPrice(tax)}</PricingValue>
-            </PricingRow>
-          </PricingSummary>
-          
-          <Divider />
-          
-          <PricingRow>
-            <PricingLabel>مبلغ قابل پرداخت</PricingLabel>
-            <PricingValue>{formatPrice(total)}</PricingValue>
-          </PricingRow>
-          
-          {currentStep === 2 && (
-            <>
-              <PayButton onClick={handlePayment} disabled={isLoading}>
-                {isLoading ? 'در حال پردازش...' : 'پرداخت'}
-              </PayButton>
-              <BackLink href="/cart">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M15 18l-6-6 6-6" />
-                </svg>
-                بازگشت به سبد خرید
-              </BackLink>
-            </>
-          )}
-        </OrderSummarySection>
-      </CheckoutContent>
-    </CheckoutPageContainer>
-  );
-};
+  const { state, clearCart } = useCart();
+  const idempotencyKey = useRef<string | null>(null);
+  const [addresses, setAddresses] = useState<readonly Address[]>([]);
+  const [addressId, setAddressId] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
-export default CheckoutPage; 
+  useEffect(() => {
+    idempotencyKey.current ??= crypto.randomUUID();
+    void fetch('/api/customer/addresses', { cache: 'no-store' }).then(async (response) => {
+      if (response.status === 401) {
+        router.push('/auth');
+        return;
+      }
+      if (!response.ok) throw new Error('ADDRESS_LOAD_FAILED');
+      const body = await response.json() as { items: Address[] };
+      setAddresses(body.items);
+      setAddressId(body.items[0]?.id ?? '');
+    }).catch(() => toast.error('دریافت آدرس‌ها انجام نشد.')).finally(() => setLoading(false));
+  }, [router]);
+
+  async function checkout() {
+    if (!state.restaurantId || state.items.length === 0 || !addressId || !idempotencyKey.current) {
+      toast.error('سبد خرید و آدرس تحویل را تکمیل کنید.');
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          idempotencyKey: idempotencyKey.current,
+          addressId,
+          restaurantId: state.restaurantId,
+          items: state.items.map(({ productId, variantId, addonIds, quantity }) => ({
+            productId,
+            ...(variantId ? { variantId } : {}),
+            addonIds,
+            quantity,
+          })),
+        }),
+      });
+      const result = await response.json() as {
+        orderId?: string;
+        trackingToken?: string | null;
+        paymentUrl?: string;
+        code?: string;
+      };
+      if (!response.ok || !result.paymentUrl) throw new Error(result.code ?? 'CHECKOUT_FAILED');
+      if (result.orderId && result.trackingToken) {
+        sessionStorage.setItem(`foodino:tracking:${result.orderId}`, result.trackingToken);
+      }
+      clearCart();
+      window.location.assign(result.paymentUrl);
+    } catch {
+      toast.error('ثبت سفارش انجام نشد. لطفاً دوباره تلاش کنید.');
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <Page>
+      <HeaderTitle>تکمیل و پرداخت سفارش</HeaderTitle>
+      
+      <Stepper>
+        <Step $completed>
+          <StepDot $completed>✓</StepDot>
+          <span>سبد خرید</span>
+        </Step>
+        <StepDivider $completed />
+        <Step $active>
+          <StepDot $active>۲</StepDot>
+          <span>نشانی و پرداخت</span>
+        </Step>
+        <StepDivider />
+        <Step>
+          <StepDot>۳</StepDot>
+          <span>تأیید سفارش</span>
+        </Step>
+      </Stepper>
+
+      <Card>
+        <SectionHeader>
+          <h2>📍 آدرس تحویل سفارش</h2>
+          <AddAddressLink href="/profile">+ ثبت آدرس جدید</AddAddressLink>
+        </SectionHeader>
+
+        {loading ? (
+          <p style={{ color: '#64748b' }}>در حال دریافت آدرس‌ها...</p>
+        ) : addresses.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '1.5rem' }}>
+            <p style={{ marginBottom: '1rem', color: '#64748b' }}>هنوز هیچ آدرسی ثبت نکرده‌اید.</p>
+            <AddAddressLink href="/profile" style={{ display: 'inline-block', padding: '0.6rem 1.25rem', backgroundColor: '#ff5a00', color: 'white', borderRadius: '0.5rem' }}>
+              ثبت آدرس در پروفایل
+            </AddAddressLink>
+          </div>
+        ) : (
+          <AddressGrid>
+            {addresses.map((address) => (
+              <AddressButton
+                type="button"
+                key={address.id}
+                $selected={address.id === addressId}
+                onClick={() => setAddressId(address.id)}
+              >
+                <RadioCircle $selected={address.id === addressId} />
+                <AddressContent>
+                  <strong>{address.title}</strong>
+                  <p>{address.city}، {address.addressLine}</p>
+                </AddressContent>
+              </AddressButton>
+            ))}
+          </AddressGrid>
+        )}
+      </Card>
+
+      <Card>
+        <SectionHeader>
+          <h2>🛍️ اقلام سبد خرید</h2>
+          {state.restaurantName && (
+            <span style={{ fontSize: '0.9rem', color: '#ff5a00', fontWeight: 600 }}>
+              {state.restaurantName}
+            </span>
+          )}
+        </SectionHeader>
+
+        {state.items.length === 0 ? (
+          <p style={{ color: '#64748b' }}>سبد خرید شما خالی است.</p>
+        ) : (
+          <ItemsList>
+            {state.items.map((item) => (
+              <ItemRow key={item.id}>
+                <span className="name">{item.name}</span>
+                <span className="qty">{item.quantity} عدد</span>
+              </ItemRow>
+            ))}
+          </ItemsList>
+        )}
+
+        <NoticeBox>
+          <span>ℹ️</span>
+          <span>مبلغ و فاکتور نهایی بر اساس قیمت لحظه‌ای و هزینه ارسال در درگاه محاسبه خواهد شد.</span>
+        </NoticeBox>
+      </Card>
+
+      <PayButton
+        type="button"
+        onClick={checkout}
+        disabled={submitting || loading || addresses.length === 0 || state.items.length === 0}
+      >
+        <span>🔒</span>
+        <span>{submitting ? 'در حال اتصال به درگاه پرداخت...' : 'ثبت سفارش و ادامه پرداخت'}</span>
+      </PayButton>
+    </Page>
+  );
+}

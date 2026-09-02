@@ -3,13 +3,18 @@
 import React from 'react';
 import styled from 'styled-components';
 import Link from 'next/link';
+import FavoriteButton from '@/components/common/FavoriteButton';
 
 const SectionContainer = styled.section`
   padding: 4rem 2rem;
   background-color: ${props => props.theme.colors.neutral[50]};
   
   @media (max-width: ${props => props.theme.breakpoints.md}) {
-    padding: 3rem 1rem;
+    padding: 2.25rem 1rem;
+  }
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    padding: 1.5rem 0.875rem;
   }
 `;
 
@@ -23,7 +28,8 @@ const SectionHeader = styled.div`
   @media (max-width: ${props => props.theme.breakpoints.md}) {
     flex-direction: column;
     align-items: flex-start;
-    gap: 1rem;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
   }
 `;
 
@@ -31,14 +37,27 @@ const TitleContainer = styled.div``;
 
 const SectionTitle = styled.h2`
   font-size: ${props => props.theme.typography.fontSizes['3xl']};
-  font-weight: ${props => props.theme.typography.fontWeights.bold};
-  color: ${props => props.theme.colors.secondary[500]};
+  font-weight: 800;
+  color: ${props => props.theme.colors.neutral[900]};
   margin-bottom: 0.5rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.md}) {
+    font-size: 1.5rem;
+  }
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 1.25rem;
+    margin-bottom: 0.25rem;
+  }
 `;
 
 const SectionSubtitle = styled.p`
   font-size: ${props => props.theme.typography.fontSizes.md};
-  color: ${props => props.theme.colors.neutral[700]};
+  color: ${props => props.theme.colors.neutral[600]};
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 0.8rem;
+  }
 `;
 
 const ViewAllButton = styled(Link)`
@@ -52,10 +71,19 @@ const ViewAllButton = styled(Link)`
   color: ${props => props.theme.colors.neutral[900]};
   text-decoration: none;
   transition: all 0.2s ease;
+  min-height: 44px;
   
   &:hover {
     border-color: ${props => props.theme.colors.primary[500]};
     color: ${props => props.theme.colors.primary[500]};
+  }
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    width: 100%;
+    justify-content: center;
+    padding: 0.55rem 1rem;
+    font-size: 0.85rem;
+    min-height: 38px;
   }
 `;
 
@@ -65,40 +93,66 @@ const RestaurantsGrid = styled.div`
   gap: 2rem;
   max-width: 1200px;
   margin: 0 auto;
+
+  @media (max-width: ${props => props.theme.breakpoints.md}) {
+    gap: 1.25rem;
+  }
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
 `;
 
 const RestaurantCard = styled.div`
   background-color: white;
-  border-radius: ${props => props.theme.borderRadius.lg};
+  border-radius: ${props => props.theme.borderRadius.xl};
   overflow: hidden;
-  box-shadow: ${props => props.theme.boxShadow.md};
-  transition: all 0.3s ease;
+  border: 1px solid ${props => props.theme.colors.neutral[200]};
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    border-radius: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  }
   
   &:hover {
-    transform: translateY(-5px);
-    box-shadow: ${props => props.theme.boxShadow.lg};
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px -4px rgba(0, 0, 0, 0.12);
   }
 `;
 
 const CardLink = styled(Link)`
   text-decoration: none;
   color: inherit;
+  display: block;
 `;
 
 const ImageContainer = styled.div`
   position: relative;
   width: 100%;
-  height: 180px;
-  background-color: ${props => props.theme.colors.primary[400]};
+  height: 160px;
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  font-size: ${props => props.theme.typography.fontSizes['2xl']};
+  font-size: 4rem;
+  border-bottom: 1px solid ${props => props.theme.colors.neutral[100]};
+  transition: transform 0.3s ease;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    height: 110px;
+    font-size: 2.5rem;
+  }
 `;
 
 const RestaurantInfo = styled.div`
   padding: 1.5rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    padding: 0.85rem;
+  }
 `;
 
 const RestaurantName = styled.h3`
@@ -106,6 +160,11 @@ const RestaurantName = styled.h3`
   font-weight: ${props => props.theme.typography.fontWeights.semibold};
   color: ${props => props.theme.colors.neutral[900]};
   margin-bottom: 0.5rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 1.05rem;
+    margin-bottom: 0.25rem;
+  }
 `;
 
 const RestaurantType = styled.span`
@@ -113,6 +172,11 @@ const RestaurantType = styled.span`
   font-size: ${props => props.theme.typography.fontSizes.sm};
   color: ${props => props.theme.colors.neutral[700]};
   margin-bottom: 1rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+  }
 `;
 
 const TagsContainer = styled.div`
@@ -120,6 +184,11 @@ const TagsContainer = styled.div`
   gap: 0.5rem;
   margin-bottom: 1rem;
   flex-wrap: wrap;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    gap: 0.35rem;
+    margin-bottom: 0.65rem;
+  }
 `;
 
 const Tag = styled.span`
@@ -128,6 +197,11 @@ const Tag = styled.span`
   background-color: ${props => props.theme.colors.neutral[100]};
   padding: 0.25rem 0.75rem;
   border-radius: ${props => props.theme.borderRadius.full};
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.55rem;
+  }
 `;
 
 const CardFooter = styled.div`
@@ -136,6 +210,10 @@ const CardFooter = styled.div`
   align-items: center;
   padding-top: 1rem;
   border-top: 1px solid ${props => props.theme.colors.neutral[100]};
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    padding-top: 0.65rem;
+  }
 `;
 
 const Rating = styled.div`
@@ -159,47 +237,47 @@ const DeliveryInfo = styled.div`
   color: ${props => props.theme.colors.neutral[700]};
 `;
 
-// داده‌های نمونه برای رستوران‌ها
+// رستوران‌های برتر همگام با دیتابیس
 const restaurants = [
   {
-    id: 1,
+    id: '20000000-0000-4000-8000-000000000001',
     name: 'پیتزا برتر',
     icon: '🍕',
     type: 'فست فود',
     tags: ['پیتزا', 'برگر', 'ساندویچ'],
     rating: 4.8,
     deliveryTime: '30-45 دقیقه',
-    slug: 'best-pizza'
+    slug: 'best-pizza',
   },
   {
-    id: 2,
-    name: 'رستوران ایرانی سنتی',
+    id: '20000000-0000-4000-8000-000000000002',
+    name: 'رستوران سنتی بهشت',
     icon: '🍖',
     type: 'غذای ایرانی',
     tags: ['چلوکباب', 'خورشت', 'دیزی'],
     rating: 4.6,
     deliveryTime: '40-55 دقیقه',
-    slug: 'traditional-iranian'
+    slug: 'traditional-iranian',
   },
   {
-    id: 3,
-    name: 'سوشی تاکو',
+    id: '20000000-0000-4000-8000-000000000004',
+    name: 'سوشی بار توکیو',
     icon: '🍣',
-    type: 'ژاپنی',
+    type: 'ژاپنی و دریایی',
     tags: ['سوشی', 'ساشیمی', 'رامن'],
     rating: 4.5,
     deliveryTime: '35-50 دقیقه',
-    slug: 'sushi-tako'
+    slug: 'sushi-bar',
   },
   {
-    id: 4,
-    name: 'سالاد و اسموتی سبز',
-    icon: '🥗',
-    type: 'سالم و ارگانیک',
-    tags: ['سالاد', 'اسموتی', 'دسر'],
+    id: '20000000-0000-4000-8000-000000000003',
+    name: 'ته‌چین شیراز',
+    icon: '🍲',
+    type: 'غذای اصیل ایرانی',
+    tags: ['ته‌چین', 'خوراک', 'محلی'],
     rating: 4.7,
-    deliveryTime: '20-35 دقیقه',
-    slug: 'green-salad'
+    deliveryTime: '25-40 دقیقه',
+    slug: 'shiraz-tahchin',
   },
 ];
 
@@ -209,7 +287,7 @@ const TopRestaurants = () => {
       <SectionHeader>
         <TitleContainer>
           <SectionTitle>رستوران‌های برتر</SectionTitle>
-          <SectionSubtitle>بهترین رستوران‌های شهر با بهترین غذاها</SectionSubtitle>
+          <SectionSubtitle>بهترین رستوران‌های شهر با بالاترین امتیاز کاربران</SectionSubtitle>
         </TitleContainer>
         <ViewAllButton href="/restaurants">
           مشاهده همه
@@ -222,7 +300,14 @@ const TopRestaurants = () => {
       
       <RestaurantsGrid>
         {restaurants.map((restaurant) => (
-          <RestaurantCard key={restaurant.id}>
+          <RestaurantCard key={restaurant.id} style={{ position: 'relative' }}>
+            <div style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 10 }}>
+              <FavoriteButton
+                restaurantId={restaurant.id}
+                restaurantName={restaurant.name}
+                size="sm"
+              />
+            </div>
             <CardLink href={`/restaurants/${restaurant.slug}`}>
               <ImageContainer>
                 {restaurant.icon}

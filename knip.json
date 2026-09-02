@@ -1,0 +1,38 @@
+{
+  "$schema": "https://unpkg.com/knip@5/overview/configuration-schema.json",
+  "next": {
+    "entry": [
+      "src/app/**/{page,layout,loading,error,global-error,not-found,route,default}.{ts,tsx}",
+      "src/proxy.ts"
+    ]
+  },
+  "playwright": {
+    "entry": [
+      "tests/e2e/**/*.spec.ts"
+    ]
+  },
+  "ignore": [
+    "src/infrastructure/supabase/database.types.ts",
+    "src/components/common/StyledComponents.tsx",
+    "src/components/favorites/**",
+    "src/components/profile/**",
+    "src/components/restaurant-detail/**",
+    "src/components/restaurants/**",
+    "src/components/ui/**",
+    "src/data/**",
+    "src/hooks/**",
+    "src/types/**",
+    "src/lib/api.ts",
+    "src/lib/theme.ts",
+    "src/lib/utils.ts",
+    "src/lib/validation/contact.ts",
+    "src/infrastructure/logging/audit.ts",
+    "src/components/ProductCard.tsx"
+  ],
+  "ignoreDependencies": [
+    "framer-motion",
+    "react-icons",
+    "@testing-library/jest-dom",
+    "@testing-library/react"
+  ]
+}

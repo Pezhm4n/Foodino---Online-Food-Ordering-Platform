@@ -3,7 +3,6 @@
 import React from "react";
 import styled from "styled-components";
 import Link from "next/link";
-import { vazirmatn } from "@/app/fonts";
 
 // تعریف انواع داده
 interface Restaurant {
@@ -241,18 +240,18 @@ const FavoriteRestaurants: React.FC<FavoriteRestaurantsProps> = ({
         {favorites.map((restaurant) => (
           <RestaurantCard key={restaurant.id}>
             <RemoveButton onClick={() => handleRemove(restaurant.id)}>
-              <span className="material-icons">close</span>
+              <span aria-hidden="true">×</span>
             </RemoveButton>
             <RestaurantImageContainer>
               {restaurant.icon}
             </RestaurantImageContainer>
             <RestaurantContent>
               <RestaurantHeader>
-                <RestaurantName href={`/restaurant/${restaurant.id}`}>
+                <RestaurantName href={`/restaurants/${restaurant.id}`}>
                   {restaurant.name}
                 </RestaurantName>
                 <RestaurantRating>
-                  <span className="material-icons">star</span>
+                  <span aria-hidden="true">★</span>
                   {restaurant.rating}
                 </RestaurantRating>
               </RestaurantHeader>
@@ -261,11 +260,11 @@ const FavoriteRestaurants: React.FC<FavoriteRestaurantsProps> = ({
               </RestaurantDescription>
               <RestaurantMeta>
                 <MetaItem>
-                  <span className="material-icons">schedule</span>
+                  <span aria-hidden="true">◷</span>
                   {restaurant.deliveryTime}
                 </MetaItem>
                 <MetaItem>
-                  <span className="material-icons">delivery_dining</span>
+                  <span aria-hidden="true">🚚</span>
                   {restaurant.deliveryFee}
                 </MetaItem>
               </RestaurantMeta>

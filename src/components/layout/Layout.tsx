@@ -1,14 +1,13 @@
 "use client";
 
-import React, { ReactNode, useEffect } from 'react';
+import React, { ReactNode } from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 import Header from './Header';
 import Footer from './Footer';
 import { theme } from '../../styles/theme';
 import { CartProvider } from '@/contexts/CartContext';
-import { AuthProvider } from '@/contexts/AuthContext';
-import { LanguageProvider } from '@/contexts/LanguageContext';
 import { ToastProvider } from '@/components/common/Toast';
+import { GlobalStyle } from '@/styles/GlobalStyle';
 
 // استایل‌های کامپوننت Main
 const Main = styled.main`
@@ -17,31 +16,20 @@ const Main = styled.main`
 
 interface LayoutProps {
   children: ReactNode;
+  isAuthenticated: boolean;
 }
 
-const Layout = ({ children }: LayoutProps) => {
-  // اضافه کردن useEffect برای مدیریت کلاس‌های اضافه شده توسط افزونه‌ها به body در سمت کلاینت
-  useEffect(() => {
-    // اگر کلاس‌های خاصی هست که می‌خواهیم حفظ کنیم، می‌توانیم آنها را به این شکل مدیریت کنیم
-    // اینجا ما فقط مطمئن می‌شویم که hydration با سرور مطابقت دارد
-    return () => {
-      // پاکسازی در زمان unmount (اختیاری)
-    };
-  }, []);
-
+const Layout = ({ children, isAuthenticated }: LayoutProps) => {
   return (
     <ThemeProvider theme={theme}>
-      <LanguageProvider>
-        <AuthProvider>
-          <CartProvider>
-            <ToastProvider>
-              <Header />
-              <Main>{children}</Main>
-              <Footer />
-            </ToastProvider>
-          </CartProvider>
-        </AuthProvider>
-      </LanguageProvider>
+      <GlobalStyle />
+      <CartProvider>
+        <ToastProvider>
+          <Header isAuthenticated={isAuthenticated} />
+          <Main>{children}</Main>
+          <Footer />
+        </ToastProvider>
+      </CartProvider>
     </ThemeProvider>
   );
 };

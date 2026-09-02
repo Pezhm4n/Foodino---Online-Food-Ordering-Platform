@@ -5,17 +5,34 @@ import styled from "styled-components";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/contexts/CartContext";
-import { useAuth } from "@/contexts/AuthContext";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { useTranslation } from "@/hooks/useTranslation";
+import { logoutAction } from '@/app/auth/actions';
 
-const HeaderContainer = styled.header`
+const headerCopy = {
+  home: 'خانه',
+  restaurants: 'رستوران‌ها',
+  categories: 'دسته‌بندی‌ها',
+  orderTracking: 'پیگیری سفارش',
+  about: 'درباره ما',
+  contact: 'تماس با ما',
+  profile: 'پروفایل کاربری',
+  login: 'ورود',
+  signup: 'ثبت‌نام',
+  logout: 'خروج از حساب کاربری',
+  search: 'جستجوی رستوران یا غذا...',
+  favorites: 'علاقه‌مندی‌ها',
+  cart: 'سبد خرید',
+} as const;
+
+const t = (key: keyof typeof headerCopy) => headerCopy[key];
+
+const HeaderContainer = styled.header<{ $isScrolled: boolean }>`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.25rem 2.5rem;
+  padding: ${({ $isScrolled }) => ($isScrolled ? '0.75rem 2.5rem' : '1.15rem 2.5rem')};
   background-color: white;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: ${({ $isScrolled }) =>
+    $isScrolled ? '0 4px 12px rgba(0, 0, 0, 0.08)' : '0 2px 8px rgba(0, 0, 0, 0.04)'};
   position: sticky;
   top: 0;
   z-index: 100;
@@ -23,7 +40,7 @@ const HeaderContainer = styled.header`
   transition: box-shadow 0.3s ease, padding 0.3s ease;
 
   @media (max-width: ${(props) => props.theme.breakpoints.md}) {
-    padding: 1rem 1.5rem;
+    padding: ${({ $isScrolled }) => ($isScrolled ? '0.5rem 0.85rem' : '0.65rem 1rem')};
   }
 `;
 
@@ -33,6 +50,10 @@ const Logo = styled.div`
   color: ${(props) => props.theme.colors.primary[500]};
   position: relative;
   transition: all 0.3s ease;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.md}) {
+    font-size: 1.25rem;
+  }
 
   &:hover {
     transform: translateY(-2px);
@@ -59,11 +80,15 @@ const LogoLink = styled(Link)`
   color: inherit;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
 `;
 
 const LogoEmoji = styled.span`
   font-size: 1.5rem;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.md}) {
+    font-size: 1.2rem;
+  }
 `;
 
 const Navigation = styled.nav`
@@ -120,33 +145,6 @@ const ActionButtons = styled.div`
   
   @media (max-width: ${props => props.theme.breakpoints.md}) {
     gap: 0.5rem;
-  }
-`;
-
-const LanguageToggle = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: ${(props) => props.theme.colors.neutral[50]};
-  border: 1px solid ${(props) => props.theme.colors.neutral[200]};
-  transition: all 0.3s ease;
-  color: ${(props) => props.theme.colors.neutral[700]};
-  cursor: pointer;
-  font-size: 0.8rem;
-  font-weight: 500;
-
-  &:hover {
-    background-color: ${(props) => props.theme.colors.neutral[100]};
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-    color: ${(props) => props.theme.colors.primary[500]};
-  }
-  
-  @media (max-width: ${props => props.theme.breakpoints.md}) {
-    display: none;
   }
 `;
 
@@ -248,8 +246,8 @@ const IconButton = styled(Link)`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background-color: ${(props) => props.theme.colors.neutral[50]};
   border: 1px solid ${(props) => props.theme.colors.neutral[200]};
@@ -291,21 +289,26 @@ const MobileMenuButton = styled.button`
   border: none;
   cursor: pointer;
   color: ${(props) => props.theme.colors.neutral[700]};
-  transition: color 0.3s ease;
+  transition: color 0.2s ease, transform 0.2s ease;
 
   &:hover {
     color: ${(props) => props.theme.colors.primary[500]};
+  }
+
+  &:active {
+    transform: scale(0.94);
   }
 
   @media (max-width: ${(props) => props.theme.breakpoints.lg}) {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
     background-color: ${(props) => props.theme.colors.neutral[50]};
     border: 1px solid ${(props) => props.theme.colors.neutral[200]};
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   }
 `;
 
@@ -313,12 +316,14 @@ const MobileNavigation = styled.div`
   position: fixed;
   top: 0;
   right: 0;
-  width: 280px;
+  width: min(300px, 86vw);
   height: 100vh;
+  height: 100dvh;
   background-color: white;
-  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
-  padding: 2rem 1.5rem;
-  transition: transform 0.3s ease;
+  box-shadow: -5px 0 25px rgba(0, 0, 0, 0.15);
+  padding: 1.25rem 1rem;
+  padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   z-index: 200;
   overflow-y: auto;
   display: flex;
@@ -334,7 +339,9 @@ const MobileNavHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid ${(props) => props.theme.colors.neutral[100]};
 `;
 
 const MobileNavCloseButton = styled.button`
@@ -343,6 +350,18 @@ const MobileNavCloseButton = styled.button`
   color: ${(props) => props.theme.colors.neutral[500]};
   font-size: 1.5rem;
   cursor: pointer;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: ${(props) => props.theme.colors.neutral[100]};
+    color: ${(props) => props.theme.colors.neutral[900]};
+  }
 `;
 
 const MobileNavLinks = styled.div`
@@ -405,7 +424,7 @@ const LogoutIconButton = styled.button`
 
   &:hover {
     background-color: ${(props) => props.theme.colors.neutral[100]};
-    color: ${(props) => props.theme.colors.primary.main};
+    color: ${(props) => props.theme.colors.primary[500]};
   }
 `;
 
@@ -441,19 +460,22 @@ const MobileCartButton = styled(Link)`
   display: none;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   background-color: ${(props) => props.theme.colors.neutral[50]};
   border: 1px solid ${(props) => props.theme.colors.neutral[200]};
-  transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
   color: ${(props) => props.theme.colors.neutral[700]};
 
   &:hover {
     background-color: ${(props) => props.theme.colors.neutral[100]};
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
     color: ${(props) => props.theme.colors.primary[500]};
+  }
+
+  &:active {
+    transform: scale(0.94);
   }
 
   @media (max-width: ${(props) => props.theme.breakpoints.md}) {
@@ -461,15 +483,12 @@ const MobileCartButton = styled(Link)`
   }
 `;
 
-const Header = () => {
+const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const router = useRouter();
   const { getTotalItems } = useCart();
-  const { isAuthenticated, logout } = useAuth();
-  const { language, toggleLanguage } = useLanguage();
-  const { t } = useTranslation("header");
 
   useEffect(() => {
     const handleScroll = () => {
@@ -487,7 +506,7 @@ const Header = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchTerm.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchTerm)}`);
+      router.push(`/restaurants?q=${encodeURIComponent(searchTerm.trim())}`);
     }
   };
 
@@ -500,21 +519,13 @@ const Header = () => {
   };
 
   const handleLogout = () => {
-    logout();
     closeMobileMenu();
-    router.push("/");
+    void logoutAction();
   };
 
   return (
     <>
-      <HeaderContainer
-        style={{
-          padding: isScrolled ? "0.75rem 2.5rem" : "1.25rem 2.5rem",
-          boxShadow: isScrolled
-            ? "0 4px 12px rgba(0, 0, 0, 0.1)"
-            : "0 4px 12px rgba(0, 0, 0, 0.05)",
-        }}
-      >
+      <HeaderContainer $isScrolled={isScrolled}>
         <Logo>
           <LogoLink href="/">
             <LogoEmoji>🍔</LogoEmoji>
@@ -523,12 +534,12 @@ const Header = () => {
         </Logo>
 
         <Navigation>
-          <NavLink href="/">{t("home")}</NavLink>
-          <NavLink href="/restaurants">{t("restaurants")}</NavLink>
-          <NavLink href="/categories">{t("categories")}</NavLink>
-          <NavLink href="/order-tracking">{t("orderTracking")}</NavLink>
-          <NavLink href="/about">{t("about")}</NavLink>
-          <NavLink href="/contact">{t("contact")}</NavLink>
+          <NavLink href="/" prefetch={true}>{t("home")}</NavLink>
+          <NavLink href="/restaurants" prefetch={true}>{t("restaurants")}</NavLink>
+          <NavLink href="/categories" prefetch={true}>{t("categories")}</NavLink>
+          <NavLink href="/order-tracking" prefetch={true}>{t("orderTracking")}</NavLink>
+          <NavLink href="/about" prefetch={true}>{t("about")}</NavLink>
+          <NavLink href="/contact" prefetch={true}>{t("contact")}</NavLink>
         </Navigation>
 
         <SearchContainer>
@@ -569,12 +580,9 @@ const Header = () => {
         </SearchContainer>
 
         <ActionButtons>
-          <LanguageToggle onClick={toggleLanguage} aria-label={language === "fa" ? t("changeToEnglish") : t("changeToPersian")}>
-            {language === "fa" ? "EN" : "فا"}
-          </LanguageToggle>
-
           <IconButton
             href="/favorite-restaurants"
+            prefetch={true}
             aria-label="علاقه‌مندی‌ها"
           >
             <svg
@@ -777,7 +785,7 @@ const Header = () => {
 
       <MobileNavigation data-open={isMobileMenuOpen ? "true" : "false"}>
         <MobileNavHeader>
-          <Logo style={{ fontSize: "1.5rem" }}>
+          <Logo style={{ fontSize: "1.25rem" }}>
             <LogoLink href="/">
               <LogoEmoji>🍔</LogoEmoji>
               <span>فودینو</span>
@@ -826,6 +834,7 @@ const Header = () => {
         <MobileIconContainer>
           <MobileIconButton
             href="/favorite-restaurants"
+            prefetch={true}
             onClick={closeMobileMenu}
           >
             <svg
@@ -944,54 +953,23 @@ const Header = () => {
           )}
         </MobileIconContainer>
 
-        <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-          <button 
-            onClick={() => {
-              toggleLanguage();
-              setTimeout(closeMobileMenu, 500);
-            }}
-            aria-label={language === "fa" ? t("changeToEnglish") : t("changeToPersian")}
-            style={{ 
-              margin: '0 auto',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '40px',
-              height: '40px',
-              borderRadius: '50%',
-              backgroundColor: '#F9FAFB',
-              border: '1px solid #E5E7EB',
-              transition: 'all 0.3s ease',
-              color: '#374151',
-              cursor: 'pointer',
-              fontSize: '0.8rem',
-              fontWeight: 500
-            }}
-          >
-            {language === "fa" ? "EN" : "فا"}
-          </button>
-          <div style={{ fontSize: '0.75rem', marginTop: '0.5rem' }}>
-            {language === "fa" ? t("changeToEnglish") : t("changeToPersian")}
-          </div>
-        </div>
-
         <MobileNavLinks>
-          <MobileNavLink href="/" onClick={closeMobileMenu}>
+          <MobileNavLink href="/" prefetch={true} onClick={closeMobileMenu}>
             {t("home")}
           </MobileNavLink>
-          <MobileNavLink href="/restaurants" onClick={closeMobileMenu}>
+          <MobileNavLink href="/restaurants" prefetch={true} onClick={closeMobileMenu}>
             {t("restaurants")}
           </MobileNavLink>
-          <MobileNavLink href="/categories" onClick={closeMobileMenu}>
+          <MobileNavLink href="/categories" prefetch={true} onClick={closeMobileMenu}>
             {t("categories")}
           </MobileNavLink>
-          <MobileNavLink href="/order-tracking" onClick={closeMobileMenu}>
+          <MobileNavLink href="/order-tracking" prefetch={true} onClick={closeMobileMenu}>
             {t("orderTracking")}
           </MobileNavLink>
-          <MobileNavLink href="/about" onClick={closeMobileMenu}>
+          <MobileNavLink href="/about" prefetch={true} onClick={closeMobileMenu}>
             {t("about")}
           </MobileNavLink>
-          <MobileNavLink href="/contact" onClick={closeMobileMenu}>
+          <MobileNavLink href="/contact" prefetch={true} onClick={closeMobileMenu}>
             {t("contact")}
           </MobileNavLink>
         </MobileNavLinks>
