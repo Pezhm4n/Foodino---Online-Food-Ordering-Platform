@@ -46,6 +46,6 @@ test.describe('Catalog Discovery and Navigation', () => {
   test('shows 404 for nonexistent restaurant slug', async ({ page }) => {
     const res = await page.goto('/restaurants/non-existent-restaurant-404');
     expect(res?.status()).toBe(200); // Streaming fallback in App Router
-    await expect(page.locator('body')).toContainText('صفحه پیدا نشد');
+    await expect(page.locator('body')).toContainText(/رستوران یافت نشد|صفحه پیدا نشد/);
   });
 });

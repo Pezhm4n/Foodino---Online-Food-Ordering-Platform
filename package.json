@@ -26,7 +26,7 @@
     "db:types": "node scripts/generate-database-types.mjs",
     "db:types:check": "node scripts/generate-database-types.mjs --check",
     "security": "npm audit --audit-level=high",
-    "ci": "npm run lint && npm run typecheck && npm run test:coverage && npm run build"
+    "ci": "npm run lint && npm run typecheck && npm run test:coverage && npm run build:local"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.5",
@@ -38,6 +38,7 @@
     "react-hot-toast": "^2.5.2",
     "react-icons": "^5.5.0",
     "styled-components": "6.5.3",
+    "server-only": "^0.0.1",
     "zod": "4.5.4"
   },
   "devDependencies": {

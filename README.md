@@ -1,175 +1,128 @@
+# فودینو (Foodino) — سامانه سفارش آنلاین غذا
 
-# Foodino 🍕 
+پلتفرم مدرن و امن سفارش آنلاین غذا، بازطراحی‌شده با معماری **Server-Only Backend-For-Frontend (BFF)**، تفکیک دقیق دامنه‌ها و پایگاه‌داده امن مبتنی بر **Supabase Postgres** و **Next.js 16 (App Router)**.
 
-![Next.js](https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=next.js)
-![TypeScript](https://img.shields.io/badge/TypeScript-4.9-blue?style=flat-square&logo=typescript)
-![Styled Components](https://img.shields.io/badge/styled--components-5.3-pink?style=flat-square&logo=styled-components)
-
-A modern, responsive online food ordering platform built with Next.js 14, TypeScript, and styled-components. Foodino provides a seamless experience for browsing restaurants, ordering food, and tracking deliveries.
-
-## 📋 Table of Contents
-
-- [Features](#-features)
-- [Screenshots](#-screenshots)
-- [Technology Stack](#-technology-stack)
-- [Getting Started](#-getting-started)
-- [Project Structure](#-project-structure)
-- [Key Functionality](#-key-functionality)
-- [Roadmap](#-roadmap)
-- [Contributing](#-contributing)
-- [License](#-license)
-
-## ✨ Features
-
-- **Responsive Design** - Fully optimized for mobile, tablet, and desktop devices
-- **RTL Support** - Complete Persian language support with right-to-left layout
-- **Restaurant Discovery** - Browse and search restaurants by category, cuisine, or name
-- **Menu Management** - View detailed restaurant menus with prices and descriptions
-- **Shopping Cart** - Interactive cart with real-time updates and quantity control
-- **User Profiles** - Secure authentication with user preferences and order history
-- **Favorites** - Save and manage your favorite restaurants
-- **Order Tracking** - Real-time order status and delivery tracking
-- **Theme Switching** - Toggle between light and dark modes
-- **Multi-language** - Switch between Persian and English interfaces
-
-## 📸 Screenshots
-
-*Add your screenshots here to showcase the application's UI. For example:*
-
-<div align="center">
-  <img src="public/screenshots/homepage.png" alt="Homepage" width="45%">
-  <img src="public/screenshots/restaurants.png" alt="Restaurants Page" width="45%">
-</div>
-
-<div align="center">
-  <img src="public/screenshots/restaurant.png" alt="Restaurant" width="45%">
-  <img src="public/screenshots/checkout.png" alt="Checkout Page" width="45%">
-</div>
-
-## 🛠️ Technology Stack
-
-- **Frontend Framework**: [Next.js 14](https://nextjs.org/) with App Router
-- **Programming Language**: [TypeScript](https://www.typescriptlang.org/)
-- **Styling Solution**: [styled-components](https://styled-components.com/) with custom theming
-- **State Management**: React Context API and custom hooks
-- **Fonts**: Vazirmatn (Google Fonts)
-- **Icons**: [Feather Icons](https://feathericons.com/)
-- **Responsive Design**: Mobile-first approach with flexible layouts
-- **Localization**: Custom translation system
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Node.js (v18.0.0 or later)
-- npm or yarn
-
-### Installation
-
-1. Clone the repository
-
-```bash
-git clone https://github.com/Pezhm4n/Foodino---Online-Food-Ordering-Platform.git
-   cd Foodino---Online-Food-Ordering-Platform
-```
-
-2. Install dependencies
-
-```bash
-npm install
-# or
-yarn install
-```
-
-3. Run the development server
-
-```bash
-npm run dev
-# or
-yarn dev
-```
-
-4. Open [http://localhost:3000](http://localhost:3000) in your browser
-
-### Building for Production
-
-```bash
-npm run build
-npm run start
-# or
-yarn build
-yarn start
-```
-
-## 📁 Project Structure
-
-```
-foodino/
-├── public/          # Static assets
-├── src/
-│   ├── app/         # Next.js App Router pages and layouts
-│   ├── components/  # Reusable React components
-│   ├── contexts/    # React Context providers
-│   ├── data/        # Sample data and mock APIs
-│   ├── hooks/       # Custom React hooks
-│   ├── lib/         # Utility functions and helpers
-│   ├── styles/      # Global styles and theme definitions
-│   ├── types/       # TypeScript type definitions
-│   └── locales/     # Translation files
-├── .gitignore
-├── next.config.js
-├── package.json
-├── README.md
-└── tsconfig.json
-```
-
-## 🔑 Key Functionality
-
-### Restaurant Browsing
-
-Users can browse through restaurants, filter by categories, and search by name or cuisine type. Each restaurant displays essential information such as rating, delivery time, and minimum order amount.
-
-### Menu Navigation
-
-Restaurant pages display categorized menu items with detailed descriptions, prices, and customization options. Users can view ingredients and dietary information for each dish.
-
-### Cart Management
-
-The cart system provides real-time updates as users add, remove, or modify items. It includes quantity controls, subtotal calculation, and checkout options.
-
-### User Authentication
-
-Secure user registration and login flow with profile management. Users can save delivery addresses, payment methods, and preferences.
-
-### Order Processing
-
-Complete order flow from cart checkout to confirmation, with order tracking and delivery status updates.
-
-## 🗺️ Roadmap
-
-- [ ] Payment gateway integration
-- [ ] Advanced search filters and sorting options
-- [ ] User reviews and rating system
-- [ ] Restaurant owner dashboard
-- [ ] Push notifications for order updates
-- [ ] Delivery driver mobile application
-- [ ] Loyalty points and rewards system
-- ...
-
-## 👥 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
-    ...
 ---
 
-<div align="center">
-  <p>Built with ❤️ by <a href="https://github.com/Pezhm4n">Pezhman</a> using Cursor AI</p>
-</div>
+## 🛠️ پشته فناوری (Technology Stack)
+
+- **فریم‌ورک فرانت‌اند و سرور**: Next.js 16.3.4 (App Router & Turbopack)
+- **کتابخانه رابط کاربری**: React 19.2.8
+- **زبان برنامه‌نویسی**: TypeScript 5.9.3 (Strict Mode)
+- **سامانه استایل‌دهی**: styled-components 6.5.3 با SSR Style Registry
+- **پایگاه داده و احراز هویت**: Supabase Postgres (با RLS و توابع امنیتی PL/pgSQL)
+- **تست واحد و دامنه**: Vitest 4.1.11 با پوشش کد بالای ۹۰٪ (v8)
+- **تست پایگاه داده**: pgTAP و Supabase CLI
+- **تست سرتاسری (E2E)**: Playwright 1.62.1 (Chromium Desktop & Mobile)
+- **محیط اجرایی**: Node.js 24+ و npm 11+
+
+---
+
+## 🏛️ معماری سیستم و اصول امنیتی
+
+1. **Server-Only BFF**: مرورگر کاربر هرگز کلیدهای محرمانه یا دسترسی مستقیم به Supabase دریافت نمی‌کند؛ تمام تراکنش‌ها، محاسبات قیمت و تغییرات وضعیت صرفاً روی سرور انجام می‌شوند.
+2. **عدم اعتماد به کلاینت در مبالغ مالی**: محاسبات قیمت کالاها، افزونه‌ها، تخفیف، هزینه ارسال و مالیات بر اساس اسنپ‌شات پایگاه‌داده انجام شده و مقادیر ارسالی از کلاینت نادیده گرفته می‌شوند.
+3. **محاسبات مالی به ریال (IRR)**: مبالغ در دیتابیس به صورت عدد صحیح ریال ذخیره شده و نمایش تومان صرفاً در لایه ارائه انجام می‌شود.
+4. **سبد خرید تک‌رستورانی**: برای جلوگیری از تداخل لجستیکی و ارسال از چند مبدا، هر سفارش منحصراً متعلق به یک رستوران است.
+5. **درگاه پرداخت ایمن و Fail-Closed**: در محیط پروداکشن، درگاه شبیه‌ساز تستی غیرفعال شده و در صورت نبود تنظیمات معتبر، برنامه اجرا نمی‌شود.
+6. **امنیت HTTP و سربرگ‌ها**: اعمال Content Security Policy (CSP)، HSTS، X-Frame-Options: DENY، X-Content-Type-Options: nosniff و Permissions-Policy.
+7. **ردگیری درخواست‌ها و لاگ ساخت‌یافته**: تخصیص `x-request-id` یکتا به هر درخواست و ماسک‌گذاری خودکار اطلاعات حساس (PII، شماره تماس، کلمات عبور، توکن‌ها).
+8. **Rate Limiting توزیع‌شده**: پیاده‌سازی الگوریتم Token Bucket اتمیک در اسکیما `private` پستگرس برای جلوگیری از سوءاستفاده‌های ناشناس و احراز هویت.
+
+---
+
+## 🚀 راه‌اندازی و توسعه محلی (Getting Started)
+
+### پیش‌نیازها
+- **Node.js**: نسخه 24 به بالا
+- **Docker Desktop**: جهت اجرای لوکال کانتینرهای Supabase
+- **Supabase CLI**: نسخه 2.116+
+
+### مراحل راه‌اندازی
+```bash
+# ۱. نصب وابستگی‌ها
+npm ci
+
+# ۲. اجرای کانتینرهای پایگاه‌داده لوکال
+npm run db:start
+
+# ۳. ریست و اعمال مایگریشن‌ها و داده‌های اولیه
+npm run db:reset
+
+# ۴. اجرای سرور توسعه با مقادیر متغیرهای لوکال
+npm run dev:local
+```
+
+سرور در نشانی `http://localhost:3000` در دسترس خواهد بود.
+
+---
+
+## 🧪 مجموعه تست‌ها و اعتبارسنجی (Testing & Verification)
+
+```bash
+# بررسی کیفیت کد و استانداردها
+npm run lint
+
+# بررسی اعتبارسنجی تایپ‌های TypeScript
+npm run typecheck
+
+# اجرای تست‌های واحد و دامنه با گزارش Coverage
+npm run test:coverage
+
+# اعتبارسنجی عدم تغییر و Drift در تایپ‌های دیتابیس
+npm run db:types:check
+
+# اجرای تست‌های pgTAP روی دیتابیس لوکال
+npm run db:test
+
+# اجرای تست‌های سرتاسری E2E با Playwright
+npm run test:e2e
+
+# بررسی آسیب‌پذیری‌های پکیج‌ها
+npm run security
+
+# بیلد نسخه نهایی پروداکشن
+npm run build:local
+```
+
+---
+
+## ⚙️ متغیرهای محیطی (.env)
+
+فایل `.env.example` شامل متغیرهای مورد نیاز برای اجرای برنامه است:
+- `APP_URL`: نشانی پایه برنامه (مثلاً `http://127.0.0.1:3000`)
+- `SUPABASE_URL`: نشانی سرور Supabase
+- `SUPABASE_PUBLISHABLE_KEY`: کلید عمومی کلاینت
+- `SUPABASE_SECRET_KEY`: کلید محرمانه سمت سرور (`service_role`)
+- `PAYMENT_PROVIDER`: مقدار `development` در محیط توسعه و `disabled` در پروداکشن
+- `PAYMENT_CALLBACK_SECRET`: رشته تصادفی حداقل ۳۲ حرفی برای اعتبارسنجی کال‌بک
+- `RATE_LIMIT_ADAPTER`: آداپتر تشخیص IP کلاینت (`vercel` یا `trusted-reverse-proxy`)
+- `TRUSTED_PROXY_HOPS`: تعداد پروکسی‌های مورد اعتماد پیش از وب‌سرور
+- `SMTP_CONFIGURED`: وضعیت پیکربندی ارسال ایمیل (`true` یا `false`)
+
+---
+
+## 👤 تعریف اپراتور سیستم (Operator Provisioning)
+
+برای اعطای نقش اپراتور به یک کاربر در Supabase:
+1. کاربر مورد نظر را در جدول احراز هویت ثبت‌نام کنید.
+2. فیلد `app_metadata` کاربر را در جدول `auth.users` با مقدار `{"role": "operator"}` به‌روزرسانی کنید.
+3. کاربر پس از ورود به سیستم، دسترسی مشاهده و تغییر وضعیت تمام سفارش‌ها در مسیر `/operator/orders` را خواهد داشت.
+
+---
+
+## 📄 مستندات تصمیم‌گیری‌های معماری (ADRs)
+
+مستندات معماری در مسیر `docs/adr/` در دسترس هستند:
+- `0001-supabase-server-only-bff.md`: معماری BFF مبتنی بر سرور
+- `0002-styled-components-ssr.md`: مدیریت استایل‌ها در رندرینگ سرور
+- `0003-single-restaurant-cart.md`: قانون سبد خرید تک‌رستورانی
+- `0004-money-irr-integer-pricing.md`: محاسبات پولی به عدد صحیح ریال
+- `0005-fail-closed-payment-adapter.md`: معماری ایمن و Fail-Closed درگاه پرداخت
+- `0006-persian-only-v1-rtl.md`: دامنه فارسی و راست‌چین در نسخه نخست
+
+---
+
+## ⚖️ وضعیت لایسنس (License Status)
+
+تمامی حقوق این نرم‌افزار محفوظ است. شرایط و مجوز استفاده توسط مالک پروژه تعیین می‌گردد.
