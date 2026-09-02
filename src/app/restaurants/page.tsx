@@ -55,6 +55,40 @@ export default async function RestaurantsPage({ searchParams }: Props) {
       </select>
       <button type="submit">جست‌وجو</button>
     </form>
+
+    <div className={styles.filterChips} role="navigation" aria-label="فیلترهای سریع">
+      <Link
+        className={`${styles.filterChip} ${!parsed.data.category && parsed.data.sort === 'relevance' && !parsed.data.q ? styles.filterChipActive : ''}`}
+        href="/restaurants"
+      >
+        <span>🍽️</span>
+        <span>همه رستوران‌ها</span>
+      </Link>
+      <Link
+        className={`${styles.filterChip} ${parsed.data.sort === 'rating_desc' ? styles.filterChipActive : ''}`}
+        href="/restaurants?sort=rating_desc"
+      >
+        <span>⭐</span>
+        <span>بالاترین امتیاز</span>
+      </Link>
+      <Link
+        className={`${styles.filterChip} ${parsed.data.sort === 'delivery_fee_asc' ? styles.filterChipActive : ''}`}
+        href="/restaurants?sort=delivery_fee_asc"
+      >
+        <span>🛵</span>
+        <span>ارسال اقتصادی</span>
+      </Link>
+      {categories.map((cat) => (
+        <Link
+          key={cat.id}
+          className={`${styles.filterChip} ${parsed.data.category === cat.slug ? styles.filterChipActive : ''}`}
+          href={`/restaurants?category=${cat.slug}`}
+        >
+          <span>{cat.icon}</span>
+          <span>{cat.name}</span>
+        </Link>
+      ))}
+    </div>
     <RestaurantGrid restaurants={page.items} favoriteIds={userFavoriteIds} />
     {page.nextCursor ? <Link className={styles.more} href={`/restaurants?${nextParams}`}>نتایج بیشتر</Link> : null}
   </div>;

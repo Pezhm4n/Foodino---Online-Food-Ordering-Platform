@@ -25,6 +25,97 @@
 .price { color: #9a3412; font-weight: 700; }
 .back { display: inline-block; margin-top: 1.5rem; color: #9a3412; text-decoration: none; font-weight: 600; }
 
+.cardTopRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+}
+
+.cuisineBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: #fff7ed;
+  color: #c2410c;
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border: 1px solid #fed7aa;
+}
+
+.ratingBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  background: #fef3c7;
+  color: #b45309;
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.cardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 0.75rem;
+  margin-top: auto;
+}
+
+.viewMenuBtn {
+  font-size: 0.825rem;
+  font-weight: 700;
+  color: #ff5a00;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.filterChips {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+  scrollbar-width: none;
+}
+.filterChips::-webkit-scrollbar {
+  display: none;
+}
+
+.filterChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 9999px;
+  font-size: 0.825rem;
+  font-weight: 600;
+  text-decoration: none;
+  background: white;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.filterChip:hover {
+  background: #f8fafc;
+  border-color: #fdba74;
+  color: #ff5a00;
+}
+
+.filterChipActive {
+  background: #ff5a00 !important;
+  color: white !important;
+  border-color: #ff5a00 !important;
+}
+
 @media (max-width: 48rem) {
   .page { padding: 1.25rem 0.85rem 3rem; }
   .header { margin-bottom: 1rem; }

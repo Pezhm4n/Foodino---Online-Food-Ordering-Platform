@@ -365,9 +365,31 @@ export default function ProfileView({ profile, addresses, favorites, orders }: P
                       </StatusBadge>
                     </div>
                   </div>
-                  <strong style={{ color: '#ff5a00' }}>
-                    {(order.totalIrr / 10).toLocaleString('fa-IR')} تومان
-                  </strong>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flexWrap: 'wrap' }}>
+                    <strong style={{ color: '#ff5a00', fontSize: '0.95rem' }}>
+                      {(order.totalIrr / 10).toLocaleString('fa-IR')} تومان
+                    </strong>
+                    <Link
+                      href={`/orders/${order.id}`}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.25rem',
+                        padding: '0.4rem 0.75rem',
+                        borderRadius: '0.5rem',
+                        fontSize: '0.8rem',
+                        fontWeight: 700,
+                        color: '#ff5a00',
+                        background: '#fff7ed',
+                        border: '1px solid #fed7aa',
+                        textDecoration: 'none',
+                        transition: 'all 0.2s ease',
+                      }}
+                    >
+                      <span>جزئیات و فاکتور</span>
+                      <span>←</span>
+                    </Link>
+                  </div>
                 </Item>
               ))}
             </List>
