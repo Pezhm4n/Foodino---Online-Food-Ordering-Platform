@@ -138,7 +138,7 @@ const SearchSection = () => {
         params.set('filter', activeTag);
       }
       
-      router.push(`/search?${params.toString()}`);
+      router.push(`/restaurants?${params.toString()}`);
     }
   };
   
@@ -152,7 +152,7 @@ const SearchSection = () => {
         params.set('filter', tag);
       }
       
-      router.push(`/search?${params.toString()}`);
+      router.push(`/restaurants?${params.toString()}`);
     }
   };
   

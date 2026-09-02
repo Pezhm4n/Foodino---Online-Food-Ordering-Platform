@@ -4,6 +4,7 @@ import { localCartSchema } from './cart';
 import { searchSchema } from './search';
 import { serverEnvSchema } from './env';
 import { registerSchema } from './auth';
+import { trackingTokenSchema, trackingTokenParamsSchema } from './common';
 
 const uuidA = '8b0be7d5-7277-45a4-a957-3ae16c3075f4';
 const uuidB = '4bdcbcb6-3c5b-48b5-82c1-a340b9355bba';
@@ -82,5 +83,13 @@ describe('boundary validation', () => {
         expect.arrayContaining(['PAYMENT_PROVIDER', 'RATE_LIMIT_ADAPTER', 'SMTP_CONFIGURED']),
       );
     }
+  });
+
+  it('validates 43-character base64url tracking tokens and trims whitespace', () => {
+    const validToken = 'A'.repeat(43);
+    expect(trackingTokenSchema.parse(`  ${validToken}  `)).toBe(validToken);
+    expect(trackingTokenParamsSchema.safeParse({ token: validToken }).success).toBe(true);
+    expect(trackingTokenSchema.safeParse('123456').success).toBe(false);
+    expect(trackingTokenSchema.safeParse('!'.repeat(43)).success).toBe(false);
   });
 });

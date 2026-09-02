@@ -247,7 +247,7 @@ const FavoriteRestaurants: React.FC<FavoriteRestaurantsProps> = ({
             </RestaurantImageContainer>
             <RestaurantContent>
               <RestaurantHeader>
-                <RestaurantName href={`/restaurant/${restaurant.id}`}>
+                <RestaurantName href={`/restaurants/${restaurant.id}`}>
                   {restaurant.name}
                 </RestaurantName>
                 <RestaurantRating>

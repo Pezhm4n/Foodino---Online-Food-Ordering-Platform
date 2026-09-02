@@ -200,7 +200,7 @@ const HeroSection = () => {
       return;
     }
     
-    router.push(`/search?q=${encodeURIComponent(searchTerm)}`);
+    router.push(`/restaurants?q=${encodeURIComponent(searchTerm.trim())}`);
   };
 
   return (

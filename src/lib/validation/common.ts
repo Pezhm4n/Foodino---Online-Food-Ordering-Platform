@@ -12,6 +12,7 @@ export const iranPhoneSchema = z.string().trim().regex(/^09\d{9}$/);
 
 export const routeUuidParamsSchema = z.object({ id: uuidSchema });
 export const routeSlugParamsSchema = z.object({ slug: slugSchema });
+export const trackingTokenSchema = z.string().trim().regex(/^[A-Za-z0-9_-]{43}$/);
 export const trackingTokenParamsSchema = z.object({
-  token: z.string().regex(/^[A-Za-z0-9_-]{43}$/),
+  token: trackingTokenSchema,
 });

@@ -473,7 +473,7 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchTerm.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchTerm)}`);
+      router.push(`/restaurants?q=${encodeURIComponent(searchTerm.trim())}`);
     }
   };
 
@@ -555,7 +555,7 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
 
         <ActionButtons>
           <IconButton
-            href="/favorite-restaurants"
+            href="/profile"
             aria-label="علاقه‌مندی‌ها"
           >
             <svg
@@ -806,7 +806,7 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
 
         <MobileIconContainer>
           <MobileIconButton
-            href="/favorite-restaurants"
+            href="/profile"
             onClick={closeMobileMenu}
           >
             <svg

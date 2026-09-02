@@ -76,7 +76,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
   return (
     <Card>
-      <ImageLink href={`/product/${id}`}>
+      <ImageLink href={`/products/${id}`}>
         <ImageRegion>
           <ProductImage
             src={image || '/images/placeholder-food.jpg'} 
@@ -97,7 +97,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       </ImageLink>
       
       <Content>
-        <Link href={`/product/${id}`}>
+        <Link href={`/products/${id}`}>
           <Title>{name}</Title>
         </Link>
         <Description>{description}</Description>
