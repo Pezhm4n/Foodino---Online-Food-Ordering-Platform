@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     const repository = new SupabasePaymentRepository(createSupabaseAdminClient());
     const result = await repository.applyVerifiedEvent(event);
     const orderId = result.orderId ?? token.orderId;
-    return NextResponse.redirect(new URL(`/orders/${orderId}`, env.APP_URL), 303);
+    return NextResponse.redirect(new URL(`/orders/${orderId}`, request.url), 303);
   } catch {
     return new NextResponse(null, { status: 400 });
   }

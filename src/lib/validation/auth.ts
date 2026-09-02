@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { iranPhoneSchema } from '@/lib/validation/common';
 
 const emailSchema = z.string().trim().email('فرمت ایمیل نامعتبر است (مثال: user@example.com)').toLowerCase().max(254);
-const passwordSchema = z.string().min(8, 'رمز عبور باید حداقل ۸ کاراکتر باشد').max(128, 'رمز عبور بیش از حد طولانی است');
+const passwordSchema = z.string().min(6, 'رمز عبور باید حداقل ۶ کاراکتر باشد').max(128, 'رمز عبور بیش از حد طولانی است');
 
 export const loginSchema = z.object({
   email: emailSchema,

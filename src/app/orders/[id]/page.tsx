@@ -22,7 +22,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
   const parsed = routeUuidParamsSchema.safeParse(await params);
   if (!parsed.success) notFound();
   const claims = await requireClaims();
-  if (!claims?.sub) redirect('/auth');
+  if (!claims?.sub) redirect(`/auth?next=/orders/${parsed.data.id}`);
 
   const client = await createSupabaseServerClient();
   const { data: order, error } = await client
@@ -57,7 +57,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
 
         <h2 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#1e293b', marginBottom: '1rem' }}>اقلام سفارش</h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
-          {order.order_items.map((item) => (
+          {(order.order_items ?? []).map((item) => (
             <div key={`${item.product_name_snapshot}-${item.quantity}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 1rem', background: '#f8fafc', borderRadius: '0.5rem' }}>
               <span style={{ fontWeight: 600, color: '#334155' }}>
                 {item.product_name_snapshot} <span style={{ color: '#ff5a00', marginRight: '0.25rem' }}>× {item.quantity}</span>

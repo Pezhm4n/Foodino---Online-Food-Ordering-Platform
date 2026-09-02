@@ -94,8 +94,8 @@ export default function AuthRecoveryForm({ mode }: Readonly<{ mode: 'forgot' | '
             <label>ایمیل<Input name="email" type="email" autoComplete="email" required /></label>
           ) : (
             <>
-              <label>رمز عبور جدید<Input name="password" type="password" minLength={12} autoComplete="new-password" required /></label>
-              <label>تکرار رمز عبور<Input name="confirmPassword" type="password" minLength={12} autoComplete="new-password" required /></label>
+              <label>رمز عبور جدید<Input name="password" type="password" minLength={6} autoComplete="new-password" required /></label>
+              <label>تکرار رمز عبور<Input name="confirmPassword" type="password" minLength={6} autoComplete="new-password" required /></label>
             </>
           )}
           {message && <Message $error={message.error} aria-live="polite">{message.text}</Message>}

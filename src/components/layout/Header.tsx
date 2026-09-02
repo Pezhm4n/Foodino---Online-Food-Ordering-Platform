@@ -520,12 +520,12 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
         </Logo>
 
         <Navigation>
-          <NavLink href="/">{t("home")}</NavLink>
-          <NavLink href="/restaurants">{t("restaurants")}</NavLink>
-          <NavLink href="/categories">{t("categories")}</NavLink>
-          <NavLink href="/order-tracking">{t("orderTracking")}</NavLink>
-          <NavLink href="/about">{t("about")}</NavLink>
-          <NavLink href="/contact">{t("contact")}</NavLink>
+          <NavLink href="/" prefetch={true}>{t("home")}</NavLink>
+          <NavLink href="/restaurants" prefetch={true}>{t("restaurants")}</NavLink>
+          <NavLink href="/categories" prefetch={true}>{t("categories")}</NavLink>
+          <NavLink href="/order-tracking" prefetch={true}>{t("orderTracking")}</NavLink>
+          <NavLink href="/about" prefetch={true}>{t("about")}</NavLink>
+          <NavLink href="/contact" prefetch={true}>{t("contact")}</NavLink>
         </Navigation>
 
         <SearchContainer>
@@ -938,22 +938,22 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
         </MobileIconContainer>
 
         <MobileNavLinks>
-          <MobileNavLink href="/" onClick={closeMobileMenu}>
+          <MobileNavLink href="/" prefetch={true} onClick={closeMobileMenu}>
             {t("home")}
           </MobileNavLink>
-          <MobileNavLink href="/restaurants" onClick={closeMobileMenu}>
+          <MobileNavLink href="/restaurants" prefetch={true} onClick={closeMobileMenu}>
             {t("restaurants")}
           </MobileNavLink>
-          <MobileNavLink href="/categories" onClick={closeMobileMenu}>
+          <MobileNavLink href="/categories" prefetch={true} onClick={closeMobileMenu}>
             {t("categories")}
           </MobileNavLink>
-          <MobileNavLink href="/order-tracking" onClick={closeMobileMenu}>
+          <MobileNavLink href="/order-tracking" prefetch={true} onClick={closeMobileMenu}>
             {t("orderTracking")}
           </MobileNavLink>
-          <MobileNavLink href="/about" onClick={closeMobileMenu}>
+          <MobileNavLink href="/about" prefetch={true} onClick={closeMobileMenu}>
             {t("about")}
           </MobileNavLink>
-          <MobileNavLink href="/contact" onClick={closeMobileMenu}>
+          <MobileNavLink href="/contact" prefetch={true} onClick={closeMobileMenu}>
             {t("contact")}
           </MobileNavLink>
         </MobileNavLinks>

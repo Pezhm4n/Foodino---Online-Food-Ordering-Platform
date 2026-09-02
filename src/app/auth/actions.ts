@@ -87,18 +87,25 @@ export async function registerAction(input: unknown): Promise<AuthActionResult> 
         message: 'این ایمیل قبلاً ثبت‌نام شده است. لطفاً وارد شوید.',
       };
     }
-    if (msg.includes('password') && msg.includes('short')) {
+    if (msg.includes('password')) {
       return {
         ok: false,
         code: 'AUTH_FAILED',
-        fieldErrors: { password: 'رمز عبور باید قوی‌تر و حداقل ۸ کاراکتر باشد.' },
-        message: 'رمز عبور وارد شده ضعیف است.',
+        fieldErrors: { password: 'رمز عبور باید حداقل ۶ کاراکتر باشد.' },
+        message: 'رمز عبور باید حداقل ۶ کاراکتر باشد.',
+      };
+    }
+    if (msg.includes('rate limit') || msg.includes('too many requests')) {
+      return {
+        ok: false,
+        code: 'AUTH_FAILED',
+        message: 'تعداد تلاش‌های ناموفق بیش از حد مجاز است. لطفاً دقایقی دیگر تلاش کنید.',
       };
     }
     return {
       ok: false,
       code: 'AUTH_FAILED',
-      message: error.message || 'ثبت‌نام انجام نشد. لطفاً دوباره تلاش کنید.',
+      message: 'ثبت‌نام انجام نشد. لطفاً اطلاعات ورودی را بررسی کرده و دوباره تلاش کنید.',
     };
   }
   return data.session

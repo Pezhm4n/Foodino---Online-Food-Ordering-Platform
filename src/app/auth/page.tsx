@@ -102,9 +102,9 @@ const InputWrapper = styled.div`
   align-items: center;
 `;
 
-const FormInput = styled.input<{ $hasError?: boolean }>`
+const FormInput = styled.input<{ $hasError?: boolean; $hasToggle?: boolean }>`
   width: 100%;
-  padding: 0.8rem 1rem;
+  padding: ${props => props.$hasToggle ? '0.8rem 1rem 0.8rem 3.25rem' : '0.8rem 1rem'};
   border: 1.5px solid ${props => props.$hasError ? props.theme.colors.error[500] : props.theme.colors.neutral[300]};
   border-radius: ${props => props.theme.borderRadius.lg};
   font-size: ${props => props.theme.typography.fontSizes.md};
@@ -115,7 +115,7 @@ const FormInput = styled.input<{ $hasError?: boolean }>`
   
   &:focus {
     border-color: ${props => props.$hasError ? props.theme.colors.error[500] : props.theme.colors.primary[500]};
-    box-shadow: 0 0 0 3px ${props => props.$hasError ? 'rgba(239, 68, 68, 0.15)' : 'rgba(14, 165, 233, 0.15)'};
+    box-shadow: 0 0 0 3px ${props => props.$hasError ? 'rgba(239, 68, 68, 0.15)' : 'rgba(255, 90, 0, 0.15)'};
   }
 
   &::placeholder {
@@ -127,18 +127,25 @@ const FormInput = styled.input<{ $hasError?: boolean }>`
 const TogglePasswordButton = styled.button`
   position: absolute;
   left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
   background: none;
   border: none;
-  color: ${props => props.theme.colors.neutral[400]};
+  color: ${props => props.theme.colors.neutral[500]};
   cursor: pointer;
-  padding: 0.25rem;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
+  z-index: 2;
+  transition: all 0.15s ease;
   
   &:hover {
-    color: ${props => props.theme.colors.neutral[700]};
+    color: ${props => props.theme.colors.neutral[800]};
+    background-color: ${props => props.theme.colors.neutral[100]};
   }
 `;
 
@@ -295,8 +302,8 @@ const AuthContent = () => {
     if (!phoneRegex.test(registerForm.phone.trim())) {
       errors.phone = 'شماره موبایل باید ۱۱ رقم و با ۰۹ شروع شود (مثال: ۰۹۱۲۳۴۵۶۷۸۹).';
     }
-    if (registerForm.password.length < 8) {
-      errors.password = 'رمز عبور باید حداقل ۸ کاراکتر باشد.';
+    if (registerForm.password.length < 6) {
+      errors.password = 'رمز عبور باید حداقل ۶ کاراکتر باشد.';
     }
     if (registerForm.password !== registerForm.confirmPassword) {
       errors.confirmPassword = 'تکرار رمز عبور با رمز عبور مطابقت ندارد.';
@@ -326,7 +333,9 @@ const AuthContent = () => {
 
     if (result.ok) {
       router.refresh();
-      router.push('/');
+      const nextParam = searchParams.get('next');
+      const target = nextParam && nextParam.startsWith('/') && !nextParam.startsWith('//') ? nextParam : '/';
+      router.push(target);
       return;
     }
 
@@ -414,7 +423,7 @@ const AuthContent = () => {
         )}
 
         {activeTab === 'login' ? (
-          <Form onSubmit={handleLoginSubmit} noValidate>
+          <Form method="post" onSubmit={handleLoginSubmit} noValidate>
             <FormGroup>
               <LabelRow>
                 <FormLabel htmlFor="email">ایمیل</FormLabel>
@@ -456,11 +465,13 @@ const AuthContent = () => {
                   value={loginForm.password}
                   onChange={handleLoginChange}
                   $hasError={Boolean(fieldErrors.password)}
+                  $hasToggle={true}
                 />
                 <TogglePasswordButton
                   type="button"
                   onClick={() => setShowPassword(prev => !prev)}
                   title={showPassword ? 'مخفی کردن' : 'نمایش رمز'}
+                  aria-label={showPassword ? 'مخفی کردن رمز عبور' : 'نمایش رمز عبور'}
                 >
                   {showPassword ? '👁️‍🗨️' : '👁️'}
                 </TogglePasswordButton>
@@ -477,7 +488,7 @@ const AuthContent = () => {
             </SubmitButton>
           </Form>
         ) : (
-          <Form onSubmit={handleRegisterSubmit} noValidate>
+          <Form method="post" onSubmit={handleRegisterSubmit} noValidate>
             <div style={{ display: 'flex', gap: '0.75rem' }}>
               <FormGroup style={{ flex: 1 }}>
                 <FormLabel htmlFor="firstName">نام</FormLabel>
@@ -567,7 +578,7 @@ const AuthContent = () => {
             <FormGroup>
               <LabelRow>
                 <FormLabel htmlFor="register-password">رمز عبور</FormLabel>
-                <HintText>حداقل ۸ کاراکتر</HintText>
+                <HintText>حداقل ۶ کاراکتر</HintText>
               </LabelRow>
               <InputWrapper>
                 <FormInput
@@ -576,15 +587,17 @@ const AuthContent = () => {
                   name="password"
                   autoComplete="new-password"
                   dir="ltr"
-                  placeholder="حداقل ۸ کاراکتر"
+                  placeholder="حداقل ۶ کاراکتر"
                   value={registerForm.password}
                   onChange={handleRegisterChange}
                   $hasError={Boolean(fieldErrors.password)}
+                  $hasToggle={true}
                 />
                 <TogglePasswordButton
                   type="button"
                   onClick={() => setShowPassword(prev => !prev)}
                   title={showPassword ? 'مخفی کردن' : 'نمایش رمز'}
+                  aria-label={showPassword ? 'مخفی کردن رمز عبور' : 'نمایش رمز عبور'}
                 >
                   {showPassword ? '👁️‍🗨️' : '👁️'}
                 </TogglePasswordButton>
@@ -609,7 +622,16 @@ const AuthContent = () => {
                   value={registerForm.confirmPassword}
                   onChange={handleRegisterChange}
                   $hasError={Boolean(fieldErrors.confirmPassword)}
+                  $hasToggle={true}
                 />
+                <TogglePasswordButton
+                  type="button"
+                  onClick={() => setShowPassword(prev => !prev)}
+                  title={showPassword ? 'مخفی کردن' : 'نمایش رمز'}
+                  aria-label={showPassword ? 'مخفی کردن رمز عبور' : 'نمایش رمز عبور'}
+                >
+                  {showPassword ? '👁️‍🗨️' : '👁️'}
+                </TogglePasswordButton>
               </InputWrapper>
               {fieldErrors.confirmPassword && (
                 <FieldErrorMessage role="alert">

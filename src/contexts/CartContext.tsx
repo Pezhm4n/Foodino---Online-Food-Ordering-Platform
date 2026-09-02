@@ -2,7 +2,9 @@
 
 import React, { createContext, useContext, useEffect, useReducer } from 'react';
 import { addCartSelection, assertCartQuantity, type CartSelection } from '@/domain/cart/cart';
+import { DomainError } from '@/domain/shared/domain-error';
 import { localCartSchema } from '@/lib/validation/cart';
+import { toast } from 'react-hot-toast';
 
 export interface CartItem extends CartSelection {
   id: string;
@@ -45,21 +47,29 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 function cartReducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
     case 'ADD_ITEM': {
-      const domainCart = addCartSelection(
-        { restaurantId: state.restaurantId, items: state.items },
-        action.payload,
-      );
-      return {
-        restaurantId: domainCart.restaurantId,
-        restaurantName: state.restaurantName ?? action.payload.restaurantName,
-        items: domainCart.items.map((selection) => {
-          const presentation = state.items.find((item) =>
-            item.productId === selection.productId
-            && item.variantId === selection.variantId
-            && item.addonIds.join(',') === selection.addonIds.join(',')) ?? action.payload;
-          return { ...presentation, ...selection };
-        }),
-      };
+      try {
+        const domainCart = addCartSelection(
+          { restaurantId: state.restaurantId, items: state.items },
+          action.payload,
+        );
+        return {
+          restaurantId: domainCart.restaurantId,
+          restaurantName: state.restaurantName ?? action.payload.restaurantName,
+          items: domainCart.items.map((selection) => {
+            const presentation = state.items.find((item) =>
+              item.productId === selection.productId
+              && item.variantId === selection.variantId
+              && item.addonIds.join(',') === selection.addonIds.join(',')) ?? action.payload;
+            return { ...presentation, ...selection };
+          }),
+        };
+      } catch (err) {
+        if (err instanceof DomainError && err.code === 'CART_RESTAURANT_CONFLICT') {
+          toast.error('شما تنها می‌توانید از یک رستوران در هر لحظه سفارش دهید');
+          return state;
+        }
+        throw err;
+      }
     }
     case 'REMOVE_ITEM': {
       const items = state.items.filter((item) => item.id !== action.payload.id);
@@ -137,7 +147,17 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     <CartContext.Provider value={{
       state,
       cartItems: state.items,
-      addItem: (item) => dispatch({ type: 'ADD_ITEM', payload: item }),
+      addItem: (item) => {
+        if (state.restaurantId && state.restaurantId !== item.restaurantId) {
+          toast.error(
+            `سبد خرید شما شامل غذا از ${state.restaurantName || 'رستوران دیگری'} است. برای سفارش جدید، ابتدا سبد خرید را خالی کنید.`,
+            { duration: 4500 }
+          );
+          return;
+        }
+        dispatch({ type: 'ADD_ITEM', payload: item });
+        toast.success(`${item.name} به سبد خرید اضافه شد`);
+      },
       removeItem,
       updateItem,
       clearCart,
