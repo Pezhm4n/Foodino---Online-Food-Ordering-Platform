@@ -32,6 +32,14 @@ export type ProductMenuItem = ProductSummary & Readonly<{
   addons: readonly ProductOption[];
 }>;
 
+export type CategorySummary = Readonly<{
+  id: string;
+  slug: string;
+  name: string;
+  description: string;
+  icon: string;
+}>;
+
 export type CursorPage<T> = Readonly<{
   items: readonly T[];
   nextCursor: string | null;
@@ -41,8 +49,15 @@ export type RestaurantSort = 'relevance' | 'rating_desc' | 'delivery_fee_asc';
 
 export interface CatalogRepository {
   findRestaurantBySlug(slug: string): Promise<RestaurantSummary | null>;
+  findRestaurantById(id: string): Promise<RestaurantSummary | null>;
+  findCategoryBySlug(slug: string): Promise<CategorySummary | null>;
+  findCategoryById(id: string): Promise<CategorySummary | null>;
+  listCategories(): Promise<readonly CategorySummary[]>;
+  findProductBySlug(slug: string): Promise<ProductMenuItem | null>;
+  findProductById(id: string): Promise<ProductMenuItem | null>;
   listRestaurants(input: Readonly<{
     query?: string;
+    categorySlug?: string;
     sort: RestaurantSort;
     cursor?: string;
     limit: number;

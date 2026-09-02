@@ -11,6 +11,7 @@
     "dev": "next dev",
     "dev:local": "node scripts/run-with-local-supabase.mjs node node_modules/next/dist/bin/next dev",
     "build": "next build",
+    "build:local": "node scripts/run-with-local-supabase.mjs node node_modules/next/dist/bin/next build",
     "start": "next start",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

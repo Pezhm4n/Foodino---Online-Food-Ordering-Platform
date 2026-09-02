@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { decodeCursor, encodeCursor } from './cursor';
+import { decodeCursor, encodeCursor, tryDecodeCursor } from './cursor';
 
 describe('opaque cursor', () => {
   it('round-trips a validated keyset position', () => {
@@ -10,6 +10,8 @@ describe('opaque cursor', () => {
   it('rejects malformed or shape-changing cursor payloads', () => {
     const malformed = Buffer.from(JSON.stringify({ value: 1, id: 'not-a-uuid', admin: true })).toString('base64url');
     expect(() => decodeCursor(malformed)).toThrow();
+    expect(tryDecodeCursor(malformed)).toBeNull();
     expect(() => decodeCursor('%%%')).toThrow();
+    expect(tryDecodeCursor('%%%')).toBeNull();
   });
 });

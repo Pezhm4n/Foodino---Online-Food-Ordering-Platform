@@ -36,6 +36,22 @@ describe('boundary validation', () => {
     expect(searchSchema.safeParse({ sort: 'DROP TABLE restaurants' }).success).toBe(false);
   });
 
+  it('normalizes empty and whitespace HTML search form values', () => {
+    expect(searchSchema.parse({ q: '   ', category: '', cursor: '', sort: 'relevance' })).toEqual({
+      q: undefined,
+      category: undefined,
+      cursor: undefined,
+      sort: 'relevance',
+    });
+  });
+
+  it('rejects an invalid or forged search cursor', () => {
+    // Valid base64url string but invalid payload schema
+    const forged = Buffer.from(JSON.stringify({ value: '1', id: 'not-a-uuid' })).toString('base64url');
+    expect(searchSchema.safeParse({ cursor: forged }).success).toBe(false);
+    expect(searchSchema.safeParse({ cursor: 'invalid!characters' }).success).toBe(false);
+  });
+
   it('requires a valid Iranian phone number during registration', () => {
     const registration = {
       email: 'user@example.test',

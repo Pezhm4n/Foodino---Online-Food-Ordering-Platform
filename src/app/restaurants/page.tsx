@@ -1,52 +1,55 @@
-import React from 'react';
-import RestaurantsList from '@/components/restaurants/RestaurantsList';
-import RestaurantFilters from '@/components/restaurants/RestaurantFilters';
-import SearchSection from '@/components/restaurants/SearchSection';
-import { Metadata } from 'next';
-import styled from 'styled-components';
-
-const RestaurantsLayout = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem 1rem;
-
-  @media (min-width: 1024px) {
-    flex-direction: row;
-  }
-`;
-
-const FiltersColumn = styled.aside`
-  @media (min-width: 1024px) {
-    width: 25%;
-  }
-`;
-
-const ResultsColumn = styled.section`
-  @media (min-width: 1024px) {
-    width: 75%;
-  }
-`;
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { RestaurantGrid, publicCatalogStyles as styles } from '@/components/catalog/PublicCatalog';
+import { searchSchema } from '@/lib/validation/search';
+import { createSupabaseServerClient } from '@/infrastructure/supabase/server';
+import { SupabaseCatalogRepository } from '@/infrastructure/supabase/repositories/supabase-catalog-repository';
 
 export const metadata: Metadata = {
   title: 'رستوران‌ها | فودینو',
-  description: 'لیست بهترین رستوران‌های شهر با امکان سفارش آنلاین',
+  description: 'جست‌وجو و مشاهده منوی رستوران‌های فعال فودینو',
+  alternates: { canonical: '/restaurants' },
 };
 
-export default function RestaurantsPage() {
-  return (
-    <div>
-      <SearchSection />
-      <RestaurantsLayout>
-        <FiltersColumn>
-          <RestaurantFilters />
-        </FiltersColumn>
-        <ResultsColumn>
-          <RestaurantsList />
-        </ResultsColumn>
-      </RestaurantsLayout>
-    </div>
-  );
-} 
+type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
+
+export default async function RestaurantsPage({ searchParams }: Props) {
+  const parsed = searchSchema.safeParse(await searchParams);
+  if (!parsed.success) notFound();
+  const repository = new SupabaseCatalogRepository(await createSupabaseServerClient());
+  const [page, categories] = await Promise.all([
+    repository.listRestaurants({
+      query: parsed.data.q || undefined,
+      categorySlug: parsed.data.category,
+      sort: parsed.data.sort,
+      cursor: parsed.data.cursor,
+      limit: 12,
+    }),
+    repository.listCategories(),
+  ]);
+  const nextParams = new URLSearchParams();
+  if (parsed.data.q) nextParams.set('q', parsed.data.q);
+  if (parsed.data.category) nextParams.set('category', parsed.data.category);
+  if (parsed.data.sort !== 'relevance') nextParams.set('sort', parsed.data.sort);
+  if (page.nextCursor) nextParams.set('cursor', page.nextCursor);
+
+  return <main className={styles.page}>
+    <header className={styles.header}><h1>رستوران‌ها</h1><p>نتیجه‌ها مستقیماً از فهرست فعال فودینو خوانده می‌شوند.</p></header>
+    <form action="/restaurants" className={styles.search} method="get" role="search">
+      <input aria-label="عبارت جست‌وجو" defaultValue={parsed.data.q ?? ''} name="q" placeholder="نام رستوران" />
+      <select aria-label="دسته‌بندی" defaultValue={parsed.data.category ?? ''} name="category">
+        <option value="">همه دسته‌ها</option>
+        {categories.map((category) => <option key={category.id} value={category.slug}>{category.name}</option>)}
+      </select>
+      <select aria-label="مرتب‌سازی" defaultValue={parsed.data.sort} name="sort">
+        <option value="relevance">مرتبط‌ترین</option>
+        <option value="rating_desc">بالاترین امتیاز</option>
+        <option value="delivery_fee_asc">کمترین هزینه ارسال</option>
+      </select>
+      <button type="submit">جست‌وجو</button>
+    </form>
+    <RestaurantGrid restaurants={page.items} />
+    {page.nextCursor ? <Link className={styles.more} href={`/restaurants?${nextParams}`}>نتایج بیشتر</Link> : null}
+  </main>;
+}

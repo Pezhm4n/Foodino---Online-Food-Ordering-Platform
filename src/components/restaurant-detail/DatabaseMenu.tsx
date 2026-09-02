@@ -5,6 +5,7 @@ import type { ProductMenuItem } from '@/application/ports/catalog-repository';
 import { useCart } from '@/contexts/CartContext';
 import { irrToToman } from '@/domain/money/money';
 import { toast } from 'react-hot-toast';
+import Link from 'next/link';
 
 const List = styled.ul`display: grid; gap: 1rem; padding: 0; list-style: none;`;
 const Item = styled.li`
@@ -30,7 +31,7 @@ export default function DatabaseMenu({
       {products.map((product) => (
         <Item key={product.id}>
           <div>
-            <strong>{product.name}</strong>
+            <strong><Link href={`/products/${product.slug}`}>{product.name}</Link></strong>
             <p>{product.description}</p>
             <span>{new Intl.NumberFormat('fa-IR').format(irrToToman(product.price))} تومان</span>
           </div>

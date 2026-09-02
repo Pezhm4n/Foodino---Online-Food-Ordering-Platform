@@ -4,6 +4,7 @@ import DatabaseMenu from '@/components/restaurant-detail/DatabaseMenu';
 import { routeSlugParamsSchema } from '@/lib/validation/common';
 import { createSupabaseServerClient } from '@/infrastructure/supabase/server';
 import { SupabaseCatalogRepository } from '@/infrastructure/supabase/repositories/supabase-catalog-repository';
+import { getServerEnv } from '@/infrastructure/config/server-env';
 
 type RestaurantDetailProps = { params: Promise<{ slug: string }> };
 
@@ -21,6 +22,7 @@ export async function generateMetadata({ params }: RestaurantDetailProps): Promi
     title: `${restaurant.name} | فودینو`,
     description: restaurant.description || `سفارش آنلاین از ${restaurant.name}`,
     alternates: { canonical: `/restaurants/${restaurant.slug}` },
+    openGraph: { title: restaurant.name, description: restaurant.description, type: 'website' },
   };
 }
 
@@ -32,9 +34,17 @@ export default async function RestaurantDetailPage({ params }: RestaurantDetailP
   const restaurant = await repository.findRestaurantBySlug(parsed.data.slug);
   if (!restaurant) notFound();
   const products = await repository.listRestaurantMenu(restaurant.id);
+  const structuredData = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'Restaurant',
+    name: restaurant.name,
+    description: restaurant.description,
+    url: new URL(`/restaurants/${restaurant.slug}`, getServerEnv().APP_URL).toString(),
+  }).replace(/</g, '\\u003c');
 
   return (
     <main style={{ maxWidth: '960px', margin: '0 auto', padding: '2rem 1rem' }}>
+      <script dangerouslySetInnerHTML={{ __html: structuredData }} type="application/ld+json" />
       <header>
         <h1>{restaurant.name}</h1>
         <p>{restaurant.description}</p>

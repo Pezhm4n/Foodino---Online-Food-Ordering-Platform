@@ -28,18 +28,27 @@ if (nextCommand.length === 0) {
 const portFlag = nextCommand.findIndex((argument) => argument === '--port' || argument === '-p');
 const localPort = portFlag >= 0 ? nextCommand[portFlag + 1] : '3000';
 
-const child = spawn(nextCommand[0], nextCommand.slice(1), {
+const isWindows = process.platform === 'win32';
+const command = isWindows && (nextCommand[0] === 'npm' || nextCommand[0] === 'npx')
+  ? `${nextCommand[0]}.cmd`
+  : nextCommand[0];
+const isBatchFile = isWindows && (command.endsWith('.cmd') || command.endsWith('.bat'));
+
+const isProduction = process.env.NODE_ENV === 'production' || nextCommand.some((argument) => argument === 'build' || argument === 'start');
+
+const child = spawn(command, nextCommand.slice(1), {
   stdio: 'inherit',
-  shell: false,
+  shell: isBatchFile,
   env: {
     ...process.env,
     APP_URL: process.env.APP_URL ?? `http://127.0.0.1:${localPort}`,
     SUPABASE_URL: values.API_URL,
     SUPABASE_PUBLISHABLE_KEY: values.PUBLISHABLE_KEY,
     SUPABASE_SECRET_KEY: values.SECRET_KEY,
-    PAYMENT_PROVIDER: process.env.PAYMENT_PROVIDER ?? 'development',
+    PAYMENT_PROVIDER: process.env.PAYMENT_PROVIDER ?? (isProduction ? 'disabled' : 'development'),
     PAYMENT_CALLBACK_SECRET: process.env.PAYMENT_CALLBACK_SECRET ?? 'local-development-callback-secret-32chars',
-    SMTP_CONFIGURED: process.env.SMTP_CONFIGURED ?? 'false',
+    RATE_LIMIT_ADAPTER: process.env.RATE_LIMIT_ADAPTER ?? (isProduction ? 'trusted-reverse-proxy' : undefined),
+    SMTP_CONFIGURED: process.env.SMTP_CONFIGURED ?? (isProduction ? 'true' : 'false'),
   },
 });
 child.on('exit', (code, signal) => {

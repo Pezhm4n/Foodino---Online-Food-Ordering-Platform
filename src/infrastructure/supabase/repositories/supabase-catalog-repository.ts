@@ -7,12 +7,14 @@ import type {
   ProductMenuItem,
   RestaurantSummary,
   RestaurantSort,
+  CategorySummary,
 } from '@/application/ports/catalog-repository';
 import { decodeCursor, encodeCursor } from '@/application/pagination/cursor';
 import type { Database } from '@/infrastructure/supabase/database.types';
 
 type RestaurantRow = Database['public']['Tables']['restaurants']['Row'];
 type ProductRow = Database['public']['Tables']['products']['Row'];
+type CategoryRow = Database['public']['Tables']['categories']['Row'];
 
 function mapRestaurant(row: RestaurantRow): RestaurantSummary {
   return {
@@ -39,6 +41,37 @@ function mapProduct(row: ProductRow): ProductSummary {
   };
 }
 
+function mapCategory(row: CategoryRow): CategorySummary {
+  return {
+    id: row.id,
+    slug: row.slug,
+    name: row.name,
+    description: row.description,
+    icon: row.icon ?? '🍽️',
+  };
+}
+
+type ProductWithOptions = ProductRow & {
+  product_variants: Array<{ id: string; name: string; price_adjustment_irr: number }>;
+  product_addons: Array<{ id: string; name: string; price_irr: number }>;
+};
+
+function mapProductMenuItem(row: ProductWithOptions): ProductMenuItem {
+  return {
+    ...mapProduct(row),
+    variants: row.product_variants.map((variant) => ({
+      id: variant.id,
+      name: variant.name,
+      priceAdjustmentIrr: variant.price_adjustment_irr,
+    })),
+    addons: row.product_addons.map((addon) => ({
+      id: addon.id,
+      name: addon.name,
+      priceAdjustmentIrr: addon.price_irr,
+    })),
+  };
+}
+
 function sortColumn(sort: RestaurantSort): 'rating' | 'delivery_fee_irr' | 'created_at' {
   if (sort === 'rating_desc') return 'rating';
   if (sort === 'delivery_fee_asc') return 'delivery_fee_irr';
@@ -59,8 +92,56 @@ export class SupabaseCatalogRepository implements CatalogRepository {
     return data ? mapRestaurant(data) : null;
   }
 
+  async findRestaurantById(id: string): Promise<RestaurantSummary | null> {
+    const { data, error } = await this.client
+      .from('restaurants').select('*').eq('id', id).eq('is_active', true).maybeSingle();
+    if (error) throw error;
+    return data ? mapRestaurant(data) : null;
+  }
+
+  async findCategoryBySlug(slug: string): Promise<CategorySummary | null> {
+    const { data, error } = await this.client
+      .from('categories').select('*').eq('slug', slug).eq('is_active', true).maybeSingle();
+    if (error) throw error;
+    return data ? mapCategory(data) : null;
+  }
+
+  async findCategoryById(id: string): Promise<CategorySummary | null> {
+    const { data, error } = await this.client
+      .from('categories').select('*').eq('id', id).eq('is_active', true).maybeSingle();
+    if (error) throw error;
+    return data ? mapCategory(data) : null;
+  }
+
+  async listCategories(): Promise<readonly CategorySummary[]> {
+    const { data, error } = await this.client
+      .from('categories').select('*').eq('is_active', true).order('sort_order').order('id');
+    if (error) throw error;
+    return data.map(mapCategory);
+  }
+
+  private async findProduct(column: 'id' | 'slug', value: string): Promise<ProductMenuItem | null> {
+    const { data, error } = await this.client
+      .from('products')
+      .select('*,product_variants(id,name,price_adjustment_irr),product_addons(id,name,price_irr)')
+      .eq(column, value)
+      .eq('is_available', true)
+      .maybeSingle();
+    if (error) throw error;
+    return data ? mapProductMenuItem(data) : null;
+  }
+
+  findProductBySlug(slug: string): Promise<ProductMenuItem | null> {
+    return this.findProduct('slug', slug);
+  }
+
+  findProductById(id: string): Promise<ProductMenuItem | null> {
+    return this.findProduct('id', id);
+  }
+
   async listRestaurants(input: {
     query?: string;
+    categorySlug?: string;
     sort: RestaurantSort;
     cursor?: string;
     limit: number;
@@ -68,12 +149,29 @@ export class SupabaseCatalogRepository implements CatalogRepository {
     const column = sortColumn(input.sort);
     const ascending = input.sort !== 'rating_desc';
     let query = this.client.from('restaurants').select('*').eq('is_active', true);
-    if (input.query) query = query.ilike('normalized_name', `%${input.query}%`);
+    if (input.query) {
+      const cleanQuery = input.query.trim().replace(/[%_]/g, '\\$&').replace(/[,()]/g, ' ');
+      if (cleanQuery) {
+        query = query.or(`normalized_name.ilike.%${cleanQuery}%,description.ilike.%${cleanQuery}%`);
+      }
+    }
+    if (input.categorySlug) {
+      const category = await this.findCategoryBySlug(input.categorySlug);
+      if (!category) return { items: [], nextCursor: null };
+      const { data: links, error: linksError } = await this.client
+        .from('restaurant_categories').select('restaurant_id').eq('category_id', category.id);
+      if (linksError) throw linksError;
+      if (links.length === 0) return { items: [], nextCursor: null };
+      query = query.in('id', links.map((link) => link.restaurant_id));
+    }
     if (input.cursor) {
       const cursor = decodeCursor(input.cursor);
+      const safeCursorVal = typeof cursor.value === 'string'
+        ? `"${cursor.value.replace(/"/g, '')}"`
+        : cursor.value;
       query = ascending
-        ? query.or(`${column}.gt.${cursor.value},and(${column}.eq.${cursor.value},id.gt.${cursor.id})`)
-        : query.or(`${column}.lt.${cursor.value},and(${column}.eq.${cursor.value},id.gt.${cursor.id})`);
+        ? query.or(`${column}.gt.${safeCursorVal},and(${column}.eq.${safeCursorVal},id.gt.${cursor.id})`)
+        : query.or(`${column}.lt.${safeCursorVal},and(${column}.eq.${safeCursorVal},id.gt.${cursor.id})`);
     }
     const { data, error } = await query
       .order(column, { ascending })
@@ -103,7 +201,10 @@ export class SupabaseCatalogRepository implements CatalogRepository {
       .eq('is_available', true);
     if (input.cursor) {
       const cursor = decodeCursor(input.cursor);
-      query = query.or(`created_at.gt.${cursor.value},and(created_at.eq.${cursor.value},id.gt.${cursor.id})`);
+      const safeCursorVal = typeof cursor.value === 'string'
+        ? `"${cursor.value.replace(/"/g, '')}"`
+        : cursor.value;
+      query = query.or(`created_at.gt.${safeCursorVal},and(created_at.eq.${safeCursorVal},id.gt.${cursor.id})`);
     }
     const { data, error } = await query
       .order('created_at', { ascending: true })
@@ -127,18 +228,6 @@ export class SupabaseCatalogRepository implements CatalogRepository {
       .eq('is_available', true)
       .order('created_at', { ascending: true });
     if (error) throw error;
-    return data.map((row) => ({
-      ...mapProduct(row),
-      variants: row.product_variants.map((variant) => ({
-        id: variant.id,
-        name: variant.name,
-        priceAdjustmentIrr: variant.price_adjustment_irr,
-      })),
-      addons: row.product_addons.map((addon) => ({
-        id: addon.id,
-        name: addon.name,
-        priceAdjustmentIrr: addon.price_irr,
-      })),
-    }));
+    return data.map(mapProductMenuItem);
   }
 }
