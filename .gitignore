@@ -54,3 +54,7 @@ dev-debug.log
 *.sln
 *.sw?
 # OS specific
+
+# Playwright
+/playwright-report/
+/test-results/
