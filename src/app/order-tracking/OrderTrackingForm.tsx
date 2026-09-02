@@ -10,6 +10,11 @@ const Container = styled.div`
   margin: 3rem auto;
   padding: 2rem 1.5rem;
   direction: rtl;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    margin: 1rem auto;
+    padding: 1.25rem 0.85rem 3rem;
+  }
 `;
 
 const Card = styled.section`
@@ -18,6 +23,12 @@ const Card = styled.section`
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
   border: 1px solid ${({ theme }) => theme.colors.neutral[200]};
   padding: 2.25rem;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    padding: 1.25rem 1rem;
+    border-radius: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  }
 `;
 
 const Title = styled.h1`
@@ -25,6 +36,11 @@ const Title = styled.h1`
   font-weight: 800;
   color: ${({ theme }) => theme.colors.neutral[900]};
   margin-bottom: 0.75rem;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    font-size: 1.35rem;
+    margin-bottom: 0.4rem;
+  }
 `;
 
 const Description = styled.p`
@@ -32,6 +48,11 @@ const Description = styled.p`
   font-size: 0.95rem;
   line-height: 1.6;
   margin-bottom: 2rem;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    font-size: 0.85rem;
+    margin-bottom: 1.25rem;
+  }
 `;
 
 const Form = styled.form`
@@ -68,6 +89,11 @@ const Input = styled.input`
     border-color: ${({ theme }) => theme.colors.primary[500]};
     box-shadow: 0 0 0 3px ${({ theme }) => theme.colors.primary[100]};
   }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    font-size: 0.9rem;
+    padding: 0.7rem 0.85rem;
+  }
 `;
 
 const ErrorText = styled.p`
@@ -85,10 +111,20 @@ const SubmitButton = styled.button`
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  min-height: 44px;
+  transition: all 0.2s;
 
   &:hover {
     background: ${({ theme }) => theme.colors.primary[600]};
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    font-size: 0.925rem;
+    padding: 0.75rem 1rem;
   }
 `;
 
@@ -101,6 +137,14 @@ const RecentBox = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.85rem 1rem;
+    margin-top: 1.25rem;
+  }
 `;
 
 const RecentText = styled.span`

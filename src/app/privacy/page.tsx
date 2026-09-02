@@ -9,11 +9,19 @@ const PageContainer = styled.div`
   margin: 0 auto;
   padding: 2rem;
   direction: rtl;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    padding: 1.25rem 0.85rem 3rem;
+  }
 `;
 
 const PageHeader = styled.div`
   margin-bottom: 2rem;
   text-align: center;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    margin-bottom: 1.25rem;
+  }
 `;
 
 const PageTitle = styled.h1`
@@ -21,11 +29,20 @@ const PageTitle = styled.h1`
   font-weight: 700;
   color: ${props => props.theme.colors.neutral[700]};
   margin-bottom: 1rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 1.4rem;
+    margin-bottom: 0.5rem;
+  }
 `;
 
 const PageDescription = styled.p`
   font-size: 1rem;
   color: ${props => props.theme.colors.neutral[500]};
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 0.85rem;
+  }
 `;
 
 const SectionContainer = styled.div`
@@ -34,6 +51,12 @@ const SectionContainer = styled.div`
   padding: 2rem;
   border-radius: ${props => props.theme.borderRadius.lg};
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    padding: 1.15rem 0.85rem;
+    margin-bottom: 1.25rem;
+    border-radius: 0.85rem;
+  }
 `;
 
 const SectionTitle = styled.h2`
@@ -43,6 +66,11 @@ const SectionTitle = styled.h2`
   margin-bottom: 1rem;
   padding-bottom: 0.5rem;
   border-bottom: 1px solid ${props => props.theme.colors.neutral[100]};
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 1.15rem;
+    margin-bottom: 0.75rem;
+  }
 `;
 
 const SectionContent = styled.div`

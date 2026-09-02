@@ -10,6 +10,14 @@ const FiltersContainer = styled.div`
   box-shadow: ${props => props.theme.boxShadow.md};
   position: sticky;
   top: 6rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.md}) {
+    position: static;
+    padding: 1rem;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    border: 1px solid ${props => props.theme.colors.neutral[200]};
+    margin-bottom: 1.25rem;
+  }
 `;
 
 const FilterSection = styled.div`
@@ -22,6 +30,11 @@ const FilterSection = styled.div`
     padding-bottom: 0;
     border-bottom: none;
   }
+
+  @media (max-width: ${props => props.theme.breakpoints.md}) {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+  }
 `;
 
 const FilterTitle = styled.h3`
@@ -29,12 +42,21 @@ const FilterTitle = styled.h3`
   font-weight: ${props => props.theme.typography.fontWeights.semibold};
   color: ${props => props.theme.colors.secondary[500]};
   margin-bottom: 1rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.md}) {
+    font-size: 0.975rem;
+    margin-bottom: 0.75rem;
+  }
 `;
 
 const CheckboxGroup = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.md}) {
+    gap: 0.5rem;
+  }
 `;
 
 const CheckboxItem = styled.label`
@@ -44,6 +66,11 @@ const CheckboxItem = styled.label`
   font-size: ${props => props.theme.typography.fontSizes.md};
   color: ${props => props.theme.colors.neutral[700]};
   cursor: pointer;
+  min-height: 32px;
+
+  @media (max-width: ${props => props.theme.breakpoints.md}) {
+    font-size: 0.875rem;
+  }
 `;
 
 const Checkbox = styled.input`
@@ -75,6 +102,10 @@ const RatingContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.md}) {
+    gap: 0.5rem;
+  }
 `;
 
 const RatingItem = styled.label<{ $isActive: boolean }>`
@@ -85,6 +116,11 @@ const RatingItem = styled.label<{ $isActive: boolean }>`
   color: ${props => props.$isActive ? props.theme.colors.primary[500] : props.theme.colors.neutral[700]};
   font-weight: ${props => props.$isActive ? props.theme.typography.fontWeights.medium : 'normal'};
   cursor: pointer;
+  min-height: 32px;
+
+  @media (max-width: ${props => props.theme.breakpoints.md}) {
+    font-size: 0.875rem;
+  }
 `;
 
 const Stars = styled.div`
@@ -106,9 +142,19 @@ const ResetButton = styled.button`
   cursor: pointer;
   transition: all 0.2s ease;
   margin-top: 1rem;
+  min-height: 42px;
   
   &:hover {
     background-color: ${props => props.theme.colors.neutral[300]};
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  @media (max-width: ${props => props.theme.breakpoints.md}) {
+    margin-top: 0.75rem;
+    font-size: 0.875rem;
   }
 `;
 

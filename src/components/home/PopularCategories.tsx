@@ -8,7 +8,11 @@ const SectionContainer = styled.section`
   padding: 4rem 2rem;
   
   @media (max-width: ${props => props.theme.breakpoints.md}) {
-    padding: 2.5rem 1rem;
+    padding: 2.25rem 1rem;
+  }
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    padding: 1.5rem 0.875rem;
   }
 `;
 
@@ -17,10 +21,15 @@ const SectionTitle = styled.h2`
   font-weight: 800;
   color: ${props => props.theme.colors.neutral[900]};
   text-align: center;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.md}) {
+    font-size: 1.5rem;
+  }
 
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    font-size: 1.45rem;
+    font-size: 1.25rem;
+    margin-bottom: 0.35rem;
   }
 `;
 
@@ -29,28 +38,33 @@ const SectionSubtitle = styled.p`
   color: ${props => props.theme.colors.neutral[600]};
   text-align: center;
   max-width: 700px;
-  margin: 0 auto 3rem;
+  margin: 0 auto 2.5rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.md}) {
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+  }
 
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    font-size: 0.9rem;
-    margin-bottom: 1.75rem;
+    font-size: 0.8rem;
+    margin-bottom: 1rem;
   }
 `;
 
 const CategoriesGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1.5rem;
   max-width: 1200px;
   margin: 0 auto;
 
   @media (max-width: ${props => props.theme.breakpoints.md}) {
-    gap: 1.25rem;
+    gap: 1rem;
   }
 
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
     grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
+    gap: 0.6rem;
   }
 `;
 
@@ -58,44 +72,48 @@ const CategoryCard = styled(Link)`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 1.75rem 1.5rem;
+  padding: 1.5rem 1.25rem;
   border-radius: ${props => props.theme.borderRadius.xl};
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   background-color: white;
   border: 1px solid ${props => props.theme.colors.neutral[200]};
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   text-decoration: none;
 
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    padding: 1rem 0.75rem;
-    border-radius: 1rem;
+    padding: 0.75rem 0.5rem;
+    border-radius: 0.85rem;
   }
   
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px -4px rgba(255, 90, 0, 0.12), 0 8px 16px -4px rgba(0, 0, 0, 0.04);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 18px -4px rgba(255, 90, 0, 0.12), 0 4px 8px -2px rgba(0, 0, 0, 0.04);
     border-color: ${props => props.theme.colors.primary[300]};
+  }
+
+  &:active {
+    transform: scale(0.97);
   }
 `;
 
 const IconContainer = styled.div`
-  width: 80px;
-  height: 80px;
+  width: 72px;
+  height: 72px;
   position: relative;
-  margin-bottom: 1rem;
+  margin-bottom: 0.85rem;
   background: linear-gradient(135deg, ${props => props.theme.colors.primary[50]} 0%, ${props => props.theme.colors.primary[100]} 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2.5rem;
-  transition: transform 0.3s ease;
+  font-size: 2.25rem;
+  transition: transform 0.2s ease;
 
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    width: 60px;
-    height: 60px;
-    font-size: 1.85rem;
-    margin-bottom: 0.6rem;
+    width: 48px;
+    height: 48px;
+    font-size: 1.5rem;
+    margin-bottom: 0.4rem;
   }
 `;
 
@@ -103,12 +121,13 @@ const CategoryName = styled.h3`
   font-size: ${props => props.theme.typography.fontSizes.lg};
   font-weight: ${props => props.theme.typography.fontWeights.semibold};
   color: ${props => props.theme.colors.neutral[900]};
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.35rem;
   text-align: center;
 
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    font-size: 0.95rem;
-    margin-bottom: 0.25rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 0.15rem;
   }
 `;
 
@@ -117,7 +136,7 @@ const ItemCount = styled.span`
   color: ${props => props.theme.colors.neutral[500]};
 
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
   }
 `;
 

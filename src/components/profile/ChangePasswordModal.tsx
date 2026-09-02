@@ -162,6 +162,12 @@ const ModalContent = styled.div`
   max-width: 500px;
   direction: rtl;
   box-shadow: ${props => props.theme.boxShadow.lg};
+
+  @media (max-width: 480px) {
+    padding: 1.25rem 1rem;
+    width: 94%;
+    border-radius: 1rem;
+  }
 `;
 
 const ModalHeader = styled.div`
@@ -169,6 +175,10 @@ const ModalHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
+
+  @media (max-width: 480px) {
+    margin-bottom: 1rem;
+  }
 `;
 
 const ModalTitle = styled.h3`
@@ -176,6 +186,10 @@ const ModalTitle = styled.h3`
   font-weight: ${props => props.theme.typography.fontWeights.semibold};
   color: ${props => props.theme.colors.secondary[500]};
   margin: 0;
+
+  @media (max-width: 480px) {
+    font-size: 1.1rem;
+  }
 `;
 
 const CloseButton = styled.button`

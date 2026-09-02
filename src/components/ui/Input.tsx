@@ -60,6 +60,12 @@ const baseInputStyles = css<{
         `;
     }
   }}
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 1rem;
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+  }
   
   ${props => {
     switch (props.$variant) {

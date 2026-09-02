@@ -13,6 +13,10 @@ const AuthPageContainer = styled.div`
   padding: 3rem 1rem;
   min-height: calc(100vh - 200px);
   background: ${props => props.theme.colors.neutral[50]};
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    padding: 1.5rem 0.85rem 2.5rem;
+  }
 `;
 
 const AuthCard = styled.div`
@@ -25,19 +29,25 @@ const AuthCard = styled.div`
   padding: 2.5rem;
   
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    padding: 1.75rem;
-    box-shadow: none;
-    border: none;
-    background: transparent;
+    padding: 1.25rem 1rem;
+    border-radius: 1.25rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    background: white;
+    border: 1px solid ${props => props.theme.colors.neutral[200]};
   }
 `;
 
 const PageTitle = styled.h1`
   font-size: ${props => props.theme.typography.fontSizes['2xl']};
-  font-weight: ${props => props.theme.typography.fontWeights.bold};
+  font-weight: 800;
   color: ${props => props.theme.colors.neutral[900]};
   margin-bottom: 2rem;
   text-align: center;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 1.35rem;
+    margin-bottom: 1.25rem;
+  }
 `;
 
 const TabContainer = styled.div`
@@ -46,6 +56,11 @@ const TabContainer = styled.div`
   padding: 0.35rem;
   border-radius: ${props => props.theme.borderRadius.xl};
   margin-bottom: 2rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    margin-bottom: 1.25rem;
+    padding: 0.25rem;
+  }
 `;
 
 const TabButton = styled.button<{ $active: boolean }>`
@@ -61,9 +76,15 @@ const TabButton = styled.button<{ $active: boolean }>`
   cursor: pointer;
   box-shadow: ${props => props.$active ? '0 2px 8px rgba(0, 0, 0, 0.08)' : 'none'};
   transition: all 0.2s ease;
+  min-height: 40px;
   
   &:hover {
     color: ${props => props.theme.colors.neutral[900]};
+  }
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    padding: 0.55rem 0.5rem;
+    font-size: 0.875rem;
   }
 `;
 

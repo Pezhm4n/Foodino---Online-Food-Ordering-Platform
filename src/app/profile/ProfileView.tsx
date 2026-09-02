@@ -23,6 +23,10 @@ const Page = styled.div`
   margin: 0 auto;
   padding: 2.5rem 1rem 4rem;
   direction: rtl;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    padding: 1.25rem 0.85rem 3rem;
+  }
 `;
 
 const Title = styled.h1`
@@ -30,11 +34,20 @@ const Title = styled.h1`
   font-size: 2rem;
   font-weight: 800;
   color: ${({ theme }) => theme.colors.neutral[900]};
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    font-size: 1.4rem;
+    margin: 0 0 1.25rem;
+  }
 `;
 
 const Grid = styled.div`
   display: grid;
   gap: 2rem;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    gap: 1.25rem;
+  }
 `;
 
 const Card = styled.section`
@@ -43,6 +56,11 @@ const Card = styled.section`
   background: white;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   border: 1px solid ${({ theme }) => theme.colors.neutral[200]};
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    padding: 1.15rem 0.85rem;
+    border-radius: 0.85rem;
+  }
 
   h2 {
     font-size: 1.25rem;
@@ -54,6 +72,11 @@ const Card = styled.section`
     gap: 0.5rem;
     border-bottom: 1px solid ${({ theme }) => theme.colors.neutral[100]};
     padding-bottom: 0.75rem;
+
+    @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+      font-size: 1.05rem;
+      margin: 0 0 1rem;
+    }
   }
 `;
 
@@ -127,17 +150,32 @@ const Button = styled.button`
   color: white;
   font-weight: 600;
   font-size: 0.95rem;
+  min-height: 42px;
   transition: all 0.2s;
 
   &:hover {
     background: ${({ theme }) => theme.colors.primary[600]};
     transform: translateY(-1px);
   }
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    width: 100%;
+    justify-self: stretch;
+    padding: 0.65rem 1rem;
+    font-size: 0.9rem;
+  }
 `;
 
 const DangerButton = styled(Button)`
   padding: 0.45rem 0.9rem;
   font-size: 0.85rem;
+  min-height: 36px;
+  width: auto;
+  justify-self: start;
   background: ${({ theme }) => theme.colors.error[50]};
   color: ${({ theme }) => theme.colors.error[600]};
   border: 1px solid ${({ theme }) => theme.colors.error[200]};
@@ -165,6 +203,12 @@ const Item = styled.li`
   border: 1px solid ${({ theme }) => theme.colors.neutral[200]};
   border-radius: ${({ theme }) => theme.borderRadius.lg};
   background: ${({ theme }) => theme.colors.neutral[50]};
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    padding: 0.75rem;
+    gap: 0.5rem;
+    border-radius: 0.65rem;
+  }
 
   @media (max-width: ${({ theme }) => theme.breakpoints.xs}) {
     flex-direction: column;

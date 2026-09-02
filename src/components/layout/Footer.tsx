@@ -10,6 +10,10 @@ const FooterContainer = styled.footer`
   padding: 4rem 2rem 2rem;
   border-top: 1px solid ${props => props.theme.colors.secondary[800]};
   direction: rtl;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    padding: 2.25rem 1rem 1.5rem;
+  }
 `;
 
 const FooterContent = styled.div`
@@ -26,7 +30,7 @@ const FooterContent = styled.div`
   
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
     grid-template-columns: 1fr;
-    gap: 2rem;
+    gap: 1.5rem;
   }
 `;
 
@@ -38,9 +42,14 @@ const FooterSection = styled.div`
 const BrandSection = styled(FooterSection)`
   p {
     font-size: 0.95rem;
-    line-height: 1.8;
+    line-height: 1.7;
     color: ${props => props.theme.colors.neutral[400]};
-    margin: 1rem 0 1.5rem;
+    margin: 1rem 0 1.25rem;
+
+    @media (max-width: ${props => props.theme.breakpoints.sm}) {
+      font-size: 0.875rem;
+      margin: 0.5rem 0 1rem;
+    }
   }
 `;
 
@@ -52,6 +61,11 @@ const FooterTitle = styled.h3`
   position: relative;
   display: inline-block;
 
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 1.05rem;
+    margin-bottom: 0.75rem;
+  }
+
   &::after {
     content: '';
     display: block;
@@ -59,7 +73,7 @@ const FooterTitle = styled.h3`
     height: 3px;
     background-color: ${props => props.theme.colors.primary[500]};
     border-radius: 2px;
-    margin-top: 0.5rem;
+    margin-top: 0.4rem;
   }
 `;
 
@@ -67,11 +81,18 @@ const FooterLink = styled(Link)`
   color: ${props => props.theme.colors.neutral[400]};
   text-decoration: none;
   font-size: 0.95rem;
-  margin-bottom: 0.85rem;
+  margin-bottom: 0.75rem;
   transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
+  min-height: 36px;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 0.875rem;
+    margin-bottom: 0.35rem;
+    min-height: 34px;
+  }
   
   &:hover {
     color: ${props => props.theme.colors.primary[400]};
@@ -103,16 +124,26 @@ const SocialIcon = styled.a`
     border-color: ${props => props.theme.colors.primary[500]};
     transform: translateY(-2px);
   }
+
+  &:active {
+    transform: scale(0.95);
+  }
 `;
 
 const ContactItem = styled.div`
   display: flex;
   align-items: flex-start;
   gap: 0.75rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.85rem;
   font-size: 0.925rem;
   color: ${props => props.theme.colors.neutral[400]};
   line-height: 1.6;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 0.85rem;
+    margin-bottom: 0.65rem;
+    gap: 0.5rem;
+  }
 
   span.icon {
     color: ${props => props.theme.colors.primary[400]};
@@ -128,6 +159,12 @@ const Copyright = styled.div`
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   color: ${props => props.theme.colors.neutral[500]};
   font-size: 0.875rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    margin-top: 1.75rem;
+    padding-top: 1.25rem;
+    font-size: 0.8rem;
+  }
 `;
 
 const Footer = () => {

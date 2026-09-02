@@ -10,7 +10,11 @@ const SectionContainer = styled.section`
   background-color: ${props => props.theme.colors.neutral[50]};
   
   @media (max-width: ${props => props.theme.breakpoints.md}) {
-    padding: 2.5rem 1rem;
+    padding: 2.25rem 1rem;
+  }
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    padding: 1.5rem 0.875rem;
   }
 `;
 
@@ -24,8 +28,8 @@ const SectionHeader = styled.div`
   @media (max-width: ${props => props.theme.breakpoints.md}) {
     flex-direction: column;
     align-items: flex-start;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
   }
 `;
 
@@ -37,8 +41,13 @@ const SectionTitle = styled.h2`
   color: ${props => props.theme.colors.neutral[900]};
   margin-bottom: 0.5rem;
 
+  @media (max-width: ${props => props.theme.breakpoints.md}) {
+    font-size: 1.5rem;
+  }
+
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    font-size: 1.45rem;
+    font-size: 1.25rem;
+    margin-bottom: 0.25rem;
   }
 `;
 
@@ -47,7 +56,7 @@ const SectionSubtitle = styled.p`
   color: ${props => props.theme.colors.neutral[600]};
 
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
   }
 `;
 
@@ -72,7 +81,9 @@ const ViewAllButton = styled(Link)`
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
     width: 100%;
     justify-content: center;
-    padding: 0.65rem 1.25rem;
+    padding: 0.55rem 1rem;
+    font-size: 0.85rem;
+    min-height: 38px;
   }
 `;
 
@@ -89,7 +100,7 @@ const RestaurantsGrid = styled.div`
 
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
     grid-template-columns: 1fr;
-    gap: 1rem;
+    gap: 0.75rem;
   }
 `;
 
@@ -99,7 +110,12 @@ const RestaurantCard = styled.div`
   overflow: hidden;
   border: 1px solid ${props => props.theme.colors.neutral[200]};
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    border-radius: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  }
   
   &:hover {
     transform: translateY(-4px);
@@ -126,8 +142,8 @@ const ImageContainer = styled.div`
   transition: transform 0.3s ease;
 
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    height: 135px;
-    font-size: 3rem;
+    height: 110px;
+    font-size: 2.5rem;
   }
 `;
 
@@ -135,7 +151,7 @@ const RestaurantInfo = styled.div`
   padding: 1.5rem;
 
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    padding: 1.15rem;
+    padding: 0.85rem;
   }
 `;
 
@@ -144,6 +160,11 @@ const RestaurantName = styled.h3`
   font-weight: ${props => props.theme.typography.fontWeights.semibold};
   color: ${props => props.theme.colors.neutral[900]};
   margin-bottom: 0.5rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 1.05rem;
+    margin-bottom: 0.25rem;
+  }
 `;
 
 const RestaurantType = styled.span`
@@ -151,6 +172,11 @@ const RestaurantType = styled.span`
   font-size: ${props => props.theme.typography.fontSizes.sm};
   color: ${props => props.theme.colors.neutral[700]};
   margin-bottom: 1rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+  }
 `;
 
 const TagsContainer = styled.div`
@@ -158,6 +184,11 @@ const TagsContainer = styled.div`
   gap: 0.5rem;
   margin-bottom: 1rem;
   flex-wrap: wrap;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    gap: 0.35rem;
+    margin-bottom: 0.65rem;
+  }
 `;
 
 const Tag = styled.span`
@@ -166,6 +197,11 @@ const Tag = styled.span`
   background-color: ${props => props.theme.colors.neutral[100]};
   padding: 0.25rem 0.75rem;
   border-radius: ${props => props.theme.borderRadius.full};
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.55rem;
+  }
 `;
 
 const CardFooter = styled.div`
@@ -174,6 +210,10 @@ const CardFooter = styled.div`
   align-items: center;
   padding-top: 1rem;
   border-top: 1px solid ${props => props.theme.colors.neutral[100]};
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    padding-top: 0.65rem;
+  }
 `;
 
 const Rating = styled.div`

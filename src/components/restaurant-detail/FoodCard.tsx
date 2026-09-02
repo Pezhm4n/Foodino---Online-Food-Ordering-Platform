@@ -21,12 +21,18 @@ const CardContent = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    padding: 0.85rem;
+  }
 `;
 
 const Header = styled.div`
   display: flex;
   justify-content: space-between;
-  margin-bottom: 1rem;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
 `;
 
 const FoodImageContainer = styled.div`
@@ -38,29 +44,40 @@ const FoodImageContainer = styled.div`
   align-items: center;
   justify-content: center;
   font-size: 2rem;
+  flex-shrink: 0;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    width: 48px;
+    height: 48px;
+    font-size: 1.5rem;
+  }
 `;
 
 const FoodInfo = styled.div`
   flex: 1;
-  margin-right: 1rem;
+  min-width: 0;
 `;
 
 const FoodName = styled.h3`
   font-size: ${props => props.theme.typography.fontSizes.lg};
   font-weight: ${props => props.theme.typography.fontWeights.semibold};
   color: ${props => props.theme.colors.secondary[500]};
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.35rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 0.975rem;
+  }
 `;
 
 const BadgesContainer = styled.div`
   display: flex;
-  gap: 0.5rem;
+  gap: 0.4rem;
   flex-wrap: wrap;
 `;
 
 const Badge = styled.span<{ type: 'popular' | 'spicy' | 'vegetarian' }>`
   font-size: ${props => props.theme.typography.fontSizes.xs};
-  padding: 0.2rem 0.5rem;
+  padding: 0.15rem 0.45rem;
   border-radius: ${props => props.theme.borderRadius.full};
   font-weight: ${props => props.theme.typography.fontWeights.medium};
   background-color: ${props => 
@@ -75,14 +92,24 @@ const Badge = styled.span<{ type: 'popular' | 'spicy' | 'vegetarian' }>`
       : props.type === 'spicy' 
         ? '#9B1C1C' 
         : '#166534'};
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 0.7rem;
+  }
 `;
 
 const Description = styled.p`
   font-size: ${props => props.theme.typography.fontSizes.sm};
   color: ${props => props.theme.colors.neutral[700]};
   line-height: 1.6;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
   flex-grow: 1;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 0.8rem;
+    line-height: 1.5;
+    margin-bottom: 0.75rem;
+  }
 `;
 
 const Footer = styled.div`
@@ -90,26 +117,43 @@ const Footer = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-top: auto;
+  gap: 0.75rem;
 `;
 
 const Price = styled.div`
   font-size: ${props => props.theme.typography.fontSizes.lg};
   font-weight: ${props => props.theme.typography.fontWeights.semibold};
   color: ${props => props.theme.colors.primary[500]};
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 0.925rem;
+  }
 `;
 
 const AddButton = styled.button`
-  padding: 0.5rem 1rem;
+  padding: 0.45rem 1rem;
   background-color: ${props => props.theme.colors.primary[500]};
   color: white;
   border: none;
   border-radius: ${props => props.theme.borderRadius.md};
-  font-weight: ${props => props.theme.typography.fontWeights.medium};
+  font-weight: 600;
+  font-size: 0.875rem;
+  min-height: 38px;
   cursor: pointer;
   transition: all 0.2s ease;
   
   &:hover {
     background-color: ${props => props.theme.colors.primary[400]};
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    padding: 0.35rem 0.85rem;
+    font-size: 0.825rem;
+    min-height: 36px;
   }
 `;
 

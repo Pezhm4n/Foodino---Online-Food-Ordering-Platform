@@ -8,11 +8,19 @@ const TermsPageContainer = styled.div`
   margin: 0 auto;
   padding: 2rem 1rem;
   direction: rtl;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    padding: 1.25rem 0.85rem 3rem;
+  }
 `;
 
 const PageHeader = styled.div`
   text-align: center;
   margin-bottom: 3rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    margin-bottom: 1.5rem;
+  }
 `;
 
 const PageTitle = styled.h1`
@@ -20,6 +28,11 @@ const PageTitle = styled.h1`
   font-weight: 800;
   color: ${props => props.theme.colors.neutral[900]};
   margin-bottom: 1rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 1.4rem;
+    margin-bottom: 0.5rem;
+  }
 `;
 
 const UpdatedDate = styled.p`
@@ -33,10 +46,19 @@ const TermsContent = styled.div`
   border-radius: ${props => props.theme.borderRadius.xl};
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
   border: 1px solid ${props => props.theme.colors.neutral[200]};
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    padding: 1.15rem 0.85rem;
+    border-radius: 0.85rem;
+  }
 `;
 
 const Section = styled.section`
   margin-bottom: 2.5rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    margin-bottom: 1.5rem;
+  }
 `;
 
 const SectionTitle = styled.h2`
@@ -46,6 +68,11 @@ const SectionTitle = styled.h2`
   margin-bottom: 1.25rem;
   padding-bottom: 0.5rem;
   border-bottom: 1px solid ${props => props.theme.colors.neutral[100]};
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 1.1rem;
+    margin-bottom: 0.85rem;
+  }
 `;
 
 const SectionContent = styled.div`

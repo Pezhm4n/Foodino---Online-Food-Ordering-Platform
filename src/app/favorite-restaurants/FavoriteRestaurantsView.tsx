@@ -113,6 +113,12 @@ const SearchInput = styled.input`
   &::placeholder {
     color: ${props => props.theme.colors.neutral[400]};
   }
+
+  @media (max-width: 640px) {
+    min-height: 42px;
+    font-size: 0.875rem;
+    padding: 0.6rem 0.85rem 0.6rem 2.5rem;
+  }
 `;
 
 const SearchIcon = styled.span`
@@ -123,12 +129,21 @@ const SearchIcon = styled.span`
   color: ${props => props.theme.colors.neutral[400]};
   pointer-events: none;
   font-size: 1.1rem;
+
+  @media (max-width: 640px) {
+    left: 0.75rem;
+    font-size: 0.95rem;
+  }
 `;
 
 const Grid = styled.div`
   display: grid;
   grid-template-columns: 1fr;
   gap: 1.25rem;
+
+  @media (max-width: 640px) {
+    gap: 0.85rem;
+  }
 
   @media (min-width: 640px) {
     grid-template-columns: repeat(2, 1fr);
@@ -150,6 +165,10 @@ const RestaurantCard = styled.div`
   flex-direction: column;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 
+  @media (max-width: 640px) {
+    border-radius: 0.85rem;
+  }
+
   &:hover {
     transform: translateY(-3px);
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
@@ -164,6 +183,11 @@ const CardCover = styled.div<{ $bg?: string | null }>`
   align-items: flex-start;
   justify-content: space-between;
   padding: 0.75rem;
+
+  @media (max-width: 640px) {
+    height: 105px;
+    padding: 0.6rem;
+  }
 `;
 
 const RemoveButton = styled.button`
@@ -212,6 +236,10 @@ const CardBody = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
+
+  @media (max-width: 640px) {
+    padding: 0.85rem;
+  }
 `;
 
 const RestaurantName = styled.h3`
@@ -219,6 +247,10 @@ const RestaurantName = styled.h3`
   font-weight: 700;
   color: ${props => props.theme.colors.neutral[900]};
   margin: 0 0 0.4rem;
+
+  @media (max-width: 640px) {
+    font-size: 1.05rem;
+  }
 `;
 
 const RestaurantDesc = styled.p`

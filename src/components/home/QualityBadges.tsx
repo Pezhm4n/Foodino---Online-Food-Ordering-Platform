@@ -8,7 +8,11 @@ const SectionContainer = styled.section`
   background-color: white;
   
   @media (max-width: ${props => props.theme.breakpoints.md}) {
-    padding: 3rem 1rem;
+    padding: 2.25rem 1rem;
+  }
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    padding: 1.5rem 0.875rem;
   }
 `;
 
@@ -21,6 +25,7 @@ const BadgesContainer = styled.div`
   
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
     grid-template-columns: 1fr;
+    gap: 0.85rem;
   }
 `;
 
@@ -32,7 +37,7 @@ const Badge = styled.div`
   padding: 2rem;
 
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    padding: 1.25rem 0.5rem;
+    padding: 0.75rem 0.5rem;
   }
 `;
 
@@ -49,13 +54,13 @@ const IconContainer = styled.div`
   color: ${props => props.theme.colors.primary[500]};
 
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    width: 64px;
-    height: 64px;
-    margin-bottom: 1rem;
+    width: 52px;
+    height: 52px;
+    margin-bottom: 0.65rem;
 
     svg {
-      width: 32px;
-      height: 32px;
+      width: 26px;
+      height: 26px;
     }
   }
 `;
@@ -67,8 +72,8 @@ const BadgeTitle = styled.h3`
   margin-bottom: 0.75rem;
 
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    font-size: 1.15rem;
-    margin-bottom: 0.4rem;
+    font-size: 1.05rem;
+    margin-bottom: 0.25rem;
   }
 `;
 
@@ -78,7 +83,8 @@ const BadgeDescription = styled.p`
   line-height: 1.6;
 
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
+    line-height: 1.5;
   }
 `;
 

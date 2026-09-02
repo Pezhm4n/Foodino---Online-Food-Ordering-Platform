@@ -17,10 +17,10 @@ const ContactPageContainer = styled.div`
 `;
 
 const PageTitle = styled.h1`
-  font-size: 1.6rem;
+  font-size: 1.4rem;
   font-weight: 800;
   color: ${props => props.theme.colors.neutral[900]};
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
   text-align: right;
 
   @media (min-width: 768px) {
@@ -32,48 +32,64 @@ const PageTitle = styled.h1`
 const ContactInfoSection = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  margin-bottom: 3rem;
+  gap: 0.85rem;
+  margin-bottom: 1.75rem;
 
   @media (min-width: 768px) {
     flex-direction: row;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
   }
 `;
 
 const ContactInfoCard = styled.div`
   background-color: white;
   border-radius: ${props => props.theme.borderRadius.xl};
-  padding: 1.75rem;
+  padding: 1.15rem 0.85rem;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
   border: 1px solid ${props => props.theme.colors.neutral[200]};
   flex: 1;
   text-align: right;
+
+  @media (min-width: 768px) {
+    padding: 1.75rem;
+  }
 `;
 
 const CardTitle = styled.h3`
-  font-size: 1.25rem;
+  font-size: 1.05rem;
   font-weight: 700;
   color: ${props => props.theme.colors.neutral[900]};
-  margin-bottom: 1rem;
+  margin-bottom: 0.65rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+
+  @media (min-width: 768px) {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
 `;
 
 const InfoItem = styled.p`
-  font-size: 1rem;
-  margin-bottom: 0.75rem;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
   color: ${props => props.theme.colors.neutral[700]};
   display: flex;
   align-items: center;
   gap: 0.5rem;
   justify-content: flex-start;
+
+  @media (min-width: 768px) {
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+  }
 `;
 
 const FormContainer = styled.div`
   background-color: white;
   border-radius: ${props => props.theme.borderRadius.xl};
-  padding: 1.25rem;
+  padding: 1rem 0.85rem;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
   border: 1px solid ${props => props.theme.colors.neutral[200]};
 
@@ -83,14 +99,14 @@ const FormContainer = styled.div`
 `;
 
 const FormTitle = styled.h2`
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   font-weight: 700;
   color: ${props => props.theme.colors.neutral[900]};
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
   text-align: right;
 
   @media (min-width: 768px) {
-    font-size: 1.5rem;
+    font-size: 1.35rem;
     margin-bottom: 1.5rem;
   }
 `;

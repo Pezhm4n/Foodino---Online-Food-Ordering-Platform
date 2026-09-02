@@ -25,13 +25,14 @@ const headerCopy = {
 
 const t = (key: keyof typeof headerCopy) => headerCopy[key];
 
-const HeaderContainer = styled.header`
+const HeaderContainer = styled.header<{ $isScrolled: boolean }>`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.25rem 2.5rem;
+  padding: ${({ $isScrolled }) => ($isScrolled ? '0.75rem 2.5rem' : '1.15rem 2.5rem')};
   background-color: white;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: ${({ $isScrolled }) =>
+    $isScrolled ? '0 4px 12px rgba(0, 0, 0, 0.08)' : '0 2px 8px rgba(0, 0, 0, 0.04)'};
   position: sticky;
   top: 0;
   z-index: 100;
@@ -39,7 +40,7 @@ const HeaderContainer = styled.header`
   transition: box-shadow 0.3s ease, padding 0.3s ease;
 
   @media (max-width: ${(props) => props.theme.breakpoints.md}) {
-    padding: 1rem 1.5rem;
+    padding: ${({ $isScrolled }) => ($isScrolled ? '0.5rem 0.85rem' : '0.65rem 1rem')};
   }
 `;
 
@@ -49,6 +50,10 @@ const Logo = styled.div`
   color: ${(props) => props.theme.colors.primary[500]};
   position: relative;
   transition: all 0.3s ease;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.md}) {
+    font-size: 1.25rem;
+  }
 
   &:hover {
     transform: translateY(-2px);
@@ -75,11 +80,15 @@ const LogoLink = styled(Link)`
   color: inherit;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
 `;
 
 const LogoEmoji = styled.span`
   font-size: 1.5rem;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.md}) {
+    font-size: 1.2rem;
+  }
 `;
 
 const Navigation = styled.nav`
@@ -280,21 +289,26 @@ const MobileMenuButton = styled.button`
   border: none;
   cursor: pointer;
   color: ${(props) => props.theme.colors.neutral[700]};
-  transition: color 0.3s ease;
+  transition: color 0.2s ease, transform 0.2s ease;
 
   &:hover {
     color: ${(props) => props.theme.colors.primary[500]};
+  }
+
+  &:active {
+    transform: scale(0.94);
   }
 
   @media (max-width: ${(props) => props.theme.breakpoints.lg}) {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 44px;
-    height: 44px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
     background-color: ${(props) => props.theme.colors.neutral[50]};
     border: 1px solid ${(props) => props.theme.colors.neutral[200]};
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   }
 `;
 
@@ -302,12 +316,14 @@ const MobileNavigation = styled.div`
   position: fixed;
   top: 0;
   right: 0;
-  width: 280px;
+  width: min(300px, 86vw);
   height: 100vh;
+  height: 100dvh;
   background-color: white;
-  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
-  padding: 2rem 1.5rem;
-  transition: transform 0.3s ease;
+  box-shadow: -5px 0 25px rgba(0, 0, 0, 0.15);
+  padding: 1.25rem 1rem;
+  padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   z-index: 200;
   overflow-y: auto;
   display: flex;
@@ -323,7 +339,9 @@ const MobileNavHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid ${(props) => props.theme.colors.neutral[100]};
 `;
 
 const MobileNavCloseButton = styled.button`
@@ -442,19 +460,22 @@ const MobileCartButton = styled(Link)`
   display: none;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   background-color: ${(props) => props.theme.colors.neutral[50]};
   border: 1px solid ${(props) => props.theme.colors.neutral[200]};
-  transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
   color: ${(props) => props.theme.colors.neutral[700]};
 
   &:hover {
     background-color: ${(props) => props.theme.colors.neutral[100]};
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
     color: ${(props) => props.theme.colors.primary[500]};
+  }
+
+  &:active {
+    transform: scale(0.94);
   }
 
   @media (max-width: ${(props) => props.theme.breakpoints.md}) {
@@ -504,14 +525,7 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
 
   return (
     <>
-      <HeaderContainer
-        style={{
-          padding: isScrolled ? "0.75rem 2.5rem" : "1.25rem 2.5rem",
-          boxShadow: isScrolled
-            ? "0 4px 12px rgba(0, 0, 0, 0.1)"
-            : "0 4px 12px rgba(0, 0, 0, 0.05)",
-        }}
-      >
+      <HeaderContainer $isScrolled={isScrolled}>
         <Logo>
           <LogoLink href="/">
             <LogoEmoji>🍔</LogoEmoji>
@@ -771,7 +785,7 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
 
       <MobileNavigation data-open={isMobileMenuOpen ? "true" : "false"}>
         <MobileNavHeader>
-          <Logo style={{ fontSize: "1.5rem" }}>
+          <Logo style={{ fontSize: "1.25rem" }}>
             <LogoLink href="/">
               <LogoEmoji>🍔</LogoEmoji>
               <span>فودینو</span>

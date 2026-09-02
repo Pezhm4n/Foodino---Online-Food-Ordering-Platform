@@ -37,22 +37,38 @@ const baseButtonStyles = css<{ $size: ButtonSize; $fullWidth: boolean }>`
         return css`
           padding: 0.25rem 0.5rem;
           font-size: ${props.theme.typography.fontSizes.xs};
+          min-height: 28px;
         `;
       case 'sm':
         return css`
-          padding: 0.5rem 1rem;
+          padding: 0.45rem 0.85rem;
           font-size: ${props.theme.typography.fontSizes.sm};
+          min-height: 36px;
         `;
       case 'lg':
         return css`
           padding: 0.75rem 1.75rem;
           font-size: ${props.theme.typography.fontSizes.lg};
+          min-height: 48px;
+
+          @media (max-width: ${props.theme.breakpoints.sm}) {
+            padding: 0.65rem 1.25rem;
+            font-size: 1rem;
+            min-height: 44px;
+          }
         `;
       case 'md':
       default:
         return css`
-          padding: 0.75rem 1.5rem;
+          padding: 0.65rem 1.35rem;
           font-size: ${props.theme.typography.fontSizes.md};
+          min-height: 42px;
+
+          @media (max-width: ${props.theme.breakpoints.sm}) {
+            padding: 0.55rem 1.1rem;
+            font-size: 0.875rem;
+            min-height: 38px;
+          }
         `;
     }
   }}

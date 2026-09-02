@@ -14,6 +14,10 @@ const Page = styled.div`
   margin: 0 auto;
   padding: 2.5rem 1rem 4rem;
   direction: rtl;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    padding: 1.25rem 0.85rem 3rem;
+  }
 `;
 
 const HeaderTitle = styled.h1`
@@ -22,6 +26,11 @@ const HeaderTitle = styled.h1`
   color: ${({ theme }) => theme.colors.neutral[900]};
   margin-bottom: 1.5rem;
   text-align: center;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+  }
 `;
 
 const Stepper = styled.div`
@@ -32,7 +41,8 @@ const Stepper = styled.div`
   margin-bottom: 2.5rem;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    gap: 0.5rem;
+    gap: 0.35rem;
+    margin-bottom: 1.5rem;
   }
 `;
 
@@ -48,6 +58,11 @@ const Step = styled.div<{ $active?: boolean; $completed?: boolean }>`
       : $completed
       ? theme.colors.success[600]
       : theme.colors.neutral[400]};
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    font-size: 0.78rem;
+    gap: 0.35rem;
+  }
 `;
 
 const StepDot = styled.span<{ $active?: boolean; $completed?: boolean }>`
@@ -66,6 +81,12 @@ const StepDot = styled.span<{ $active?: boolean; $completed?: boolean }>`
       ? theme.colors.primary[500]
       : theme.colors.neutral[200]};
   color: white;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    width: 24px;
+    height: 24px;
+    font-size: 0.72rem;
+  }
 `;
 
 const StepDivider = styled.div<{ $completed?: boolean }>`
@@ -75,7 +96,7 @@ const StepDivider = styled.div<{ $completed?: boolean }>`
     $completed ? theme.colors.success[500] : theme.colors.neutral[200]};
 
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    width: 20px;
+    width: 16px;
   }
 `;
 
@@ -86,6 +107,12 @@ const Card = styled.section`
   border-radius: ${({ theme }) => theme.borderRadius.xl};
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   border: 1px solid ${({ theme }) => theme.colors.neutral[200]};
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    padding: 1rem 0.85rem;
+    border-radius: 0.85rem;
+    margin-bottom: 1rem;
+  }
 `;
 
 const SectionHeader = styled.div`
@@ -102,6 +129,10 @@ const SectionHeader = styled.div`
     align-items: center;
     gap: 0.5rem;
     margin: 0;
+
+    @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+      font-size: 1.05rem;
+    }
   }
 `;
 
@@ -126,6 +157,11 @@ const AddressButton = styled.button<{ $selected: boolean }>`
 
   &:hover {
     border-color: ${({ theme }) => theme.colors.primary[400]};
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    padding: 0.75rem 0.85rem;
+    gap: 0.65rem;
   }
 `;
 
@@ -159,6 +195,11 @@ const AddressContent = styled.div`
     color: ${({ theme }) => theme.colors.neutral[900]};
     display: block;
     margin-bottom: 0.25rem;
+
+    @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+      font-size: 0.9rem;
+      margin-bottom: 0.15rem;
+    }
   }
 
   p {
@@ -166,6 +207,10 @@ const AddressContent = styled.div`
     color: ${({ theme }) => theme.colors.neutral[600]};
     margin: 0;
     line-height: 1.5;
+
+    @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+      font-size: 0.8rem;
+    }
   }
 `;
 
@@ -176,6 +221,11 @@ const ItemsList = styled.ul`
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
 `;
 
 const ItemRow = styled.li`
@@ -186,6 +236,11 @@ const ItemRow = styled.li`
   background-color: ${({ theme }) => theme.colors.neutral[50]};
   border-radius: ${({ theme }) => theme.borderRadius.md};
   font-size: 0.95rem;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    padding: 0.65rem 0.75rem;
+    font-size: 0.85rem;
+  }
 
   span.name {
     font-weight: 600;
@@ -199,6 +254,11 @@ const ItemRow = styled.li`
     border-radius: 9999px;
     font-size: 0.85rem;
     font-weight: 600;
+
+    @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+      font-size: 0.75rem;
+      padding: 0.15rem 0.5rem;
+    }
   }
 `;
 
@@ -212,6 +272,11 @@ const NoticeBox = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    padding: 0.6rem 0.75rem;
+    font-size: 0.78rem;
+  }
 `;
 
 const PayButton = styled.button`
@@ -230,11 +295,22 @@ const PayButton = styled.button`
   gap: 0.5rem;
   box-shadow: 0 4px 14px rgba(34, 197, 94, 0.3);
   transition: all 0.2s ease;
+  min-height: 44px;
 
   &:hover:not(:disabled) {
     background: ${({ theme }) => theme.colors.success[600]};
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    border-radius: 0.65rem;
   }
 
   &:disabled {

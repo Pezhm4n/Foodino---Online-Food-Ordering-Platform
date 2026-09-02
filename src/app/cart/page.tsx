@@ -13,10 +13,18 @@ const PageContainer = styled.div`
   margin: 0 auto;
   padding: 2rem 1.5rem 4rem;
   direction: rtl;
+
+  @media (max-width: ${props => props.theme.breakpoints.md}) {
+    padding: 1.25rem 0.85rem calc(6rem + env(safe-area-inset-bottom, 0px));
+  }
 `;
 
 const PageHeader = styled.div`
   margin-bottom: 2rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    margin-bottom: 1.25rem;
+  }
 `;
 
 const PageTitle = styled.h1`
@@ -24,12 +32,22 @@ const PageTitle = styled.h1`
   font-weight: 800;
   color: ${props => props.theme.colors.neutral[900]};
   margin-bottom: 0.5rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 1.45rem;
+    margin-bottom: 0.25rem;
+  }
 `;
 
 const PageDescription = styled.p`
   font-size: 1rem;
   color: ${props => props.theme.colors.neutral[500]};
   margin-bottom: 2rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 0.85rem;
+    margin-bottom: 1.25rem;
+  }
 `;
 
 const EmptyCart = styled.div`
@@ -76,6 +94,8 @@ const CartContent = styled.div`
   
   @media (max-width: ${props => props.theme.breakpoints.lg}) {
     grid-template-columns: 1fr;
+    gap: 1.25rem;
+    margin-top: 1.25rem;
   }
 `;
 
@@ -83,6 +103,10 @@ const CartItems = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    gap: 0.65rem;
+  }
 `;
 
 const CartItemCard = styled.div`
@@ -93,6 +117,12 @@ const CartItemCard = styled.div`
   background-color: white;
   border-radius: ${props => props.theme.borderRadius.lg};
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+    gap: 0.5rem;
+  }
 `;
 
 const RestaurantInfo = styled.div`
@@ -125,10 +155,19 @@ const ItemImage = styled.div`
   justify-content: center;
   font-size: 1.5rem;
   margin-left: 1rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    width: 46px;
+    height: 46px;
+    font-size: 1.25rem;
+    margin-left: 0.5rem;
+    flex-shrink: 0;
+  }
 `;
 
 const ItemDetails = styled.div`
   flex: 1;
+  min-width: 0;
 `;
 
 const ItemName = styled.h3`
@@ -136,24 +175,41 @@ const ItemName = styled.h3`
   font-weight: 600;
   color: ${props => props.theme.colors.neutral[700]};
   margin-bottom: 0.25rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 0.95rem;
+    margin-bottom: 0.15rem;
+  }
 `;
 
 const ItemPrice = styled.p`
   font-size: 1rem;
   font-weight: 500;
   color: ${props => props.theme.colors.neutral[700]};
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 0.85rem;
+  }
 `;
 
 const ItemControls = styled.div`
   display: flex;
   align-items: center;
   gap: 1rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    gap: 0.35rem;
+  }
 `;
 
 const QuantityControl = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    gap: 0.25rem;
+  }
 `;
 
 const QuantityButton = styled.button`
@@ -177,6 +233,18 @@ const QuantityButton = styled.button`
     background-color: ${props => props.theme.colors.neutral[100]};
     border-color: ${props => props.theme.colors.neutral[400]};
   }
+
+  &:active {
+    transform: scale(0.94);
+  }
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+    font-size: 1rem;
+  }
 `;
 
 const Quantity = styled.span`
@@ -185,6 +253,11 @@ const Quantity = styled.span`
   font-weight: 700;
   font-size: 1rem;
   color: ${props => props.theme.colors.neutral[900]};
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 0.9rem;
+    min-width: 1.5rem;
+  }
 `;
 
 const RemoveButton = styled.button`
@@ -206,6 +279,17 @@ const RemoveButton = styled.button`
     background-color: ${props => props.theme.colors.error[50]};
     color: ${props => props.theme.colors.error[600]};
   }
+
+  &:active {
+    transform: scale(0.92);
+  }
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+  }
 `;
 
 const MobileStickyBar = styled.div`
@@ -218,7 +302,7 @@ const MobileStickyBar = styled.div`
     right: 0;
     background: white;
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
-    padding: 0.85rem 1.25rem;
+    padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom, 0px));
     z-index: 95;
     align-items: center;
     justify-content: space-between;
@@ -231,12 +315,18 @@ const MobileCheckoutBtn = styled.button`
   background: ${props => props.theme.colors.primary[500]};
   color: white;
   border: none;
-  padding: 0.75rem 1.5rem;
+  padding: 0.65rem 1.35rem;
   border-radius: ${props => props.theme.borderRadius.md};
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: 0.925rem;
+  min-height: 42px;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(255, 90, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(255, 90, 0, 0.25);
+  transition: all 0.2s;
+
+  &:active {
+    transform: scale(0.97);
+  }
 `;
 
 const CartSummary = styled.div`

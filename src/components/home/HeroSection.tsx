@@ -20,12 +20,12 @@ const HeroContainer = styled.section`
   @media (max-width: ${props => props.theme.breakpoints.lg}) {
     flex-direction: column;
     padding: 2.5rem 1.25rem;
-    gap: 2.5rem;
+    gap: 2rem;
   }
 
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    padding: 1.75rem 1rem;
-    gap: 2rem;
+    padding: 1.25rem 0.875rem 1.5rem;
+    gap: 1.25rem;
   }
 `;
 
@@ -57,7 +57,8 @@ const Badge = styled.span`
 
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
     font-size: 0.75rem;
-    padding: 0.3rem 0.75rem;
+    padding: 0.25rem 0.7rem;
+    margin-bottom: 0.65rem;
   }
 `;
 
@@ -73,13 +74,14 @@ const Title = styled.h1`
   }
 
   @media (max-width: ${props => props.theme.breakpoints.md}) {
-    font-size: 2rem;
+    font-size: 1.85rem;
+    margin-bottom: 0.75rem;
   }
 
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    font-size: 1.55rem;
-    line-height: 1.4;
-    margin-bottom: 0.85rem;
+    font-size: 1.45rem;
+    line-height: 1.35;
+    margin-bottom: 0.5rem;
   }
 `;
 
@@ -90,10 +92,16 @@ const Subtitle = styled.p`
   line-height: 1.8;
   max-width: 540px;
 
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    font-size: 0.9rem;
+  @media (max-width: ${props => props.theme.breakpoints.md}) {
+    font-size: 0.95rem;
+    margin-bottom: 1.25rem;
     line-height: 1.6;
-    margin-bottom: 1.5rem;
+  }
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 0.85rem;
+    line-height: 1.55;
+    margin-bottom: 1rem;
   }
 `;
 
@@ -108,7 +116,7 @@ const SearchContainer = styled.div`
 const SearchInputContainer = styled.div`
   display: flex;
   position: relative;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.07);
   border-radius: ${props => props.theme.borderRadius.xl};
   background: white;
   border: 1.5px solid ${props => props.theme.colors.neutral[200]};
@@ -116,7 +124,7 @@ const SearchInputContainer = styled.div`
 
   &:focus-within {
     border-color: ${props => props.theme.colors.primary[500]};
-    box-shadow: 0 0 0 4px rgba(255, 90, 0, 0.15);
+    box-shadow: 0 0 0 3px rgba(255, 90, 0, 0.15);
   }
 `;
 
@@ -130,9 +138,15 @@ const SearchInput = styled.input`
   font-family: inherit;
   direction: rtl;
   text-align: right;
+  min-width: 0;
 
   &::placeholder {
     color: ${props => props.theme.colors.neutral[400]};
+  }
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 0.85rem;
+    padding: 0.75rem 2.25rem 0.75rem 0.5rem;
   }
 `;
 
@@ -146,6 +160,11 @@ const SearchIcon = styled.div`
   justify-content: center;
   color: ${props => props.theme.colors.neutral[400]};
   font-size: 1.25rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    right: 0.65rem;
+    font-size: 1rem;
+  }
 `;
 
 const SearchButton = styled.button`
@@ -160,20 +179,34 @@ const SearchButton = styled.button`
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
+  font-size: 0.95rem;
+  flex-shrink: 0;
   
   &:hover {
     background-color: ${props => props.theme.colors.primary[600]};
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    padding: 0.55rem 0.95rem;
+    font-size: 0.85rem;
+    min-height: 38px;
+    margin: 0.25rem;
   }
 `;
 
 const ActionButtons = styled.div`
   display: flex;
   gap: 1rem;
-  margin-top: 1.75rem;
+  margin-top: 1.5rem;
+  width: 100%;
   
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    flex-direction: column;
-    width: 100%;
+    margin-top: 0.85rem;
+    gap: 0.5rem;
   }
 `;
 
@@ -189,12 +222,24 @@ const PrimaryButton = styled(Link)`
   border-radius: ${props => props.theme.borderRadius.lg};
   text-decoration: none;
   text-align: center;
-  box-shadow: 0 4px 12px rgba(255, 90, 0, 0.25);
+  box-shadow: 0 4px 12px rgba(255, 90, 0, 0.22);
   transition: all 0.2s;
+  font-size: 0.95rem;
   
   &:hover {
     background-color: ${props => props.theme.colors.primary[600]};
     transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    flex: 1;
+    padding: 0.65rem 0.5rem;
+    font-size: 0.85rem;
+    min-height: 40px;
   }
 `;
 
@@ -203,19 +248,35 @@ const SecondaryButton = styled(Link)`
   background-color: white;
   color: ${props => props.theme.colors.neutral[700]};
   font-weight: 600;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border-radius: ${props => props.theme.borderRadius.lg};
   border: 1.5px solid ${props => props.theme.colors.neutral[200]};
   text-decoration: none;
   text-align: center;
   transition: all 0.2s;
+  font-size: 0.95rem;
   
   &:hover {
     border-color: ${props => props.theme.colors.neutral[300]};
     background-color: ${props => props.theme.colors.neutral[50]};
   }
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    flex: 1;
+    padding: 0.65rem 0.5rem;
+    font-size: 0.85rem;
+    min-height: 40px;
+  }
 `;
 
-// بخش گرافیکی شیک جایگزین کادر فلت قبلی
+// بخش ویژوال دسکتاپ - در موبایل پنهان می‌شود تا اولین ویوپورت خلوت و کاربردی بماند
 const VisualShowcase = styled.div`
   position: relative;
   width: 480px;
@@ -230,11 +291,8 @@ const VisualShowcase = styled.div`
     height: 380px;
   }
 
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    max-width: 100%;
-    height: auto;
-    min-height: 290px;
-    padding: 0.5rem 0;
+  @media (max-width: ${props => props.theme.breakpoints.md}) {
+    display: none;
   }
 `;
 

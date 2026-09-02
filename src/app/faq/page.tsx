@@ -8,11 +8,19 @@ const FAQPageContainer = styled.div`
   margin: 0 auto;
   padding: 2rem 1rem;
   direction: rtl;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    padding: 1.25rem 0.85rem 3rem;
+  }
 `;
 
 const PageHeader = styled.div`
   text-align: center;
   margin-bottom: 3rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    margin-bottom: 1.5rem;
+  }
 `;
 
 const PageTitle = styled.h1`
@@ -20,6 +28,11 @@ const PageTitle = styled.h1`
   font-weight: ${props => props.theme.typography.fontWeights.bold};
   color: ${props => props.theme.colors.secondary[500]};
   margin-bottom: 1rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 1.35rem;
+    margin-bottom: 0.5rem;
+  }
 `;
 
 const PageDescription = styled.p`
@@ -27,6 +40,10 @@ const PageDescription = styled.p`
   color: ${props => props.theme.colors.neutral[500]};
   max-width: 800px;
   margin: 0 auto;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 0.85rem;
+  }
 `;
 
 const CategoriesContainer = styled.div`
@@ -35,6 +52,11 @@ const CategoriesContainer = styled.div`
   gap: 1rem;
   margin-bottom: 2rem;
   flex-wrap: wrap;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+  }
 `;
 
 const CategoryButton = styled.button<{ $active: boolean }>`
@@ -48,19 +70,34 @@ const CategoryButton = styled.button<{ $active: boolean }>`
   cursor: pointer;
   box-shadow: ${props => props.theme.boxShadow.sm};
   transition: all 0.2s;
+  min-height: 40px;
   
   &:hover {
     transform: translateY(-2px);
     box-shadow: ${props => props.theme.boxShadow.md};
   }
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    padding: 0.45rem 0.85rem;
+    font-size: 0.85rem;
+    min-height: 36px;
+  }
 `;
 
 const FAQSectionsContainer = styled.div`
   margin-top: 3rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    margin-top: 1.5rem;
+  }
 `;
 
 const FAQSection = styled.div`
   margin-bottom: 3rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    margin-bottom: 1.5rem;
+  }
 `;
 
 const SectionTitle = styled.h2`
@@ -70,12 +107,21 @@ const SectionTitle = styled.h2`
   margin-bottom: 1.5rem;
   padding-bottom: 0.5rem;
   border-bottom: 1px solid ${props => props.theme.colors.neutral[100]};
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+  }
 `;
 
 const FAQList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    gap: 0.65rem;
+  }
 `;
 
 const FAQItem = styled.div`
@@ -104,6 +150,10 @@ const FAQQuestion = styled.button<{ $isOpen: boolean }>`
   
   &:hover {
     background-color: ${props => props.$isOpen ? '#ffedd5' : props.theme.colors.neutral[50]};
+  }
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    padding: 0.85rem 1rem;
   }
 `;
 

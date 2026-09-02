@@ -71,6 +71,12 @@ const ModalContent = styled.div`
   max-width: 500px;
   direction: rtl;
   box-shadow: ${props => props.theme.boxShadow.lg};
+
+  @media (max-width: 480px) {
+    padding: 1.25rem 1rem;
+    width: 94%;
+    border-radius: 1rem;
+  }
 `;
 
 const ModalHeader = styled.div`
@@ -78,6 +84,10 @@ const ModalHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
+
+  @media (max-width: 480px) {
+    margin-bottom: 1rem;
+  }
 `;
 
 const ModalTitle = styled.h3`
@@ -85,6 +95,10 @@ const ModalTitle = styled.h3`
   font-weight: ${props => props.theme.typography.fontWeights.semibold};
   color: ${props => props.theme.colors.error[500]};
   margin: 0;
+
+  @media (max-width: 480px) {
+    font-size: 1.1rem;
+  }
 `;
 
 const CloseButton = styled.button`
@@ -108,6 +122,10 @@ const ModalBody = styled.div`
   align-items: center;
   text-align: center;
   margin-bottom: 2rem;
+
+  @media (max-width: 480px) {
+    margin-bottom: 1.25rem;
+  }
 `;
 
 const WarningIcon = styled.div`
@@ -117,6 +135,15 @@ const WarningIcon = styled.div`
   svg {
     width: 64px;
     height: 64px;
+
+    @media (max-width: 480px) {
+      width: 48px;
+      height: 48px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    margin-bottom: 1rem;
   }
 `;
 
@@ -125,6 +152,11 @@ const ConfirmMessage = styled.p`
   font-weight: ${props => props.theme.typography.fontWeights.medium};
   color: ${props => props.theme.colors.neutral[800]};
   margin-bottom: 1rem;
+
+  @media (max-width: 480px) {
+    font-size: 1.05rem;
+    margin-bottom: 0.5rem;
+  }
 `;
 
 const ConfirmDescription = styled.p`

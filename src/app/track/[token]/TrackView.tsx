@@ -24,7 +24,7 @@ const labels: Record<string, string> = {
 const PageContainer = styled.div`
   max-width: 720px;
   margin: 0 auto;
-  padding: 1.5rem 1rem 3.5rem;
+  padding: 1.25rem 0.85rem 3.5rem;
   direction: rtl;
 
   @media (min-width: 768px) {
@@ -33,10 +33,10 @@ const PageContainer = styled.div`
 `;
 
 const Title = styled.h1`
-  font-size: 1.5rem;
+  font-size: 1.35rem;
   font-weight: 800;
   color: ${({ theme }) => theme.colors.neutral[900]};
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
   text-align: center;
 
   @media (min-width: 768px) {
@@ -50,11 +50,12 @@ const TrackingCard = styled.section`
   border-radius: ${({ theme }) => theme.borderRadius.xl};
   box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.07);
   border: 1px solid ${({ theme }) => theme.colors.neutral[200]};
-  padding: 1.25rem;
-  margin-bottom: 1.5rem;
+  padding: 1rem 0.85rem;
+  margin-bottom: 1.25rem;
 
   @media (min-width: 768px) {
     padding: 2.25rem;
+    margin-bottom: 1.5rem;
   }
 `;
 

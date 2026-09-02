@@ -9,11 +9,19 @@ const AboutPageContainer = styled.div`
   margin: 0 auto;
   padding: 3rem 1.5rem 5rem;
   direction: rtl;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    padding: 1.5rem 0.85rem 3rem;
+  }
 `;
 
 const HeroSection = styled.div`
   text-align: center;
   margin-bottom: 4rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    margin-bottom: 2rem;
+  }
 `;
 
 const PageTitle = styled.h1`
@@ -21,6 +29,11 @@ const PageTitle = styled.h1`
   font-weight: 800;
   color: ${props => props.theme.colors.neutral[900]};
   margin-bottom: 1rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 1.45rem;
+    margin-bottom: 0.5rem;
+  }
 `;
 
 const Subtitle = styled.p`
@@ -30,10 +43,19 @@ const Subtitle = styled.p`
   max-width: 800px;
   margin-left: auto;
   margin-right: auto;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 0.85rem;
+    margin-bottom: 1.25rem;
+  }
 `;
 
 const Section = styled.section`
   margin-bottom: 4rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    margin-bottom: 2rem;
+  }
 `;
 
 const SectionTitle = styled.h2`
@@ -42,6 +64,11 @@ const SectionTitle = styled.h2`
   color: ${props => props.theme.colors.neutral[900]};
   margin-bottom: 1rem;
   text-align: center;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+  }
 `;
 
 const SectionDescription = styled.p`
@@ -51,6 +78,11 @@ const SectionDescription = styled.p`
   max-width: 800px;
   margin: 0 auto 2.5rem;
   line-height: 1.7;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 0.85rem;
+    margin-bottom: 1.25rem;
+  }
 `;
 
 const FeaturesContainer = styled.div`
@@ -61,6 +93,7 @@ const FeaturesContainer = styled.div`
   
   @media (max-width: 768px) {
     flex-direction: column;
+    gap: 1rem;
   }
 `;
 
@@ -72,6 +105,10 @@ const FeatureCard = styled.div`
   padding: 2rem;
   text-align: center;
   transition: transform 0.3s;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    padding: 1.25rem 0.85rem;
+  }
   
   &:hover {
     transform: translateY(-8px);
@@ -88,6 +125,13 @@ const IconContainer = styled.div`
   justify-content: center;
   margin: 0 auto 1.5rem;
   font-size: 2.5rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    width: 56px;
+    height: 56px;
+    font-size: 1.75rem;
+    margin-bottom: 0.85rem;
+  }
 `;
 
 const FeatureTitle = styled.h3`
@@ -95,12 +139,22 @@ const FeatureTitle = styled.h3`
   font-weight: 700;
   color: ${props => props.theme.colors.neutral[900]};
   margin-bottom: 0.75rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 1rem;
+    margin-bottom: 0.4rem;
+  }
 `;
 
 const FeatureDescription = styled.p`
   font-size: 0.95rem;
   color: ${props => props.theme.colors.neutral[600]};
   line-height: 1.7;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    font-size: 0.8rem;
+    line-height: 1.5;
+  }
 `;
 
 const TeamContainer = styled.div`
@@ -112,6 +166,8 @@ const TeamContainer = styled.div`
   @media (max-width: 768px) {
     flex-direction: column;
     align-items: center;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
   }
 `;
 
@@ -122,6 +178,11 @@ const TeamMemberCard = styled.div`
   box-shadow: ${props => props.theme.boxShadow.md};
   overflow: hidden;
   transition: transform 0.3s;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    width: 100%;
+    max-width: 280px;
+  }
   
   &:hover {
     transform: translateY(-8px);
@@ -135,6 +196,10 @@ const TeamMemberImage = styled.div`
   align-items: center;
   justify-content: center;
   font-size: 4rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    height: 180px;
+  }
 `;
 
 const TeamMemberInfo = styled.div`

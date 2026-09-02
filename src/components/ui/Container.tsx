@@ -5,8 +5,13 @@ const StyledContainer = styled.div`
   width: 100%;
   max-width: 1280px;
   margin: 0 auto;
-  padding-right: 1rem;
-  padding-left: 1rem;
+  padding-right: 0.875rem;
+  padding-left: 0.875rem;
+
+  @media (min-width: ${({ theme }) => theme.breakpoints.xs}) {
+    padding-right: 1rem;
+    padding-left: 1rem;
+  }
 
   @media (min-width: ${({ theme }) => theme.breakpoints.sm}) {
     padding-right: 1.5rem;
