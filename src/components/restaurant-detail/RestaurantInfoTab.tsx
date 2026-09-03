@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React from "react";
 import styled from "styled-components";
@@ -49,6 +49,7 @@ const Row = styled.div`
   font-size: 0.9rem;
   padding-bottom: 0.75rem;
   border-bottom: 1px solid #f1f5f9;
+  gap: 0.75rem;
 
   &:last-child {
     border-bottom: none;
@@ -57,11 +58,26 @@ const Row = styled.div`
 
   .label {
     color: #64748b;
+    flex-shrink: 0;
   }
 
   .value {
     color: #1e293b;
     font-weight: 600;
+    text-align: left;
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    font-size: 0.825rem;
+    padding-bottom: 0.6rem;
+    gap: 0.5rem;
+
+    .label {
+      font-size: 0.8rem;
+    }
+    .value {
+      font-size: 0.825rem;
+    }
   }
 `;
 

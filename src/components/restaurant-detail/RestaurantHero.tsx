@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React from "react";
 import styled from "styled-components";
@@ -164,6 +164,22 @@ const ActionSide = styled.div`
   display: flex;
   align-items: center;
   gap: 0.75rem;
+
+  .desktop-fav {
+    display: inline-flex;
+  }
+  .mobile-fav {
+    display: none;
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    .desktop-fav {
+      display: none;
+    }
+    .mobile-fav {
+      display: inline-flex;
+    }
+  }
 `;
 
 const HeaderInfo = styled.div`
@@ -171,13 +187,21 @@ const HeaderInfo = styled.div`
   flex-direction: column;
   gap: 0.35rem;
   margin-bottom: 1.25rem;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    margin-bottom: 0.85rem;
+  }
 `;
 
 const TitleRow = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.6rem;
   flex-wrap: wrap;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    gap: 0.35rem;
+  }
 `;
 
 const RestaurantTitle = styled.h1`
@@ -187,7 +211,7 @@ const RestaurantTitle = styled.h1`
   margin: 0;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    font-size: 1.4rem;
+    font-size: 1.25rem;
   }
 `;
 
@@ -210,6 +234,11 @@ const OpenBadge = styled.span`
     border-radius: 50%;
     background: #16a34a;
   }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    font-size: 0.68rem;
+    padding: 0.12rem 0.45rem;
+  }
 `;
 
 const CuisinePill = styled.span`
@@ -219,6 +248,11 @@ const CuisinePill = styled.span`
   border-radius: 9999px;
   font-size: 0.78rem;
   font-weight: 600;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    font-size: 0.68rem;
+    padding: 0.12rem 0.45rem;
+  }
 `;
 
 const Description = styled.p`
@@ -228,7 +262,8 @@ const Description = styled.p`
   line-height: 1.6;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
+    line-height: 1.45;
   }
 `;
 
@@ -246,8 +281,8 @@ const BadgesGrid = styled.div`
 
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
     grid-template-columns: repeat(2, 1fr);
-    gap: 0.5rem;
-    padding-top: 1rem;
+    gap: 0.45rem;
+    padding-top: 0.85rem;
   }
 `;
 
@@ -259,6 +294,7 @@ const BadgeCard = styled.div`
   display: flex;
   align-items: center;
   gap: 0.6rem;
+  min-width: 0;
 
   .icon {
     font-size: 1.25rem;
@@ -268,11 +304,15 @@ const BadgeCard = styled.div`
   .texts {
     display: flex;
     flex-direction: column;
+    min-width: 0;
 
     .label {
       font-size: 0.725rem;
       color: #64748b;
       margin-bottom: 0.15rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .value {
@@ -280,6 +320,27 @@ const BadgeCard = styled.div`
       font-weight: 700;
       color: #0f172a;
       white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    padding: 0.45rem 0.55rem;
+    gap: 0.45rem;
+    border-radius: 0.6rem;
+
+    .icon {
+      font-size: 1.05rem;
+    }
+
+    .texts .label {
+      font-size: 0.65rem;
+      margin-bottom: 0.1rem;
+    }
+
+    .texts .value {
+      font-size: 0.78rem;
     }
   }
 `;
@@ -307,19 +368,30 @@ export default function RestaurantHero({ restaurant, isFavorite }: RestaurantHer
           <TopRow>
             <AvatarBox>{meta.emoji}</AvatarBox>
             <ActionSide>
-              <FavoriteButton
-                restaurantId={restaurant.id}
-                restaurantName={restaurant.name}
-                initialIsFavorite={isFavorite}
-                variant="button"
-              />
+              <div className="desktop-fav">
+                <FavoriteButton
+                  restaurantId={restaurant.id}
+                  restaurantName={restaurant.name}
+                  initialIsFavorite={isFavorite}
+                  variant="button"
+                />
+              </div>
+              <div className="mobile-fav">
+                <FavoriteButton
+                  restaurantId={restaurant.id}
+                  restaurantName={restaurant.name}
+                  initialIsFavorite={isFavorite}
+                  variant="icon"
+                  size="md"
+                />
+              </div>
             </ActionSide>
           </TopRow>
 
           <HeaderInfo>
             <TitleRow>
               <RestaurantTitle>{restaurant.name}</RestaurantTitle>
-              <OpenBadge>هم‌اکنون سفارش می‌پذیرد</OpenBadge>
+              <OpenBadge>سفارش می‌پذیرد</OpenBadge>
               <CuisinePill>{meta.label}</CuisinePill>
             </TitleRow>
             <Description>{restaurant.description}</Description>
@@ -330,14 +402,14 @@ export default function RestaurantHero({ restaurant, isFavorite }: RestaurantHer
               <span className="icon">⭐</span>
               <div className="texts">
                 <span className="label">امتیاز کاربران</span>
-                <span className="value">{numberFormatter.format(restaurant.rating)} از ۵ (۲۴۵ نظر)</span>
+                <span className="value">{numberFormatter.format(restaurant.rating)} از ۵ (۲۴۵)</span>
               </div>
             </BadgeCard>
 
             <BadgeCard>
               <span className="icon">⏱️</span>
               <div className="texts">
-                <span className="label">زمان تقریبی تحویل</span>
+                <span className="label">زمان تحویل</span>
                 <span className="value">
                   {numberFormatter.format(restaurant.deliveryMinutes.min)} تا{" "}
                   {numberFormatter.format(restaurant.deliveryMinutes.max)} دقیقه
@@ -358,7 +430,7 @@ export default function RestaurantHero({ restaurant, isFavorite }: RestaurantHer
             <BadgeCard>
               <span className="icon">💰</span>
               <div className="texts">
-                <span className="label">حداقل سبد خرید</span>
+                <span className="label">حداقل خرید</span>
                 <span className="value">{numberFormatter.format(minOrderToman)} تومان</span>
               </div>
             </BadgeCard>

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState } from "react";
 import styled from "styled-components";
@@ -6,7 +6,7 @@ import type { RestaurantSummary, ProductMenuItem } from "@/application/ports/cat
 import RestaurantHero from "./RestaurantHero";
 import RestaurantNavTabs, { type RestaurantTabType } from "./RestaurantNavTabs";
 import RestaurantInfoTab from "./RestaurantInfoTab";
-import RestaurantReviewsTab from "./RestaurantReviewsTab";
+import RestaurantReviewsTab, { type ReviewItem } from "./RestaurantReviewsTab";
 import DatabaseMenu from "./DatabaseMenu";
 import FloatingCartPill from "./FloatingCartPill";
 
@@ -14,6 +14,9 @@ interface RestaurantViewProps {
   restaurant: RestaurantSummary;
   products: readonly ProductMenuItem[];
   isFavorite: boolean;
+  reviews?: ReviewItem[];
+  canReview?: boolean;
+  isLoggedIn?: boolean;
 }
 
 const PageWrapper = styled.div`
@@ -31,7 +34,10 @@ export default function RestaurantView({
   restaurant,
   products,
   isFavorite,
-}: RestaurantViewProps) {
+  reviews = [],
+  canReview = false,
+  isLoggedIn = false,
+}: Readonly<RestaurantViewProps>) {
   const [activeTab, setActiveTab] = useState<RestaurantTabType>("menu");
 
   return (
@@ -54,7 +60,14 @@ export default function RestaurantView({
 
         {activeTab === "info" && <RestaurantInfoTab restaurant={restaurant} />}
 
-        {activeTab === "reviews" && <RestaurantReviewsTab restaurant={restaurant} />}
+        {activeTab === "reviews" && (
+          <RestaurantReviewsTab
+            restaurant={restaurant}
+            reviews={reviews}
+            canReview={canReview}
+            isLoggedIn={isLoggedIn}
+          />
+        )}
       </ContentArea>
 
       <FloatingCartPill />

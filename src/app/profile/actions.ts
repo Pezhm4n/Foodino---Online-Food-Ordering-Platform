@@ -12,21 +12,31 @@ async function requireUserId(): Promise<string> {
   return claims.sub;
 }
 
+function toAsciiDigits(str: string | null | undefined): string {
+  if (!str) return '';
+  return str
+    .replace(/[۰-۹]/g, (d) => String.fromCharCode(d.charCodeAt(0) - 1728))
+    .replace(/[٠-٩]/g, (d) => String.fromCharCode(d.charCodeAt(0) - 1584))
+    .trim();
+}
+
 export async function updateProfileAction(formData: FormData): Promise<void> {
   await assertSameOrigin();
   const userId = await requireUserId();
+  const phone = toAsciiDigits(formData.get('phone') as string);
   const parsed = profileSchema.safeParse({
     firstName: formData.get('firstName'),
     lastName: formData.get('lastName'),
-    phone: formData.get('phone'),
+    phone: phone || undefined,
   });
   if (!parsed.success) throw new Error('INVALID_INPUT');
   const client = await createSupabaseServerClient();
-  const { error } = await client.from('profiles').update({
+  const { error } = await client.from('profiles').upsert({
+    id: userId,
     first_name: parsed.data.firstName,
     last_name: parsed.data.lastName,
     phone: parsed.data.phone || null,
-  }).eq('id', userId);
+  });
   if (error) throw new Error('PROFILE_UPDATE_FAILED');
   revalidatePath('/profile');
 }
@@ -34,17 +44,40 @@ export async function updateProfileAction(formData: FormData): Promise<void> {
 export async function createAddressAction(formData: FormData): Promise<void> {
   await assertSameOrigin();
   const userId = await requireUserId();
+  const rawPhone = toAsciiDigits(formData.get('recipientPhone') as string);
+  const rawPostal = toAsciiDigits(formData.get('postalCode') as string);
+
   const parsed = addressSchema.safeParse({
     title: formData.get('title'),
     recipientName: formData.get('recipientName'),
-    recipientPhone: formData.get('recipientPhone'),
+    recipientPhone: rawPhone,
     province: formData.get('province'),
     city: formData.get('city'),
     addressLine: formData.get('addressLine'),
-    postalCode: formData.get('postalCode'),
+    postalCode: rawPostal,
   });
-  if (!parsed.success) throw new Error('INVALID_INPUT');
+  if (!parsed.success) {
+    console.error('Invalid address input:', parsed.error.format());
+    throw new Error('INVALID_INPUT');
+  }
+
   const client = await createSupabaseServerClient();
+  
+  // Ensure profile row exists to prevent foreign key violation on addresses_user_id_fkey
+  const { data: existingProfile } = await client
+    .from('profiles')
+    .select('id')
+    .eq('id', userId)
+    .maybeSingle();
+
+  if (!existingProfile) {
+    await client.from('profiles').upsert({
+      id: userId,
+      first_name: (formData.get('recipientName') as string) || 'کاربر',
+      last_name: '',
+    });
+  }
+
   const { error } = await client.from('addresses').insert({
     user_id: userId,
     title: parsed.data.title,
@@ -55,7 +88,11 @@ export async function createAddressAction(formData: FormData): Promise<void> {
     address_line: parsed.data.addressLine,
     postal_code: parsed.data.postalCode,
   });
-  if (error) throw new Error('ADDRESS_CREATE_FAILED');
+
+  if (error) {
+    console.error('Address creation failed in Supabase:', error);
+    throw new Error(`ADDRESS_CREATE_FAILED: ${error.message}`);
+  }
   revalidatePath('/profile');
 }
 

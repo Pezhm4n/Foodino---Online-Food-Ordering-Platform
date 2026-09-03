@@ -1,4 +1,4 @@
-﻿insert into public.categories(id, slug, name, description, icon, sort_order) values
+insert into public.categories(id, slug, name, description, icon, sort_order) values
   ('10000000-0000-4000-8000-000000000001', 'pizza', 'پیتزا', 'انواع پیتزا', '🍕', 10),
   ('10000000-0000-4000-8000-000000000002', 'burger', 'برگر', 'انواع برگر', '🍔', 20),
   ('10000000-0000-4000-8000-000000000003', 'iranian', 'ایرانی', 'غذاهای ایرانی', '🍚', 30),
@@ -150,3 +150,5 @@ insert into public.product_addons(id, product_id, name, price_irr, sort_order) v
   ('50000000-0000-4000-8000-000000000006', '30000000-0000-4000-8000-000000000004', 'کره محلی اضافه', 80000, 10),
   ('50000000-0000-4000-8000-000000000007', '30000000-0000-4000-8000-000000000005', 'فیله مرغ اضافه', 350000, 10)
 on conflict (id) do nothing;
+
+

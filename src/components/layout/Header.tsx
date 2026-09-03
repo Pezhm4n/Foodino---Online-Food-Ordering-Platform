@@ -41,9 +41,9 @@ const TopPromoBarContainer = styled.div<{ $visible: boolean }>`
   text-align: center;
 
   @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
-    font-size: 0.75rem;
-    padding: 0.35rem 2rem 0.35rem 0.75rem;
-    gap: 0.4rem;
+    font-size: 0.72rem;
+    padding: 0.35rem 2rem 0.35rem 0.65rem;
+    gap: 0.35rem;
   }
 `;
 
@@ -594,9 +594,9 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
   return (
     <>
       <TopPromoBarContainer $visible={isPromoVisible}>
-        <span>🎉 تخفیف ویژه اولین سفارش با کد:</span>
+        <span>🎉 تخفیف اولین سفارش با کد:</span>
         <PromoCodeBadge>FOODINO</PromoCodeBadge>
-        <span>(۲۰٪ تخفیف تا ۵۰,۰۰۰ تومان)</span>
+        <span>(۲۰٪ تا ۵۰ هزار تومان)</span>
         <PromoCloseButton onClick={handleDismissPromo} aria-label="بستن اعلان">✕</PromoCloseButton>
       </TopPromoBarContainer>
       <HeaderContainer $isScrolled={isScrolled}>

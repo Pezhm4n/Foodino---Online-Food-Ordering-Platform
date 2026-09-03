@@ -34,13 +34,39 @@ export default async function RestaurantDetailPage({ params }: RestaurantDetailP
   const restaurant = await repository.findRestaurantBySlug(parsed.data.slug);
   if (!restaurant) notFound();
   const claims = await requireClaims();
-  const [products, userFav] = await Promise.all([
+  const [products, userFav, reviewsData, canReviewData] = await Promise.all([
     repository.listRestaurantMenu(restaurant.id),
     claims?.sub
       ? client.from('favorites').select('restaurant_id').eq('user_id', claims.sub).eq('restaurant_id', restaurant.id).maybeSingle()
       : Promise.resolve({ data: null }),
+    client
+      .from('reviews')
+      .select('id,user_name,rating,food_name,comment,created_at')
+      .eq('restaurant_id', restaurant.id)
+      .order('created_at', { ascending: false })
+      .limit(30),
+    claims?.sub
+      ? client
+          .from('orders')
+          .select('id')
+          .eq('user_id', claims.sub)
+          .eq('restaurant_id', restaurant.id)
+          .in('status', ['confirmed', 'preparing', 'ready', 'delivering', 'delivered'])
+          .limit(1)
+      : Promise.resolve({ data: [] }),
   ]);
   const isFavorite = Boolean(userFav.data);
+  const canReview = Boolean(canReviewData.data && canReviewData.data.length > 0);
+  const isLoggedIn = Boolean(claims?.sub);
+  const reviews = (reviewsData.data ?? []).map((r) => ({
+    id: r.id,
+    userName: r.user_name,
+    rating: r.rating,
+    foodName: r.food_name || undefined,
+    comment: r.comment,
+    createdAt: new Date(r.created_at).toLocaleDateString('fa-IR'),
+  }));
+
   const structuredData = JSON.stringify({
     '@context': 'https://schema.org',
     '@type': 'Restaurant',
@@ -56,6 +82,9 @@ export default async function RestaurantDetailPage({ params }: RestaurantDetailP
         restaurant={restaurant}
         products={products}
         isFavorite={isFavorite}
+        reviews={reviews}
+        canReview={canReview}
+        isLoggedIn={isLoggedIn}
       />
     </>
   );

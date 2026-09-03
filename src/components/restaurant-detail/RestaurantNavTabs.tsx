@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React from "react";
 import styled from "styled-components";
@@ -23,6 +23,11 @@ const TabsBar = styled.div`
   &::-webkit-scrollbar {
     display: none;
   }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    gap: 0.25rem;
+    margin-bottom: 1rem;
+  }
 `;
 
 const TabButton = styled.button<{ $active: boolean }>`
@@ -39,6 +44,12 @@ const TabButton = styled.button<{ $active: boolean }>`
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.2s ease;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    padding: 0.65rem 0.75rem;
+    font-size: 0.825rem;
+    gap: 0.35rem;
+  }
 
   &:hover {
     color: ${({ $active }) => ($active ? "#ff5a00" : "#0f172a")};

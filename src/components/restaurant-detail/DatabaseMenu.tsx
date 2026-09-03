@@ -423,7 +423,6 @@ export default function DatabaseMenu({
         quantity: 1,
         addonIds: [],
       });
-      toast.success(`${product.name} به سبد خرید اضافه شد`);
     } catch {
       toast.error("سبد خرید فقط می‌تواند شامل محصولات یک رستوران باشد.");
     }
