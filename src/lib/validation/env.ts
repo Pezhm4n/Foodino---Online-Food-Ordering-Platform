@@ -11,10 +11,14 @@ const baseEnvSchema = z.object({
   RATE_LIMIT_ADAPTER: z.enum(['vercel', 'trusted-reverse-proxy']).optional(),
   TRUSTED_PROXY_HOPS: z.coerce.number().int().min(1).max(10).optional(),
   SMTP_CONFIGURED: z.enum(['true', 'false']).default('false'),
+  DEMO_MODE: z.preprocess(
+    (val) => (typeof val === 'string' ? val.trim().toLowerCase() : val),
+    z.enum(['true', 'false']).optional(),
+  ),
 });
 
 export const serverEnvSchema = baseEnvSchema.superRefine((env, context) => {
-  if (env.NODE_ENV !== 'production') return;
+  if (env.NODE_ENV !== 'production' || env.DEMO_MODE === 'true') return;
 
   if (env.PAYMENT_PROVIDER === 'development') {
     context.addIssue({

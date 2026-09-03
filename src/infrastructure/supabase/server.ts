@@ -37,10 +37,14 @@ export async function createSupabaseServerClient() {
 }
 
 export async function requireClaims() {
-  const client = await createSupabaseServerClient();
-  const { data, error } = await client.auth.getClaims();
-  if (error || !data?.claims?.sub) return null;
-  return data.claims;
+  try {
+    const client = await createSupabaseServerClient();
+    const { data, error } = await client.auth.getClaims();
+    if (error || !data?.claims?.sub) return null;
+    return data.claims;
+  } catch {
+    return null;
+  }
 }
 
 export function claimsHaveOperatorRole(claims: { app_metadata?: unknown } | null): boolean {

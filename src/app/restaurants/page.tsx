@@ -20,7 +20,7 @@ export default async function RestaurantsPage({ searchParams }: Props) {
   const client = await createSupabaseServerClient();
   const repository = new SupabaseCatalogRepository(client);
   const claims = await requireClaims();
-  const [page, categories, userFavsResult] = await Promise.all([
+  const [page, categories] = await Promise.all([
     repository.listRestaurants({
       query: parsed.data.q || undefined,
       categorySlug: parsed.data.category,
@@ -29,11 +29,17 @@ export default async function RestaurantsPage({ searchParams }: Props) {
       limit: 12,
     }),
     repository.listCategories(),
-    claims?.sub
-      ? client.from('favorites').select('restaurant_id').eq('user_id', claims.sub)
-      : Promise.resolve({ data: null }),
   ]);
-  const userFavoriteIds = (userFavsResult.data ?? []).map((row) => row.restaurant_id);
+
+  let userFavoriteIds: string[] = [];
+  if (claims?.sub) {
+    try {
+      const { data } = await client.from('favorites').select('restaurant_id').eq('user_id', claims.sub);
+      userFavoriteIds = (data ?? []).map((row) => row.restaurant_id);
+    } catch {
+      userFavoriteIds = [];
+    }
+  }
   const nextParams = new URLSearchParams();
   if (parsed.data.q) nextParams.set('q', parsed.data.q);
   if (parsed.data.category) nextParams.set('category', parsed.data.category);

@@ -1,0 +1,382 @@
+import { money } from '@/domain/money/money';
+import type {
+  CategorySummary,
+  ProductMenuItem,
+  RestaurantSummary,
+} from '@/application/ports/catalog-repository';
+
+export interface MockReview {
+  readonly id: string;
+  readonly restaurantId: string;
+  readonly userName: string;
+  readonly rating: number;
+  readonly foodName?: string;
+  readonly comment: string;
+  readonly createdAt: string;
+}
+
+export const MOCK_CATEGORIES: readonly CategorySummary[] = [
+  {
+    id: '10000000-0000-4000-8000-000000000001',
+    slug: 'pizza',
+    name: 'پیتزا',
+    description: 'انواع پیتزاهای ایتالیایی و آمریکایی با خمیر دست‌ساز',
+    icon: '🍕',
+  },
+  {
+    id: '10000000-0000-4000-8000-000000000002',
+    slug: 'burger',
+    name: 'برگر',
+    description: 'برگرهای دست‌ساز با گوشت تازه و سس‌های خانگی',
+    icon: '🍔',
+  },
+  {
+    id: '10000000-0000-4000-8000-000000000003',
+    slug: 'iranian',
+    name: 'ایرانی',
+    description: 'کباب‌ها و خورش‌های سنتی و اصیل ایرانی',
+    icon: '🍚',
+  },
+  {
+    id: '10000000-0000-4000-8000-000000000004',
+    slug: 'sushi',
+    name: 'سوشی',
+    description: 'انواع سوشی، ساشیمی و نودل‌های تازه ژاپنی',
+    icon: '🍣',
+  },
+  {
+    id: '10000000-0000-4000-8000-000000000005',
+    slug: 'healthy',
+    name: 'غذای سالم',
+    description: 'سالادها، کاسه‌های کینوا و غذاهای رژیمی و ارگانیک',
+    icon: '🥗',
+  },
+];
+
+export const MOCK_RESTAURANTS: readonly (RestaurantSummary & { categoryIds: readonly string[] })[] = [
+  {
+    id: '20000000-0000-4000-8000-000000000001',
+    slug: 'best-pizza',
+    name: 'پیتزا برتر',
+    description: 'پیتزاهای اصیل ایتالیایی با خمیر دست‌ساز و تازه',
+    rating: 4.8,
+    minimumOrder: money(500000),
+    deliveryFee: money(150000),
+    deliveryMinutes: { min: 30, max: 45 },
+    categoryIds: ['10000000-0000-4000-8000-000000000001'],
+  },
+  {
+    id: '20000000-0000-4000-8000-000000000002',
+    slug: 'burger-land',
+    name: 'برگرلند',
+    description: 'برگر با گوشت گرم تازه و سس‌های انحصاری خانگی',
+    rating: 4.6,
+    minimumOrder: money(700000),
+    deliveryFee: money(180000),
+    deliveryMinutes: { min: 25, max: 40 },
+    categoryIds: ['10000000-0000-4000-8000-000000000002'],
+  },
+  {
+    id: '20000000-0000-4000-8000-000000000003',
+    slug: 'sushi-tako',
+    name: 'سوشی تاکو',
+    description: 'طعم اصیل سوشی و نودل‌های دست‌ساز توکیو در فودینو',
+    rating: 4.9,
+    minimumOrder: money(800000),
+    deliveryFee: money(200000),
+    deliveryMinutes: { min: 35, max: 50 },
+    categoryIds: ['10000000-0000-4000-8000-000000000004'],
+  },
+  {
+    id: '20000000-0000-4000-8000-000000000004',
+    slug: 'traditional-iranian',
+    name: 'رستوران ایرانی سنتی',
+    description: 'کباب‌های اصیل زعفرانی و خورشت‌های جاافتاده مادربزرگ',
+    rating: 4.7,
+    minimumOrder: money(1000000),
+    deliveryFee: money(200000),
+    deliveryMinutes: { min: 40, max: 55 },
+    categoryIds: ['10000000-0000-4000-8000-000000000003'],
+  },
+  {
+    id: '20000000-0000-4000-8000-000000000005',
+    slug: 'green-salad',
+    name: 'سالاد سبز',
+    description: 'سالادها و کاسه‌های ارگانیک با سبزیجات هیدروپونیک روز',
+    rating: 4.9,
+    minimumOrder: money(400000),
+    deliveryFee: money(120000),
+    deliveryMinutes: { min: 20, max: 30 },
+    categoryIds: ['10000000-0000-4000-8000-000000000005'],
+  },
+];
+
+export const MOCK_PRODUCTS: readonly ProductMenuItem[] = [
+  // پیتزا برتر
+  {
+    id: '30000000-0000-4000-8000-000000000001',
+    restaurantId: '20000000-0000-4000-8000-000000000001',
+    slug: 'best-pizza-special',
+    name: 'پیتزا مخصوص اسپشیال',
+    description: 'پیتزا مخصوص ایتالیایی با پنیر موزارلا، ژامبون گوشت ۹۰٪، قارچ تازه، فلفل دلمه و سس گوجه خانگی',
+    price: money(1450000),
+    imagePath: null,
+    variants: [
+      { id: '40000000-0000-4000-8000-000000000001', name: 'متوسط (۲ نفره)', priceAdjustmentIrr: 0 },
+      { id: '40000000-0000-4000-8000-000000000002', name: 'بزرگ (۳ نفره)', priceAdjustmentIrr: 400000 },
+    ],
+    addons: [
+      { id: '50000000-0000-4000-8000-000000000001', name: 'پنیر موزارلا اضافه', priceAdjustmentIrr: 200000 },
+      { id: '50000000-0000-4000-8000-000000000002', name: 'قارچ اضافه', priceAdjustmentIrr: 150000 },
+    ],
+  },
+  {
+    id: '30000000-0000-4000-8000-000000000006',
+    restaurantId: '20000000-0000-4000-8000-000000000001',
+    slug: 'best-pizza-pepperoni',
+    name: 'پیتزا پپرونی تند',
+    description: 'پپرونی گوشت دودی، پنیر موزارلا مطهر و فلفل هالوپینو با طعم تند اصیل ناپلی',
+    price: money(1600000),
+    imagePath: null,
+    variants: [
+      { id: '40000000-0000-4000-8000-000000000003', name: 'متوسط', priceAdjustmentIrr: 0 },
+      { id: '40000000-0000-4000-8000-000000000004', name: 'بزرگ', priceAdjustmentIrr: 450000 },
+    ],
+    addons: [
+      { id: '50000000-0000-4000-8000-000000000001', name: 'پنیر موزارلا اضافه', priceAdjustmentIrr: 200000 },
+    ],
+  },
+  {
+    id: '30000000-0000-4000-8000-000000000007',
+    restaurantId: '20000000-0000-4000-8000-000000000001',
+    slug: 'best-pizza-steak',
+    name: 'پیتزا سیر و استیک',
+    description: 'فیله راسته گوساله طعم‌دار، سس سیر کاراملی، قارچ اسلایسی و پنیر چدار طبیعی',
+    price: money(2100000),
+    imagePath: null,
+    variants: [],
+    addons: [],
+  },
+  {
+    id: '30000000-0000-4000-8000-000000000008',
+    restaurantId: '20000000-0000-4000-8000-000000000001',
+    slug: 'best-pizza-garlic-bread',
+    name: 'نان سیر تست با موزارلا',
+    description: 'نان باگت ترد تست‌شده با کره سیر تازه، پنیر موزارلا کشسانی و ادویه اورگانو',
+    price: money(750000),
+    imagePath: null,
+    variants: [],
+    addons: [],
+  },
+  {
+    id: '30000000-0000-4000-8000-000000000009',
+    restaurantId: '20000000-0000-4000-8000-000000000001',
+    slug: 'best-pizza-fries',
+    name: 'سیب‌زمینی سرخ‌کرده پاپریکا',
+    description: 'سیب‌زمینی خلالی طلایی و برشته با چاشنی پاپریکا و سس کچاپ هاینز',
+    price: money(650000),
+    imagePath: null,
+    variants: [],
+    addons: [],
+  },
+
+  // برگرلند
+  {
+    id: '30000000-0000-4000-8000-000000000002',
+    restaurantId: '20000000-0000-4000-8000-000000000002',
+    slug: 'burger-land-classic',
+    name: 'برگر کلاسیک دست‌ساز',
+    description: '۱۵۰ گرم گوشت تازه گوساله، کاهو فرانسه، گوجه فرنگی، خیارشور و سس ویژه برگرلند',
+    price: money(1800000),
+    imagePath: null,
+    variants: [],
+    addons: [
+      { id: '50000000-0000-4000-8000-000000000003', name: 'پنیر چدار اضافه', priceAdjustmentIrr: 150000 },
+      { id: '50000000-0000-4000-8000-000000000004', name: 'سس قارچ اضافه', priceAdjustmentIrr: 180000 },
+    ],
+  },
+  {
+    id: '30000000-0000-4000-8000-000000000011',
+    restaurantId: '20000000-0000-4000-8000-000000000002',
+    slug: 'burger-land-mushroom',
+    name: 'ماشروم برگر کاراملی',
+    description: 'گوشت گوساله خالص با سس قارچ خامه‌ای غلیظ، پیاز کاراملی و پنیر گودا',
+    price: money(2050000),
+    imagePath: null,
+    variants: [],
+    addons: [],
+  },
+  {
+    id: '30000000-0000-4000-8000-000000000012',
+    restaurantId: '20000000-0000-4000-8000-000000000002',
+    slug: 'burger-land-double-cheese',
+    name: 'دبل چیزبرگر دودی',
+    description: 'دو لایه برگر گریل‌شده، پنیر چدار دوبل، بیکن گوساله و سس باربیکیو دودی',
+    price: money(2500000),
+    imagePath: null,
+    variants: [],
+    addons: [],
+  },
+  {
+    id: '30000000-0000-4000-8000-000000000014',
+    restaurantId: '20000000-0000-4000-8000-000000000002',
+    slug: 'burger-land-onion-rings',
+    name: 'پیاز سوخاری حلقه‌ای ترد',
+    description: 'حلقه‌های پیاز ترد سوخاری شده با تمپورا همراه با سس تاتار',
+    price: money(550000),
+    imagePath: null,
+    variants: [],
+    addons: [],
+  },
+
+  // سوشی تاکو
+  {
+    id: '30000000-0000-4000-8000-000000000003',
+    restaurantId: '20000000-0000-4000-8000-000000000003',
+    slug: 'sushi-tako-salmon',
+    name: 'سوشی سالمون نروژی',
+    description: 'فیله سالمون تازه نروژی با برنج اصیل ژاپنی، جلبک نوری، واسابی و ترشی زنجبیل',
+    price: money(2900000),
+    imagePath: null,
+    variants: [],
+    addons: [
+      { id: '50000000-0000-4000-8000-000000000005', name: 'زنجبیل و واسابی اضافه', priceAdjustmentIrr: 100000 },
+    ],
+  },
+  {
+    id: '30000000-0000-4000-8000-000000000016',
+    restaurantId: '20000000-0000-4000-8000-000000000003',
+    slug: 'sushi-tako-philadelphia',
+    name: 'رول فیلادلفیا با آووکادو',
+    description: 'رول سالمون با پنیر فیلادلفیا، آووکادوی تازه، خیار و دانه کنجد تست‌شده',
+    price: money(3200000),
+    imagePath: null,
+    variants: [
+      { id: '40000000-0000-4000-8000-000000000005', name: '۶ تکه', priceAdjustmentIrr: 0 },
+      { id: '40000000-0000-4000-8000-000000000006', name: '۱۲ تکه ویژه', priceAdjustmentIrr: 1200000 },
+    ],
+    addons: [],
+  },
+  {
+    id: '30000000-0000-4000-8000-000000000017',
+    restaurantId: '20000000-0000-4000-8000-000000000003',
+    slug: 'sushi-tako-tempura',
+    name: 'میگو تمپورا کریسپی (۵ عدد)',
+    description: 'میگوهای تازه دریایی سوخاری سبک و ترد ژاپنی همراه با سس تنستویو',
+    price: money(2600000),
+    imagePath: null,
+    variants: [],
+    addons: [],
+  },
+
+  // رستوران ایرانی سنتی
+  {
+    id: '30000000-0000-4000-8000-000000000004',
+    restaurantId: '20000000-0000-4000-8000-000000000004',
+    slug: 'traditional-kebab',
+    name: 'چلوکباب کوبیده مخصوص زعفرانی',
+    description: 'دو سیخ کباب کوبیده گوشت راسته و قلوه‌گاه گوسفندی با برنج صدری ایرانی، کره محلی و گوجه کبابی',
+    price: money(2400000),
+    imagePath: null,
+    variants: [],
+    addons: [
+      { id: '50000000-0000-4000-8000-000000000006', name: 'کره محلی اضافه', priceAdjustmentIrr: 80000 },
+    ],
+  },
+  {
+    id: '30000000-0000-4000-8000-000000000021',
+    restaurantId: '20000000-0000-4000-8000-000000000004',
+    slug: 'traditional-joojeh',
+    name: 'چلو جوجه‌کباب با استخوان',
+    description: 'جوجه زعفرانی مرینیت‌شده با آبلیمو و زعفران قائنات، برنج قالبی و کره گوسفندی',
+    price: money(2100000),
+    imagePath: null,
+    variants: [],
+    addons: [],
+  },
+  {
+    id: '30000000-0000-4000-8000-000000000022',
+    restaurantId: '20000000-0000-4000-8000-000000000004',
+    slug: 'traditional-ghormeh',
+    name: 'چلوخورشت قورمه‌سبزی اصیل',
+    description: 'خورشت قورمه‌سبزی جاافتاده با سبزی تازه محلی، گوشت قورمه گوسفندی و لیموعمانی',
+    price: money(1800000),
+    imagePath: null,
+    variants: [],
+    addons: [],
+  },
+
+  // سالاد سبز
+  {
+    id: '30000000-0000-4000-8000-000000000005',
+    restaurantId: '20000000-0000-4000-8000-000000000005',
+    slug: 'green-caesar-salad',
+    name: 'سالاد سزار فیله مرغ گریل',
+    description: 'کاهو رسمی تازه، ۱۵۰ گرم فیله مرغ گریل با سس سزار بدون مایونز صنعتی، پنیر پارمزان و کروتان سیر',
+    price: money(1400000),
+    imagePath: null,
+    variants: [],
+    addons: [
+      { id: '50000000-0000-4000-8000-000000000007', name: 'فیله مرغ اضافه', priceAdjustmentIrr: 350000 },
+    ],
+  },
+  {
+    id: '30000000-0000-4000-8000-000000000026',
+    restaurantId: '20000000-0000-4000-8000-000000000005',
+    slug: 'green-quinoa-bowl',
+    name: 'کاسه کینوا و آووکادو پروتئینی',
+    description: 'کینوا سه رنگ ارگانیک، آووکادو تازه، اسفناج جوان، گوجه گیلاسی و درِسینگ روغن زیتون فرابکر',
+    price: money(1650000),
+    imagePath: null,
+    variants: [],
+    addons: [],
+  },
+];
+
+export const MOCK_REVIEWS: readonly MockReview[] = [
+  {
+    id: '60000000-0000-4000-8000-000000000001',
+    restaurantId: '20000000-0000-4000-8000-000000000001',
+    userName: 'علی رضایی',
+    rating: 5,
+    foodName: 'پیتزا مخصوص اسپشیال',
+    comment: 'بسیار باکیفیت و داغ رسید. خمیرش کاملاً ترد و عالی بود.',
+    createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
+  },
+  {
+    id: '60000000-0000-4000-8000-000000000002',
+    restaurantId: '20000000-0000-4000-8000-000000000001',
+    userName: 'سارا محمدی',
+    rating: 4.8,
+    foodName: 'پیتزا پپرونی تند',
+    comment: 'تندی متناسب و پنیر کش‌دار و خوش‌طعم، تحویل سریع بود.',
+    createdAt: new Date(Date.now() - 86400000 * 5).toISOString(),
+  },
+  {
+    id: '60000000-0000-4000-8000-000000000003',
+    restaurantId: '20000000-0000-4000-8000-000000000002',
+    userName: 'مهدی حسینی',
+    rating: 4.7,
+    foodName: 'برگر کلاسیک دست‌ساز',
+    comment: 'طعم گوشت فوق‌العاده خالص بود، بسته‌بندی تمیز و شیک.',
+    createdAt: new Date(Date.now() - 86400000 * 3).toISOString(),
+  },
+  {
+    id: '60000000-0000-4000-8000-000000000004',
+    restaurantId: '20000000-0000-4000-8000-000000000003',
+    userName: 'نیلوفر امینی',
+    rating: 5,
+    foodName: 'رول فیلادلفیا با آووکادو',
+    comment: 'سالمون فوق‌العاده تازه بود، به شدت پیشنهاد می‌کنم.',
+    createdAt: new Date(Date.now() - 86400000 * 1).toISOString(),
+  },
+  {
+    id: '60000000-0000-4000-8000-000000000005',
+    restaurantId: '20000000-0000-4000-8000-000000000004',
+    userName: 'رضا کریمی',
+    rating: 4.9,
+    foodName: 'چلوکباب کوبیده مخصوص زعفرانی',
+    comment: 'برنج معطر ایرانی و کباب آبدار. یکی از بهترین کباب‌هایی که خوردم.',
+    createdAt: new Date(Date.now() - 86400000 * 4).toISOString(),
+  },
+];
