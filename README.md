@@ -1,5 +1,15 @@
 # فودینو (Foodino) — سامانه جامع سفارش آنلاین غذا
 
+<div align="center">
+
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://foodino-online-food-ordering-platfo-kohl.vercel.app/)
+[![Next.js 16](https://img.shields.io/badge/Next.js_16-App_Router-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Strict_Mode-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+
+### 🚀 **[مشاهده و تست دموی زنده آنلاین فودینو (Live Demo)](https://foodino-online-food-ordering-platfo-kohl.vercel.app/)**
+
+</div>
+
 پلتفرم مدرن، امن و واکنش‌گرای سفارش آنلاین غذا، توسعه‌یافته با معماری **Server-Only Backend-For-Frontend (BFF)**، پایگاه‌داده قدرتمند **Supabase Postgres** و فریم‌ورک **Next.js 16 (App Router)** به زبان **TypeScript**.
 
 ---
