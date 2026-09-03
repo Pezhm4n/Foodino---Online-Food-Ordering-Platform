@@ -8,11 +8,17 @@ const Card = styled.div`
   border-radius: ${props => props.theme.borderRadius.lg};
   box-shadow: ${props => props.theme.boxShadow.md};
   overflow: hidden;
-  transition: all 0.3s ease;
+  transition: transform 200ms cubic-bezier(0.2, 0, 0, 1), box-shadow 200ms cubic-bezier(0.2, 0, 0, 1);
   
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: ${props => props.theme.boxShadow.lg};
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: ${props => props.theme.boxShadow.cardHover || props.theme.boxShadow.lg};
+    }
+  }
+
+  &:active {
+    transform: scale(0.99);
   }
 `;
 
@@ -140,10 +146,15 @@ const AddButton = styled.button`
   font-size: 0.875rem;
   min-height: 38px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform 120ms cubic-bezier(0.2, 0, 0, 1),
+    background-color 140ms cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 140ms cubic-bezier(0.2, 0, 0, 1);
+  user-select: none;
+  touch-action: manipulation;
   
   &:hover {
     background-color: ${props => props.theme.colors.primary[400]};
+    box-shadow: 0 4px 10px rgba(255, 90, 0, 0.25);
   }
 
   &:active {

@@ -17,9 +17,8 @@ export interface FavoriteButtonProps {
 
 const popAnimation = css`
   @keyframes heartPop {
-    0% { transform: scale(1); }
-    40% { transform: scale(1.3); }
-    75% { transform: scale(0.9); }
+    0% { transform: scale(0.94); }
+    40% { transform: scale(1.14); }
     100% { transform: scale(1); }
   }
 `;
@@ -32,8 +31,14 @@ const IconButton = styled.button<{ $isFavorite: boolean; $size: 'sm' | 'md' | 'l
   border-radius: 50%;
   cursor: pointer;
   outline: none;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 120ms cubic-bezier(0.2, 0, 0, 1),
+    background-color 160ms cubic-bezier(0.2, 0, 0, 1),
+    border-color 160ms cubic-bezier(0.2, 0, 0, 1),
+    color 160ms cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 160ms cubic-bezier(0.2, 0, 0, 1);
   flex-shrink: 0;
+  user-select: none;
+  touch-action: manipulation;
 
   ${({ $size }) => {
     switch ($size) {
@@ -65,12 +70,12 @@ const IconButton = styled.button<{ $isFavorite: boolean; $size: 'sm' | 'md' | 'l
           border: 1.5px solid #fecdd3;
           color: #e11d48;
           box-shadow: 0 2px 8px rgba(225, 29, 72, 0.18);
-          animation: heartPop 0.4s ease-out;
+          animation: heartPop 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 
           &:hover {
             background-color: #ffe4e6;
             border-color: #fda4af;
-            transform: scale(1.08);
+            transform: scale(1.06);
           }
         `
       : css`
@@ -84,7 +89,7 @@ const IconButton = styled.button<{ $isFavorite: boolean; $size: 'sm' | 'md' | 'l
             background-color: white;
             border-color: #cbd5e1;
             color: #e11d48;
-            transform: scale(1.08);
+            transform: scale(1.06);
           }
         `}
 
@@ -110,8 +115,14 @@ const FullButton = styled.button<{ $isFavorite: boolean; $size: 'sm' | 'md' | 'l
   font-weight: 700;
   cursor: pointer;
   outline: none;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 120ms cubic-bezier(0.2, 0, 0, 1),
+    background-color 160ms cubic-bezier(0.2, 0, 0, 1),
+    border-color 160ms cubic-bezier(0.2, 0, 0, 1),
+    color 160ms cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 160ms cubic-bezier(0.2, 0, 0, 1);
   min-height: 44px;
+  user-select: none;
+  touch-action: manipulation;
 
   ${({ $size }) => {
     switch ($size) {
@@ -140,12 +151,11 @@ const FullButton = styled.button<{ $isFavorite: boolean; $size: 'sm' | 'md' | 'l
           border: 1.5px solid #fecdd3;
           color: #e11d48;
           box-shadow: 0 2px 8px rgba(225, 29, 72, 0.15);
-          animation: heartPop 0.4s ease-out;
+          animation: heartPop 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 
           &:hover {
             background-color: #ffe4e6;
             border-color: #fda4af;
-            transform: translateY(-1px);
           }
         `
       : css`
@@ -158,12 +168,11 @@ const FullButton = styled.button<{ $isFavorite: boolean; $size: 'sm' | 'md' | 'l
             background-color: #f8fafc;
             border-color: #cbd5e1;
             color: #0f172a;
-            transform: translateY(-1px);
           }
         `}
 
   &:active {
-    transform: translateY(0);
+    transform: scale(0.98);
   }
 
   &:disabled {

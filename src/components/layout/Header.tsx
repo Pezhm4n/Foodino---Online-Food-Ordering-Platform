@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import styled from "styled-components";
+import React, { useState, useEffect, useSyncExternalStore } from "react";
+import styled, { keyframes } from "styled-components";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/contexts/CartContext";
@@ -26,15 +26,20 @@ const headerCopy = {
 const t = (key: keyof typeof headerCopy) => headerCopy[key];
 
 const TopPromoBarContainer = styled.div<{ $visible: boolean }>`
-  display: ${({ $visible }) => ($visible ? 'flex' : 'none')};
+  display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.65rem;
   background: linear-gradient(90deg, #ea580c 0%, #ff5a00 50%, #f97316 100%);
   color: white;
-  padding: 0.45rem 1rem;
-  font-size: 0.85rem;
-  font-weight: 600;
+  padding: ${({ $visible }) => ($visible ? '0.45rem 1rem' : '0 1rem')};
+  max-height: ${({ $visible }) => ($visible ? '54px' : '0px')};
+  opacity: ${({ $visible }) => ($visible ? 1 : 0)};
+  overflow: hidden;
+  transition: max-height 280ms cubic-bezier(0.2, 0, 0, 1),
+    opacity 220ms cubic-bezier(0.2, 0, 0, 1),
+    padding 280ms cubic-bezier(0.2, 0, 0, 1);
+  pointer-events: ${({ $visible }) => ($visible ? 'auto' : 'none')};
   position: relative;
   z-index: 101;
   direction: rtl;
@@ -42,8 +47,9 @@ const TopPromoBarContainer = styled.div<{ $visible: boolean }>`
 
   @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
     font-size: 0.72rem;
-    padding: 0.35rem 2rem 0.35rem 0.65rem;
+    padding: ${({ $visible }) => ($visible ? '0.35rem 2rem 0.35rem 0.65rem' : '0 2rem 0 0.65rem')};
     gap: 0.35rem;
+    max-height: ${({ $visible }) => ($visible ? '72px' : '0px')};
   }
 `;
 
@@ -71,12 +77,18 @@ const PromoCloseButton = styled.button`
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  transition: all 0.2s;
+  transition: background-color 140ms ease, color 140ms ease, transform 120ms ease;
   font-size: 0.9rem;
+  user-select: none;
+  touch-action: manipulation;
 
   &:hover {
     color: white;
     background: rgba(0, 0, 0, 0.15);
+  }
+
+  &:active {
+    transform: scale(0.9);
   }
 `;
 
@@ -255,17 +267,26 @@ const LoginButton = styled(Link)`
   border-radius: ${(props) => props.theme.borderRadius.md};
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: transform 120ms cubic-bezier(0.2, 0, 0, 1),
+    border-color 140ms cubic-bezier(0.2, 0, 0, 1),
+    color 140ms cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 140ms cubic-bezier(0.2, 0, 0, 1);
   text-decoration: none;
   background: transparent;
   border: 1px solid ${(props) => props.theme.colors.neutral[300]};
   color: ${(props) => props.theme.colors.neutral[700]};
+  user-select: none;
+  touch-action: manipulation;
 
   &:hover {
     border-color: ${(props) => props.theme.colors.primary[500]};
     color: ${(props) => props.theme.colors.primary[500]};
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  }
+
+  &:active {
+    transform: scale(0.97);
   }
   
   @media (max-width: ${props => props.theme.breakpoints.md}) {
@@ -278,16 +299,24 @@ const SignupButton = styled(Link)`
   border-radius: ${(props) => props.theme.borderRadius.md};
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: transform 120ms cubic-bezier(0.2, 0, 0, 1),
+    background-color 140ms cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 140ms cubic-bezier(0.2, 0, 0, 1);
   text-decoration: none;
   background-color: ${(props) => props.theme.colors.primary[500]};
   border: none;
   color: white;
+  user-select: none;
+  touch-action: manipulation;
 
   &:hover {
     background-color: ${(props) => props.theme.colors.primary[400]};
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(255, 90, 0, 0.25);
+  }
+
+  &:active {
+    transform: scale(0.97);
   }
   
   @media (max-width: ${props => props.theme.breakpoints.md}) {
@@ -306,8 +335,14 @@ const IconButton = styled(Link)`
   border-radius: 50%;
   background-color: ${(props) => props.theme.colors.neutral[50]};
   border: 1px solid ${(props) => props.theme.colors.neutral[200]};
-  transition: all 0.3s ease;
+  transition: transform 120ms cubic-bezier(0.2, 0, 0, 1),
+    background-color 140ms cubic-bezier(0.2, 0, 0, 1),
+    border-color 140ms cubic-bezier(0.2, 0, 0, 1),
+    color 140ms cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 140ms cubic-bezier(0.2, 0, 0, 1);
   color: ${(props) => props.theme.colors.neutral[700]};
+  user-select: none;
+  touch-action: manipulation;
 
   &:hover {
     background-color: ${(props) => props.theme.colors.neutral[100]};
@@ -315,9 +350,25 @@ const IconButton = styled(Link)`
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
     color: ${(props) => props.theme.colors.primary[500]};
   }
+
+  &:active {
+    transform: scale(0.94);
+  }
   
   @media (max-width: ${props => props.theme.breakpoints.md}) {
     display: none;
+  }
+`;
+
+const badgePopKeyframe = keyframes`
+  0% {
+    transform: scale(0.85);
+  }
+  50% {
+    transform: scale(1.22);
+  }
+  100% {
+    transform: scale(1);
   }
 `;
 
@@ -336,6 +387,7 @@ const CartBadge = styled.span`
   justify-content: center;
   border: 2px solid white;
   font-weight: 600;
+  animation: ${badgePopKeyframe} 200ms cubic-bezier(0.16, 1, 0.3, 1);
 `;
 
 const MobileMenuButton = styled.button`
@@ -378,7 +430,7 @@ const MobileNavigation = styled.div`
   box-shadow: -5px 0 25px rgba(0, 0, 0, 0.15);
   padding: 1.25rem 1rem;
   padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 260ms cubic-bezier(0.16, 1, 0.3, 1);
   z-index: 200;
   overflow-y: auto;
   display: flex;
@@ -411,11 +463,19 @@ const MobileNavCloseButton = styled.button`
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  transition: all 0.2s ease;
+  transition: transform 120ms cubic-bezier(0.2, 0, 0, 1),
+    background-color 140ms cubic-bezier(0.2, 0, 0, 1),
+    color 140ms cubic-bezier(0.2, 0, 0, 1);
+  user-select: none;
+  touch-action: manipulation;
 
   &:hover {
     background-color: ${(props) => props.theme.colors.neutral[100]};
     color: ${(props) => props.theme.colors.neutral[900]};
+  }
+
+  &:active {
+    transform: scale(0.92);
   }
 `;
 
@@ -475,11 +535,19 @@ const LogoutIconButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  transition: transform 120ms cubic-bezier(0.2, 0, 0, 1),
+    background-color 140ms cubic-bezier(0.2, 0, 0, 1),
+    color 140ms cubic-bezier(0.2, 0, 0, 1);
+  user-select: none;
+  touch-action: manipulation;
 
   &:hover {
     background-color: ${(props) => props.theme.colors.neutral[100]};
     color: ${(props) => props.theme.colors.primary[500]};
+  }
+
+  &:active {
+    transform: scale(0.92);
   }
 `;
 
@@ -538,23 +606,47 @@ const MobileCartButton = styled(Link)`
   }
 `;
 
-const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isPromoVisible, setIsPromoVisible] = useState(() => {
+const subscribeToStorage = (callback: () => void) => {
+  if (typeof window === "undefined") return () => {};
+  window.addEventListener("storage", callback);
+  return () => window.removeEventListener("storage", callback);
+};
+
+const getPromoSnapshot = () => {
+  try {
     if (typeof window !== "undefined") {
       return sessionStorage.getItem("foodino:hide_promo") !== "true";
     }
     return true;
-  });
+  } catch {
+    return true;
+  }
+};
+
+const getPromoServerSnapshot = () => true;
+
+const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isDismissed, setIsDismissed] = useState(false);
+  const isStoredPromoVisible = useSyncExternalStore(
+    subscribeToStorage,
+    getPromoSnapshot,
+    getPromoServerSnapshot
+  );
+  const isPromoVisible = isStoredPromoVisible && !isDismissed;
   const router = useRouter();
   const { getTotalItems } = useCart();
 
   const handleDismissPromo = () => {
-    setIsPromoVisible(false);
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("foodino:hide_promo", "true");
+    setIsDismissed(true);
+    try {
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("foodino:hide_promo", "true");
+      }
+    } catch {
+      // Ignore sessionStorage access errors
     }
   };
 
@@ -706,7 +798,7 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
                 strokeLinejoin="round"
               />
             </svg>
-            {getTotalItems() > 0 && <CartBadge>{getTotalItems()}</CartBadge>}
+            {getTotalItems() > 0 && <CartBadge key={getTotalItems()}>{getTotalItems()}</CartBadge>}
           </IconButton>
 
           {isAuthenticated ? (
@@ -815,7 +907,7 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
                 strokeLinejoin="round"
               />
             </svg>
-            {getTotalItems() > 0 && <CartBadge>{getTotalItems()}</CartBadge>}
+            {getTotalItems() > 0 && <CartBadge key={getTotalItems()}>{getTotalItems()}</CartBadge>}
           </MobileCartButton>
 
           <MobileMenuButton onClick={toggleMobileMenu} aria-label="منوی موبایل">
@@ -960,7 +1052,7 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
                   strokeLinejoin="round"
                 />
               </svg>
-              {getTotalItems() > 0 && <CartBadge>{getTotalItems()}</CartBadge>}
+              {getTotalItems() > 0 && <CartBadge key={getTotalItems()}>{getTotalItems()}</CartBadge>}
             </div>
             <MobileIconLabel>{t("cart")}</MobileIconLabel>
           </MobileIconButton>

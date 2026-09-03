@@ -77,10 +77,17 @@ const SearchButton = styled.button`
   border-radius: ${props => props.theme.borderRadius.md};
   font-weight: ${props => props.theme.typography.fontWeights.semibold};
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform 120ms cubic-bezier(0.2, 0, 0, 1),
+    background-color 140ms cubic-bezier(0.2, 0, 0, 1);
+  user-select: none;
+  touch-action: manipulation;
   
   &:hover {
     background-color: #404040;
+  }
+
+  &:active {
+    transform: scale(0.98);
   }
 `;
 
@@ -100,10 +107,18 @@ const SearchTag = styled.button<{ $active: boolean }>`
   font-size: ${props => props.theme.typography.fontSizes.sm};
   cursor: pointer;
   border: none;
-  transition: all 0.2s ease;
+  transition: transform 120ms cubic-bezier(0.2, 0, 0, 1),
+    background-color 140ms cubic-bezier(0.2, 0, 0, 1),
+    color 140ms cubic-bezier(0.2, 0, 0, 1);
+  user-select: none;
+  touch-action: manipulation;
   
   &:hover {
     background-color: ${props => props.$active ? 'white' : 'rgba(255, 255, 255, 0.3)'};
+  }
+
+  &:active {
+    transform: scale(0.95);
   }
 `;
 

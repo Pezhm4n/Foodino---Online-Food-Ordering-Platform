@@ -1,5 +1,5 @@
-import React from 'react';
-import styled from 'styled-components';
+import React, { useState, useCallback } from 'react';
+import styled, { keyframes } from 'styled-components';
 import { Button } from '@/components/common/StyledComponents';
 
 interface ConfirmDeleteModalProps {
@@ -10,12 +10,34 @@ interface ConfirmDeleteModalProps {
 }
 
 const ConfirmDeleteModal = ({ $isOpen, onClose, onConfirm, itemName }: ConfirmDeleteModalProps) => {
+  const [isClosing, setIsClosing] = useState(false);
+
+  const handleClose = useCallback(() => {
+    if (isClosing) return;
+    setIsClosing(true);
+    setTimeout(() => {
+      onClose();
+      setIsClosing(false);
+    }, 190);
+  }, [isClosing, onClose]);
+
+  const handleConfirm = useCallback(() => {
+    if (isClosing) return;
+    setIsClosing(true);
+    setTimeout(() => {
+      onConfirm();
+      setIsClosing(false);
+    }, 190);
+  }, [isClosing, onConfirm]);
+
+  if (!$isOpen) return null;
+
   return (
-    <ModalOverlay $isOpen={$isOpen}>
-      <ModalContent>
+    <ModalOverlay $isOpen={$isOpen} $isClosing={isClosing} onClick={handleClose}>
+      <ModalContent $isClosing={isClosing} onClick={(e) => e.stopPropagation()}>
         <ModalHeader>
           <ModalTitle>تأیید حذف</ModalTitle>
-          <CloseButton onClick={onClose}>
+          <CloseButton onClick={handleClose} aria-label="بستن">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M18 6L6 18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               <path d="M6 6L18 18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -42,28 +64,62 @@ const ConfirmDeleteModal = ({ $isOpen, onClose, onConfirm, itemName }: ConfirmDe
         </ModalBody>
         
         <ModalActions>
-          <DeleteButton $variant="primary" onClick={onConfirm}>بله، حذف شود</DeleteButton>
-          <CancelButton onClick={onClose}>انصراف</CancelButton>
+          <DeleteButton $variant="primary" onClick={handleConfirm}>بله، حذف شود</DeleteButton>
+          <CancelButton onClick={handleClose}>انصراف</CancelButton>
         </ModalActions>
       </ModalContent>
     </ModalOverlay>
   );
 };
 
-const ModalOverlay = styled.div<{ $isOpen: boolean }>`
+const modalFadeIn = keyframes`
+  from { opacity: 0; }
+  to { opacity: 1; }
+`;
+
+const modalFadeOut = keyframes`
+  from { opacity: 1; }
+  to { opacity: 0; }
+`;
+
+const modalScaleIn = keyframes`
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+`;
+
+const modalScaleOut = keyframes`
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.97) translateY(8px);
+  }
+`;
+
+const ModalOverlay = styled.div<{ $isOpen: boolean; $isClosing?: boolean }>`
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
   display: ${props => props.$isOpen ? 'flex' : 'none'};
   align-items: center;
   justify-content: center;
   z-index: 100;
+  animation: ${props => props.$isClosing ? modalFadeOut : modalFadeIn} 190ms cubic-bezier(0, 0, 0.2, 1) forwards;
 `;
 
-const ModalContent = styled.div`
+const ModalContent = styled.div<{ $isClosing?: boolean }>`
   background-color: white;
   border-radius: ${props => props.theme.borderRadius.lg};
   padding: 2rem;
@@ -71,6 +127,7 @@ const ModalContent = styled.div`
   max-width: 500px;
   direction: rtl;
   box-shadow: ${props => props.theme.boxShadow.lg};
+  animation: ${props => props.$isClosing ? modalScaleOut : modalScaleIn} 200ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 
   @media (max-width: 480px) {
     padding: 1.25rem 1rem;
@@ -109,10 +166,16 @@ const CloseButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: color 0.2s;
+  transition: color 140ms ease, transform 120ms ease;
+  user-select: none;
+  touch-action: manipulation;
   
   &:hover {
     color: ${props => props.theme.colors.neutral[900]};
+  }
+
+  &:active {
+    transform: scale(0.9);
   }
 `;
 

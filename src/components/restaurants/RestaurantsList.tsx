@@ -53,11 +53,17 @@ const RestaurantCard = styled.div`
   border-radius: ${props => props.theme.borderRadius.lg};
   overflow: hidden;
   box-shadow: ${props => props.theme.boxShadow.md};
-  transition: all 0.3s ease;
+  transition: transform 200ms cubic-bezier(0.2, 0, 0, 1), box-shadow 200ms cubic-bezier(0.2, 0, 0, 1);
   
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: ${props => props.theme.boxShadow.lg};
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: ${props => props.theme.boxShadow.cardHover || props.theme.boxShadow.lg};
+    }
+  }
+
+  &:active {
+    transform: scale(0.99);
   }
   
   @media (max-width: ${props => props.theme.breakpoints.md}) {
@@ -206,11 +212,20 @@ const PageButton = styled.button<{ $isActive?: boolean }>`
   background-color: ${props => props.$isActive ? props.theme.colors.primary[500] : 'white'};
   color: ${props => props.$isActive ? 'white' : props.theme.colors.neutral[700]};
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform 120ms cubic-bezier(0.2, 0, 0, 1),
+    background-color 140ms cubic-bezier(0.2, 0, 0, 1),
+    border-color 140ms cubic-bezier(0.2, 0, 0, 1),
+    color 140ms cubic-bezier(0.2, 0, 0, 1);
+  user-select: none;
+  touch-action: manipulation;
   
   &:hover:not(:disabled) {
     border-color: ${props => props.theme.colors.primary[500]};
     color: ${props => props.$isActive ? 'white' : props.theme.colors.primary[500]};
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.94);
   }
   
   &:disabled {

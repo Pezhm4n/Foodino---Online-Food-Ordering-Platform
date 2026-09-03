@@ -70,12 +70,21 @@ const ViewAllButton = styled(Link)`
   font-weight: ${props => props.theme.typography.fontWeights.medium};
   color: ${props => props.theme.colors.neutral[900]};
   text-decoration: none;
-  transition: all 0.2s ease;
+  transition: border-color 140ms cubic-bezier(0.2, 0, 0, 1),
+    color 140ms cubic-bezier(0.2, 0, 0, 1),
+    background-color 140ms cubic-bezier(0.2, 0, 0, 1),
+    transform 120ms cubic-bezier(0.2, 0, 0, 1);
   min-height: 44px;
+  user-select: none;
+  touch-action: manipulation;
   
   &:hover {
     border-color: ${props => props.theme.colors.primary[500]};
     color: ${props => props.theme.colors.primary[500]};
+  }
+
+  &:active {
+    transform: scale(0.98);
   }
 
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
@@ -110,16 +119,25 @@ const RestaurantCard = styled.div`
   overflow: hidden;
   border: 1px solid ${props => props.theme.colors.neutral[200]};
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  transition: all 0.2s ease;
+  transition: transform 200ms cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 200ms cubic-bezier(0.2, 0, 0, 1),
+    border-color 200ms cubic-bezier(0.2, 0, 0, 1);
 
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
     border-radius: 1rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   }
   
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px -4px rgba(0, 0, 0, 0.12);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px -4px rgba(0, 0, 0, 0.1);
+      border-color: ${props => props.theme.colors.neutral[300]};
+    }
+  }
+
+  &:active {
+    transform: scale(0.99);
   }
 `;
 

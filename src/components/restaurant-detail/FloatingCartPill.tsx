@@ -61,11 +61,6 @@ const InfoSide = styled.div`
   min-width: 0;
 
   .icon-bubble {
-    @keyframes gentleBounce {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.08) rotate(-3deg); }
-    }
-
     width: 34px;
     height: 34px;
     border-radius: 50%;
@@ -76,7 +71,6 @@ const InfoSide = styled.div`
     font-size: 1rem;
     box-shadow: 0 2px 6px rgba(255, 90, 0, 0.4);
     flex-shrink: 0;
-    animation: gentleBounce 3s infinite ease-in-out;
 
     @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
       width: 28px;
@@ -129,11 +123,13 @@ const CheckoutButton = styled(Link)`
   white-space: nowrap;
   flex-shrink: 0;
   box-shadow: 0 3px 10px rgba(255, 90, 0, 0.35);
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 120ms cubic-bezier(0.2, 0, 0, 1), box-shadow 140ms cubic-bezier(0.2, 0, 0, 1);
+  user-select: none;
+  touch-action: manipulation;
 
   &:hover {
-    transform: translateY(-1px) scale(1.02);
-    box-shadow: 0 6px 16px rgba(255, 90, 0, 0.5);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(255, 90, 0, 0.45);
   }
 
   &:active {

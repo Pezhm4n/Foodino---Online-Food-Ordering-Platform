@@ -10,8 +10,18 @@ const Card = styled.article`
   border-radius: ${({ theme }) => theme.borderRadius.lg};
   background: white;
   box-shadow: ${({ theme }) => theme.boxShadow.md};
-  transition: box-shadow 0.3s ease;
-  &:hover { box-shadow: ${({ theme }) => theme.boxShadow.lg}; }
+  transition: transform 200ms cubic-bezier(0.2, 0, 0, 1), box-shadow 200ms cubic-bezier(0.2, 0, 0, 1);
+  
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: ${({ theme }) => theme.boxShadow.cardHover || theme.boxShadow.lg};
+    }
+  }
+
+  &:active {
+    transform: scale(0.99);
+  }
 `;
 
 const ImageLink = styled(Link)`display: block; position: relative;`;
@@ -78,12 +88,33 @@ const Price = styled.span`
   }
 `;
 const AddButton = styled.button`
-  padding: 0.4rem 0.85rem; border: 0; border-radius: ${({ theme }) => theme.borderRadius.md};
-  background: ${({ theme }) => theme.colors.primary[500]}; color: white; cursor: pointer;
-  font-size: 0.875rem; font-weight: 600; min-height: 36px; transition: all 0.2s ease;
-  display: inline-flex; align-items: center; justify-content: center;
-  &:hover { background: ${({ theme }) => theme.colors.primary[600]}; }
-  &:active { transform: scale(0.96); }
+  padding: 0.4rem 0.85rem;
+  border: 0;
+  border-radius: ${({ theme }) => theme.borderRadius.md};
+  background: ${({ theme }) => theme.colors.primary[500]};
+  color: white;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 600;
+  min-height: 36px;
+  transition: transform 120ms cubic-bezier(0.2, 0, 0, 1),
+    background-color 140ms cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 140ms cubic-bezier(0.2, 0, 0, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  touch-action: manipulation;
+
+  &:hover {
+    background: ${({ theme }) => theme.colors.primary[600]};
+    box-shadow: 0 4px 10px rgba(255, 90, 0, 0.25);
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
     padding: 0.35rem 0.75rem;
     font-size: 0.8rem;

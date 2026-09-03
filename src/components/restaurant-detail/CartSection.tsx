@@ -97,10 +97,17 @@ const ItemButton = styled.button`
   border-radius: ${props => props.theme.borderRadius.md};
   font-weight: ${props => props.theme.typography.fontWeights.semibold};
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform 120ms cubic-bezier(0.2, 0, 0, 1),
+    background-color 140ms cubic-bezier(0.2, 0, 0, 1);
+  user-select: none;
+  touch-action: manipulation;
   
   &:hover {
     background-color: ${props => props.theme.colors.neutral[300]};
+  }
+
+  &:active {
+    transform: scale(0.92);
   }
 `;
 
@@ -148,10 +155,14 @@ const CheckoutButton = styled.button`
   font-size: 1.1rem;
   cursor: pointer;
   box-shadow: 0 4px 6px rgba(255, 90, 0, 0.2);
-  transition: all 0.3s ease;
+  transition: transform 120ms cubic-bezier(0.2, 0, 0, 1),
+    background-color 140ms cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 140ms cubic-bezier(0.2, 0, 0, 1);
   margin-bottom: 0.75rem;
   position: relative;
   overflow: hidden;
+  user-select: none;
+  touch-action: manipulation;
   
   &:hover {
     background-color: ${props => props.theme.colors.primary[400]};
@@ -160,7 +171,7 @@ const CheckoutButton = styled.button`
   }
   
   &:active {
-    transform: translateY(0);
+    transform: scale(0.98);
     box-shadow: 0 3px 6px rgba(255, 90, 0, 0.2);
   }
   

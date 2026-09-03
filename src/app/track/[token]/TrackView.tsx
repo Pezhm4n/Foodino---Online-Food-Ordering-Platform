@@ -191,13 +191,15 @@ const CourierVisual = styled.div`
       background: white;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
       border: 2px solid #e2e8f0;
-      transition: all 0.3s;
+      transition: border-color 200ms cubic-bezier(0.2, 0, 0, 1),
+        background-color 200ms cubic-bezier(0.2, 0, 0, 1),
+        transform 200ms cubic-bezier(0.2, 0, 0, 1);
     }
 
     &.active .icon-box {
       border-color: #ff5a00;
       background: #fff7ed;
-      transform: scale(1.1);
+      transform: scale(1.06);
     }
   }
 
@@ -233,12 +235,6 @@ const StepperTrack = styled.div`
 `;
 
 const StepItem = styled.div<{ $state: 'completed' | 'current' | 'upcoming' }>`
-  @keyframes pulseGlow {
-    0% { box-shadow: 0 0 0 0 rgba(255, 90, 0, 0.4); }
-    70% { box-shadow: 0 0 0 8px rgba(255, 90, 0, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(255, 90, 0, 0); }
-  }
-
   display: flex;
   align-items: flex-start;
   gap: 1.25rem;
@@ -280,8 +276,15 @@ const StepItem = styled.div<{ $state: 'completed' | 'current' | 'upcoming' }>`
     flex-shrink: 0;
     position: relative;
     z-index: 2;
-    transition: all 0.3s ease;
-    animation: ${({ $state }) => ($state === 'current' ? 'pulseGlow 2s infinite' : 'none')};
+    transition: background-color 220ms cubic-bezier(0.2, 0, 0, 1),
+      box-shadow 220ms cubic-bezier(0.2, 0, 0, 1),
+      transform 220ms cubic-bezier(0.2, 0, 0, 1);
+    box-shadow: ${({ $state }) =>
+      $state === 'current'
+        ? '0 0 0 4px rgba(255, 90, 0, 0.2)'
+        : $state === 'completed'
+        ? '0 0 0 3px rgba(34, 197, 94, 0.15)'
+        : 'none'};
   }
 
   .step-content {

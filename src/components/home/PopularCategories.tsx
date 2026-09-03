@@ -77,18 +77,24 @@ const CategoryCard = styled(Link)`
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   background-color: white;
   border: 1px solid ${props => props.theme.colors.neutral[200]};
-  transition: all 0.2s ease;
+  transition: transform 180ms cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 180ms cubic-bezier(0.2, 0, 0, 1),
+    border-color 180ms cubic-bezier(0.2, 0, 0, 1);
   text-decoration: none;
+  user-select: none;
+  touch-action: manipulation;
 
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
     padding: 0.75rem 0.5rem;
     border-radius: 0.85rem;
   }
   
-  &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 18px -4px rgba(255, 90, 0, 0.12), 0 4px 8px -2px rgba(0, 0, 0, 0.04);
-    border-color: ${props => props.theme.colors.primary[300]};
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px -4px rgba(255, 90, 0, 0.12), 0 4px 8px -2px rgba(0, 0, 0, 0.04);
+      border-color: ${props => props.theme.colors.primary[300]};
+    }
   }
 
   &:active {

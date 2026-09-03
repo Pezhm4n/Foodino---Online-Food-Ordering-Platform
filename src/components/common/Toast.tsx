@@ -5,25 +5,25 @@ import styled, { keyframes } from 'styled-components';
 import { createPortal } from 'react-dom';
 import { Toaster } from 'react-hot-toast';
 
-// انیمیشن‌های Toast
+// انیمیشن‌های Toast با حفظ محور افقی
 const slideIn = keyframes`
   from {
-    transform: translateY(100%);
+    transform: translate(-50%, 14px);
     opacity: 0;
   }
   to {
-    transform: translateY(0);
+    transform: translate(-50%, 0);
     opacity: 1;
   }
 `;
 
 const slideOut = keyframes`
   from {
-    transform: translateY(0);
+    transform: translate(-50%, 0);
     opacity: 1;
   }
   to {
-    transform: translateY(100%);
+    transform: translate(-50%, 14px);
     opacity: 0;
   }
 `;
@@ -45,16 +45,17 @@ const ToastBase = styled.div<{ $type: ToastType; $visible: boolean }>`
   bottom: 1.5rem;
   left: 50%;
   transform: translateX(-50%);
-  padding: 1rem 1.5rem;
+  padding: 0.85rem 1.35rem;
   min-width: 250px;
-  border-radius: ${props => props.theme.borderRadius.md};
+  max-width: 90vw;
+  border-radius: ${props => props.theme.borderRadius.lg};
   color: white;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: ${props => props.theme.boxShadow.md};
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
   z-index: 9999;
-  animation: ${props => (props.$visible ? slideIn : slideOut)} 0.3s ease forwards;
+  animation: ${props => (props.$visible ? slideIn : slideOut)} 200ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
   
   background-color: ${props => {
     switch (props.$type) {
@@ -100,7 +101,7 @@ const Toast: React.FC<{ toast: ToastInfo; onClose: () => void }> = ({ toast, onC
   useEffect(() => {
     const timer = setTimeout(() => {
       setVisible(false);
-      const animationDuration = 300; // میلی‌ثانیه
+      const animationDuration = 200; // میلی‌ثانیه هماهنگ با توکن
       setTimeout(onClose, animationDuration);
     }, toast.duration || 3000);
     
@@ -127,7 +128,7 @@ const Toast: React.FC<{ toast: ToastInfo; onClose: () => void }> = ({ toast, onC
     <ToastBase $type={toast.type} $visible={visible}>
       {renderIcon()}
       <ToastMessage>{toast.message}</ToastMessage>
-      <CloseButton onClick={() => { setVisible(false); setTimeout(onClose, 300); }}>
+      <CloseButton onClick={() => { setVisible(false); setTimeout(onClose, 200); }}>
         ×
       </CloseButton>
     </ToastBase>

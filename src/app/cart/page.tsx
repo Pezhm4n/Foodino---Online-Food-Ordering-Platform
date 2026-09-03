@@ -227,7 +227,11 @@ const QuantityButton = styled.button`
   font-size: 1.15rem;
   font-weight: 600;
   color: ${props => props.theme.colors.neutral[700]};
-  transition: all 0.2s ease;
+  transition: transform 120ms cubic-bezier(0.2, 0, 0, 1),
+    background-color 140ms cubic-bezier(0.2, 0, 0, 1),
+    border-color 140ms cubic-bezier(0.2, 0, 0, 1);
+  user-select: none;
+  touch-action: manipulation;
   
   &:hover {
     background-color: ${props => props.theme.colors.neutral[100]};
@@ -273,7 +277,11 @@ const RemoveButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
+  transition: transform 120ms cubic-bezier(0.2, 0, 0, 1),
+    background-color 140ms cubic-bezier(0.2, 0, 0, 1),
+    color 140ms cubic-bezier(0.2, 0, 0, 1);
+  user-select: none;
+  touch-action: manipulation;
   
   &:hover {
     background-color: ${props => props.theme.colors.error[50]};
@@ -322,7 +330,11 @@ const MobileCheckoutBtn = styled.button`
   min-height: 42px;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(255, 90, 0, 0.25);
-  transition: all 0.2s;
+  transition: transform 120ms cubic-bezier(0.2, 0, 0, 1),
+    background-color 140ms cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 140ms cubic-bezier(0.2, 0, 0, 1);
+  user-select: none;
+  touch-action: manipulation;
 
   &:active {
     transform: scale(0.97);
@@ -524,9 +536,13 @@ const CheckoutButton = styled.button`
   margin-top: 1.5rem;
   cursor: pointer;
   box-shadow: 0 4px 6px rgba(255, 90, 0, 0.2);
-  transition: all 0.3s ease;
+  transition: transform 120ms cubic-bezier(0.2, 0, 0, 1),
+    background-color 140ms cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 140ms cubic-bezier(0.2, 0, 0, 1);
   position: relative;
   overflow: hidden;
+  user-select: none;
+  touch-action: manipulation;
   
   &:hover {
     background-color: ${props => props.theme.colors.primary[400]};
@@ -535,7 +551,7 @@ const CheckoutButton = styled.button`
   }
   
   &:active {
-    transform: translateY(0);
+    transform: scale(0.98);
     box-shadow: 0 3px 6px rgba(255, 90, 0, 0.2);
   }
   

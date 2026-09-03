@@ -1,4 +1,5 @@
 import { ThemeColors } from './types';
+import { motionTokens } from './motion';
 
 // تعریف رنگ‌ها
 const colors: ThemeColors = {
@@ -187,4 +188,5 @@ export const theme = {
     40: 40,
     50: 50,
   },
+  motion: motionTokens,
 }; 

@@ -33,7 +33,7 @@ interface FoodDetailModalProps {
   onClose: () => void;
 }
 
-const Overlay = styled.div<{ $isOpen: boolean }>`
+const Overlay = styled.div<{ $isOpen: boolean; $isClosing?: boolean }>`
   position: fixed;
   inset: 0;
   background: rgba(15, 23, 42, 0.65);
@@ -44,11 +44,21 @@ const Overlay = styled.div<{ $isOpen: boolean }>`
   justify-content: center;
   padding: 1rem;
   direction: rtl;
-  animation: fadeIn 0.2s ease-out;
+  touch-action: none;
+  overscroll-behavior: contain;
+  animation: ${({ $isClosing }) =>
+    $isClosing
+      ? "modalBackdropFadeOut 190ms cubic-bezier(0.4, 0, 1, 1) forwards"
+      : "modalBackdropFadeIn 220ms cubic-bezier(0, 0, 0.2, 1)"};
 
-  @keyframes fadeIn {
+  @keyframes modalBackdropFadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
+  }
+
+  @keyframes modalBackdropFadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
   }
 
   @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
@@ -57,17 +67,45 @@ const Overlay = styled.div<{ $isOpen: boolean }>`
   }
 `;
 
-const ModalCard = styled.div`
+const ModalCard = styled.div<{ $isClosing?: boolean }>`
   background: white;
   border-radius: 1.25rem;
   width: 100%;
   max-width: 540px;
   max-height: 90vh;
   overflow: hidden;
+  touch-action: auto;
+  overscroll-behavior: contain;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
   position: relative;
   display: flex;
   flex-direction: column;
+  animation: ${({ $isClosing }) =>
+    $isClosing
+      ? "modalExitDesktop 190ms cubic-bezier(0.4, 0, 1, 1) forwards"
+      : "modalEnterDesktop 220ms cubic-bezier(0.16, 1, 0.3, 1)"};
+
+  @keyframes modalEnterDesktop {
+    from {
+      opacity: 0;
+      transform: scale(0.97) translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  @keyframes modalExitDesktop {
+    from {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: scale(0.97) translateY(8px);
+    }
+  }
 
   @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
     max-height: 88vh;
@@ -75,7 +113,10 @@ const ModalCard = styled.div`
     border-bottom-right-radius: 0;
     border-top-left-radius: 1.5rem;
     border-top-right-radius: 1.5rem;
-    animation: slideUpMobile 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: ${({ $isClosing }) =>
+      $isClosing
+        ? "slideDownMobile 200ms cubic-bezier(0.4, 0, 1, 1) forwards"
+        : "slideUpMobile 0.28s cubic-bezier(0.16, 1, 0.3, 1)"};
   }
 
   @keyframes slideUpMobile {
@@ -84,6 +125,15 @@ const ModalCard = styled.div`
     }
     to {
       transform: translateY(0);
+    }
+  }
+
+  @keyframes slideDownMobile {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(100%);
     }
   }
 `;
@@ -149,12 +199,20 @@ const CloseButton = styled.button`
   justify-content: center;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  transition: all 0.2s;
+  transition: transform 120ms cubic-bezier(0.2, 0, 0, 1),
+    background-color 140ms cubic-bezier(0.2, 0, 0, 1),
+    color 140ms cubic-bezier(0.2, 0, 0, 1);
+  user-select: none;
+  touch-action: manipulation;
 
   &:hover {
     background: #f1f5f9;
     color: #0f172a;
     transform: scale(1.05);
+  }
+
+  &:active {
+    transform: scale(0.92);
   }
 `;
 
@@ -405,10 +463,16 @@ const QtyBtn = styled.button`
   font-size: 1rem;
   color: #0f172a;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: transform 120ms cubic-bezier(0.2, 0, 0, 1), background-color 140ms cubic-bezier(0.2, 0, 0, 1);
+  user-select: none;
+  touch-action: manipulation;
 
   &:hover {
     background: #e2e8f0;
+  }
+
+  &:active {
+    transform: scale(0.92);
   }
 `;
 
@@ -457,13 +521,19 @@ const AddToCartBtn = styled.button`
 export default function FoodDetailModal({ dish, isOpen, onClose }: FoodDetailModalProps) {
   const [quantity, setQuantity] = useState(1);
   const [notes, setNotes] = useState("");
+  const [isClosing, setIsClosing] = useState(false);
   const { addItem } = useCart();
 
   const handleClose = useCallback(() => {
-    setQuantity(1);
-    setNotes("");
-    onClose();
-  }, [onClose]);
+    if (isClosing) return;
+    setIsClosing(true);
+    setTimeout(() => {
+      onClose();
+      setIsClosing(false);
+      setQuantity(1);
+      setNotes("");
+    }, 190);
+  }, [isClosing, onClose]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -487,9 +557,10 @@ export default function FoodDetailModal({ dish, isOpen, onClose }: FoodDetailMod
   }, [isOpen, handleClose]);
 
   if (!isOpen || !dish) return null;
+  const activeDish = dish;
 
   const formatPrice = (p: number) => p.toLocaleString("fa-IR") + " تومان";
-  const lineTotal = dish.price * quantity;
+  const lineTotal = activeDish.price * quantity;
 
   const handleAddToCart = () => {
     addItem({
@@ -509,65 +580,63 @@ export default function FoodDetailModal({ dish, isOpen, onClose }: FoodDetailMod
   return (
     <Overlay
       $isOpen={isOpen}
+      $isClosing={isClosing}
       onClick={handleClose}
-      onTouchMove={(e) => {
-        if (e.target === e.currentTarget) e.preventDefault();
-      }}
       role="presentation"
     >
       <ModalCard
+        $isClosing={isClosing}
         role="dialog"
         aria-modal="true"
         aria-labelledby="dish-modal-title"
         onClick={(e) => e.stopPropagation()}
-        onTouchMove={(e) => e.stopPropagation()}
       >
         <DragHandle aria-hidden="true" />
         <ModalHeader>
-          <DishEmoji aria-hidden="true">{dish.image || "🍕"}</DishEmoji>
+          <DishEmoji aria-hidden="true">{activeDish.image || "🍕"}</DishEmoji>
           <CloseButton onClick={handleClose} aria-label="بستن جزئیات غذا">✕</CloseButton>
           <BadgeContainer>
-            {dish.discountPercent && <DiscountTag>٪{dish.discountPercent} تخفیف</DiscountTag>}
-            {dish.category && <CategoryTag>{dish.category}</CategoryTag>}
+            {activeDish.discountPercent && <DiscountTag>٪{activeDish.discountPercent} تخفیف</DiscountTag>}
+            {activeDish.category && <CategoryTag>{activeDish.category}</CategoryTag>}
           </BadgeContainer>
         </ModalHeader>
 
         <ModalBody>
           <TitleSection>
-            <DishTitle id="dish-modal-title">{dish.name}</DishTitle>
-            <RestaurantMeta>از {dish.restaurantName}</RestaurantMeta>
-            <DishDescription>{dish.description}</DishDescription>
+            <DishTitle id="dish-modal-title">{activeDish.name}</DishTitle>
+            <RestaurantMeta>از {activeDish.restaurantName}</RestaurantMeta>
+            <DishDescription>{activeDish.description}</DishDescription>
           </TitleSection>
 
-          {dish.nutrition && (
+          {activeDish.nutrition && (
             <div>
               <SectionHeader>📊 ارزش غذایی (در هر پرس)</SectionHeader>
               <NutritionGrid>
                 <NutritionItem>
                   <span className="label">کالری</span>
-                  <span className="value">{dish.nutrition.calories} kcal</span>
+                  <span className="value">{activeDish.nutrition.calories} kcal</span>
                 </NutritionItem>
                 <NutritionItem>
                   <span className="label">پروتئین</span>
-                  <span className="value">{dish.nutrition.protein} گرم</span>
+                  <span className="value">{activeDish.nutrition.protein} گرم</span>
                 </NutritionItem>
                 <NutritionItem>
                   <span className="label">چربی</span>
-                  <span className="value">{dish.nutrition.fat} گرم</span>
+                  <span className="value">{activeDish.nutrition.fat} گرم</span>
                 </NutritionItem>
                 <NutritionItem>
                   <span className="label">کربوهیدرات</span>
-                  <span className="value">{dish.nutrition.carbs} گرم</span>
+                  <span className="value">{activeDish.nutrition.carbs} گرم</span>
                 </NutritionItem>
               </NutritionGrid>
             </div>
           )}
 
-          {dish.ingredients && dish.ingredients.length > 0 && (
+          {activeDish.ingredients && activeDish.ingredients.length > 0 && (
             <div>
               <SectionHeader>🌿 ترکیبات و مواد اولیه</SectionHeader>
               <IngredientsList>
-                {dish.ingredients.map((ing, i) => (
+                {activeDish.ingredients.map((ing, i) => (
                   <IngredientChip key={i}>{ing}</IngredientChip>
                 ))}
               </IngredientsList>
@@ -593,8 +662,8 @@ export default function FoodDetailModal({ dish, isOpen, onClose }: FoodDetailMod
             <PriceColumn style={{ fontVariantNumeric: "tabular-nums" }}>
               <span className="label">مبلغ کل:</span>
               <span className="current">{formatPrice(lineTotal)}</span>
-              {dish.originalPrice && (
-                <span className="original">{formatPrice(dish.originalPrice * quantity)}</span>
+              {activeDish.originalPrice && (
+                <span className="original">{formatPrice(activeDish.originalPrice * quantity)}</span>
               )}
             </PriceColumn>
 
@@ -632,8 +701,8 @@ export default function FoodDetailModal({ dish, isOpen, onClose }: FoodDetailMod
             <PriceColumn style={{ fontVariantNumeric: "tabular-nums" }}>
               <span className="label">مبلغ کل:</span>
               <span className="current">{formatPrice(lineTotal)}</span>
-              {dish.originalPrice && (
-                <span className="original">{formatPrice(dish.originalPrice * quantity)}</span>
+              {activeDish.originalPrice && (
+                <span className="original">{formatPrice(activeDish.originalPrice * quantity)}</span>
               )}
             </PriceColumn>
 

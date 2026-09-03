@@ -37,7 +37,7 @@ export const RadioLabel = styled.label`
     border: 2px solid ${props => props.theme.colors.gray[300]};
     border-radius: 50%;
     margin-left: 0.75rem;
-    transition: all 0.2s ease;
+    transition: border-color 140ms cubic-bezier(0.2, 0, 0, 1), background-color 140ms cubic-bezier(0.2, 0, 0, 1);
   }
   
   &::after {
@@ -49,7 +49,7 @@ export const RadioLabel = styled.label`
     background: white;
     border-radius: 50%;
     transform: scale(0);
-    transition: transform 0.2s ease;
+    transition: transform 160ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 `;
 
@@ -103,7 +103,9 @@ export const StepNumber = styled.div<{ $active?: boolean; $completed?: boolean }
   font-size: ${props => props.theme.typography.fontSizes.lg};
   margin-bottom: 0.5rem;
   z-index: 1;
-  transition: all 0.3s ease;
+  transition: background-color 180ms cubic-bezier(0.2, 0, 0, 1),
+    border-color 180ms cubic-bezier(0.2, 0, 0, 1),
+    color 180ms cubic-bezier(0.2, 0, 0, 1);
   
   background-color: ${props => {
     if (props.$completed) return props.theme.colors.primary[500];
@@ -149,7 +151,7 @@ export const FormInput = styled.input`
   border: 1px solid ${props => props.theme.colors.gray[300]};
   border-radius: ${props => props.theme.borderRadius.md};
   font-size: ${props => props.theme.typography.fontSizes.md};
-  transition: border-color 0.3s, box-shadow 0.3s;
+  transition: border-color 160ms cubic-bezier(0.2, 0, 0, 1), box-shadow 160ms cubic-bezier(0.2, 0, 0, 1);
   
   &:focus {
     outline: none;
@@ -166,7 +168,7 @@ export const FormTextarea = styled.textarea`
   font-size: ${props => props.theme.typography.fontSizes.md};
   min-height: 100px;
   resize: vertical;
-  transition: border-color 0.3s, box-shadow 0.3s;
+  transition: border-color 160ms cubic-bezier(0.2, 0, 0, 1), box-shadow 160ms cubic-bezier(0.2, 0, 0, 1);
   
   &:focus {
     outline: none;
@@ -187,8 +189,18 @@ const buttonStyles = css<{ $variant?: ButtonVariant; $fullWidth?: boolean }>`
   font-weight: 500;
   font-size: ${props => props.theme.typography.fontSizes.md};
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform 120ms cubic-bezier(0.2, 0, 0, 1),
+    background-color 140ms cubic-bezier(0.2, 0, 0, 1),
+    border-color 140ms cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 140ms cubic-bezier(0.2, 0, 0, 1),
+    color 140ms cubic-bezier(0.2, 0, 0, 1);
   width: ${props => props.$fullWidth ? '100%' : 'auto'};
+  user-select: none;
+  touch-action: manipulation;
+  
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
   
   ${props => {
     switch (props.$variant) {
@@ -275,6 +287,7 @@ export const Card = styled.div`
   box-shadow: ${props => props.theme.boxShadow.md};
   padding: 1.5rem;
   margin-bottom: 1.5rem;
+  transition: transform 200ms cubic-bezier(0.2, 0, 0, 1), box-shadow 200ms cubic-bezier(0.2, 0, 0, 1);
 `;
 
 const styledComponents = {

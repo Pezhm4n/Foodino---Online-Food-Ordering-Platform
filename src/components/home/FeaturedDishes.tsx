@@ -140,11 +140,15 @@ const ViewAllLink = styled(Link)`
   align-items: center;
   gap: 0.25rem;
   text-decoration: none;
-  transition: all 0.2s;
+  transition: color 140ms cubic-bezier(0.2, 0, 0, 1), transform 140ms cubic-bezier(0.2, 0, 0, 1);
 
   &:hover {
     color: #e04e00;
-    transform: translateX(-4px);
+    transform: translateX(-3px);
+  }
+
+  &:active {
+    transform: translateX(0);
   }
 `;
 
@@ -170,16 +174,24 @@ const DishCard = styled.div`
   border: 1px solid #e2e8f0;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 200ms cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 200ms cubic-bezier(0.2, 0, 0, 1),
+    border-color 200ms cubic-bezier(0.2, 0, 0, 1);
   display: flex;
   flex-direction: column;
   position: relative;
   cursor: pointer;
 
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
-    border-color: #fdba74;
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.08);
+      border-color: #fdba74;
+    }
+  }
+
+  &:active {
+    transform: scale(0.99);
   }
 `;
 
@@ -196,10 +208,10 @@ const CardEmoji = styled.div`
   font-size: 4.5rem;
   user-select: none;
   filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.1));
-  transition: transform 0.3s ease;
+  transition: transform 200ms cubic-bezier(0.2, 0, 0, 1);
 
   ${DishCard}:hover & {
-    transform: scale(1.08);
+    transform: scale(1.04);
   }
 `;
 
@@ -297,13 +309,18 @@ const QuickAddBtn = styled.button`
   font-size: 0.825rem;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: transform 120ms cubic-bezier(0.2, 0, 0, 1),
+    background-color 140ms cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 140ms cubic-bezier(0.2, 0, 0, 1);
   display: flex;
   align-items: center;
   gap: 0.25rem;
+  user-select: none;
+  touch-action: manipulation;
 
   &:hover {
     background: #e04e00;
+    box-shadow: 0 4px 10px rgba(255, 90, 0, 0.25);
   }
 
   &:active {

@@ -1,7 +1,18 @@
 "use client";
 
 import React, { InputHTMLAttributes, forwardRef } from 'react';
-import styled, { css } from 'styled-components';
+import styled, { css, keyframes } from 'styled-components';
+
+const errorFadeIn = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
 
 // تعریف تایپ‌ها
 type InputVariant = 'default' | 'outlined' | 'filled';
@@ -31,7 +42,9 @@ const baseInputStyles = css<{
 }>`
   font-family: ${props => props.theme.typography.fontFamily};
   border-radius: ${props => props.theme.borderRadius.md};
-  transition: all 0.2s ease;
+  transition: border-color 160ms cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 160ms cubic-bezier(0.2, 0, 0, 1),
+    background-color 160ms cubic-bezier(0.2, 0, 0, 1);
   outline: none;
   width: ${props => props.$fullWidth ? '100%' : 'auto'};
   padding-${props => props.$iconPosition}: ${props => props.$hasIcon ? '2.5rem' : '1rem'};
@@ -161,6 +174,7 @@ const ErrorMessage = styled.p`
   font-size: ${props => props.theme.typography.fontSizes.xs};
   color: ${props => props.theme.colors.error[500]};
   margin-top: 0.25rem;
+  animation: ${errorFadeIn} 160ms cubic-bezier(0, 0, 0.2, 1);
 `;
 
 const IconWrapper = styled.span<{ $position: 'left' | 'right' }>`

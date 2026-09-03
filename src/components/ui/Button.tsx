@@ -1,8 +1,15 @@
 "use client";
 
 import React, { ReactNode, ButtonHTMLAttributes } from 'react';
-import styled, { css } from 'styled-components';
+import styled, { css, keyframes } from 'styled-components';
 import Link from 'next/link';
+
+// انیمیشن چرخش ملایم آیکون لودینگ
+const spin = keyframes`
+  to {
+    transform: rotate(360deg);
+  }
+`;
 
 // تعریف تایپ‌های دکمه
 type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
@@ -26,9 +33,19 @@ const baseButtonStyles = css<{ $size: ButtonSize; $fullWidth: boolean }>`
   font-family: ${props => props.theme.typography.fontFamily};
   font-weight: ${props => props.theme.typography.fontWeights.medium};
   border-radius: ${props => props.theme.borderRadius.md};
-  transition: all 0.2s ease;
+  transition: transform 120ms cubic-bezier(0.2, 0, 0, 1),
+    background-color 140ms cubic-bezier(0.2, 0, 0, 1),
+    border-color 140ms cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 140ms cubic-bezier(0.2, 0, 0, 1),
+    color 140ms cubic-bezier(0.2, 0, 0, 1);
   cursor: pointer;
   width: ${props => props.$fullWidth ? '100%' : 'auto'};
+  user-select: none;
+  touch-action: manipulation;
+  
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
   
   /* اندازه‌ها */
   ${props => {
@@ -88,10 +105,7 @@ const variantStyles = {
     
     &:hover:not(:disabled) {
       background-color: ${props => props.theme.colors.primary[400]};
-    }
-    
-    &:active:not(:disabled) {
-      transform: translateY(1px);
+      box-shadow: 0 4px 12px rgba(255, 90, 0, 0.25);
     }
   `,
   
@@ -102,10 +116,7 @@ const variantStyles = {
     
     &:hover:not(:disabled) {
       background-color: ${props => props.theme.colors.secondary[400]};
-    }
-    
-    &:active:not(:disabled) {
-      transform: translateY(1px);
+      box-shadow: 0 4px 12px rgba(30, 41, 59, 0.2);
     }
   `,
   
@@ -115,11 +126,7 @@ const variantStyles = {
     border: 1px solid ${props => props.theme.colors.primary[500]};
     
     &:hover:not(:disabled) {
-      background-color: rgba(255, 90, 0, 0.05);
-    }
-    
-    &:active:not(:disabled) {
-      transform: translateY(1px);
+      background-color: rgba(255, 90, 0, 0.06);
     }
   `,
   
@@ -131,10 +138,6 @@ const variantStyles = {
     &:hover:not(:disabled) {
       background-color: ${props => props.theme.colors.neutral[100]};
     }
-    
-    &:active:not(:disabled) {
-      transform: translateY(1px);
-    }
   `,
   
   danger: css`
@@ -144,10 +147,7 @@ const variantStyles = {
     
     &:hover:not(:disabled) {
       background-color: ${props => props.theme.colors.error[400]};
-    }
-    
-    &:active:not(:disabled) {
-      transform: translateY(1px);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
     }
   `,
 };
@@ -170,7 +170,15 @@ const StyledLinkButton = styled(Link)<{ $variant: ButtonVariant; $size: ButtonSi
 `;
 
 const LoadingGlyph = styled.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   margin-left: 0.5rem;
+  animation: ${spin} 0.75s linear infinite;
+  line-height: 1;
+  font-size: 1.05em;
+  transform-origin: center;
+  flex-shrink: 0;
 `;
 
 // کامپوننت اصلی Button

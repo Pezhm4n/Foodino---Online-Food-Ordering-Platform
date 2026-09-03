@@ -140,9 +140,12 @@ const ResetButton = styled.button`
   border-radius: ${props => props.theme.borderRadius.md};
   font-weight: ${props => props.theme.typography.fontWeights.medium};
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 140ms cubic-bezier(0.2, 0, 0, 1),
+    transform 120ms cubic-bezier(0.2, 0, 0, 1);
   margin-top: 1rem;
   min-height: 42px;
+  user-select: none;
+  touch-action: manipulation;
   
   &:hover {
     background-color: ${props => props.theme.colors.neutral[300]};
