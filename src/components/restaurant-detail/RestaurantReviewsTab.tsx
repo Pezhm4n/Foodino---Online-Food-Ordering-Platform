@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useTransition } from "react";
 import styled from "styled-components";
@@ -490,7 +490,7 @@ export default function RestaurantReviewsTab({
       <OverviewCard>
         <ScoreBox>
           <div className="big-score">{numberFormatter.format(restaurant.rating)}</div>
-          <div className="stars">★★★★★</div>
+          <div className="stars" aria-hidden="true">★★★★★</div>
           <div className="total-count">
             بر اساس {numberFormatter.format(allReviews.length + 240)} نظر ثبت‌شده
           </div>
@@ -500,9 +500,9 @@ export default function RestaurantReviewsTab({
           <BreakdownItem>
             <div className="top-row">
               <span className="title">کیفیت و طعم غذا</span>
-              <span className="val">۴.۸ از ۵</span>
+              <span className="val" style={{ fontVariantNumeric: "tabular-nums" }}>۴.۸ از ۵</span>
             </div>
-            <div className="bar-bg">
+            <div className="bar-bg" role="meter" aria-label="کیفیت و طعم غذا" aria-valuenow={96} aria-valuemin={0} aria-valuemax={100}>
               <div className="bar-fill" style={{ width: "96%" }} />
             </div>
           </BreakdownItem>
@@ -510,9 +510,9 @@ export default function RestaurantReviewsTab({
           <BreakdownItem>
             <div className="top-row">
               <span className="title">کیفیت و بهداشت بسته‌بندی</span>
-              <span className="val">۴.۷ از ۵</span>
+              <span className="val" style={{ fontVariantNumeric: "tabular-nums" }}>۴.۷ از ۵</span>
             </div>
-            <div className="bar-bg">
+            <div className="bar-bg" role="meter" aria-label="کیفیت و بهداشت بسته‌بندی" aria-valuenow={94} aria-valuemin={0} aria-valuemax={100}>
               <div className="bar-fill" style={{ width: "94%" }} />
             </div>
           </BreakdownItem>
@@ -520,9 +520,9 @@ export default function RestaurantReviewsTab({
           <BreakdownItem>
             <div className="top-row">
               <span className="title">سرعت تحویل پیک</span>
-              <span className="val">۴.۶ از ۵</span>
+              <span className="val" style={{ fontVariantNumeric: "tabular-nums" }}>۴.۶ از ۵</span>
             </div>
-            <div className="bar-bg">
+            <div className="bar-bg" role="meter" aria-label="سرعت تحویل پیک" aria-valuenow={92} aria-valuemin={0} aria-valuemax={100}>
               <div className="bar-fill" style={{ width: "92%" }} />
             </div>
           </BreakdownItem>
@@ -540,14 +540,14 @@ export default function RestaurantReviewsTab({
           <Form onSubmit={handleSubmit}>
             <RatingPicker>
               <span className="label">امتیاز شما:</span>
-              <div className="stars-row">
+              <div className="stars-row" role="group" aria-label="انتخاب امتیاز به ستاره">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
                     key={star}
                     type="button"
                     className={`star-btn ${star <= selectedRating ? "active" : ""}`}
                     onClick={() => setSelectedRating(star)}
-                    aria-label={`${star} ستاره`}
+                    aria-label={`${star} ستاره از ۵`}
                   >
                     ★
                   </button>
@@ -560,7 +560,9 @@ export default function RestaurantReviewsTab({
               <input
                 id="foodName"
                 name="foodName"
-                placeholder="مثلاً: پیتزا پپرونی تند، سوشی سالمون..."
+                autoComplete="off"
+                spellCheck={false}
+                placeholder="مثلاً: پیتزا پپرونی تند، سوشی سالمون…"
               />
             </InputGroup>
 
@@ -570,12 +572,13 @@ export default function RestaurantReviewsTab({
                 id="comment"
                 name="comment"
                 required
-                placeholder="درباره کیفیت غذا، طعم مواد اولیه و نحوه بسته‌بندی بنویسید..."
+                spellCheck={false}
+                placeholder="درباره کیفیت غذا، طعم مواد اولیه و نحوه بسته‌بندی بنویسید…"
               />
             </InputGroup>
 
             <SubmitButton type="submit" disabled={isPending}>
-              {isPending ? "در حال ثبت نظر..." : "ارسال و ثبت نظر"}
+              {isPending ? "در حال ثبت نظر…" : "ارسال و ثبت نظر"}
             </SubmitButton>
           </Form>
         </ReviewFormCard>

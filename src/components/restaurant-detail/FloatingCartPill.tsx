@@ -130,6 +130,11 @@ const CheckoutButton = styled(Link)`
     box-shadow: 0 5px 14px rgba(255, 90, 0, 0.5);
   }
 
+  &:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
+  }
+
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
     padding: 0.4rem 0.75rem;
     font-size: 0.78rem;
@@ -158,20 +163,20 @@ export default function FloatingCartPill() {
     <FloatingWrapper>
       <Capsule>
         <InfoSide>
-          <div className="icon-bubble">🛍️</div>
+          <div className="icon-bubble" aria-hidden="true">🛍️</div>
           <div className="text-box">
-            <span className="count">
+            <span className="count" style={{ fontVariantNumeric: "tabular-nums" }}>
               سبد خرید ({numberFormatter.format(totalItems)} قلم)
             </span>
-            <span className="amount">
+            <span className="amount" style={{ fontVariantNumeric: "tabular-nums" }}>
               {numberFormatter.format(totalPrice)} تومان
             </span>
           </div>
         </InfoSide>
 
-        <CheckoutButton href="/cart">
+        <CheckoutButton href="/cart" aria-label="مشاهده سبد و تکمیل نهایی خرید">
           <span>تکمیل خرید</span>
-          <span>←</span>
+          <span aria-hidden="true">←</span>
         </CheckoutButton>
       </Capsule>
     </FloatingWrapper>

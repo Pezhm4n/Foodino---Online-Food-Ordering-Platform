@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import { useCart } from "@/contexts/CartContext";
 
@@ -372,27 +372,34 @@ export default function FoodDetailModal({ dish, isOpen, onClose }: FoodDetailMod
   const [notes, setNotes] = useState("");
   const { addItem } = useCart();
 
+  const handleClose = useCallback(() => {
+    setQuantity(1);
+    setNotes("");
+    onClose();
+  }, [onClose]);
+
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    if (!isOpen) return;
+
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        handleClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
     return () => {
       document.body.style.overflow = "";
+      window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isOpen]);
+  }, [isOpen, handleClose]);
 
   if (!isOpen || !dish) return null;
 
   const formatPrice = (p: number) => p.toLocaleString("fa-IR") + " تومان";
   const lineTotal = dish.price * quantity;
-
-  const handleClose = () => {
-    setQuantity(1);
-    setNotes("");
-    onClose();
-  };
 
   const handleAddToCart = () => {
     addItem({
@@ -410,11 +417,16 @@ export default function FoodDetailModal({ dish, isOpen, onClose }: FoodDetailMod
   };
 
   return (
-    <Overlay $isOpen={isOpen} onClick={handleClose}>
-      <ModalCard onClick={(e) => e.stopPropagation()}>
+    <Overlay $isOpen={isOpen} onClick={handleClose} role="presentation">
+      <ModalCard
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="dish-modal-title"
+        onClick={(e) => e.stopPropagation()}
+      >
         <ModalHeader>
-          <DishEmoji>{dish.image || "🍕"}</DishEmoji>
-          <CloseButton onClick={handleClose} aria-label="بستن">✕</CloseButton>
+          <DishEmoji aria-hidden="true">{dish.image || "🍕"}</DishEmoji>
+          <CloseButton onClick={handleClose} aria-label="بستن جزئیات غذا">✕</CloseButton>
           <BadgeContainer>
             {dish.discountPercent && <DiscountTag>٪{dish.discountPercent} تخفیف</DiscountTag>}
             {dish.category && <CategoryTag>{dish.category}</CategoryTag>}
@@ -423,7 +435,7 @@ export default function FoodDetailModal({ dish, isOpen, onClose }: FoodDetailMod
 
         <ModalBody>
           <TitleSection>
-            <DishTitle>{dish.name}</DishTitle>
+            <DishTitle id="dish-modal-title">{dish.name}</DishTitle>
             <RestaurantMeta>از {dish.restaurantName}</RestaurantMeta>
             <DishDescription>{dish.description}</DishDescription>
           </TitleSection>
@@ -467,14 +479,15 @@ export default function FoodDetailModal({ dish, isOpen, onClose }: FoodDetailMod
             <SectionHeader>✍️ یادداشت اختصاصی برای سرآشپز (اختیاری)</SectionHeader>
             <NoteInput
               rows={2}
-              placeholder="مثلاً: بدون پیاز، سس کمتر، تند نباشد..."
+              placeholder="مثلاً: بدون پیاز، سس کمتر، تند نباشد…"
               value={notes}
+              spellCheck={false}
               onChange={(e) => setNotes(e.target.value)}
             />
           </div>
 
           <ModalFooter>
-            <PriceColumn>
+            <PriceColumn style={{ fontVariantNumeric: "tabular-nums" }}>
               <span className="label">مبلغ کل:</span>
               <span className="current">{formatPrice(lineTotal)}</span>
               {dish.originalPrice && (
@@ -484,11 +497,25 @@ export default function FoodDetailModal({ dish, isOpen, onClose }: FoodDetailMod
 
             <ControlsGroup>
               <QuantityBox>
-                <QtyBtn onClick={() => setQuantity((q) => Math.max(1, q - 1))}>-</QtyBtn>
-                <QtyValue>{quantity}</QtyValue>
-                <QtyBtn onClick={() => setQuantity((q) => Math.min(20, q + 1))}>+</QtyBtn>
+                <QtyBtn
+                  type="button"
+                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                  aria-label="کاهش تعداد"
+                >
+                  -
+                </QtyBtn>
+                <QtyValue aria-live="polite" style={{ fontVariantNumeric: "tabular-nums" }}>
+                  {quantity}
+                </QtyValue>
+                <QtyBtn
+                  type="button"
+                  onClick={() => setQuantity((q) => Math.min(20, q + 1))}
+                  aria-label="افزایش تعداد"
+                >
+                  +
+                </QtyBtn>
               </QuantityBox>
-              <AddToCartBtn onClick={handleAddToCart}>
+              <AddToCartBtn type="button" onClick={handleAddToCart}>
                 افزودن به سبد
               </AddToCartBtn>
             </ControlsGroup>

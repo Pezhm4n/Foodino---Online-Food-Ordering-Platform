@@ -433,24 +433,33 @@ export default function DatabaseMenu({
       <ControlsBar>
         <SearchBox>
           <SearchInput
-            type="text"
-            placeholder="جستجو در منوی این رستوران..."
+            type="search"
+            placeholder="جستجو در منوی این رستوران…"
             value={searchQuery}
+            autoComplete="off"
+            spellCheck={false}
+            aria-label="جستجو در منوی غذاها"
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-          <SearchIconWrapper>🔍</SearchIconWrapper>
+          <SearchIconWrapper aria-hidden="true">🔍</SearchIconWrapper>
           {searchQuery && (
-            <ClearSearchBtn type="button" onClick={() => setSearchQuery("")}>
+            <ClearSearchBtn
+              type="button"
+              onClick={() => setSearchQuery("")}
+              aria-label="پاک کردن متن جستجو"
+            >
               ✕
             </ClearSearchBtn>
           )}
         </SearchBox>
 
-        <TabsWrapper>
+        <TabsWrapper role="tablist" aria-label="دسته‌بندی‌های غذا">
           {categories.map((cat) => (
             <CategoryTab
               key={cat}
               type="button"
+              role="tab"
+              aria-selected={activeCategory === cat}
               $active={activeCategory === cat}
               onClick={() => setActiveCategory(cat)}
             >
@@ -463,7 +472,7 @@ export default function DatabaseMenu({
 
       {filteredProducts.length === 0 ? (
         <EmptyState>
-          <div className="emoji">🍽️</div>
+          <div className="emoji" aria-hidden="true">🍽️</div>
           <h4>غذایی یافت نشد</h4>
           <p>موردی با مشخصات جستجوی شما در منوی این رستوران پیدا نشد.</p>
         </EmptyState>
@@ -474,11 +483,22 @@ export default function DatabaseMenu({
             const emoji = getDishEmoji(product.name);
             const inCart = cartItems.find((it) => it.id === product.id);
             return (
-              <Item key={product.id} onClick={() => handleProductClick(product)}>
-                <DishIconBox>{emoji}</DishIconBox>
+              <Item
+                key={product.id}
+                role="button"
+                tabIndex={0}
+                onClick={() => handleProductClick(product)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleProductClick(product);
+                  }
+                }}
+              >
+                <DishIconBox aria-hidden="true">{emoji}</DishIconBox>
                 <ItemDetails>
                   <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.25rem", flexWrap: "wrap" }}>
-                    <strong style={{ margin: 0 }}>{product.name}</strong>
+                    <strong style={{ margin: 0, textWrap: "balance" }}>{product.name}</strong>
                     {inCart && (
                       <span
                         style={{
@@ -489,6 +509,7 @@ export default function DatabaseMenu({
                           padding: "0.15rem 0.5rem",
                           borderRadius: "9999px",
                           border: "1px solid #fed7aa",
+                          fontVariantNumeric: "tabular-nums",
                         }}
                       >
                         ✓ {inCart.quantity} در سبد
@@ -497,7 +518,7 @@ export default function DatabaseMenu({
                   </div>
                   <p>{product.description}</p>
                   <div className="meta-row">
-                    <span className="price">
+                    <span className="price" style={{ fontVariantNumeric: "tabular-nums" }}>
                       {new Intl.NumberFormat("fa-IR").format(priceToman)} تومان
                     </span>
                     <span className="details-hint">💡 ارزش غذایی و ترکیبات</span>
@@ -507,7 +528,7 @@ export default function DatabaseMenu({
                   <AddButton
                     type="button"
                     onClick={(e) => handleQuickAdd(e, product)}
-                    aria-label={`افزودن ${product.name}`}
+                    aria-label={`افزودن ${product.name} به سبد خرید`}
                   >
                     + افزودن
                   </AddButton>

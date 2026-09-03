@@ -209,6 +209,7 @@ const RestaurantTitle = styled.h1`
   font-weight: 800;
   color: #0f172a;
   margin: 0;
+  text-wrap: balance;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
     font-size: 1.25rem;
@@ -322,6 +323,7 @@ const BadgeCard = styled.div`
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      font-variant-numeric: tabular-nums;
     }
   }
 
@@ -355,10 +357,10 @@ export default function RestaurantHero({ restaurant, isFavorite }: RestaurantHer
     <HeroWrapper>
       <Breadcrumbs aria-label="مسیر صفحه">
         <Link href="/">خانه</Link>
-        <span className="separator">/</span>
+        <span className="separator" aria-hidden="true">/</span>
         <Link href="/restaurants">رستوران‌ها</Link>
-        <span className="separator">/</span>
-        <span className="current">{restaurant.name}</span>
+        <span className="separator" aria-hidden="true">/</span>
+        <span className="current" aria-current="page">{restaurant.name}</span>
       </Breadcrumbs>
 
       <CoverCard>
@@ -366,7 +368,7 @@ export default function RestaurantHero({ restaurant, isFavorite }: RestaurantHer
 
         <ContentContainer>
           <TopRow>
-            <AvatarBox>{meta.emoji}</AvatarBox>
+            <AvatarBox aria-hidden="true">{meta.emoji}</AvatarBox>
             <ActionSide>
               <div className="desktop-fav">
                 <FavoriteButton
@@ -399,7 +401,7 @@ export default function RestaurantHero({ restaurant, isFavorite }: RestaurantHer
 
           <BadgesGrid>
             <BadgeCard>
-              <span className="icon">⭐</span>
+              <span className="icon" aria-hidden="true">⭐</span>
               <div className="texts">
                 <span className="label">امتیاز کاربران</span>
                 <span className="value">{numberFormatter.format(restaurant.rating)} از ۵ (۲۴۵)</span>
@@ -407,7 +409,7 @@ export default function RestaurantHero({ restaurant, isFavorite }: RestaurantHer
             </BadgeCard>
 
             <BadgeCard>
-              <span className="icon">⏱️</span>
+              <span className="icon" aria-hidden="true">⏱️</span>
               <div className="texts">
                 <span className="label">زمان تحویل</span>
                 <span className="value">
@@ -418,7 +420,7 @@ export default function RestaurantHero({ restaurant, isFavorite }: RestaurantHer
             </BadgeCard>
 
             <BadgeCard>
-              <span className="icon">🛵</span>
+              <span className="icon" aria-hidden="true">🛵</span>
               <div className="texts">
                 <span className="label">هزینه پیک</span>
                 <span className="value">
@@ -428,7 +430,7 @@ export default function RestaurantHero({ restaurant, isFavorite }: RestaurantHer
             </BadgeCard>
 
             <BadgeCard>
-              <span className="icon">💰</span>
+              <span className="icon" aria-hidden="true">💰</span>
               <div className="texts">
                 <span className="label">حداقل خرید</span>
                 <span className="value">{numberFormatter.format(minOrderToman)} تومان</span>
