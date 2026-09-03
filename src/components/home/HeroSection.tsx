@@ -1,9 +1,31 @@
 "use client";
 
 import React, { useState } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+
+const heroContentFade = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
+
+const heroVisualFade = keyframes`
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+`;
 
 const HeroContainer = styled.section`
   background: linear-gradient(135deg, ${props => props.theme.colors.neutral[100]} 0%, white 100%);
@@ -32,6 +54,7 @@ const HeroContainer = styled.section`
 const ContentContainer = styled.div`
   flex: 1;
   max-width: 620px;
+  animation: ${heroContentFade} 500ms cubic-bezier(0.16, 1, 0.3, 1) both;
   
   @media (max-width: ${props => props.theme.breakpoints.lg}) {
     text-align: center;
@@ -284,6 +307,7 @@ const VisualShowcase = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  animation: ${heroVisualFade} 560ms cubic-bezier(0.16, 1, 0.3, 1) 120ms both;
   
   @media (max-width: ${props => props.theme.breakpoints.lg}) {
     width: 100%;

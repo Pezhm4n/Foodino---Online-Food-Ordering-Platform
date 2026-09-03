@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import Link from "next/link";
 import { useCart } from "@/contexts/CartContext";
 import FoodDetailModal, { type DishDetails } from "@/components/common/FoodDetailModal";
@@ -152,10 +152,22 @@ const ViewAllLink = styled(Link)`
   }
 `;
 
+const dishesEntrance = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
+
 const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1.5rem;
+  animation: ${dishesEntrance} 460ms cubic-bezier(0.16, 1, 0.3, 1) both;
 
   @media (max-width: 1024px) {
     grid-template-columns: repeat(2, 1fr);

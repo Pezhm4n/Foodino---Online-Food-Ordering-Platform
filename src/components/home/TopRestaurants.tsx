@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import Link from 'next/link';
 import FavoriteButton from '@/components/common/FavoriteButton';
 
@@ -96,12 +96,24 @@ const ViewAllButton = styled(Link)`
   }
 `;
 
+const restaurantsEntrance = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
+
 const RestaurantsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 2rem;
   max-width: 1200px;
   margin: 0 auto;
+  animation: ${restaurantsEntrance} 460ms cubic-bezier(0.16, 1, 0.3, 1) both;
 
   @media (max-width: ${props => props.theme.breakpoints.md}) {
     gap: 1.25rem;
