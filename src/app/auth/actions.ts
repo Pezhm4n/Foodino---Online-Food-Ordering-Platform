@@ -52,9 +52,20 @@ export async function loginAction(input: unknown): Promise<AuthActionResult> {
   return { ok: true };
 }
 
+function toAsciiDigits(str: string): string {
+  return str
+    .replace(/[۰-۹]/g, (d) => String.fromCharCode(d.charCodeAt(0) - 1728))
+    .replace(/[٠-٩]/g, (d) => String.fromCharCode(d.charCodeAt(0) - 1584));
+}
+
 export async function registerAction(input: unknown): Promise<AuthActionResult> {
   await assertSameOrigin();
-  const parsed = registerSchema.safeParse(input);
+  const rawInput = typeof input === 'object' && input !== null ? (input as Record<string, unknown>) : {};
+  const normalizedInput = {
+    ...rawInput,
+    phone: typeof rawInput.phone === 'string' ? toAsciiDigits(rawInput.phone.trim()) : rawInput.phone,
+  };
+  const parsed = registerSchema.safeParse(normalizedInput);
   if (!parsed.success) {
     return {
       ok: false,
@@ -87,12 +98,30 @@ export async function registerAction(input: unknown): Promise<AuthActionResult> 
         message: 'این ایمیل قبلاً ثبت‌نام شده است. لطفاً وارد شوید.',
       };
     }
+    if (msg.includes('should be at least') || msg.includes('minimum_password_length')) {
+      const match = /at least (\d+)/.exec(msg);
+      const minLength = match ? match[1] : '۶';
+      return {
+        ok: false,
+        code: 'AUTH_FAILED',
+        fieldErrors: { password: `رمز عبور باید حداقل ${minLength} کاراکتر باشد.` },
+        message: `رمز عبور باید حداقل ${minLength} کاراکتر باشد.`,
+      };
+    }
+    if (msg.includes('password should contain') || msg.includes('characters')) {
+      return {
+        ok: false,
+        code: 'AUTH_FAILED',
+        fieldErrors: { password: 'رمز عبور باید شامل حروف انگلیسی و عدد باشد.' },
+        message: 'رمز عبور باید شامل حروف انگلیسی و عدد باشد.',
+      };
+    }
     if (msg.includes('password')) {
       return {
         ok: false,
         code: 'AUTH_FAILED',
-        fieldErrors: { password: 'رمز عبور باید حداقل ۶ کاراکتر باشد.' },
-        message: 'رمز عبور باید حداقل ۶ کاراکتر باشد.',
+        fieldErrors: { password: 'رمز عبور واردشده معتبر نیست.' },
+        message: 'رمز عبور واردشده معتبر نیست.',
       };
     }
     if (msg.includes('rate limit') || msg.includes('too many requests')) {

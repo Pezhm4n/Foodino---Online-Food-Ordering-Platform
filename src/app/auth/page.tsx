@@ -250,6 +250,12 @@ const TermsLink = styled.a`
   }
 `;
 
+function toAsciiDigits(str: string): string {
+  return str
+    .replace(/[۰-۹]/g, (d) => String.fromCharCode(d.charCodeAt(0) - 1728))
+    .replace(/[٠-٩]/g, (d) => String.fromCharCode(d.charCodeAt(0) - 1584));
+}
+
 const AuthContent = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -319,8 +325,9 @@ const AuthContent = () => {
     if (!emailRegex.test(registerForm.email.trim())) {
       errors.email = 'فرمت ایمیل نامعتبر است (مثال: user@example.com).';
     }
+    const cleanPhone = toAsciiDigits(registerForm.phone.trim());
     const phoneRegex = /^09\d{9}$/;
-    if (!phoneRegex.test(registerForm.phone.trim())) {
+    if (!phoneRegex.test(cleanPhone)) {
       errors.phone = 'شماره موبایل باید ۱۱ رقم و با ۰۹ شروع شود (مثال: ۰۹۱۲۳۴۵۶۷۸۹).';
     }
     if (registerForm.password.length < 6) {
@@ -382,12 +389,13 @@ const AuthContent = () => {
     }
 
     setIsSubmitting(true);
+    const cleanPhone = toAsciiDigits(registerForm.phone.trim());
     const result = await registerAction({
       email: registerForm.email.trim(),
       password: registerForm.password,
       firstName: registerForm.firstName.trim(),
       lastName: registerForm.lastName.trim(),
-      phone: registerForm.phone.trim(),
+      phone: cleanPhone,
     });
     setIsSubmitting(false);
 
