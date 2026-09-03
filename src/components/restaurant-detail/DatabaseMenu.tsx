@@ -175,35 +175,43 @@ const CategoryTab = styled.button<{ $active: boolean }>`
 
 const List = styled.ul`
   display: grid;
-  gap: 0.85rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
   padding: 0;
   list-style: none;
   margin: 0;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
 `;
 
 const Item = styled.li`
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
-  padding: 1.1rem;
-  border: 1px solid ${({ theme }) => theme.colors.neutral[200]};
-  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  padding: 1.15rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
   background: white;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
+  position: relative;
+  overflow: hidden;
 
   &:hover {
-    border-color: #fdba74;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-    transform: translateY(-1px);
+    border-color: #ff5a00;
+    box-shadow: 0 6px 18px rgba(255, 90, 0, 0.08);
+    transform: translateY(-2px);
   }
 
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
     padding: 0.85rem;
     gap: 0.75rem;
-    border-radius: 0.75rem;
+    border-radius: 0.85rem;
   }
 `;
 
@@ -354,7 +362,7 @@ export default function DatabaseMenu({
   restaurant: { id: string; name: string };
   products: readonly ProductMenuItem[];
 }>) {
-  const { addItem } = useCart();
+  const { addItem, cartItems } = useCart();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("همه");
   const [selectedDish, setSelectedDish] = useState<DishDetails | null>(null);
@@ -465,17 +473,35 @@ export default function DatabaseMenu({
           {filteredProducts.map((product) => {
             const priceToman = irrToToman(product.price);
             const emoji = getDishEmoji(product.name);
+            const inCart = cartItems.find((it) => it.id === product.id);
             return (
               <Item key={product.id} onClick={() => handleProductClick(product)}>
                 <DishIconBox>{emoji}</DishIconBox>
                 <ItemDetails>
-                  <strong>{product.name}</strong>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.25rem", flexWrap: "wrap" }}>
+                    <strong style={{ margin: 0 }}>{product.name}</strong>
+                    {inCart && (
+                      <span
+                        style={{
+                          fontSize: "0.725rem",
+                          fontWeight: 700,
+                          color: "#ea580c",
+                          background: "#ffedd5",
+                          padding: "0.15rem 0.5rem",
+                          borderRadius: "9999px",
+                          border: "1px solid #fed7aa",
+                        }}
+                      >
+                        ✓ {inCart.quantity} در سبد
+                      </span>
+                    )}
+                  </div>
                   <p>{product.description}</p>
                   <div className="meta-row">
                     <span className="price">
                       {new Intl.NumberFormat("fa-IR").format(priceToman)} تومان
                     </span>
-                    <span className="details-hint">💡 کلیک برای ارزش غذایی و ترکیبات</span>
+                    <span className="details-hint">💡 ارزش غذایی و ترکیبات</span>
                   </div>
                 </ItemDetails>
                 <ActionBox>
