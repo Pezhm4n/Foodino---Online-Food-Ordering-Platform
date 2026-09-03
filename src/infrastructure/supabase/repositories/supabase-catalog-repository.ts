@@ -89,7 +89,14 @@ export class SupabaseCatalogRepository implements CatalogRepository {
     this.fallback = fallback ?? new MockCatalogRepository();
   }
 
+  private isDemoMode(): boolean {
+    return process.env.DEMO_MODE === 'true';
+  }
+
   async findRestaurantBySlug(slug: string): Promise<RestaurantSummary | null> {
+    if (this.isDemoMode()) {
+      return this.fallback.findRestaurantBySlug(slug);
+    }
     try {
       const { data, error } = await this.client
         .from('restaurants')
@@ -106,6 +113,9 @@ export class SupabaseCatalogRepository implements CatalogRepository {
   }
 
   async findRestaurantById(id: string): Promise<RestaurantSummary | null> {
+    if (this.isDemoMode()) {
+      return this.fallback.findRestaurantById(id);
+    }
     try {
       const { data, error } = await this.client
         .from('restaurants').select('*').eq('id', id).eq('is_active', true).maybeSingle();
@@ -118,6 +128,9 @@ export class SupabaseCatalogRepository implements CatalogRepository {
   }
 
   async findCategoryBySlug(slug: string): Promise<CategorySummary | null> {
+    if (this.isDemoMode()) {
+      return this.fallback.findCategoryBySlug(slug);
+    }
     try {
       const { data, error } = await this.client
         .from('categories').select('*').eq('slug', slug).eq('is_active', true).maybeSingle();
@@ -130,6 +143,9 @@ export class SupabaseCatalogRepository implements CatalogRepository {
   }
 
   async findCategoryById(id: string): Promise<CategorySummary | null> {
+    if (this.isDemoMode()) {
+      return this.fallback.findCategoryById(id);
+    }
     try {
       const { data, error } = await this.client
         .from('categories').select('*').eq('id', id).eq('is_active', true).maybeSingle();
@@ -142,6 +158,9 @@ export class SupabaseCatalogRepository implements CatalogRepository {
   }
 
   async listCategories(): Promise<readonly CategorySummary[]> {
+    if (this.isDemoMode()) {
+      return this.fallback.listCategories();
+    }
     try {
       const { data, error } = await this.client
         .from('categories').select('*').eq('is_active', true).order('sort_order').order('id');
@@ -165,6 +184,9 @@ export class SupabaseCatalogRepository implements CatalogRepository {
   }
 
   async findProductBySlug(slug: string): Promise<ProductMenuItem | null> {
+    if (this.isDemoMode()) {
+      return this.fallback.findProductBySlug(slug);
+    }
     try {
       const res = await this.findProduct('slug', slug);
       if (res) return res;
@@ -175,6 +197,9 @@ export class SupabaseCatalogRepository implements CatalogRepository {
   }
 
   async findProductById(id: string): Promise<ProductMenuItem | null> {
+    if (this.isDemoMode()) {
+      return this.fallback.findProductById(id);
+    }
     try {
       const res = await this.findProduct('id', id);
       if (res) return res;
@@ -191,6 +216,9 @@ export class SupabaseCatalogRepository implements CatalogRepository {
     cursor?: string;
     limit: number;
   }): Promise<CursorPage<RestaurantSummary>> {
+    if (this.isDemoMode()) {
+      return this.fallback.listRestaurants(input);
+    }
     try {
       const column = sortColumn(input.sort);
       const ascending = input.sort !== 'rating_desc';
@@ -246,6 +274,9 @@ export class SupabaseCatalogRepository implements CatalogRepository {
     restaurantId: string,
     input: { cursor?: string; limit: number },
   ): Promise<CursorPage<ProductSummary>> {
+    if (this.isDemoMode()) {
+      return this.fallback.listProductsByRestaurant(restaurantId, input);
+    }
     try {
       let query = this.client
         .from('products')
@@ -278,6 +309,9 @@ export class SupabaseCatalogRepository implements CatalogRepository {
   }
 
   async listRestaurantMenu(restaurantId: string): Promise<readonly ProductMenuItem[]> {
+    if (this.isDemoMode()) {
+      return this.fallback.listRestaurantMenu(restaurantId);
+    }
     try {
       const { data, error } = await this.client
         .from('products')

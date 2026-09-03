@@ -49,18 +49,20 @@ export default async function RestaurantDetailPage({ params }: RestaurantDetailP
     created_at: string;
   }> = [];
 
-  try {
-    const { data } = await client
-      .from('reviews')
-      .select('id,user_name,rating,food_name,comment,created_at')
-      .eq('restaurant_id', restaurant.id)
-      .order('created_at', { ascending: false })
-      .limit(30);
-    if (data && data.length > 0) {
-      rawReviews = data;
+  if (process.env.DEMO_MODE !== 'true') {
+    try {
+      const { data } = await client
+        .from('reviews')
+        .select('id,user_name,rating,food_name,comment,created_at')
+        .eq('restaurant_id', restaurant.id)
+        .order('created_at', { ascending: false })
+        .limit(30);
+      if (data && data.length > 0) {
+        rawReviews = data;
+      }
+    } catch {
+      // Handled below with fallback
     }
-  } catch {
-    // Handled below with fallback
   }
 
   if (rawReviews.length === 0) {
@@ -84,7 +86,7 @@ export default async function RestaurantDetailPage({ params }: RestaurantDetailP
     ];
   }
 
-  if (claims?.sub) {
+  if (claims?.sub && process.env.DEMO_MODE !== 'true') {
     try {
       const [favRes, orderRes] = await Promise.all([
         client.from('favorites').select('restaurant_id').eq('user_id', claims.sub).eq('restaurant_id', restaurant.id).maybeSingle(),

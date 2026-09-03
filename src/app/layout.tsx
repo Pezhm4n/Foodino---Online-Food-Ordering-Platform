@@ -12,6 +12,10 @@ export const metadata: Metadata = {
   title: 'فودینو | سفارش آنلاین غذا',
   description: 'سفارش آنلاین غذا از بهترین رستوران‌های شهر با فودینو',
   alternates: { canonical: '/' },
+  icons: {
+    icon: [{ url: '/icon.svg', type: 'image/svg+xml' }],
+    apple: '/icon.svg',
+  },
   openGraph: {
     type: 'website',
     locale: 'fa_IR',

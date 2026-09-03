@@ -8,9 +8,10 @@ import { createSupabaseServerClient } from '@/infrastructure/supabase/server';
 
 export default async function HomePage() {
   let categories: CategoryItem[] = [];
-  try {
-    const client = await createSupabaseServerClient();
-    const { data: categoriesData } = await client
+  if (process.env.DEMO_MODE !== 'true') {
+    try {
+      const client = await createSupabaseServerClient();
+      const { data: categoriesData } = await client
       .from('categories')
       .select(`
         id,
@@ -42,8 +43,9 @@ export default async function HomePage() {
         };
       });
     }
-  } catch {
-    // Falls back gracefully to defaultCategories inside PopularCategories
+    } catch {
+      // Falls back gracefully to defaultCategories inside PopularCategories
+    }
   }
 
   return (

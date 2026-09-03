@@ -32,7 +32,7 @@ export default async function RestaurantsPage({ searchParams }: Props) {
   ]);
 
   let userFavoriteIds: string[] = [];
-  if (claims?.sub) {
+  if (claims?.sub && process.env.DEMO_MODE !== 'true') {
     try {
       const { data } = await client.from('favorites').select('restaurant_id').eq('user_id', claims.sub);
       userFavoriteIds = (data ?? []).map((row) => row.restaurant_id);
