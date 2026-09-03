@@ -5,9 +5,10 @@ const isProd = process.env.NODE_ENV === 'production';
 const cspHeader = [
   "default-src 'self'",
   isProd ? "script-src 'self' 'unsafe-inline'" : "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-  "style-src 'self' 'unsafe-inline'",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "img-src 'self' blob: data: https:",
-  "font-src 'self' data:",
+  "font-src 'self' data: https://fonts.gstatic.com",
   "connect-src 'self' https://*.supabase.co http://127.0.0.1:54321 http://localhost:54321",
   "frame-src 'self' https://www.google.com https://maps.google.com https://*.openstreetmap.org",
   "frame-ancestors 'none'",
