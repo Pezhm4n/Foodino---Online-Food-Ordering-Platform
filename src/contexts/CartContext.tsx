@@ -148,13 +148,17 @@ function persistedCart(state: CartState) {
   return {
     version: 1 as const,
     restaurantId: state.restaurantId,
-    items: state.items.map(({ restaurantId, productId, variantId, addonIds, quantity, notes }) => ({
+    restaurantName: state.restaurantName,
+    items: state.items.map(({ restaurantId, productId, variantId, addonIds, quantity, notes, name, price, image }) => ({
       restaurantId,
       productId,
       ...(variantId ? { variantId } : {}),
       addonIds,
       quantity,
       ...(notes ? { notes } : {}),
+      ...(name ? { name } : {}),
+      ...(typeof price === 'number' ? { price } : {}),
+      ...(image ? { image } : {}),
     })),
   };
 }
@@ -171,11 +175,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         type: 'SET_CART',
         payload: {
           restaurantId: parsed.restaurantId,
+          restaurantName: parsed.restaurantName,
           items: parsed.items.map((item) => ({
             ...item,
             id: [item.productId, item.variantId ?? '', item.addonIds.join(',')].join(':'),
-            name: 'محصول سبد خرید',
-            price: 0,
+            name: item.name || 'محصول سبد خرید',
+            price: typeof item.price === 'number' ? item.price : 0,
           })),
           appliedCoupon: null,
           discountToman: 0,

@@ -8,11 +8,16 @@ export const cartSelectionSchema = z.object({
   variantId: uuidSchema.optional(),
   addonIds: z.array(uuidSchema).max(20).default([]),
   quantity: z.number().int().min(MIN_CART_QUANTITY).max(MAX_CART_QUANTITY),
+  name: z.string().max(200).optional(),
+  price: z.number().nonnegative().optional(),
+  notes: z.string().max(500).optional(),
+  image: z.string().optional(),
 }).strict();
 
 export const localCartSchema = z.object({
   version: z.literal(1),
   restaurantId: uuidSchema.nullable(),
+  restaurantName: z.string().max(200).optional(),
   items: z.array(cartSelectionSchema).max(100),
 }).strict().superRefine((cart, context) => {
   if (cart.items.length === 0 && cart.restaurantId !== null) {

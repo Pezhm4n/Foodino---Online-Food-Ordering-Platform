@@ -1,6 +1,7 @@
 'use server';
 
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { assertSameOrigin } from '@/infrastructure/http/same-origin';
 import { getServerEnv } from '@/infrastructure/config/server-env';
 import { createSupabaseServerClient } from '@/infrastructure/supabase/server';
@@ -159,9 +160,17 @@ export async function forgotPasswordAction(input: unknown): Promise<AuthActionRe
   }
   const env = getServerEnv();
   const client = await createSupabaseServerClient();
+  const headerList = await headers();
+  const host = headerList.get('x-forwarded-host') || headerList.get('host') || '';
+  const proto = headerList.get('x-forwarded-proto') || 'http';
+  const currentOrigin = host ? `${proto}://${host}` : env.APP_URL;
+  const baseUrl = (currentOrigin.includes('localhost') || currentOrigin.includes('127.0.0.1'))
+    ? currentOrigin
+    : env.APP_URL;
+
   // Always return the same result to avoid account enumeration.
   await client.auth.resetPasswordForEmail(parsed.data.email, {
-    redirectTo: `${env.APP_URL}/auth/callback?next=/auth/reset-password`,
+    redirectTo: `${baseUrl}/auth/callback?next=/auth/reset-password`,
   });
   return { ok: true, message: 'اگر حسابی با این ایمیل وجود داشته باشد، لینک بازیابی ارسال شد.' };
 }

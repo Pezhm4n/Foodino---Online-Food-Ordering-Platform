@@ -50,6 +50,11 @@ const Overlay = styled.div<{ $isOpen: boolean }>`
     from { opacity: 0; }
     to { opacity: 1; }
   }
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    align-items: flex-end;
+    padding: 0;
+  }
 `;
 
 const ModalCard = styled.div`
@@ -65,8 +70,38 @@ const ModalCard = styled.div`
   flex-direction: column;
 
   @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
-    max-height: 94vh;
-    border-radius: 1rem;
+    max-height: 88vh;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-top-left-radius: 1.5rem;
+    border-top-right-radius: 1.5rem;
+    animation: slideUpMobile 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes slideUpMobile {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+`;
+
+const DragHandle = styled.div`
+  display: none;
+  width: 44px;
+  height: 5px;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.25);
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 15;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    display: block;
   }
 `;
 
@@ -82,7 +117,7 @@ const ModalHeader = styled.div`
   overflow: hidden;
 
   @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
-    height: 140px;
+    height: 135px;
   }
 `;
 
@@ -274,9 +309,18 @@ const ModalFooter = styled.div`
   padding-top: 1rem;
   border-top: 1px solid #e2e8f0;
   margin-top: 0.5rem;
+  background: white;
 
   @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
-    gap: 0.75rem;
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin-top: auto;
+    padding: 0.85rem 1rem calc(0.85rem + env(safe-area-inset-bottom));
+    box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.06);
+    border-top: 1px solid #f1f5f9;
+    z-index: 10;
   }
 `;
 
@@ -424,6 +468,7 @@ export default function FoodDetailModal({ dish, isOpen, onClose }: FoodDetailMod
         aria-labelledby="dish-modal-title"
         onClick={(e) => e.stopPropagation()}
       >
+        <DragHandle aria-hidden="true" />
         <ModalHeader>
           <DishEmoji aria-hidden="true">{dish.image || "🍕"}</DishEmoji>
           <CloseButton onClick={handleClose} aria-label="بستن جزئیات غذا">✕</CloseButton>
