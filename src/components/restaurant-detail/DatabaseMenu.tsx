@@ -49,13 +49,15 @@ function getDishNutrition(category: string) {
 }
 
 function getDishIngredients(description: string): string[] {
-  if (description && (description.includes("با") || description.includes("و"))) {
-    const parts = description.split(/[،,و]|با|همراه/);
-    const cleaned = parts
-      .map((p) => p.trim())
-      .filter((p) => p.length > 2 && p.length < 30 && !p.includes("پیتزا") && !p.includes("مخصوص"));
-    if (cleaned.length > 0) return cleaned;
+  if (!description) {
+    return ["مواد اولیه تازه روز", "ادویه مخصوص سرآشپز", "روغن درجه یک"];
   }
+  // Split strictly by commas, semicolons, newlines, or isolated conjunctions like ' و ' or ' به همراه '
+  const parts = description.split(/[،,؛;\n\+]|\s+و\s+|\s+همراه\s+با\s+|\s+به\s+همراه\s+|\s+همراه\s+|\s+با\s+/);
+  const cleaned = parts
+    .map((p) => p.trim())
+    .filter((p) => p.length >= 2 && p.length <= 40 && !p.includes("پیتزا") && !p.includes("مخصوص"));
+  if (cleaned.length > 0) return cleaned;
   return ["مواد اولیه تازه روز", "ادویه مخصوص سرآشپز", "روغن درجه یک"];
 }
 

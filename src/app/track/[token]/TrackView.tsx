@@ -222,30 +222,13 @@ const CourierVisual = styled.div`
 const StepperTrack = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
   position: relative;
   margin: 1.5rem 0;
-  padding-right: 1.25rem;
+  padding: 0 0.5rem;
 
   @media (min-width: 768px) {
-    gap: 1.5rem;
     margin: 2rem 0;
-    padding-right: 1.5rem;
-  }
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 14px;
-    bottom: 14px;
-    right: 25px;
-    width: 2px;
-    background-color: ${({ theme }) => theme.colors.neutral[200]};
-
-    @media (min-width: 768px) {
-      right: 27px;
-      width: 3px;
-    }
+    padding: 0 1rem;
   }
 `;
 
@@ -258,22 +241,34 @@ const StepItem = styled.div<{ $state: 'completed' | 'current' | 'upcoming' }>`
 
   display: flex;
   align-items: flex-start;
-  gap: 1rem;
+  gap: 1.25rem;
   position: relative;
-  z-index: 1;
+  padding-bottom: 2rem;
 
-  @media (min-width: 768px) {
-    gap: 1.25rem;
+  &:last-child {
+    padding-bottom: 0;
+  }
+
+  &:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 32px;
+    bottom: 0;
+    right: 15px;
+    width: 2px;
+    background-color: ${({ $state, theme }) =>
+      $state === 'completed' ? theme.colors.success[400] : theme.colors.neutral[200]};
+    transition: background-color 0.3s ease;
   }
 
   .step-icon {
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     font-weight: 700;
     background-color: ${({ $state, theme }) =>
       $state === 'completed'
@@ -283,16 +278,22 @@ const StepItem = styled.div<{ $state: 'completed' | 'current' | 'upcoming' }>`
         : theme.colors.neutral[200]};
     color: white;
     flex-shrink: 0;
+    position: relative;
+    z-index: 2;
+    transition: all 0.3s ease;
     animation: ${({ $state }) => ($state === 'current' ? 'pulseGlow 2s infinite' : 'none')};
   }
 
   .step-content {
+    flex: 1;
+    padding-top: 3px;
+
     h3 {
       font-size: 0.95rem;
       font-weight: 700;
       color: ${({ $state, theme }) =>
         $state === 'upcoming' ? theme.colors.neutral[400] : theme.colors.neutral[900]};
-      margin: 0 0 0.2rem;
+      margin: 0 0 0.3rem;
 
       @media (min-width: 768px) {
         font-size: 1rem;
@@ -300,10 +301,10 @@ const StepItem = styled.div<{ $state: 'completed' | 'current' | 'upcoming' }>`
     }
 
     p {
-      font-size: 0.8rem;
+      font-size: 0.825rem;
       color: ${({ theme }) => theme.colors.neutral[500]};
       margin: 0;
-      line-height: 1.5;
+      line-height: 1.6;
 
       @media (min-width: 768px) {
         font-size: 0.85rem;

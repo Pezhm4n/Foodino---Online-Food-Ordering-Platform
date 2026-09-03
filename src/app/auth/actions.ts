@@ -5,6 +5,7 @@ import { headers } from 'next/headers';
 import { assertSameOrigin } from '@/infrastructure/http/same-origin';
 import { getServerEnv } from '@/infrastructure/config/server-env';
 import { createSupabaseServerClient } from '@/infrastructure/supabase/server';
+import { createSupabaseAdminClient } from '@/infrastructure/supabase/admin';
 import {
   forgotPasswordSchema,
   loginSchema,
@@ -76,12 +77,38 @@ export async function registerAction(input: unknown): Promise<AuthActionResult> 
     };
   }
   const env = getServerEnv();
+
+  // Enforce unique phone number check across profiles
+  const adminClient = createSupabaseAdminClient();
+  const { data: existingProfile } = await adminClient
+    .from('profiles')
+    .select('id')
+    .eq('phone', parsed.data.phone)
+    .maybeSingle();
+
+  if (existingProfile) {
+    return {
+      ok: false,
+      code: 'AUTH_FAILED',
+      fieldErrors: { phone: 'این شماره موبایل قبلاً در سیستم ثبت‌نام شده است.' },
+      message: 'این شماره موبایل قبلاً در سیستم ثبت شده است. لطفاً وارد شوید.',
+    };
+  }
+
+  const headerList = await headers();
+  const host = headerList.get('x-forwarded-host') || headerList.get('host') || '';
+  const proto = headerList.get('x-forwarded-proto') || 'http';
+  const currentOrigin = host ? `${proto}://${host}` : env.APP_URL;
+  const baseUrl = (currentOrigin.includes('localhost') || currentOrigin.includes('127.0.0.1'))
+    ? currentOrigin
+    : env.APP_URL;
+
   const client = await createSupabaseServerClient();
   const { data, error } = await client.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
-      emailRedirectTo: `${env.APP_URL}/auth/callback?next=/profile`,
+      emailRedirectTo: `${baseUrl}/auth/callback?next=/auth/confirmed`,
       data: {
         first_name: parsed.data.firstName,
         last_name: parsed.data.lastName,
@@ -138,6 +165,17 @@ export async function registerAction(input: unknown): Promise<AuthActionResult> 
       message: 'ثبت‌نام انجام نشد. لطفاً اطلاعات ورودی را بررسی کرده و دوباره تلاش کنید.',
     };
   }
+
+  // GoTrue returns identities: [] when the user email already exists to protect against enumeration
+  if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+    return {
+      ok: false,
+      code: 'AUTH_FAILED',
+      fieldErrors: { email: 'این ایمیل قبلاً در سیستم ثبت‌نام شده است.' },
+      message: 'این ایمیل قبلاً در سیستم ثبت شده است. لطفاً از فرم ورود استفاده فرمایید.',
+    };
+  }
+
   return data.session
     ? { ok: true, message: 'ثبت‌نام با موفقیت انجام شد.' }
     : {

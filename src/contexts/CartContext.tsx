@@ -58,7 +58,8 @@ type CartAction =
   | { type: 'REMOVE_COUPON' }
   | { type: 'SET_ORDER_NOTE'; payload: string }
   | { type: 'CLEAR_CART' }
-  | { type: 'SET_CART'; payload: CartState };
+  | { type: 'SET_CART'; payload: CartState }
+  | { type: 'HEAL_ITEMS'; payload: Array<{ productId: string; name?: string; priceToman: number; image?: string }> };
 
 const initialState: CartState = {
   items: [],
@@ -71,6 +72,22 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 function cartReducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
+    case 'HEAL_ITEMS': {
+      const priceMap = new Map(action.payload.map((p) => [p.productId, p]));
+      return {
+        ...state,
+        items: state.items.map((item) => {
+          const match = priceMap.get(item.productId);
+          if (!match) return item;
+          return {
+            ...item,
+            price: item.price > 0 ? item.price : match.priceToman,
+            name: item.name !== 'محصول سبد خرید' ? item.name : (match.name || item.name),
+            image: item.image || match.image,
+          };
+        }),
+      };
+    }
     case 'ADD_ITEM': {
       try {
         const domainCart = addCartSelection(
@@ -196,6 +213,21 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (state.items.length === 0) localStorage.removeItem('cart');
     else localStorage.setItem('cart', JSON.stringify(persistedCart(state)));
   }, [state]);
+
+  useEffect(() => {
+    const unpricedItems = state.items.filter((item) => !item.price || item.price === 0);
+    if (unpricedItems.length === 0) return;
+
+    const productIds = Array.from(new Set(unpricedItems.map((i) => i.productId)));
+    fetch(`/api/cart/items-info?ids=${encodeURIComponent(productIds.join(','))}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && Array.isArray(data.items) && data.items.length > 0) {
+          dispatch({ type: 'HEAL_ITEMS', payload: data.items });
+        }
+      })
+      .catch(() => {});
+  }, [state.items]);
 
   const removeItem = (id: string) => dispatch({ type: 'REMOVE_ITEM', payload: { id } });
   const updateItem = (id: string, quantity: number) =>

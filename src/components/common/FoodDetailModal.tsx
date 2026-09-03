@@ -63,7 +63,7 @@ const ModalCard = styled.div`
   width: 100%;
   max-width: 540px;
   max-height: 90vh;
-  overflow-y: auto;
+  overflow: hidden;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
   position: relative;
   display: flex;
@@ -115,6 +115,7 @@ const ModalHeader = styled.div`
   border-top-left-radius: inherit;
   border-top-right-radius: inherit;
   overflow: hidden;
+  flex-shrink: 0;
 
   @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
     height: 135px;
@@ -189,6 +190,10 @@ const ModalBody = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 
   @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
     padding: 1rem 1.15rem 1.25rem;
@@ -306,21 +311,48 @@ const ModalFooter = styled.div`
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding-top: 1rem;
+  padding: 1rem 1.5rem;
   border-top: 1px solid #e2e8f0;
-  margin-top: 0.5rem;
   background: white;
+  flex-shrink: 0;
+  z-index: 10;
 
   @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
-    position: sticky;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    margin-top: auto;
-    padding: 0.85rem 1rem calc(0.85rem + env(safe-area-inset-bottom));
-    box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.06);
-    border-top: 1px solid #f1f5f9;
-    z-index: 10;
+    flex-direction: column;
+    gap: 0.85rem;
+    padding: 0.85rem 1.15rem calc(1rem + env(safe-area-inset-bottom));
+    box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.05);
+  }
+`;
+
+const MobileFooterRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+
+  @media (min-width: 641px) {
+    display: none;
+  }
+`;
+
+const MobileOnlyBtnWrapper = styled.div`
+  width: 100%;
+
+  @media (min-width: 641px) {
+    display: none;
+  }
+`;
+
+const DesktopFooterControls = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 1rem;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    display: none;
   }
 `;
 
@@ -392,14 +424,25 @@ const AddToCartBtn = styled.button`
   background: #ea580c;
   color: white;
   border: none;
-  padding: 0.65rem 1.25rem;
-  border-radius: 0.6rem;
+  padding: 0.75rem 1.4rem;
+  border-radius: 0.65rem;
   font-weight: 700;
-  font-size: 0.925rem;
+  font-size: 0.95rem;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(234, 88, 12, 0.25);
   transition: all 0.2s;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    font-size: 1rem;
+    border-radius: 0.75rem;
+  }
 
   &:hover {
     background: #c2410c;
@@ -407,7 +450,7 @@ const AddToCartBtn = styled.button`
   }
 
   &:active {
-    transform: scale(0.97);
+    transform: scale(0.98);
   }
 `;
 
@@ -425,7 +468,9 @@ export default function FoodDetailModal({ dish, isOpen, onClose }: FoodDetailMod
   useEffect(() => {
     if (!isOpen) return;
 
+    const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -435,7 +480,8 @@ export default function FoodDetailModal({ dish, isOpen, onClose }: FoodDetailMod
 
     window.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.body.style.overflow = "";
+      document.body.style.overflow = prevOverflow;
+      document.documentElement.style.overflow = "";
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [isOpen, handleClose]);
@@ -461,12 +507,20 @@ export default function FoodDetailModal({ dish, isOpen, onClose }: FoodDetailMod
   };
 
   return (
-    <Overlay $isOpen={isOpen} onClick={handleClose} role="presentation">
+    <Overlay
+      $isOpen={isOpen}
+      onClick={handleClose}
+      onTouchMove={(e) => {
+        if (e.target === e.currentTarget) e.preventDefault();
+      }}
+      role="presentation"
+    >
       <ModalCard
         role="dialog"
         aria-modal="true"
         aria-labelledby="dish-modal-title"
         onClick={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
       >
         <DragHandle aria-hidden="true" />
         <ModalHeader>
@@ -531,7 +585,50 @@ export default function FoodDetailModal({ dish, isOpen, onClose }: FoodDetailMod
             />
           </div>
 
-          <ModalFooter>
+        </ModalBody>
+
+        <ModalFooter>
+          {/* Mobile Footer Layout */}
+          <MobileFooterRow>
+            <PriceColumn style={{ fontVariantNumeric: "tabular-nums" }}>
+              <span className="label">مبلغ کل:</span>
+              <span className="current">{formatPrice(lineTotal)}</span>
+              {dish.originalPrice && (
+                <span className="original">{formatPrice(dish.originalPrice * quantity)}</span>
+              )}
+            </PriceColumn>
+
+            <QuantityBox>
+              <QtyBtn
+                type="button"
+                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                aria-label="کاهش تعداد"
+              >
+                -
+              </QtyBtn>
+              <QtyValue aria-live="polite" style={{ fontVariantNumeric: "tabular-nums" }}>
+                {quantity}
+              </QtyValue>
+              <QtyBtn
+                type="button"
+                onClick={() => setQuantity((q) => Math.min(20, q + 1))}
+                aria-label="افزایش تعداد"
+              >
+                +
+              </QtyBtn>
+            </QuantityBox>
+          </MobileFooterRow>
+
+          <MobileOnlyBtnWrapper>
+            <AddToCartBtn type="button" onClick={handleAddToCart}>
+              <span>افزودن به سبد خرید</span>
+              <span style={{ opacity: 0.85 }}>•</span>
+              <span style={{ fontVariantNumeric: "tabular-nums" }}>{formatPrice(lineTotal)}</span>
+            </AddToCartBtn>
+          </MobileOnlyBtnWrapper>
+
+          {/* Desktop Footer Layout */}
+          <DesktopFooterControls>
             <PriceColumn style={{ fontVariantNumeric: "tabular-nums" }}>
               <span className="label">مبلغ کل:</span>
               <span className="current">{formatPrice(lineTotal)}</span>
@@ -564,8 +661,8 @@ export default function FoodDetailModal({ dish, isOpen, onClose }: FoodDetailMod
                 افزودن به سبد
               </AddToCartBtn>
             </ControlsGroup>
-          </ModalFooter>
-        </ModalBody>
+          </DesktopFooterControls>
+        </ModalFooter>
       </ModalCard>
     </Overlay>
   );

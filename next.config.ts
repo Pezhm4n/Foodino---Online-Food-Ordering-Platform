@@ -29,6 +29,7 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   agentRules: false,
+  devIndicators: false,
   compiler: {
     styledComponents: true,
   },

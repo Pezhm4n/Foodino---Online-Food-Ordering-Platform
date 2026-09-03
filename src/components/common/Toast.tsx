@@ -184,7 +184,11 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   return (
     <ToastContext.Provider value={{ addToast, removeToast }}>
       <Toaster
-        position="bottom-center"
+        position="top-center"
+        containerStyle={{
+          top: 24,
+          zIndex: 99999,
+        }}
         toastOptions={{
           duration: 4000,
           style: {

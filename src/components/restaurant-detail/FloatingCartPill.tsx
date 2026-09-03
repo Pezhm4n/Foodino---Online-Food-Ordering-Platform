@@ -61,6 +61,11 @@ const InfoSide = styled.div`
   min-width: 0;
 
   .icon-bubble {
+    @keyframes gentleBounce {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08) rotate(-3deg); }
+    }
+
     width: 34px;
     height: 34px;
     border-radius: 50%;
@@ -71,6 +76,7 @@ const InfoSide = styled.div`
     font-size: 1rem;
     box-shadow: 0 2px 6px rgba(255, 90, 0, 0.4);
     flex-shrink: 0;
+    animation: gentleBounce 3s infinite ease-in-out;
 
     @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
       width: 28px;
@@ -126,8 +132,12 @@ const CheckoutButton = styled(Link)`
   transition: transform 0.2s, box-shadow 0.2s;
 
   &:hover {
-    transform: scale(1.02);
-    box-shadow: 0 5px 14px rgba(255, 90, 0, 0.5);
+    transform: translateY(-1px) scale(1.02);
+    box-shadow: 0 6px 16px rgba(255, 90, 0, 0.5);
+  }
+
+  &:active {
+    transform: scale(0.96);
   }
 
   &:focus-visible {
