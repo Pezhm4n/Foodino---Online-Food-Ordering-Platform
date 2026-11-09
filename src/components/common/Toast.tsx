@@ -1,264 +1,240 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import styled, { keyframes } from "styled-components";
-import { createPortal } from "react-dom";
-import { Toaster } from "react-hot-toast";
-import {
-  CheckCircleIcon,
-  AlertCircleIcon,
-  InfoIcon,
-  CloseIcon,
-} from "@/components/ui/FoodVisuals";
+import { useEffect, useLayoutEffect, useRef, useState, type PointerEvent, type ReactNode } from "react";
+import { resolveValue, toast, useToaster, type Toast } from "react-hot-toast";
+import styled from "styled-components";
+import { AlertCircleIcon, CheckCircleIcon, CloseIcon, InfoIcon } from "@/components/ui/FoodVisuals";
 
-const slideIn = keyframes`
-  from {
-    transform: translate(-50%, 14px);
-    opacity: 0;
-  }
-  to {
-    transform: translate(-50%, 0);
-    opacity: 1;
-  }
-`;
-
-const slideOut = keyframes`
-  from {
-    transform: translate(-50%, 0);
-    opacity: 1;
-  }
-  to {
-    transform: translate(-50%, 14px);
-    opacity: 0;
-  }
-`;
-
-export type ToastType = "success" | "error" | "info" | "warning";
-
-export interface ToastInfo {
-  id: string;
-  message: string;
-  type: ToastType;
-  duration?: number;
-}
-
-const ToastBase = styled.div<{ $type: ToastType; $visible: boolean }>`
+const Viewport = styled.div`
   position: fixed;
-  bottom: 1.5rem;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 0.85rem 1.25rem;
-  min-width: 260px;
-  max-width: 90vw;
-  border-radius: ${(props) => props.theme.borderRadius.xl};
-  color: #faf6f0;
+  inset-inline: 0;
+  inset-block-start: calc(max(var(--toast-anchor-bottom, 0px), env(safe-area-inset-top, 0px)) + 0.5rem);
+  display: grid;
+  justify-items: center;
+  padding-inline: 1rem;
+  overflow-x: clip;
+  z-index: 310;
+  pointer-events: none;
+
+  @media (min-width: ${props => props.theme.breakpoints.md}) {
+    justify-items: start;
+    padding-inline: 1.5rem;
+  }
+`;
+
+const LiveMessage = styled.div`
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+`;
+
+const Notice = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  box-shadow: 0 20px 36px -10px rgba(22, 18, 15, 0.32);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  z-index: 9999;
-  direction: rtl;
-  animation: ${(props) => (props.$visible ? slideIn : slideOut)} 200ms
-    cubic-bezier(0.16, 1, 0.3, 1) forwards;
-
-  background-color: ${(props) => {
-    switch (props.$type) {
-      case "success":
-        return props.theme.colors.success[600];
-      case "error":
-        return props.theme.colors.error[600];
-      case "warning":
-        return props.theme.colors.warning[600];
-      case "info":
-      default:
-        return props.theme.colors.secondary[900];
-    }
-  }};
+  gap: 0.5rem;
+  width: fit-content;
+  max-width: min(100%, 24rem);
+  padding: 0.125rem 0.625rem 0.125rem 0.25rem;
+  border: 1px solid ${props => props.theme.colors.neutral[200]};
+  border-radius: ${props => props.theme.borderRadius.lg};
+  background: white;
+  color: ${props => props.theme.colors.neutral[900]};
+  box-shadow: ${props => props.theme.shadows.md};
+  pointer-events: auto;
+  touch-action: pan-y;
 `;
 
-const ToastIconWrap = styled.div`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-`;
-
-const ToastMessage = styled.div`
-  flex: 1;
-  font-size: 0.9rem;
+const Message = styled.span`
+  min-width: 0;
+  font-size: 0.875rem;
   font-weight: 600;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+`;
+
+const StatusIcon = styled.span<{ $type: Toast["type"] }>`
+  display: inline-flex;
+  flex: none;
+  color: ${({ $type, theme }) =>
+    $type === "success" ? theme.colors.success[700]
+      : $type === "error" ? theme.colors.error[600]
+        : theme.colors.neutral[600]};
 `;
 
 const CloseButton = styled.button`
-  background: none;
-  border: none;
-  color: rgba(255, 255, 255, 0.85);
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: ${props => props.theme.borderRadius.md};
+  background: transparent;
+  color: ${props => props.theme.colors.neutral[700]};
   cursor: pointer;
-  padding: 0.25rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: opacity 0.2s;
 
-  &:hover {
-    opacity: 1;
+  @media (hover: hover) {
+    &:hover {
+      background: ${props => props.theme.colors.neutral[100]};
+    }
   }
 `;
 
-const Toast: React.FC<{ toast: ToastInfo; onClose: () => void }> = ({
-  toast,
-  onClose,
-}) => {
-  const [visible, setVisible] = useState(true);
+function ToastNotice({ entry, onClose }: { entry: Toast; onClose: () => void }) {
+  const gesture = useRef<{ id: number; x: number; y: number } | null>(null);
+  const returnFocus = useRef<HTMLElement | null>(null);
+  const [offset, setOffset] = useState(0);
+  const Icon = entry.type === "success" ? CheckCircleIcon : entry.type === "error" ? AlertCircleIcon : InfoIcon;
+
+  function startSwipe(event: PointerEvent<HTMLDivElement>) {
+    if (!event.isPrimary || event.button !== 0 || (event.target as Element).closest("button")) return;
+    gesture.current = { id: event.pointerId, x: event.clientX, y: event.clientY };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+
+  function swipeDistance(event: PointerEvent<HTMLDivElement>) {
+    const start = gesture.current;
+    if (!start || start.id !== event.pointerId) return 0;
+    const x = event.clientX - start.x;
+    const y = event.clientY - start.y;
+    return Math.abs(x) > Math.abs(y) ? x : 0;
+  }
+
+  function resetSwipe() {
+    gesture.current = null;
+    setOffset(0);
+  }
+
+  function closeFromKeyboard() {
+    returnFocus.current?.focus({ preventScroll: true });
+    onClose();
+  }
+
+  return (
+    <Notice
+      role="group"
+      aria-label="پیام موقت"
+      dir="rtl"
+      style={offset ? { transform: `translateX(${offset}px)` } : undefined}
+      onPointerDown={startSwipe}
+      onPointerMove={event => {
+        if (gesture.current) setOffset(swipeDistance(event));
+      }}
+      onPointerUp={event => {
+        const distance = swipeDistance(event);
+        resetSwipe();
+        // Let the browser finish dispatching touchend before removing its target.
+        if (Math.abs(distance) >= 48) requestAnimationFrame(onClose);
+      }}
+      onPointerCancel={resetSwipe}
+      onLostPointerCapture={resetSwipe}
+    >
+      <StatusIcon $type={entry.type} aria-hidden="true"><Icon size={18} /></StatusIcon>
+      <Message aria-hidden="true">{resolveValue(entry.message, entry)}</Message>
+      <CloseButton
+        type="button"
+        aria-label="بستن پیام موقت"
+        onFocus={event => {
+          returnFocus.current = event.relatedTarget instanceof HTMLElement ? event.relatedTarget : null;
+        }}
+        onClick={event => {
+          if (event.detail === 0) closeFromKeyboard();
+          else onClose();
+        }}
+        onKeyDown={event => {
+          if (event.key === "Escape" && !event.nativeEvent.isComposing) {
+            event.preventDefault();
+            closeFromKeyboard();
+          }
+        }}
+      >
+        <CloseIcon size={16} />
+      </CloseButton>
+    </Notice>
+  );
+}
+
+export function ToastProvider({ children }: { children: ReactNode }) {
+  const { toasts, handlers } = useToaster({
+    duration: 2500,
+    error: { duration: 4000 },
+  });
+  const active = toasts.find(entry => entry.visible);
+  const activeId = active?.id;
+  const hasNotice = !!active;
+  const viewport = useRef<HTMLDivElement>(null);
+  const pausedNotice = useRef<string | undefined>(undefined);
+  const { endPause, startPause } = handlers;
+
+  useLayoutEffect(() => {
+    const layer = viewport.current;
+    const anchor = document.querySelector("[data-toast-anchor]");
+    if (!hasNotice || !layer || !anchor) return;
+
+    const position = () => {
+      const value = `${anchor.getBoundingClientRect().bottom}px`;
+      if (layer.style.getPropertyValue("--toast-anchor-bottom") !== value) {
+        layer.style.setProperty("--toast-anchor-bottom", value);
+      }
+    };
+    const observer = new ResizeObserver(position);
+    observer.observe(anchor);
+    observer.observe(document.body);
+    window.addEventListener("scroll", position, { passive: true });
+    position();
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("scroll", position);
+    };
+  }, [hasNotice]);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setVisible(false);
-      setTimeout(onClose, 200);
-    }, toast.duration || 3000);
-
-    return () => clearTimeout(timer);
-  }, [toast, onClose]);
-
-  const renderIcon = () => {
-    switch (toast.type) {
-      case "success":
-        return (
-          <ToastIconWrap>
-            <CheckCircleIcon size={18} />
-          </ToastIconWrap>
-        );
-      case "error":
-      case "warning":
-        return (
-          <ToastIconWrap>
-            <AlertCircleIcon size={18} />
-          </ToastIconWrap>
-        );
-      case "info":
-      default:
-        return (
-          <ToastIconWrap>
-            <InfoIcon size={18} />
-          </ToastIconWrap>
-        );
+    if (!active) return;
+    for (const entry of toasts) {
+      if (entry.id !== active.id && entry.visible) toast.remove(entry.id);
     }
-  };
+  }, [active, toasts]);
+
+  useEffect(() => {
+    if (pausedNotice.current && pausedNotice.current !== activeId) {
+      pausedNotice.current = undefined;
+      endPause();
+    }
+  }, [activeId, endPause]);
+
+  useEffect(() => {
+    if (!activeId) return;
+    const dismissOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !event.defaultPrevented && !event.isComposing) {
+        toast.remove(activeId);
+      }
+    };
+    window.addEventListener("keydown", dismissOnEscape);
+    return () => window.removeEventListener("keydown", dismissOnEscape);
+  }, [activeId]);
 
   return (
-    <ToastBase $type={toast.type} $visible={visible}>
-      {renderIcon()}
-      <ToastMessage>{toast.message}</ToastMessage>
-      <CloseButton
-        onClick={() => {
-          setVisible(false);
-          setTimeout(onClose, 200);
-        }}
-        aria-label="بستن پیام"
-      >
-        <CloseIcon size={15} />
-      </CloseButton>
-    </ToastBase>
-  );
-};
-
-const ToastContainer: React.FC<{
-  toasts: ToastInfo[];
-  removeToast: (id: string) => void;
-}> = ({ toasts, removeToast }) => {
-  if (typeof document === "undefined") {
-    return null;
-  }
-
-  return createPortal(
     <>
-      {toasts.map((toast) => (
-        <Toast
-          key={toast.id}
-          toast={toast}
-          onClose={() => removeToast(toast.id)}
-        />
-      ))}
-    </>,
-    document.body
-  );
-};
-
-export const ToastContext = React.createContext<{
-  addToast: (message: string, type: ToastType, duration?: number) => void;
-  removeToast: (id: string) => void;
-}>({
-  addToast: () => {},
-  removeToast: () => {},
-});
-
-export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
-  const [toasts, setToasts] = useState<ToastInfo[]>([]);
-
-  const addToast = (
-    message: string,
-    type: ToastType = "info",
-    duration = 3000
-  ) => {
-    const id = Date.now().toString();
-    setToasts((prev) => [...prev, { id, message, type, duration }]);
-  };
-
-  const removeToast = (id: string) => {
-    setToasts((prev) => prev.filter((toast) => toast.id !== id));
-  };
-
-  return (
-    <ToastContext.Provider value={{ addToast, removeToast }}>
-      <Toaster
-        position="top-center"
-        containerStyle={{
-          top: 24,
-          zIndex: 99999,
+      <LiveMessage role="status" aria-live="polite" aria-atomic="true">
+        {active && resolveValue(active.message, active)}
+      </LiveMessage>
+      <Viewport
+        ref={viewport}
+        onFocus={() => {
+          pausedNotice.current = activeId;
+          startPause();
         }}
-        toastOptions={{
-          duration: 3600,
-          style: {
-            background: "#16120F",
-            color: "#FAF6F0",
-            fontFamily: "var(--font-vazirmatn), system-ui, sans-serif",
-            fontSize: "0.875rem",
-            fontWeight: 600,
-            padding: "12px 16px",
-            borderRadius: "14px",
-            border: "1px solid rgba(255, 255, 255, 0.12)",
-            boxShadow: "0 16px 32px -8px rgba(22, 18, 15, 0.3)",
-          },
-          success: {
-            iconTheme: {
-              primary: "#22C55E",
-              secondary: "#16120F",
-            },
-          },
-          error: {
-            iconTheme: {
-              primary: "#EF4444",
-              secondary: "#16120F",
-            },
-          },
+        onBlur={() => {
+          pausedNotice.current = undefined;
+          endPause();
         }}
-      />
+      >
+        {active && <ToastNotice key={active.id} entry={active} onClose={() => toast.remove(active.id)} />}
+      </Viewport>
       {children}
-      <ToastContainer toasts={toasts} removeToast={removeToast} />
-    </ToastContext.Provider>
+    </>
   );
-};
-
-export const useToast = () => {
-  const context = React.useContext(ToastContext);
-  if (!context) {
-    throw new Error("useToast must be used within a ToastProvider");
-  }
-  return context;
-};
-
-export default ToastProvider;
+}

@@ -1149,7 +1149,7 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
         </TopPromoBarContainer>
       )}
 
-      <HeaderWrapper $isScrolled={isScrolled}>
+      <HeaderWrapper $isScrolled={isScrolled} data-toast-anchor>
         <HeaderInner $isScrolled={isScrolled}>
           <LogoLink href="/">
             <FoodinoEmblem size={40} />

@@ -401,11 +401,12 @@ const AddButton = styled.button`
   cursor: pointer;
   font-weight: 700;
   font-size: 0.85rem;
-  min-height: 40px;
+  min-height: 44px;
   min-width: 78px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  touch-action: manipulation;
   transition: background-color 180ms ease, transform 140ms ease, box-shadow 180ms ease;
   box-shadow: 0 6px 14px -4px rgba(217, 56, 30, 0.35);
 
@@ -603,6 +604,7 @@ export default function DatabaseMenu({
                 tabIndex={0}
                 onClick={() => handleProductClick(product)}
                 onKeyDown={(e) => {
+                  if (e.target !== e.currentTarget) return;
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
                     handleProductClick(product);
