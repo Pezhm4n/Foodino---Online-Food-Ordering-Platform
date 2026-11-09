@@ -63,7 +63,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
   const client = await createSupabaseServerClient();
   const { data: order, error } = await client
     .from('orders')
-    .select('id,status,restaurant_name_snapshot,subtotal_irr,delivery_fee_irr,tax_irr,total_irr,address_snapshot,created_at,order_items(product_name_snapshot,quantity,line_total_irr)')
+    .select('id,status,restaurant_name_snapshot,subtotal_irr,delivery_fee_irr,tax_irr,coupon_code,discount_irr,total_irr,order_note,address_snapshot,created_at,order_items(id,product_name_snapshot,quantity,line_total_irr,note)')
     .eq('id', parsed.data.id)
     .maybeSingle();
   if (error || !order) notFound();
@@ -189,14 +189,16 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
           <h2 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#16120F', margin: '0 0 0.85rem' }}>اقلام سفارش</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
             {(order.order_items ?? []).map((item) => (
-              <div key={`${item.product_name_snapshot}-${item.quantity}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 1rem', background: '#FAF6F0', border: '1px solid #E6DDD0', borderRadius: '0.75rem', fontSize: '0.9rem' }}>
+              <div key={item.id} style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 1rem', background: '#FAF6F0', border: '1px solid #E6DDD0', borderRadius: '0.75rem', fontSize: '0.9rem' }}>
                 <span style={{ fontWeight: 700, color: '#2E2620' }}>
                   {item.product_name_snapshot} <span style={{ color: '#D9381E', marginRight: '0.35rem' }}>× {item.quantity.toLocaleString('fa-IR')}</span>
                 </span>
                 <span style={{ fontWeight: 800, color: '#16120F' }}>{formatToman(item.line_total_irr)} تومان</span>
+                {item.note && <span style={{ flexBasis: '100%', overflowWrap: 'anywhere' }}>یادداشت غذا: {item.note}</span>}
               </div>
             ))}
           </div>
+          {order.order_note && <p style={{ overflowWrap: 'anywhere' }}>یادداشت سفارش: {order.order_note}</p>}
         </div>
 
         {/* Financial Breakdown */}
@@ -213,6 +215,12 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
             <div style={{ display: 'flex', justifyContent: 'space-between', color: '#6E6055' }}>
               <span>مالیات بر ارزش افزوده:</span>
               <span>{formatToman(order.tax_irr)} تومان</span>
+            </div>
+          )}
+          {order.discount_irr > 0 && (
+            <div style={{ display: 'flex', justifyContent: 'space-between', color: '#15803D' }}>
+              <span>{order.coupon_code === 'FREESHIP' ? 'تخفیف ارسال' : 'تخفیف سفارش'} ({order.coupon_code})</span>
+              <span>- {formatToman(order.discount_irr)} تومان</span>
             </div>
           )}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #E6DDD0', paddingTop: '0.85rem', marginTop: '0.25rem' }}>

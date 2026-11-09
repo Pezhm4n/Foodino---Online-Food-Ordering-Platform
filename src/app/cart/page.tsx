@@ -3,7 +3,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import Link from 'next/link';
-import { useCart } from '@/contexts/CartContext';
+import { CART_ESTIMATED_DELIVERY_TOMAN, useCart } from '@/contexts/CartContext';
+import { ORDER_NOTE_MAX_LENGTH } from '@/lib/validation/cart';
 import { MAX_CART_QUANTITY } from '@/domain/cart/cart';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
@@ -826,7 +827,7 @@ const CartPage = () => {
   const restoreCouponFocus = useRef(false);
   const router = useRouter();
 
-  const deliveryFee = 15000;
+  const deliveryFee = CART_ESTIMATED_DELIVERY_TOMAN;
   const subtotal = calculateSubtotal();
   const total = calculateTotal(deliveryFee);
   const invalidatedCoupon = state.invalidatedCoupon;
@@ -968,6 +969,7 @@ const CartPage = () => {
                   id="order-note-input"
                   placeholder="مثلاً: بدون پیاز، سس مخصوص بیشتر، زنگ طبقه سوم..."
                   value={orderNote}
+                  maxLength={ORDER_NOTE_MAX_LENGTH}
                   onChange={(e) => setOrderNote(e.target.value)}
                   rows={2}
                 />
@@ -1071,7 +1073,7 @@ const CartPage = () => {
               </CouponSection>
 
               <TotalRow>
-                <TotalLabel>مبلغ قابل پرداخت</TotalLabel>
+                <TotalLabel>برآورد مبلغ سفارش</TotalLabel>
                 <TotalValue>{formatPrice(total)}</TotalValue>
               </TotalRow>
 
@@ -1102,7 +1104,7 @@ const CartPage = () => {
 
           <MobileStickyBar>
             <div>
-              <div style={{ fontSize: '0.78rem', color: '#6E6055' }}>مبلغ قابل پرداخت:</div>
+              <div style={{ fontSize: '0.78rem', color: '#6E6055' }}>برآورد مبلغ سفارش</div>
               <strong style={{ fontSize: '1.05rem', color: '#16120F' }}>{formatPrice(total)}</strong>
             </div>
             <MobileCheckoutBtn type="button" onClick={handleCheckout}>

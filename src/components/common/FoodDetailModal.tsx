@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useId } from "react";
 import styled from "styled-components";
 import { useCart } from "@/contexts/CartContext";
+import { ORDER_NOTE_MAX_LENGTH } from "@/lib/validation/cart";
 import {
   DishArtwork,
   resolveFoodKind,
@@ -494,6 +495,7 @@ export default function FoodDetailModal({
 }: FoodDetailModalProps) {
   const [quantity, setQuantity] = useState(1);
   const [notes, setNotes] = useState("");
+  const noteId = useId();
   const [isClosing, setIsClosing] = useState(false);
   const { addItem } = useCart();
 
@@ -647,10 +649,12 @@ export default function FoodDetailModal({
 
           <div>
             <SectionHeader>
-              <span>یادداشت اختصاصی برای سرآشپز (اختیاری)</span>
+              <label htmlFor={noteId}>یادداشت اختصاصی برای سرآشپز (اختیاری)</label>
             </SectionHeader>
             <NoteInput
+              id={noteId}
               rows={2}
+              maxLength={ORDER_NOTE_MAX_LENGTH}
               placeholder="مثلاً: بدون پیاز، سس کمتر، تند نباشد…"
               value={notes}
               spellCheck={false}

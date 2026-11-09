@@ -22,7 +22,7 @@ export default async function OperatorOrdersPage() {
   const client = await createSupabaseServerClient();
   const { data: orders, error } = await client
     .from('orders')
-    .select('id,status,restaurant_name_snapshot,total_irr,created_at')
+    .select('id,status,restaurant_name_snapshot,total_irr,created_at,order_note,order_items(id,product_name_snapshot,note)')
     .order('created_at', { ascending: true })
     .limit(100);
   if (error) throw error;
@@ -36,6 +36,10 @@ export default async function OperatorOrdersPage() {
             <li key={order.id} style={{ padding: '1rem', border: '1px solid #ddd' }}>
               <strong>{order.restaurant_name_snapshot}</strong>
               <p>{order.id} — {order.status}</p>
+              {order.order_note && <p style={{ overflowWrap: 'anywhere' }}>یادداشت سفارش: {order.order_note}</p>}
+              {order.order_items.filter(item => item.note).map(item => (
+                <p key={item.id} style={{ overflowWrap: 'anywhere' }}>{item.product_name_snapshot}: {item.note}</p>
+              ))}
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                 {(nextStatuses[order.status] ?? []).map((status) => (
                   <form action={transitionOrderAction} key={status}>

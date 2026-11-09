@@ -9,6 +9,7 @@ export type CartSelection = Readonly<{
   variantId?: string;
   addonIds: readonly string[];
   quantity: number;
+  notes?: string;
 }>;
 
 export type Cart = Readonly<{
@@ -32,15 +33,17 @@ function normalizeSelection(selection: CartSelection): CartSelection {
   return {
     ...selection,
     addonIds: [...new Set(selection.addonIds)].sort(),
+    ...(selection.notes !== undefined ? { notes: selection.notes.trim() || undefined } : {}),
   };
 }
 
-function selectionKey(selection: CartSelection): string {
-  return [
+export function cartSelectionKey(selection: CartSelection): string {
+  return JSON.stringify([
     selection.productId,
     selection.variantId ?? '',
-    [...selection.addonIds].sort().join(','),
-  ].join(':');
+    [...new Set(selection.addonIds)].sort(),
+    selection.notes?.trim() ?? '',
+  ]);
 }
 
 export function addCartSelection(cart: Cart, input: CartSelection): Cart {
@@ -53,8 +56,8 @@ export function addCartSelection(cart: Cart, input: CartSelection): Cart {
     );
   }
 
-  const key = selectionKey(selection);
-  const existingIndex = cart.items.findIndex((item) => selectionKey(item) === key);
+  const key = cartSelectionKey(selection);
+  const existingIndex = cart.items.findIndex((item) => cartSelectionKey(item) === key);
   if (existingIndex === -1) {
     return {
       restaurantId: selection.restaurantId,

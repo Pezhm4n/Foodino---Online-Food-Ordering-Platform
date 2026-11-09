@@ -23,6 +23,16 @@ describe('cart invariant', () => {
     );
   });
 
+  it('keeps servings with different preparation notes on separate lines', () => {
+    const plain = addCartSelection(emptyCart(), pizza);
+    const custom = addCartSelection(plain, { ...pizza, notes: ' بدون پیاز ' });
+    const duplicate = addCartSelection(custom, { ...pizza, notes: 'بدون پیاز' });
+    expect(duplicate.items.map(({ notes, quantity }) => [notes, quantity])).toEqual([
+      [undefined, 1],
+      ['بدون پیاز', 2],
+    ]);
+  });
+
   it('requires explicit replacement for another restaurant', () => {
     expect(replaceCartForRestaurant({ ...pizza, restaurantId: 'restaurant-b' }).restaurantId).toBe(
       'restaurant-b',

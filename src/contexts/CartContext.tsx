@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useReducer } from 'react';
-import { addCartSelection, assertCartQuantity, type CartSelection } from '@/domain/cart/cart';
+import { addCartSelection, assertCartQuantity, cartSelectionKey, type CartSelection } from '@/domain/cart/cart';
 import { DomainError } from '@/domain/shared/domain-error';
 import { localCartSchema } from '@/lib/validation/cart';
 import { toast } from 'react-hot-toast';
@@ -9,13 +9,14 @@ import { toast } from 'react-hot-toast';
 import { validateAndApplyCoupon, type Coupon } from '@/domain/pricing/coupons';
 import { money } from '@/domain/money/money';
 
+export const CART_ESTIMATED_DELIVERY_TOMAN = 15_000;
+
 export interface CartItem extends CartSelection {
   id: string;
   name: string;
   price: number;
   image?: string;
   restaurantName?: string;
-  notes?: string;
 }
 
 interface CartState {
@@ -38,7 +39,6 @@ interface CartContextType {
   addItem: (item: CartItem) => void;
   removeItem: (id: string) => void;
   updateItem: (id: string, quantity: number) => void;
-  updateItemNotes: (id: string, notes: string) => void;
   setOrderNote: (note: string) => void;
   applyCouponCode: (code: string, deliveryFeeToman?: number) => { success: boolean; message: string };
   removeCoupon: () => void;
@@ -55,7 +55,6 @@ type CartAction =
   | { type: 'ADD_ITEM'; payload: CartItem }
   | { type: 'REMOVE_ITEM'; payload: { id: string } }
   | { type: 'UPDATE_ITEM'; payload: { id: string; quantity: number } }
-  | { type: 'UPDATE_ITEM_NOTES'; payload: { id: string; notes: string } }
   | { type: 'APPLY_COUPON'; payload: { coupon: Coupon; discountToman: number; deliveryFeeToman: number } }
   | { type: 'REMOVE_COUPON' }
   | { type: 'SET_ORDER_NOTE'; payload: string }
@@ -101,11 +100,9 @@ function reduceCartState(state: CartState, action: CartAction): CartState {
           restaurantId: domainCart.restaurantId,
           restaurantName: state.restaurantName ?? action.payload.restaurantName,
           items: domainCart.items.map((selection) => {
-            const presentation = state.items.find((item) =>
-              item.productId === selection.productId
-              && item.variantId === selection.variantId
-              && item.addonIds.join(',') === selection.addonIds.join(',')) ?? action.payload;
-            return { ...presentation, ...selection };
+            const id = cartSelectionKey(selection);
+            const presentation = state.items.find((item) => item.id === id) ?? action.payload;
+            return { ...presentation, ...selection, id };
           }),
         };
       } catch (err) {
@@ -127,14 +124,6 @@ function reduceCartState(state: CartState, action: CartAction): CartState {
         items: state.items.map((item) => item.id === action.payload.id
           ? { ...item, quantity: action.payload.quantity }
           : item),
-      };
-    }
-    case 'UPDATE_ITEM_NOTES': {
-      return {
-        ...state,
-        items: state.items.map((item) =>
-          item.id === action.payload.id ? { ...item, notes: action.payload.notes } : item,
-        ),
       };
     }
     case 'APPLY_COUPON': {
@@ -199,6 +188,8 @@ function persistedCart(state: CartState) {
     version: 1 as const,
     restaurantId: state.restaurantId,
     restaurantName: state.restaurantName,
+    ...(state.orderNote ? { orderNote: state.orderNote } : {}),
+    ...(state.appliedCoupon ? { couponCode: state.appliedCoupon.code } : {}),
     items: state.items.map(({ restaurantId, productId, variantId, addonIds, quantity, notes, name, price, image }) => ({
       restaurantId,
       productId,
@@ -215,37 +206,46 @@ function persistedCart(state: CartState) {
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(cartReducer, initialState);
+  const [hydrated, markHydrated] = useReducer(() => true, false);
 
   useEffect(() => {
-    const savedCart = localStorage.getItem('cart');
-    if (!savedCart) return;
     try {
+      const savedCart = localStorage.getItem('cart');
+      if (!savedCart) return;
       const parsed = localCartSchema.parse(JSON.parse(savedCart));
+      const items = parsed.items.map((item) => ({
+        ...item,
+        id: cartSelectionKey(item),
+        name: item.name || 'محصول سبد خرید',
+        price: typeof item.price === 'number' ? item.price : 0,
+      }));
+      const coupon = parsed.couponCode
+        ? validateCartCoupon(parsed.couponCode, items, CART_ESTIMATED_DELIVERY_TOMAN)
+        : null;
       dispatch({
         type: 'SET_CART',
         payload: {
           restaurantId: parsed.restaurantId,
           restaurantName: parsed.restaurantName,
-          items: parsed.items.map((item) => ({
-            ...item,
-            id: [item.productId, item.variantId ?? '', item.addonIds.join(',')].join(':'),
-            name: item.name || 'محصول سبد خرید',
-            price: typeof item.price === 'number' ? item.price : 0,
-          })),
-          appliedCoupon: null,
-          discountToman: 0,
-          orderNote: '',
+          items,
+          appliedCoupon: coupon?.valid ? coupon.coupon : null,
+          discountToman: coupon?.valid ? coupon.discount.amountIrr / 10 : 0,
+          couponDeliveryFeeToman: coupon?.valid ? CART_ESTIMATED_DELIVERY_TOMAN : undefined,
+          orderNote: parsed.orderNote ?? '',
         },
       });
     } catch {
       localStorage.removeItem('cart');
+    } finally {
+      markHydrated();
     }
   }, []);
 
   useEffect(() => {
+    if (!hydrated) return;
     if (state.items.length === 0) localStorage.removeItem('cart');
     else localStorage.setItem('cart', JSON.stringify(persistedCart(state)));
-  }, [state]);
+  }, [hydrated, state]);
 
   useEffect(() => {
     const unpricedItems = state.items.filter((item) => !item.price || item.price === 0);
@@ -265,7 +265,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const removeItem = (id: string) => dispatch({ type: 'REMOVE_ITEM', payload: { id } });
   const updateItem = (id: string, quantity: number) =>
     dispatch({ type: 'UPDATE_ITEM', payload: { id, quantity } });
-  const clearCart = () => dispatch({ type: 'CLEAR_CART' });
+  const clearCart = () => {
+    try {
+      localStorage.removeItem('cart');
+    } catch {
+      // The active cart can still be cleared when storage is unavailable.
+    }
+    dispatch({ type: 'CLEAR_CART' });
+  };
   const calculateSubtotal = () => subtotalToman(state.items);
   const calculateDiscount = () => state.discountToman;
   const calculateTotal = (deliveryFee = 0) =>
@@ -289,10 +296,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const removeCoupon = () => {
     dispatch({ type: 'REMOVE_COUPON' });
     toast.success('کد تخفیف حذف شد', { id: 'cart-coupon' });
-  };
-
-  const updateItemNotes = (id: string, notes: string) => {
-    dispatch({ type: 'UPDATE_ITEM_NOTES', payload: { id, notes } });
   };
 
   const setOrderNote = (note: string) => {
@@ -319,7 +322,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       },
       removeItem,
       updateItem,
-      updateItemNotes,
       setOrderNote,
       applyCouponCode,
       removeCoupon,

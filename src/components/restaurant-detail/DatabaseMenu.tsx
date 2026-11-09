@@ -595,7 +595,10 @@ export default function DatabaseMenu({
             const priceToman = irrToToman(product.price);
             const kind = resolveFoodKind(product.name, product.description);
             const palette = FOOD_VISUAL_PALETTE[kind];
-            const inCart = cartItems.find((it) => it.id === product.id);
+            const inCartQuantity = cartItems.reduce(
+              (count, item) => item.productId === product.id ? count + item.quantity : count,
+              0,
+            );
 
             return (
               <Item
@@ -629,11 +632,11 @@ export default function DatabaseMenu({
                     }}
                   >
                     <strong>{product.name}</strong>
-                    {inCart && (
+                    {inCartQuantity > 0 && (
                       <InCartBadge>
                         <CheckCircleIcon size={12} />
                         <span>
-                          {numberFormatter.format(inCart.quantity)} در سبد
+                          {numberFormatter.format(inCartQuantity)} در سبد
                         </span>
                       </InCartBadge>
                     )}

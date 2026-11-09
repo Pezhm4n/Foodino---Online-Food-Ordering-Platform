@@ -1,11 +1,14 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import styled from 'styled-components';
 import { toast } from 'react-hot-toast';
 import { useCart } from '@/contexts/CartContext';
+import type { CheckoutQuote } from '@/application/ports/order-repository';
+import type { CheckoutQuoteInput } from '@/lib/validation/checkout';
+import { irrToToman, money } from '@/domain/money/money';
 import {
   DishArtwork,
   resolveFoodKind,
@@ -20,6 +23,51 @@ import {
 } from '@/components/ui/FoodVisuals';
 
 type Address = Readonly<{ id: string; title: string; city: string; addressLine: string }>;
+type QuoteResult = { key: string } & ({ quote: CheckoutQuote } | { error: string });
+type CheckoutAttempt = { request: string; id: string; addressId: string };
+const ATTEMPT_KEY = 'foodino:checkout-attempt';
+
+function readAttempt(): CheckoutAttempt | null {
+  try {
+    const stored = JSON.parse(localStorage.getItem(ATTEMPT_KEY) ?? 'null');
+    return stored && typeof stored.request === 'string' && typeof stored.id === 'string'
+      && typeof stored.addressId === 'string' ? stored : null;
+  } catch {
+    return null;
+  }
+}
+
+function forgetAttempt() {
+  try {
+    localStorage.removeItem(ATTEMPT_KEY);
+  } catch {
+    // The current page can still discard the in-memory attempt.
+  }
+}
+
+function isClosedAttempt(code?: string) {
+  return code === 'CHECKOUT_ATTEMPT_CLOSED' || code === 'CHECKOUT_REQUEST_CHANGED';
+}
+
+function checkoutMessage(code: string) {
+  switch (code) {
+    case 'INVALID_COUPON': return 'کد تخفیف معتبر نیست. آن را در سبد خرید تغییر دهید.';
+    case 'COUPON_MINIMUM_NOT_MET': return 'مبلغ سفارش به حداقل لازم برای این کد تخفیف نمی‌رسد.';
+    case 'COUPON_FIRST_ORDER_ONLY': return 'این کد فقط برای اولین سفارش قابل استفاده است.';
+    case 'MINIMUM_ORDER_NOT_MET': return 'مبلغ سبد به حداقل سفارش رستوران نمی‌رسد.';
+    case 'RESTAURANT_UNAVAILABLE': return 'این رستوران فعلاً سفارش نمی‌پذیرد.';
+    case 'CART_ITEM_UNAVAILABLE': return 'یکی از غذاها یا افزودنی‌های سبد دیگر در دسترس نیست.';
+    case 'CHECKOUT_TOTAL_CHANGED': return 'مبلغ سفارش تغییر کرد. مبلغ تازه را بررسی و دوباره تأیید کنید.';
+    case 'CHECKOUT_REQUEST_CHANGED': return 'مشخصات این تلاش تغییر کرده است. سبد و آدرس را بررسی کنید.';
+    case 'CHECKOUT_ATTEMPT_CLOSED': return 'سفارش قبلی بسته شده است. مبلغ سفارش تازه را بررسی کنید.';
+    case 'PAYMENT_PROVIDER_UNAVAILABLE': return 'درگاه پرداخت در دسترس نیست. بعداً دوباره تلاش کنید.';
+    default: return 'ثبت سفارش انجام نشد. لطفاً دوباره تلاش کنید.';
+  }
+}
+
+function formatIrr(amount: number) {
+  return `${irrToToman(money(amount)).toLocaleString('fa-IR')} تومان`;
+}
 
 const Page = styled.div`
   max-width: 1120px;
@@ -113,12 +161,12 @@ const StepDivider = styled.div<{ $completed?: boolean }>`
 
 const LayoutGrid = styled.div`
   display: grid;
-  grid-template-columns: 1fr 380px;
+  grid-template-columns: minmax(0, 1fr) 380px;
   gap: 1.75rem;
   align-items: start;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 `;
 
@@ -278,6 +326,8 @@ const ItemRowLeft = styled.div`
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
 `;
 
 const SummaryCard = styled.aside`
@@ -294,6 +344,8 @@ const SummaryRow = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
   padding: 0.6rem 0;
   font-size: 0.9rem;
   color: ${({ theme }) => theme.colors.neutral[600]};
@@ -302,12 +354,26 @@ const SummaryRow = styled.div`
     color: ${({ theme }) => theme.colors.neutral[900]};
     font-weight: 700;
   }
+
+  > a, > button {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding-inline: 0.75rem;
+    border: 1px solid ${({ theme }) => theme.colors.neutral[300]};
+    border-radius: ${({ theme }) => theme.borderRadius.md};
+    background: ${({ theme }) => theme.colors.neutral[50]};
+    color: ${({ theme }) => theme.colors.neutral[800]};
+    cursor: pointer;
+  }
 `;
 
 const SummaryTotalRow = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
   margin-top: 0.85rem;
   padding-top: 1rem;
   border-top: 2px solid ${({ theme }) => theme.colors.neutral[100]};
@@ -404,39 +470,113 @@ export default function CheckoutPage() {
   const {
     state,
     clearCart,
-    calculateSubtotal,
-    calculateTotal,
-    discountToman,
     appliedCoupon,
   } = useCart();
-  const idempotencyKey = useRef<string | null>(null);
+  const attempt = useRef<CheckoutAttempt | null>(null);
   const [addresses, setAddresses] = useState<readonly Address[]>([]);
-  const [addressId, setAddressId] = useState('');
+  const [selectedAddressId, setAddressId] = useState('');
+  const [storedAttempt, setStoredAttempt] = useState<CheckoutAttempt | null>(null);
   const [loading, setLoading] = useState(true);
+  const [addressError, setAddressError] = useState(false);
+  const [addressRevision, setAddressRevision] = useState(0);
   const [submitting, setSubmitting] = useState(false);
-
-  const deliveryFee = 15000;
-  const subtotal = calculateSubtotal();
-  const total = calculateTotal(deliveryFee);
+  const [quoteResult, setQuoteResult] = useState<QuoteResult | null>(null);
+  const [quoteRevision, setQuoteRevision] = useState(0);
+  const couponCode = appliedCoupon?.code;
+  const selection = useMemo<CheckoutQuoteInput | null>(() => state.restaurantId && state.items.length > 0 ? {
+    restaurantId: state.restaurantId,
+    couponCode,
+    items: state.items.map(({ productId, variantId, addonIds, quantity, notes }) => ({
+      productId, variantId, addonIds: [...addonIds], quantity, notes: notes?.trim() || undefined,
+    })),
+  } : null, [state.restaurantId, state.items, couponCode]);
+  const orderNote = state.orderNote?.trim() || undefined;
+  const previousAddress = storedAttempt && addresses.some(address => address.id === storedAttempt.addressId)
+    && storedAttempt.request === JSON.stringify({ selection, addressId: storedAttempt.addressId, orderNote })
+    ? storedAttempt.addressId : null;
+  const addressId = selectedAddressId || previousAddress || addresses[0]?.id || '';
+  const request = selection ? JSON.stringify({ selection, addressId, orderNote }) : null;
+  const quoteKey = request ? `${quoteRevision}:${request}` : null;
+  const currentQuote = quoteResult?.key === quoteKey ? quoteResult : null;
+  const quote = currentQuote && 'quote' in currentQuote ? currentQuote.quote : null;
 
   useEffect(() => {
-    idempotencyKey.current ??= crypto.randomUUID();
-    void fetch('/api/customer/addresses', { cache: 'no-store' }).then(async (response) => {
+    const controller = new AbortController();
+    void fetch('/api/customer/addresses', { cache: 'no-store', signal: controller.signal }).then(async (response) => {
       if (response.status === 401) {
-        router.push('/auth');
+        if (!controller.signal.aborted) router.push('/auth?next=/checkout');
         return;
       }
       if (!response.ok) throw new Error('ADDRESS_LOAD_FAILED');
       const body = await response.json() as { items: Address[] };
-      setAddresses(body.items);
-      setAddressId(body.items[0]?.id ?? '');
-    }).catch(() => toast.error('دریافت آدرس‌ها انجام نشد.')).finally(() => setLoading(false));
-  }, [router]);
+      if (!controller.signal.aborted) {
+        setAddresses(body.items);
+        setStoredAttempt(readAttempt());
+      }
+    }).catch(() => {
+      if (!controller.signal.aborted) setAddressError(true);
+    }).finally(() => {
+      if (!controller.signal.aborted) setLoading(false);
+    });
+    return () => controller.abort();
+  }, [router, addressRevision]);
+
+  useEffect(() => {
+    if (!selection || !request || !quoteKey || loading) return;
+    const controller = new AbortController();
+    const previous = attempt.current ?? storedAttempt;
+    const previousId = previous?.request === request ? previous.id : undefined;
+    void fetch('/api/checkout/quote', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      signal: controller.signal,
+      body: JSON.stringify({
+        ...selection,
+        ...(previousId ? { idempotencyKey: previousId, addressId, orderNote } : {}),
+      }),
+    }).then(async (response) => {
+      if (response.status === 401) {
+        if (!controller.signal.aborted) router.push('/auth?next=/checkout');
+        return;
+      }
+      if (!response.ok) {
+        const { code } = await response.json() as { code: string };
+        if (!controller.signal.aborted && previousId && isClosedAttempt(code)) {
+          forgetAttempt();
+          attempt.current = null;
+          setStoredAttempt(null);
+          setAddressId(addressId);
+          setQuoteRevision(value => value + 1);
+          toast.error(checkoutMessage(code));
+          return;
+        }
+        if (!controller.signal.aborted) setQuoteResult({
+          key: quoteKey,
+          error: code === 'CHECKOUT_QUOTE_FAILED' ? 'دریافت مبلغ سفارش انجام نشد.' : checkoutMessage(code),
+        });
+        return;
+      }
+      const quote = await response.json() as CheckoutQuote;
+      if (!controller.signal.aborted) setQuoteResult({ key: quoteKey, quote });
+    }).catch(() => {
+      if (!controller.signal.aborted) setQuoteResult({ key: quoteKey, error: 'دریافت مبلغ سفارش انجام نشد.' });
+    });
+    return () => controller.abort();
+  }, [selection, request, quoteKey, loading, router, storedAttempt, addressId, orderNote]);
 
   async function checkout() {
-    if (!state.restaurantId || state.items.length === 0 || !addressId || !idempotencyKey.current) {
+    if (submitting) return;
+    if (!selection || !request || !addressId || !quote) {
       toast.error('سبد خرید و آدرس تحویل را تکمیل کنید.');
       return;
+    }
+    const previous = attempt.current ?? storedAttempt;
+    const id = previous?.request === request ? previous.id : crypto.randomUUID();
+    attempt.current = { request, id, addressId };
+    try {
+      localStorage.setItem(ATTEMPT_KEY, JSON.stringify(attempt.current));
+    } catch {
+      // The in-memory key still supports retries in this view.
     }
     setSubmitting(true);
     try {
@@ -444,31 +584,47 @@ export default function CheckoutPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          idempotencyKey: idempotencyKey.current,
+          ...selection,
+          idempotencyKey: id,
           addressId,
-          restaurantId: state.restaurantId,
-          items: state.items.map(({ productId, variantId, addonIds, quantity }) => ({
-            productId,
-            ...(variantId ? { variantId } : {}),
-            addonIds,
-            quantity,
-          })),
+          orderNote,
+          expectedTotalIrr: quote.totalIrr,
         }),
       });
+      if (response.status === 401) {
+        router.push('/auth?next=/checkout');
+        return;
+      }
       const result = await response.json() as {
         orderId?: string;
         trackingToken?: string | null;
         paymentUrl?: string;
         code?: string;
       };
-      if (!response.ok || !result.paymentUrl) throw new Error(result.code ?? 'CHECKOUT_FAILED');
-      if (result.orderId && result.trackingToken) {
-        sessionStorage.setItem(`foodino:tracking:${result.orderId}`, result.trackingToken);
+      if (!response.ok || !result.paymentUrl) {
+        if (isClosedAttempt(result.code)) {
+          forgetAttempt();
+          attempt.current = null;
+          setStoredAttempt(null);
+          setAddressId(addressId);
+        }
+        if (response.status === 422 || result.code === 'CHECKOUT_TOTAL_CHANGED' || isClosedAttempt(result.code)) {
+          setQuoteRevision(value => value + 1);
+        }
+        throw new Error(result.code ?? 'CHECKOUT_FAILED');
       }
+      try {
+        if (result.orderId && result.trackingToken) {
+          sessionStorage.setItem(`foodino:tracking:${result.orderId}`, result.trackingToken);
+        }
+      } catch {
+        // Storage availability must not interrupt a successful checkout.
+      }
+      forgetAttempt();
       clearCart();
       window.location.assign(result.paymentUrl);
-    } catch {
-      toast.error('ثبت سفارش انجام نشد. لطفاً دوباره تلاش کنید.');
+    } catch (error) {
+      toast.error(checkoutMessage(error instanceof Error ? error.message : 'CHECKOUT_FAILED'));
       setSubmitting(false);
     }
   }
@@ -515,6 +671,15 @@ export default function CheckoutPage() {
 
             {loading ? (
               <p style={{ color: '#6E6055', margin: 0 }}>در حال دریافت آدرس‌های منتخب شما...</p>
+            ) : addressError ? (
+              <SummaryRow>
+                <span role="alert">دریافت آدرس‌ها انجام نشد.</span>
+                <button type="button" onClick={() => {
+                  setAddressError(false);
+                  setLoading(true);
+                  setAddressRevision(value => value + 1);
+                }}>تلاش دوباره</button>
+              </SummaryRow>
             ) : addresses.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '1.5rem 1rem' }}>
                 <p style={{ marginBottom: '1rem', color: '#6E6055' }}>هنوز هیچ آدرسی در حساب کاربری خود ثبت نکرده‌اید.</p>
@@ -530,6 +695,7 @@ export default function CheckoutPage() {
                     key={address.id}
                     $selected={address.id === addressId}
                     onClick={() => setAddressId(address.id)}
+                    disabled={submitting}
                   >
                     <RadioCircle $selected={address.id === addressId} />
                     <AddressContent>
@@ -585,15 +751,15 @@ export default function CheckoutPage() {
             )}
 
             {state.orderNote && (
-              <div style={{ marginTop: '0.9rem', padding: '0.7rem 0.95rem', background: '#FAF6F0', borderRadius: '12px', fontSize: '0.85rem', color: '#4A3F37' }}>
+              <div style={{ marginTop: '0.9rem', padding: '0.7rem 0.95rem', background: '#FAF6F0', borderRadius: '12px', fontSize: '0.85rem', color: '#4A3F37', overflowWrap: 'anywhere', whiteSpace: 'pre-wrap' }}>
                 <strong>یادداشت شما برای سفارش:</strong> {state.orderNote}
               </div>
             )}
 
-            {appliedCoupon && (
+            {quote?.couponCode && (
               <div style={{ marginTop: '0.75rem', padding: '0.65rem 0.9rem', background: '#ECFDF5', borderRadius: '12px', fontSize: '0.84rem', color: '#15803D', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
                 <TagIcon size={15} />
-                <span><strong>کد تخفیف فعال:</strong> {appliedCoupon.code} ({appliedCoupon.description})</span>
+                <span><strong>کد تخفیف تأییدشده:</strong> {quote.couponCode}</span>
               </div>
             )}
           </Card>
@@ -604,41 +770,52 @@ export default function CheckoutPage() {
             <h2>خلاصه صورت‌حساب</h2>
           </SectionHeader>
 
-          <SummaryRow>
-            <span>جمع اقلام ({state.items.reduce((s, i) => s + i.quantity, 0).toLocaleString('fa-IR')} مورد)</span>
-            <strong>{subtotal.toLocaleString('fa-IR')} تومان</strong>
-          </SummaryRow>
-
-          {discountToman > 0 && (
-            <SummaryRow style={{ color: '#15803D' }}>
-              <span>تخفیف ({appliedCoupon?.code})</span>
-              <strong style={{ color: '#15803D' }}>- {discountToman.toLocaleString('fa-IR')} تومان</strong>
+          {quote ? (
+            <>
+              <SummaryRow>
+                <span>جمع اقلام</span>
+                <strong>{formatIrr(quote.subtotalIrr)}</strong>
+              </SummaryRow>
+              <SummaryRow>
+                <span>هزینه ارسال پیک</span>
+                <strong>{formatIrr(quote.deliveryFeeIrr)}</strong>
+              </SummaryRow>
+              {quote.taxIrr > 0 && (
+                <SummaryRow>
+                  <span>مالیات</span>
+                  <strong>{formatIrr(quote.taxIrr)}</strong>
+                </SummaryRow>
+              )}
+              {quote.discountIrr > 0 && (
+                <SummaryRow style={{ color: '#15803D' }}>
+                  <span>{quote.couponCode === 'FREESHIP' ? 'تخفیف ارسال' : 'تخفیف سفارش'}</span>
+                  <strong>- {formatIrr(quote.discountIrr)}</strong>
+                </SummaryRow>
+              )}
+              <SummaryTotalRow>
+                <span>مبلغ قابل پرداخت</span>
+                <span>{formatIrr(quote.totalIrr)}</span>
+              </SummaryTotalRow>
+            </>
+          ) : (
+            <NoticeBox role={currentQuote && 'error' in currentQuote ? 'alert' : 'status'}>
+              <InfoIcon size={17} />
+              <span>{currentQuote && 'error' in currentQuote
+                ? currentQuote.error
+                : selection ? 'در حال دریافت مبلغ سفارش از سرور…' : 'سبد خرید شما خالی است.'}</span>
+            </NoticeBox>
+          )}
+          {currentQuote && 'error' in currentQuote && (
+            <SummaryRow>
+              <Link href="/cart">ویرایش سبد خرید</Link>
+              <button type="button" onClick={() => setQuoteRevision(value => value + 1)}>تلاش دوباره</button>
             </SummaryRow>
           )}
-
-          <SummaryRow>
-            <span>هزینه ارسال پیک</span>
-            <strong>
-              {appliedCoupon?.type === 'free_delivery'
-                ? 'رایگان'
-                : `${deliveryFee.toLocaleString('fa-IR')} تومان`}
-            </strong>
-          </SummaryRow>
-
-          <SummaryTotalRow>
-            <span>مبلغ قابل پرداخت</span>
-            <span>{total.toLocaleString('fa-IR')} تومان</span>
-          </SummaryTotalRow>
-
-          <NoticeBox>
-            <InfoIcon size={17} />
-            <span>مبلغ و فاکتور نهایی بر اساس قیمت لحظه‌ای سرور و هزینه ارسال در درگاه امن محاسبه خواهد شد.</span>
-          </NoticeBox>
 
           <PayButton
             type="button"
             onClick={checkout}
-            disabled={submitting || loading || addresses.length === 0 || state.items.length === 0}
+            disabled={submitting || loading || !addressId || !quote}
           >
             <ShieldCheckIcon size={19} />
             <span>{submitting ? 'در حال اتصال به درگاه پرداخت...' : 'ثبت سفارش و ادامه پرداخت'}</span>
