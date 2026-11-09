@@ -286,11 +286,6 @@ const CardBanner = styled.div<{ $bgStart: string; $bgEnd: string }>`
 
   @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
     height: 132px;
-
-    svg {
-      width: 102px;
-      height: 102px;
-    }
   }
 `;
 
@@ -302,6 +297,13 @@ const ArtworkMotionWrap = styled.div`
   @media (hover: hover) and (pointer: fine) {
     ${DishCard}:hover & {
       transform: scale(1.09) translateY(-3px) rotate(-2deg);
+    }
+  }
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    svg {
+      width: 96px;
+      height: 96px;
     }
   }
 `;

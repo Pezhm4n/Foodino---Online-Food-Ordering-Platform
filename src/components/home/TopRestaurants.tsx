@@ -163,6 +163,25 @@ const CardLink = styled(Link)`
   flex: 1;
 `;
 
+const CoverArtworkMotion = styled.div`
+  position: relative;
+  z-index: 2;
+  transition: transform 280ms var(--ease-out);
+
+  @media (hover: hover) and (pointer: fine) {
+    ${RestaurantCard}:hover & {
+      transform: scale(1.09) translateY(-3px) rotate(-2deg);
+    }
+  }
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    svg {
+      width: 86px;
+      height: 86px;
+    }
+  }
+`;
+
 const CoverStage = styled.div<{ $bgStart: string; $bgEnd: string }>`
   position: relative;
   width: 100%;
@@ -191,23 +210,6 @@ const CoverStage = styled.div<{ $bgStart: string; $bgEnd: string }>`
 
   @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
     height: 124px;
-
-    svg {
-      width: 92px;
-      height: 92px;
-    }
-  }
-`;
-
-const CoverArtworkMotion = styled.div`
-  position: relative;
-  z-index: 2;
-  transition: transform 280ms var(--ease-out);
-
-  @media (hover: hover) and (pointer: fine) {
-    ${RestaurantCard}:hover & {
-      transform: scale(1.09) translateY(-3px) rotate(-2deg);
-    }
   }
 `;
 
@@ -256,6 +258,12 @@ const RatingFloatingBadge = styled.span`
   font-size: 0.78rem;
   font-weight: 800;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+  svg {
+    width: 13px !important;
+    height: 13px !important;
+    flex-shrink: 0;
+  }
 `;
 
 const RestaurantInfo = styled.div`

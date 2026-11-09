@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useSyncExternalStore } from "react";
+import React, { useState, useEffect, useRef, useSyncExternalStore } from "react";
 import styled, { keyframes } from "styled-components";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
@@ -17,7 +17,16 @@ import {
   SparkleIcon,
   CopyIcon,
   CheckCircleIcon,
+  DishArtwork,
+  resolveFoodKind,
+  StarIcon,
+  ArrowLeftIcon,
+  FlameIcon,
 } from "@/components/ui/FoodVisuals";
+import {
+  MOCK_RESTAURANTS,
+  MOCK_PRODUCTS,
+} from "@/infrastructure/mock/mock-catalog-data";
 
 const headerCopy = {
   home: "خانه",
@@ -253,27 +262,51 @@ const NavLink = styled(Link)<{ $active?: boolean }>`
 const SearchContainer = styled.div`
   position: relative;
   flex-grow: 1;
-  max-width: 300px;
+  max-width: 310px;
+  min-width: 200px;
+  transition: max-width 240ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  &:focus-within {
+    max-width: 380px;
+  }
+
+  @media (max-width: ${(props) => props.theme.breakpoints.lg}) {
+    max-width: 240px;
+  }
 
   @media (max-width: ${(props) => props.theme.breakpoints.md}) {
     display: none;
   }
 `;
 
-const SearchInputContainer = styled.div`
+const SearchInputContainer = styled.div<{ $isOpen?: boolean }>`
   display: flex;
   align-items: center;
-  background-color: #ffffff;
-  border: 1px solid ${(props) => props.theme.colors.neutral[200]};
+  background-color: ${({ $isOpen }) => ($isOpen ? '#ffffff' : 'rgba(243, 236, 226, 0.65)')};
+  border: 1.5px solid ${({ $isOpen, theme }) =>
+    $isOpen ? theme.colors.primary[500] : theme.colors.neutral[200]};
   border-radius: ${(props) => props.theme.borderRadius.full};
-  padding: 0.2rem 0.95rem;
+  padding: 0.25rem 0.85rem;
   min-height: 40px;
-  transition: border-color 160ms ease, box-shadow 160ms ease;
+  box-shadow: ${({ $isOpen }) =>
+    $isOpen ? '0 10px 24px -6px rgba(217, 56, 30, 0.12)' : 'none'};
+  transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
 
-  &:focus-within {
-    border-color: ${(props) => props.theme.colors.primary[500]};
-    box-shadow: 0 0 0 3px ${(props) => props.theme.colors.primary[100]};
+  &:hover {
+    border-color: ${(props) => props.theme.colors.neutral[400]};
+    background-color: #ffffff;
   }
+`;
+
+const SearchIconWrap = styled.span<{ $active?: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-inline-end: 0.5rem;
+  color: ${({ $active, theme }) =>
+    $active ? theme.colors.primary[500] : theme.colors.neutral[500]};
+  transition: color 150ms ease;
+  flex-shrink: 0;
 `;
 
 const SearchInput = styled.input`
@@ -282,20 +315,263 @@ const SearchInput = styled.input`
   background: transparent;
   border: none;
   outline: none;
-  font-size: 0.85rem;
+  font-size: 0.86rem;
+  font-family: inherit;
   color: ${(props) => props.theme.colors.neutral[900]};
 
   &::placeholder {
     color: ${(props) => props.theme.colors.neutral[400]};
+    font-size: 0.82rem;
   }
 `;
 
-const SearchIconWrap = styled.span`
-  display: inline-flex;
+const SearchClearBtn = styled.button`
+  background: transparent;
+  border: none;
+  color: ${(props) => props.theme.colors.neutral[400]};
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
   align-items: center;
   justify-content: center;
-  margin-left: 0.5rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-inline-start: 0.35rem;
+  transition: background-color 140ms ease, color 140ms ease;
+
+  &:hover {
+    background-color: ${(props) => props.theme.colors.neutral[200]};
+    color: ${(props) => props.theme.colors.neutral[800]};
+  }
+`;
+
+const KbdShortcut = styled.kbd`
+  font-size: 0.68rem;
+  font-weight: 700;
   color: ${(props) => props.theme.colors.neutral[400]};
+  background: ${(props) => props.theme.colors.neutral[100]};
+  border: 1px solid ${(props) => props.theme.colors.neutral[200]};
+  border-radius: 6px;
+  padding: 0.12rem 0.38rem;
+  font-family: inherit;
+  margin-inline-start: 0.35rem;
+  pointer-events: none;
+  user-select: none;
+
+  @media (max-width: 1100px) {
+    display: none;
+  }
+`;
+
+const SearchDropdown = styled.div`
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: max(100%, 390px);
+  background: #ffffff;
+  border: 1px solid ${(props) => props.theme.colors.neutral[200]};
+  border-radius: 1.25rem;
+  box-shadow: 0 20px 48px -12px rgba(22, 18, 15, 0.18),
+              0 0 0 1px rgba(22, 18, 15, 0.04);
+  padding: 1rem;
+  z-index: 300;
+  direction: rtl;
+  max-height: 480px;
+  overflow-y: auto;
+`;
+
+const DropdownSectionTitle = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.76rem;
+  font-weight: 800;
+  color: ${(props) => props.theme.colors.neutral[500]};
+  margin-bottom: 0.65rem;
+`;
+
+const TrendingTagsRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.15rem;
+`;
+
+const TrendingTagPill = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: ${(props) => props.theme.colors.neutral[50]};
+  border: 1px solid ${(props) => props.theme.colors.neutral[200]};
+  color: ${(props) => props.theme.colors.neutral[700]};
+  padding: 0.32rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 140ms ease, color 140ms ease, border-color 140ms ease;
+
+  &:hover {
+    background-color: ${(props) => props.theme.colors.primary[50]};
+    color: ${(props) => props.theme.colors.primary[600]};
+    border-color: ${(props) => props.theme.colors.primary[200]};
+  }
+`;
+
+const QuickCategoriesGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.45rem;
+`;
+
+const QuickCategoryCard = styled(Link)`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.6rem 0.3rem;
+  background: ${(props) => props.theme.colors.neutral[50]};
+  border: 1px solid ${(props) => props.theme.colors.neutral[200]};
+  border-radius: 0.85rem;
+  text-decoration: none;
+  color: ${(props) => props.theme.colors.neutral[800]};
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-align: center;
+  transition: transform 140ms ease, border-color 140ms ease, background-color 140ms ease;
+
+  &:hover {
+    background-color: #ffffff;
+    border-color: ${(props) => props.theme.colors.primary[300]};
+    transform: translateY(-2px);
+  }
+`;
+
+const SearchResultsGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 0.85rem;
+`;
+
+const ResultItemLink = styled(Link)`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: 0.85rem;
+  text-decoration: none;
+  color: inherit;
+  transition: background-color 140ms ease;
+
+  &:hover {
+    background-color: ${(props) => props.theme.colors.neutral[50]};
+  }
+`;
+
+const ResultThumbWrap = styled.div`
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: ${(props) => props.theme.colors.neutral[100]};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+`;
+
+const ResultInfo = styled.div`
+  flex: 1;
+  min-width: 0;
+
+  h4 {
+    font-size: 0.86rem;
+    font-weight: 800;
+    color: ${(props) => props.theme.colors.neutral[900]};
+    margin: 0 0 0.15rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  p {
+    font-size: 0.74rem;
+    color: ${(props) => props.theme.colors.neutral[500]};
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+`;
+
+const ResultPriceOrRating = styled.div`
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: ${(props) => props.theme.colors.primary[600]};
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+`;
+
+const ViewAllResultsBtn = styled.button`
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.65rem;
+  background: ${(props) => props.theme.colors.neutral[50]};
+  border: 1px solid ${(props) => props.theme.colors.neutral[200]};
+  border-radius: 0.85rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: ${(props) => props.theme.colors.primary[600]};
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  transition: background-color 140ms ease, border-color 140ms ease;
+
+  &:hover {
+    background: ${(props) => props.theme.colors.primary[50]};
+    border-color: ${(props) => props.theme.colors.primary[300]};
+  }
+`;
+
+const MobileSearchBtn = styled.button`
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  border: 1px solid ${(props) => props.theme.colors.neutral[200]};
+  color: ${(props) => props.theme.colors.neutral[800]};
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+
+  &:active {
+    transform: scale(0.94);
+  }
+
+  @media (max-width: ${(props) => props.theme.breakpoints.md}) {
+    display: flex;
+  }
+`;
+
+const MobileSearchDrawer = styled.div`
+  display: none;
+  @media (max-width: ${(props) => props.theme.breakpoints.md}) {
+    display: block;
+    padding: 0.65rem 1rem 0.95rem;
+    background: #ffffff;
+    border-bottom: 1px solid ${(props) => props.theme.colors.neutral[200]};
+    box-shadow: 0 10px 24px rgba(22, 18, 15, 0.08);
+    direction: rtl;
+  }
 `;
 
 const ActionButtons = styled.div`
@@ -502,13 +778,14 @@ const MobileCartButton = styled(Link)`
 const MobileNavigation = styled.div`
   position: fixed;
   top: 0;
-  right: 0;
+  left: 0;
+  right: auto;
   width: min(320px, 88vw);
   height: 100vh;
   height: 100dvh;
   background-color: #faf6f0;
-  border-left: 1px solid ${(props) => props.theme.colors.neutral[200]};
-  box-shadow: -12px 0 36px rgba(22, 18, 15, 0.18);
+  border-right: 1px solid ${(props) => props.theme.colors.neutral[200]};
+  box-shadow: 12px 0 36px rgba(22, 18, 15, 0.18);
   padding: 1.25rem 1.15rem;
   padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
   transition: transform 260ms cubic-bezier(0.16, 1, 0.3, 1);
@@ -516,7 +793,7 @@ const MobileNavigation = styled.div`
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  transform: translateX(100%);
+  transform: translateX(-100%);
   visibility: hidden;
   pointer-events: none;
   direction: rtl;
@@ -688,9 +965,31 @@ const getPromoSnapshot = () => {
 
 const getPromoServerSnapshot = () => true;
 
+const TRENDING_SEARCHES = [
+  "پیتزا پپرونی",
+  "برگر دست‌ساز",
+  "کباب کوبیده",
+  "سوشی سالمون",
+  "سالاد سزار",
+];
+
+const POPULAR_CATEGORIES = [
+  { slug: "pizza", name: "پیتزا", kind: "pizza" as const },
+  { slug: "burger", name: "برگر", kind: "burger" as const },
+  { slug: "iranian", name: "ایرانی", kind: "iranian" as const },
+  { slug: "sushi", name: "سوشی", kind: "sushi" as const },
+  { slug: "healthy", name: "غذای سالم", kind: "salad" as const },
+];
+
 const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const mobileSearchInputRef = useRef<HTMLInputElement>(null);
+
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
   const [copiedPromo, setCopiedPromo] = useState(false);
@@ -703,6 +1002,41 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
   const router = useRouter();
   const pathname = usePathname();
   const { getTotalItems } = useCart();
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        (e.key === "/" || (e.key === "k" && (e.metaKey || e.ctrlKey))) &&
+        document.activeElement !== searchInputRef.current &&
+        document.activeElement !== mobileSearchInputRef.current
+      ) {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+        setIsSearchFocused(true);
+      }
+      if (e.key === "Escape") {
+        setIsSearchFocused(false);
+        setIsMobileSearchOpen(false);
+        searchInputRef.current?.blur();
+      }
+    };
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(e.target as Node)
+      ) {
+        setIsSearchFocused(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleDismissPromo = () => {
     setIsDismissed(true);
@@ -740,9 +1074,42 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
     e.preventDefault();
     if (searchTerm.trim()) {
       closeMobileMenu();
+      setIsSearchFocused(false);
+      setIsMobileSearchOpen(false);
       router.push(`/restaurants?q=${encodeURIComponent(searchTerm.trim())}`);
     }
   };
+
+  const handleSelectSearch = (query: string) => {
+    setSearchTerm(query);
+    closeMobileMenu();
+    setIsSearchFocused(false);
+    setIsMobileSearchOpen(false);
+    router.push(`/restaurants?q=${encodeURIComponent(query)}`);
+  };
+
+  const normalizedQuery = searchTerm.trim().toLowerCase();
+
+  const matchingRestaurants = normalizedQuery
+    ? MOCK_RESTAURANTS.filter(
+        (r) =>
+          r.name.toLowerCase().includes(normalizedQuery) ||
+          r.description.toLowerCase().includes(normalizedQuery) ||
+          r.slug.toLowerCase().includes(normalizedQuery)
+      ).slice(0, 3)
+    : [];
+
+  const matchingProducts = normalizedQuery
+    ? MOCK_PRODUCTS.filter(
+        (p) =>
+          p.name.toLowerCase().includes(normalizedQuery) ||
+          p.description.toLowerCase().includes(normalizedQuery) ||
+          p.slug.toLowerCase().includes(normalizedQuery)
+      ).slice(0, 3)
+    : [];
+
+  const formatPrice = (irr: number) =>
+    (irr / 10).toLocaleString("fa-IR") + " تومان";
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen((prev) => !prev);
@@ -836,24 +1203,179 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
             </NavLink>
           </Navigation>
 
-          <SearchContainer>
+          <SearchContainer ref={searchContainerRef}>
             <form onSubmit={handleSearch}>
-              <SearchInputContainer>
-                <SearchIconWrap>
+              <SearchInputContainer $isOpen={isSearchFocused}>
+                <SearchIconWrap $active={isSearchFocused}>
                   <SearchVectorIcon size={16} />
                 </SearchIconWrap>
                 <SearchInput
+                  ref={searchInputRef}
                   type="text"
                   placeholder={t("search")}
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onFocus={() => setIsSearchFocused(true)}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    if (!isSearchFocused) setIsSearchFocused(true);
+                  }}
                   aria-label={t("search")}
                 />
+                {searchTerm ? (
+                  <SearchClearBtn
+                    type="button"
+                    onClick={() => {
+                      setSearchTerm("");
+                      searchInputRef.current?.focus();
+                    }}
+                    aria-label="پاک کردن متن جستجو"
+                  >
+                    <CloseIcon size={12} />
+                  </SearchClearBtn>
+                ) : (
+                  <KbdShortcut>⌘K</KbdShortcut>
+                )}
               </SearchInputContainer>
             </form>
+
+            {isSearchFocused && (
+              <SearchDropdown>
+                {!normalizedQuery ? (
+                  <>
+                    <DropdownSectionTitle>
+                      <FlameIcon size={14} style={{ color: "#D9381E" }} />
+                      <span>جستجوهای پرطرفدار</span>
+                    </DropdownSectionTitle>
+                    <TrendingTagsRow>
+                      {TRENDING_SEARCHES.map((tag) => (
+                        <TrendingTagPill
+                          key={tag}
+                          type="button"
+                          onClick={() => handleSelectSearch(tag)}
+                        >
+                          <span>{tag}</span>
+                        </TrendingTagPill>
+                      ))}
+                    </TrendingTagsRow>
+
+                    <DropdownSectionTitle>
+                      <SparkleIcon size={13} style={{ color: "#E59A11" }} />
+                      <span>دسته‌بندی‌های سریع</span>
+                    </DropdownSectionTitle>
+                    <QuickCategoriesGrid>
+                      {POPULAR_CATEGORIES.map((cat) => (
+                        <QuickCategoryCard
+                          key={cat.slug}
+                          href={`/categories/${cat.slug}`}
+                          onClick={() => setIsSearchFocused(false)}
+                        >
+                          <DishArtwork kind={cat.kind} size={28} variant="thumb" />
+                          <span>{cat.name}</span>
+                        </QuickCategoryCard>
+                      ))}
+                    </QuickCategoriesGrid>
+                  </>
+                ) : (
+                  <>
+                    {matchingRestaurants.length > 0 && (
+                      <SearchResultsGroup>
+                        <DropdownSectionTitle>
+                          <span>رستوران‌های مرتبط</span>
+                        </DropdownSectionTitle>
+                        {matchingRestaurants.map((res) => {
+                          const kind = resolveFoodKind(res.name, res.description);
+                          return (
+                            <ResultItemLink
+                              key={res.id}
+                              href={`/restaurants/${res.slug}`}
+                              onClick={() => {
+                                setIsSearchFocused(false);
+                                setSearchTerm("");
+                              }}
+                            >
+                              <ResultThumbWrap>
+                                <DishArtwork kind={kind} size={30} variant="thumb" />
+                              </ResultThumbWrap>
+                              <ResultInfo>
+                                <h4>{res.name}</h4>
+                                <p>{res.description || "سفارش آنلاین با ارسال اکسپرس"}</p>
+                              </ResultInfo>
+                              <ResultPriceOrRating>
+                                <StarIcon size={12} style={{ color: "#E59A11" }} />
+                                <span>{res.rating.toLocaleString("fa-IR", { minimumFractionDigits: 1 })}</span>
+                              </ResultPriceOrRating>
+                            </ResultItemLink>
+                          );
+                        })}
+                      </SearchResultsGroup>
+                    )}
+
+                    {matchingProducts.length > 0 && (
+                      <SearchResultsGroup>
+                        <DropdownSectionTitle>
+                          <span>غذاهای منطبق</span>
+                        </DropdownSectionTitle>
+                        {matchingProducts.map((p) => {
+                          const kind = resolveFoodKind(p.name, p.description);
+                          const res = MOCK_RESTAURANTS.find((r) => r.id === p.restaurantId);
+                          return (
+                            <ResultItemLink
+                              key={p.id}
+                              href={res ? `/restaurants/${res.slug}` : "/restaurants"}
+                              onClick={() => {
+                                setIsSearchFocused(false);
+                                setSearchTerm("");
+                              }}
+                            >
+                              <ResultThumbWrap>
+                                <DishArtwork kind={kind} size={30} variant="thumb" />
+                              </ResultThumbWrap>
+                              <ResultInfo>
+                                <h4>{p.name}</h4>
+                                <p>{res ? res.name : "منوی آنلاین فودینو"}</p>
+                              </ResultInfo>
+                              <ResultPriceOrRating>
+                                <span>{formatPrice(p.price.amountIrr)}</span>
+                              </ResultPriceOrRating>
+                            </ResultItemLink>
+                          );
+                        })}
+                      </SearchResultsGroup>
+                    )}
+
+                    {matchingRestaurants.length === 0 && matchingProducts.length === 0 && (
+                      <div style={{ textAlign: "center", padding: "1.25rem 0.5rem", color: "#6E6055" }}>
+                        <p style={{ fontSize: "0.88rem", fontWeight: 700, margin: "0 0 0.35rem" }}>
+                          موردی با عنوان «{searchTerm}» یافت نشد
+                        </p>
+                        <span style={{ fontSize: "0.78rem", color: "#9E8E80" }}>
+                          عبارت جستجو را کوتاه کنید یا دسته‌بندی‌ها را بررسی نمایید.
+                        </span>
+                      </div>
+                    )}
+
+                    <ViewAllResultsBtn
+                      type="button"
+                      onClick={() => handleSelectSearch(searchTerm)}
+                    >
+                      <span>مشاهده همه نتایج برای «{searchTerm}»</span>
+                      <ArrowLeftIcon size={14} />
+                    </ViewAllResultsBtn>
+                  </>
+                )}
+              </SearchDropdown>
+            )}
           </SearchContainer>
 
           <ActionButtons>
+            <MobileSearchBtn
+              type="button"
+              onClick={() => setIsMobileSearchOpen((prev) => !prev)}
+              aria-label="جستجو"
+              title="جستجو در فودینو"
+            >
+              <SearchVectorIcon size={18} />
+            </MobileSearchBtn>
             <IconButton
               href="/favorite-restaurants"
               prefetch={true}
@@ -931,6 +1453,57 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
             </MobileMenuButton>
           </ActionButtons>
         </HeaderInner>
+
+        {isMobileSearchOpen && (
+          <MobileSearchDrawer>
+            <form onSubmit={handleSearch}>
+              <SearchInputContainer $isOpen={true}>
+                <SearchIconWrap $active={true}>
+                  <SearchVectorIcon size={16} />
+                </SearchIconWrap>
+                <SearchInput
+                  ref={mobileSearchInputRef}
+                  type="text"
+                  placeholder="جستجوی رستوران یا غذا..."
+                  value={searchTerm}
+                  autoFocus
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  aria-label="جستجوی رستوران یا غذا"
+                />
+                {searchTerm && (
+                  <SearchClearBtn
+                    type="button"
+                    onClick={() => {
+                      setSearchTerm("");
+                      mobileSearchInputRef.current?.focus();
+                    }}
+                    aria-label="پاک کردن متن جستجو"
+                  >
+                    <CloseIcon size={12} />
+                  </SearchClearBtn>
+                )}
+              </SearchInputContainer>
+            </form>
+
+            <div style={{ marginTop: "0.65rem" }}>
+              <DropdownSectionTitle>
+                <FlameIcon size={13} style={{ color: "#D9381E" }} />
+                <span>پرطرفدارها:</span>
+              </DropdownSectionTitle>
+              <TrendingTagsRow style={{ marginBottom: "0.35rem" }}>
+                {TRENDING_SEARCHES.map((tag) => (
+                  <TrendingTagPill
+                    key={tag}
+                    type="button"
+                    onClick={() => handleSelectSearch(tag)}
+                  >
+                    <span>{tag}</span>
+                  </TrendingTagPill>
+                ))}
+              </TrendingTagsRow>
+            </div>
+          </MobileSearchDrawer>
+        )}
       </HeaderWrapper>
 
       <Overlay
@@ -950,17 +1523,26 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
         </MobileNavHeader>
 
         <form onSubmit={handleSearch} style={{ marginBottom: "1rem" }}>
-          <SearchInputContainer>
+          <SearchInputContainer $isOpen={false}>
             <SearchIconWrap>
               <SearchVectorIcon size={16} />
             </SearchIconWrap>
             <SearchInput
               type="text"
-              placeholder={t("search")}
+              placeholder="جستجوی رستوران یا غذا..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              aria-label={t("search")}
+              aria-label="جستجو در منو"
             />
+            {searchTerm && (
+              <SearchClearBtn
+                type="button"
+                onClick={() => setSearchTerm("")}
+                aria-label="پاک کردن متن"
+              >
+                <CloseIcon size={12} />
+              </SearchClearBtn>
+            )}
           </SearchInputContainer>
         </form>
 

@@ -254,8 +254,14 @@ const CartItemCard = styled.div`
   }
 
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    padding: 0.9rem;
-    gap: 0.75rem;
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    grid-template-areas:
+      "visual details"
+      "controls controls";
+    align-items: center;
+    gap: 0.85rem 0.85rem;
+    padding: 1rem;
   }
 `;
 
@@ -271,8 +277,9 @@ const ItemVisualBox = styled.div`
   flex-shrink: 0;
 
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    width: 56px;
-    height: 56px;
+    grid-area: visual;
+    width: 54px;
+    height: 54px;
     border-radius: 12px;
   }
 `;
@@ -280,6 +287,10 @@ const ItemVisualBox = styled.div`
 const ItemDetails = styled.div`
   flex: 1;
   min-width: 0;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    grid-area: details;
+  }
 `;
 
 const ItemName = styled.h3`
@@ -290,6 +301,7 @@ const ItemName = styled.h3`
 
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
     font-size: 0.95rem;
+    line-height: 1.45;
   }
 `;
 
@@ -304,6 +316,7 @@ const ItemPrice = styled.span`
   font-size: 0.95rem;
   font-weight: 700;
   color: ${props => props.theme.colors.primary[600]};
+  white-space: nowrap;
 `;
 
 const ItemSubtotalTag = styled.span`
@@ -312,6 +325,7 @@ const ItemSubtotalTag = styled.span`
   background: ${props => props.theme.colors.neutral[100]};
   padding: 0.15rem 0.55rem;
   border-radius: 999px;
+  white-space: nowrap;
 `;
 
 const ItemNoteTag = styled.div`
@@ -331,7 +345,11 @@ const ItemControls = styled.div`
   gap: 0.75rem;
 
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    gap: 0.4rem;
+    grid-area: controls;
+    justify-content: space-between;
+    width: 100%;
+    padding-top: 0.75rem;
+    border-top: 1px dashed ${props => props.theme.colors.neutral[200]};
   }
 `;
 
