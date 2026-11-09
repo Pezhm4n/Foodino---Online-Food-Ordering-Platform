@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { checkoutSchema } from '@/lib/validation/checkout';
 import { assertRequestSameOrigin, InvalidOriginError } from '@/infrastructure/http/same-origin';
 import { errorResponse } from '@/infrastructure/http/api-response';
+import { checkoutFailure } from '@/infrastructure/http/checkout-error';
 import { createSupabaseServerClient, requireClaims } from '@/infrastructure/supabase/server';
 import { SupabaseOrderRepository } from '@/infrastructure/supabase/repositories/supabase-order-repository';
 import { getPaymentProvider } from '@/infrastructure/payments/provider-factory';
@@ -30,6 +31,7 @@ export async function POST(request: Request) {
     const parsed = checkoutSchema.safeParse(body);
     if (!parsed.success) return errorResponse('INVALID_CHECKOUT', 422, requestId);
 
+    const provider = getPaymentProvider();
     const client = await createSupabaseServerClient();
     const repository = new SupabaseOrderRepository(client);
     const pendingOrder = await repository.createPending(parsed.data);
@@ -59,7 +61,6 @@ export async function POST(request: Request) {
       });
     }
 
-    const provider = getPaymentProvider();
     const env = getServerEnv();
     const payment = await provider.createPayment({
       orderId: pendingOrder.orderId,
@@ -87,6 +88,8 @@ export async function POST(request: Request) {
     if (error instanceof PaymentProviderUnavailableError) {
       return errorResponse('PAYMENT_PROVIDER_UNAVAILABLE', 503, requestId);
     }
+    const failure = checkoutFailure(error);
+    if (failure) return errorResponse(failure.code, failure.status, requestId);
     return errorResponse('CHECKOUT_FAILED', 409, requestId);
   }
 }

@@ -1,24 +1,53 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { OrderRepository, PendingOrderResult, PublicTracking } from '@/application/ports/order-repository';
+import type { CheckoutQuote, OrderRepository, PendingOrderResult, PublicTracking } from '@/application/ports/order-repository';
 import type { OrderStatus } from '@/domain/order/order-status';
-import type { CheckoutInput } from '@/lib/validation/checkout';
+import type { CheckoutInput, CheckoutQuoteInput } from '@/lib/validation/checkout';
 import type { Database } from '@/infrastructure/supabase/database.types';
+
+function checkoutItems(input: CheckoutQuoteInput) {
+  return input.items.map((item) => ({
+    product_id: item.productId,
+    variant_id: item.variantId ?? null,
+    addon_ids: item.addonIds,
+    quantity: item.quantity,
+    note: item.notes?.trim() || null,
+  }));
+}
 
 export class SupabaseOrderRepository implements OrderRepository {
   constructor(private readonly client: SupabaseClient<Database>) {}
 
+  async quote(input: CheckoutQuoteInput): Promise<CheckoutQuote> {
+    const { data, error } = await this.client.schema('api').rpc('quote_checkout', {
+      p_restaurant_id: input.restaurantId,
+      p_items: checkoutItems(input),
+      ...(input.couponCode ? { p_coupon_code: input.couponCode } : {}),
+      ...(input.idempotencyKey ? { p_idempotency_key: input.idempotencyKey } : {}),
+      ...(input.addressId ? { p_address_id: input.addressId } : {}),
+      ...(input.orderNote ? { p_order_note: input.orderNote } : {}),
+    });
+    if (error) throw error;
+    const quote = data[0];
+    if (!quote) throw new Error('quote_checkout returned no result');
+    return {
+      subtotalIrr: quote.subtotal_irr,
+      deliveryFeeIrr: quote.delivery_fee_irr,
+      taxIrr: quote.tax_irr,
+      couponCode: quote.coupon_code,
+      discountIrr: quote.discount_irr,
+      totalIrr: quote.total_irr,
+    };
+  }
+
   async createPending(input: CheckoutInput): Promise<PendingOrderResult> {
-    const items = input.items.map((item) => ({
-      product_id: item.productId,
-      variant_id: item.variantId ?? null,
-      addon_ids: item.addonIds,
-      quantity: item.quantity,
-    }));
     const { data, error } = await this.client.schema('api').rpc('create_pending_order', {
       p_address_id: input.addressId,
       p_restaurant_id: input.restaurantId,
       p_idempotency_key: input.idempotencyKey,
-      p_items: items,
+      p_items: checkoutItems(input),
+      ...(input.couponCode ? { p_coupon_code: input.couponCode } : {}),
+      ...(input.orderNote ? { p_order_note: input.orderNote } : {}),
+      ...(input.expectedTotalIrr !== undefined ? { p_expected_total_irr: input.expectedTotalIrr } : {}),
     });
     if (error) throw error;
     const result = data[0];

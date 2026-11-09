@@ -23,6 +23,29 @@ describe('boundary validation', () => {
     expect(checkoutSchema.safeParse({ ...valid, items: [{ ...valid.items[0], quantity: 100 }] }).success).toBe(false);
   });
 
+  it('normalizes checkout coupon and notes while requiring a valid rial quote guard', () => {
+    const input = {
+      idempotencyKey: uuidA,
+      addressId: uuidB,
+      restaurantId: uuidA,
+      items: [{ productId: uuidB, addonIds: [], quantity: 1, notes: 'بدون پیاز' }],
+      couponCode: ' foodino ',
+      orderNote: ' لطفاً زنگ بزنید ',
+      expectedTotalIrr: 1_366_000,
+    };
+    expect(checkoutSchema.parse(input)).toMatchObject({
+      couponCode: 'FOODINO',
+      orderNote: 'لطفاً زنگ بزنید',
+      items: [{ notes: 'بدون پیاز' }],
+    });
+    expect(checkoutSchema.safeParse({ ...input, expectedTotalIrr: 11 }).success).toBe(false);
+    expect(checkoutSchema.safeParse({ ...input, orderNote: 'ا'.repeat(501) }).success).toBe(false);
+    expect(checkoutSchema.safeParse({
+      ...input,
+      items: [{ ...input.items[0], notes: 'ا'.repeat(501) }],
+    }).success).toBe(false);
+  });
+
   it('rejects a mixed-restaurant local cart', () => {
     const result = localCartSchema.safeParse({
       version: 1,

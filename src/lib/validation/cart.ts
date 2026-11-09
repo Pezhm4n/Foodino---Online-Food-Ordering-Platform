@@ -2,6 +2,9 @@ import { z } from 'zod';
 import { MAX_CART_QUANTITY, MIN_CART_QUANTITY } from '@/domain/cart/cart';
 import { uuidSchema } from '@/lib/validation/common';
 
+export const ORDER_NOTE_MAX_LENGTH = 500;
+export const couponCodeSchema = z.string().trim().toUpperCase().regex(/^[A-Z0-9]{1,32}$/);
+
 export const cartSelectionSchema = z.object({
   restaurantId: uuidSchema,
   productId: uuidSchema,
@@ -10,7 +13,7 @@ export const cartSelectionSchema = z.object({
   quantity: z.number().int().min(MIN_CART_QUANTITY).max(MAX_CART_QUANTITY),
   name: z.string().max(200).optional(),
   price: z.number().nonnegative().optional(),
-  notes: z.string().max(500).optional(),
+  notes: z.string().max(ORDER_NOTE_MAX_LENGTH).optional(),
   image: z.string().optional(),
 }).strict();
 
@@ -18,6 +21,8 @@ export const localCartSchema = z.object({
   version: z.literal(1),
   restaurantId: uuidSchema.nullable(),
   restaurantName: z.string().max(200).optional(),
+  orderNote: z.string().max(ORDER_NOTE_MAX_LENGTH).optional(),
+  couponCode: couponCodeSchema.optional(),
   items: z.array(cartSelectionSchema).max(100),
 }).strict().superRefine((cart, context) => {
   if (cart.items.length === 0 && cart.restaurantId !== null) {

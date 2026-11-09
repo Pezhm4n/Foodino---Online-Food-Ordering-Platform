@@ -45,8 +45,11 @@ export type Database = {
       create_pending_order: {
         Args: {
           p_address_id: string
+          p_coupon_code?: string
+          p_expected_total_irr?: number
           p_idempotency_key: string
           p_items: Json
+          p_order_note?: string
           p_restaurant_id: string
         }
         Returns: {
@@ -62,6 +65,24 @@ export type Database = {
           restaurant_name: string
           status: Database["public"]["Enums"]["order_status"]
           updated_at: string
+        }[]
+      }
+      quote_checkout: {
+        Args: {
+          p_address_id?: string
+          p_coupon_code?: string
+          p_idempotency_key?: string
+          p_items: Json
+          p_order_note?: string
+          p_restaurant_id: string
+        }
+        Returns: {
+          coupon_code: string
+          delivery_fee_irr: number
+          discount_irr: number
+          subtotal_irr: number
+          tax_irr: number
+          total_irr: number
         }[]
       }
       transition_order_status: {
@@ -253,6 +274,7 @@ export type Database = {
           addons_snapshot: Json
           id: string
           line_total_irr: number
+          note: string | null
           order_id: string
           product_id: string | null
           product_name_snapshot: string
@@ -264,6 +286,7 @@ export type Database = {
           addons_snapshot?: Json
           id?: string
           line_total_irr: number
+          note?: string | null
           order_id: string
           product_id?: string | null
           product_name_snapshot: string
@@ -275,6 +298,7 @@ export type Database = {
           addons_snapshot?: Json
           id?: string
           line_total_irr?: number
+          note?: string | null
           order_id?: string
           product_id?: string | null
           product_name_snapshot?: string
@@ -344,10 +368,14 @@ export type Database = {
         Row: {
           address_id: string | null
           address_snapshot: Json
+          checkout_request_hash: string | null
+          coupon_code: string | null
           created_at: string
           delivery_fee_irr: number
+          discount_irr: number
           id: string
           idempotency_key: string
+          order_note: string | null
           restaurant_id: string
           restaurant_name_snapshot: string
           status: Database["public"]["Enums"]["order_status"]
@@ -361,10 +389,14 @@ export type Database = {
         Insert: {
           address_id?: string | null
           address_snapshot: Json
+          checkout_request_hash?: string | null
+          coupon_code?: string | null
           created_at?: string
           delivery_fee_irr: number
+          discount_irr?: number
           id?: string
           idempotency_key: string
+          order_note?: string | null
           restaurant_id: string
           restaurant_name_snapshot: string
           status?: Database["public"]["Enums"]["order_status"]
@@ -378,10 +410,14 @@ export type Database = {
         Update: {
           address_id?: string | null
           address_snapshot?: Json
+          checkout_request_hash?: string | null
+          coupon_code?: string | null
           created_at?: string
           delivery_fee_irr?: number
+          discount_irr?: number
           id?: string
           idempotency_key?: string
+          order_note?: string | null
           restaurant_id?: string
           restaurant_name_snapshot?: string
           status?: Database["public"]["Enums"]["order_status"]

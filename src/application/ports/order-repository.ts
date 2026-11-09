@@ -1,4 +1,4 @@
-import type { CheckoutInput } from '@/lib/validation/checkout';
+import type { CheckoutInput, CheckoutQuoteInput } from '@/lib/validation/checkout';
 import type { OrderStatus } from '@/domain/order/order-status';
 
 export type PendingOrderResult = Readonly<{
@@ -14,7 +14,17 @@ export type PublicTracking = Readonly<{
   updatedAt: string;
 }>;
 
+export type CheckoutQuote = Readonly<{
+  subtotalIrr: number;
+  deliveryFeeIrr: number;
+  taxIrr: number;
+  couponCode: string | null;
+  discountIrr: number;
+  totalIrr: number;
+}>;
+
 export interface OrderRepository {
+  quote(input: CheckoutQuoteInput): Promise<CheckoutQuote>;
   createPending(input: CheckoutInput): Promise<PendingOrderResult>;
   cancelOwn(orderId: string, reason?: string): Promise<OrderStatus>;
   transition(orderId: string, toStatus: OrderStatus, reason?: string): Promise<OrderStatus>;
