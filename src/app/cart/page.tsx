@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import Link from 'next/link';
 import { useCart } from '@/contexts/CartContext';
+import { MAX_CART_QUANTITY } from '@/domain/cart/cart';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import {
@@ -27,7 +28,13 @@ const PageContainer = styled.div`
   direction: rtl;
 
   @media (max-width: ${props => props.theme.breakpoints.md}) {
-    padding: 1.5rem 1rem calc(6.5rem + env(safe-area-inset-bottom, 0px));
+    --cart-gutter: min(1rem, 5.75vw);
+    padding: 1.25rem var(--cart-gutter) 2rem;
+    container-type: inline-size;
+
+    :is(a, button, input, textarea) {
+      scroll-margin-block: 5rem 1rem;
+    }
   }
 `;
 
@@ -41,8 +48,8 @@ const PageHeader = styled.div`
   border-bottom: 1px solid ${props => props.theme.colors.neutral[200]};
 
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    flex-direction: column;
-    align-items: flex-start;
+    flex-wrap: wrap;
+    align-items: center;
     margin-bottom: 1.25rem;
     padding-bottom: 1rem;
   }
@@ -61,6 +68,10 @@ const Kicker = styled.span`
   font-size: 0.78rem;
   font-weight: 700;
   color: ${props => props.theme.colors.primary[600]};
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    display: none;
+  }
 `;
 
 const PageTitle = styled.h1`
@@ -75,6 +86,10 @@ const PageDescription = styled.p`
   font-size: 0.95rem;
   color: ${props => props.theme.colors.neutral[500]};
   margin: 0;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    display: none;
+  }
 `;
 
 const BackLink = styled(Link)`
@@ -92,6 +107,10 @@ const BackLink = styled(Link)`
   min-height: 34px;
   transition: border-color 0.18s ease, color 0.18s ease, background-color 0.18s ease;
 
+  @media (max-width: ${props => props.theme.breakpoints.md}), (any-pointer: coarse) {
+    min-height: 44px;
+  }
+
   &:hover {
     border-color: ${props => props.theme.colors.primary[400]};
     color: ${props => props.theme.colors.primary[600]};
@@ -107,6 +126,10 @@ const EmptyCart = styled.div`
   box-shadow: ${props => props.theme.shadows.sm};
   max-width: 620px;
   margin: 1rem auto 2rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    padding: 2rem 1rem;
+  }
 `;
 
 const EmptyVisualWrap = styled.div`
@@ -154,24 +177,24 @@ const BackToRestaurantsButton = styled(Link)`
   @media (hover: hover) {
     &:hover {
       background-color: ${props => props.theme.colors.primary[600]};
-      transform: translateY(-2px);
     }
   }
 
-  &:active {
-    transform: scale(0.98);
+  @media (prefers-reduced-motion: no-preference) {
+    &:active {
+      transform: scale(0.98);
+    }
   }
 `;
 
 const CartContent = styled.div`
   display: grid;
-  grid-template-columns: 1fr 390px;
+  grid-template-columns: minmax(0, 1fr);
   gap: 2rem;
   align-items: start;
 
-  @media (max-width: ${props => props.theme.breakpoints.lg}) {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
+  @media (width > ${props => props.theme.breakpoints.lg}) {
+    grid-template-columns: minmax(0, 1fr) 390px;
   }
 `;
 
@@ -185,6 +208,8 @@ const RestaurantBanner = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
   padding: 1rem 1.25rem;
   background: linear-gradient(135deg, #1F1814 0%, #2C221C 100%);
   color: #FAF6F0;
@@ -201,6 +226,7 @@ const RestaurantBannerRight = styled.div`
 const RestaurantIconBox = styled.div`
   width: 40px;
   height: 40px;
+  flex: none;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.1);
   color: #FBBF24;
@@ -213,6 +239,7 @@ const RestaurantMeta = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
+  overflow-wrap: anywhere;
 
   span {
     font-size: 0.75rem;
@@ -227,6 +254,7 @@ const RestaurantMeta = styled.div`
 `;
 
 const ItemCountBadge = styled.span`
+  flex: none;
   padding: 0.3rem 0.75rem;
   border-radius: 999px;
   background: rgba(217, 56, 30, 0.25);
@@ -237,11 +265,11 @@ const ItemCountBadge = styled.span`
 `;
 
 const CartItemCard = styled.div`
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr);
   align-items: center;
-  gap: 1rem;
-  padding: 1.15rem 1.25rem;
+  gap: 0.75rem;
+  padding: 0.875rem;
   background-color: #ffffff;
   border: 1px solid ${props => props.theme.colors.neutral[200]};
   border-radius: ${props => props.theme.borderRadius.xl};
@@ -253,47 +281,30 @@ const CartItemCard = styled.div`
     box-shadow: ${props => props.theme.shadows.sm};
   }
 
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    display: grid;
-    grid-template-columns: 56px 1fr;
-    grid-template-areas:
-      "visual details"
-      "controls controls";
-    align-items: center;
-    gap: 0.85rem 0.85rem;
-    padding: 1rem;
+  @media (width > ${props => props.theme.breakpoints.md}) {
+    grid-template-columns: 72px minmax(0, 1fr) auto;
+    gap: 1rem;
+    padding: 1.15rem 1.25rem;
   }
 `;
 
 const ItemVisualBox = styled.div`
-  width: 72px;
-  height: 72px;
-  border-radius: 16px;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: ${props => props.theme.borderRadius.lg};
   background: ${props => props.theme.colors.neutral[50]};
   border: 1px solid ${props => props.theme.colors.neutral[200]};
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    grid-area: visual;
-    width: 54px;
-    height: 54px;
-    border-radius: 12px;
-  }
 `;
 
 const ItemDetails = styled.div`
-  flex: 1;
   min-width: 0;
-
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    grid-area: details;
-  }
+  overflow-wrap: anywhere;
 `;
 
-const ItemName = styled.h3`
+const ItemName = styled.h2`
   font-size: 1.05rem;
   font-weight: 800;
   color: ${props => props.theme.colors.neutral[900]};
@@ -316,7 +327,6 @@ const ItemPrice = styled.span`
   font-size: 0.95rem;
   font-weight: 700;
   color: ${props => props.theme.colors.primary[600]};
-  white-space: nowrap;
 `;
 
 const ItemSubtotalTag = styled.span`
@@ -325,7 +335,6 @@ const ItemSubtotalTag = styled.span`
   background: ${props => props.theme.colors.neutral[100]};
   padding: 0.15rem 0.55rem;
   border-radius: 999px;
-  white-space: nowrap;
 `;
 
 const ItemNoteTag = styled.div`
@@ -344,8 +353,9 @@ const ItemControls = styled.div`
   align-items: center;
   gap: 0.75rem;
 
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    grid-area: controls;
+  @media (max-width: ${props => props.theme.breakpoints.md}) {
+    grid-column: 1 / -1;
+    flex-wrap: wrap;
     justify-content: space-between;
     width: 100%;
     padding-top: 0.75rem;
@@ -381,13 +391,27 @@ const QuantityButton = styled.button`
   user-select: none;
   touch-action: manipulation;
 
-  &:hover {
-    background-color: ${props => props.theme.colors.primary[500]};
-    color: #ffffff;
+  @media (max-width: ${props => props.theme.breakpoints.md}), (any-pointer: coarse) {
+    width: 44px;
+    height: 44px;
   }
 
-  &:active {
-    transform: scale(0.92);
+  @media (hover: hover) and (pointer: fine) {
+    &:not(:disabled):hover {
+      background-color: ${props => props.theme.colors.primary[500]};
+      color: #ffffff;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    &:not(:disabled):active {
+      transform: scale(0.92);
+    }
+  }
+
+  &:disabled {
+    color: ${props => props.theme.colors.neutral[400]};
+    cursor: default;
   }
 `;
 
@@ -402,7 +426,7 @@ const Quantity = styled.span`
 const RemoveButton = styled.button`
   background: none;
   border: 1px solid transparent;
-  color: ${props => props.theme.colors.neutral[400]};
+  color: ${props => props.theme.colors.error[600]};
   cursor: pointer;
   width: 38px;
   height: 38px;
@@ -413,6 +437,11 @@ const RemoveButton = styled.button`
   align-items: center;
   justify-content: center;
   transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+
+  @media (max-width: ${props => props.theme.breakpoints.md}), (any-pointer: coarse) {
+    width: 44px;
+    height: 44px;
+  }
 
   &:hover {
     background-color: ${props => props.theme.colors.error[50]};
@@ -440,15 +469,18 @@ const OrderNoteLabel = styled.label`
 const OrderNoteTextarea = styled.textarea`
   width: 100%;
   padding: 0.75rem 0.9rem;
-  border: 1px solid ${props => props.theme.colors.neutral[200]};
+  border: 1px solid ${props => props.theme.colors.neutral[500]};
   background: ${props => props.theme.colors.neutral[50]};
   border-radius: ${props => props.theme.borderRadius.lg};
   font-size: 0.88rem;
   font-family: inherit;
   color: ${props => props.theme.colors.neutral[900]};
   resize: vertical;
-  outline: none;
   transition: border-color 0.2s ease, background-color 0.2s ease;
+
+  &::placeholder {
+    color: ${props => props.theme.colors.neutral[500]};
+  }
 
   &:focus {
     background: #ffffff;
@@ -461,9 +493,16 @@ const CartSummary = styled.div`
   border: 1px solid ${props => props.theme.colors.neutral[200]};
   border-radius: ${props => props.theme.borderRadius['2xl']};
   box-shadow: ${props => props.theme.shadows.md};
-  padding: 1.65rem;
-  position: sticky;
-  top: 96px;
+  padding: min(1rem, 5.75vw);
+
+  @media (width > ${props => props.theme.breakpoints.sm}) {
+    padding: 1.65rem;
+  }
+
+  @media (width > ${props => props.theme.breakpoints.lg}) {
+    position: sticky;
+    top: 96px;
+  }
 `;
 
 const SummaryTitle = styled.h2`
@@ -479,6 +518,8 @@ const SummaryRow = styled.div<{ $isDiscount?: boolean }>`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
   padding: 0.65rem 0;
   color: ${props => (props.$isDiscount ? props.theme.colors.success[600] : 'inherit')};
 `;
@@ -502,7 +543,7 @@ const CouponSection = styled.div`
   border-radius: ${props => props.theme.borderRadius.xl};
 `;
 
-const CouponTitle = styled.div`
+const CouponTitle = styled.label`
   display: flex;
   align-items: center;
   gap: 0.4rem;
@@ -519,15 +560,20 @@ const CouponInputContainer = styled.div`
 
 const CouponInput = styled.input`
   flex: 1;
+  min-width: 0;
+  min-height: 44px;
   padding: 0.6rem 0.8rem;
-  border: 1px solid ${props => props.theme.colors.neutral[300]};
+  border: 1px solid ${props => props.theme.colors.neutral[500]};
   background: #ffffff;
   border-radius: ${props => props.theme.borderRadius.md};
   font-size: 0.85rem;
-  outline: none;
   font-family: inherit;
   direction: ltr;
   text-align: right;
+
+  &::placeholder {
+    color: ${props => props.theme.colors.neutral[500]};
+  }
 
   &:focus {
     border-color: ${props => props.theme.colors.primary[500]};
@@ -566,6 +612,7 @@ const CouponRemoveBtn = styled.button`
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
+  min-height: 44px;
 `;
 
 const QuickCouponsRow = styled.div`
@@ -585,7 +632,7 @@ const QuickCouponPill = styled.button`
   font-size: 0.76rem;
   font-weight: 700;
   cursor: pointer;
-  min-height: 34px;
+  min-height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -610,10 +657,18 @@ const CouponActiveBadge = styled.div`
   gap: 0.4rem;
 `;
 
+const CouponError = styled.p`
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  color: ${props => props.theme.colors.error[600]};
+`;
+
 const TotalRow = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
   margin-top: 1rem;
   padding-top: 1rem;
   border-top: 2px solid ${props => props.theme.colors.neutral[100]};
@@ -650,15 +705,20 @@ const CheckoutButton = styled.button`
   min-height: 48px;
   transition: background-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
 
+  @media (max-width: ${props => props.theme.breakpoints.md}) {
+    display: none;
+  }
+
   @media (hover: hover) {
     &:hover {
       background-color: ${props => props.theme.colors.primary[600]};
-      transform: translateY(-2px);
     }
   }
 
-  &:active {
-    transform: scale(0.98);
+  @media (prefers-reduced-motion: no-preference) {
+    &:active {
+      transform: scale(0.98);
+    }
   }
 `;
 
@@ -673,7 +733,7 @@ const ClearCartButton = styled.button`
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
-  min-height: 38px;
+  min-height: 44px;
   transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease;
 
   &:hover {
@@ -697,19 +757,32 @@ const MobileStickyBar = styled.div`
   display: none;
   @media (max-width: ${props => props.theme.breakpoints.md}) {
     display: flex;
-    position: fixed;
+    position: sticky;
     bottom: 0;
-    left: 0;
-    right: 0;
-    background: rgba(255, 255, 255, 0.96);
-    backdrop-filter: blur(12px);
+    background: #ffffff;
     box-shadow: 0 -6px 24px rgba(22, 18, 15, 0.1);
-    padding: 0.85rem 1rem calc(0.85rem + env(safe-area-inset-bottom, 0px));
+    margin-block-start: 1rem;
+    margin-inline: calc(-1 * var(--cart-gutter));
+    padding: 0.75rem var(--cart-gutter) calc(0.75rem + env(safe-area-inset-bottom, 0px));
     z-index: 95;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
     border-top: 1px solid ${props => props.theme.colors.neutral[200]};
     direction: rtl;
+
+    ${PageContainer}:has(:focus-visible) & {
+      position: static;
+    }
+  }
+
+  @media (max-height: 420px) {
+    position: static;
+  }
+
+  @container (width < 15rem) {
+    position: static;
   }
 `;
 
@@ -717,7 +790,7 @@ const MobileCheckoutBtn = styled.button`
   background: ${props => props.theme.colors.primary[500]};
   color: white;
   border: none;
-  padding: 0.7rem 1.4rem;
+  padding: 0.7rem 1rem;
   border-radius: ${props => props.theme.borderRadius.lg};
   font-weight: 800;
   font-size: 0.925rem;
@@ -747,11 +820,31 @@ const CartPage = () => {
     removeCoupon,
   } = useCart();
   const [couponInput, setCouponInput] = useState('');
+  const [couponError, setCouponError] = useState('');
+  const couponInputRef = useRef<HTMLInputElement>(null);
+  const couponRemoveRef = useRef<HTMLButtonElement>(null);
+  const restoreCouponFocus = useRef(false);
   const router = useRouter();
 
   const deliveryFee = 15000;
   const subtotal = calculateSubtotal();
   const total = calculateTotal(deliveryFee);
+  const invalidatedCoupon = state.invalidatedCoupon;
+  const couponMessage = couponError || (
+    invalidatedCoupon?.code === couponInput.trim().toUpperCase() ? invalidatedCoupon.message : ''
+  );
+
+  useEffect(() => {
+    if (!restoreCouponFocus.current) return;
+    restoreCouponFocus.current = false;
+    (appliedCoupon ? couponRemoveRef : couponInputRef).current?.focus();
+  }, [appliedCoupon]);
+
+  const handleApplyCoupon = (code: string, restoreFocus: boolean) => {
+    const result = applyCouponCode(code, deliveryFee);
+    restoreCouponFocus.current = result.success && restoreFocus;
+    setCouponError(result.success ? '' : result.message);
+  };
 
   const handleCheckout = () => {
     if (state.items.length > 0) {
@@ -773,7 +866,7 @@ const CartPage = () => {
           <PageDescription>اقلام انتخابی، کد تخفیف و یادداشت سفارش خود را پیش از پرداخت بررسی کنید.</PageDescription>
         </HeaderTitleGroup>
         <BackLink href="/restaurants">
-          <span>افزودن آیتم جدید</span>
+          <span>افزودن غذا</span>
           <ArrowLeftIcon size={15} />
         </BackLink>
       </PageHeader>
@@ -850,6 +943,7 @@ const CartPage = () => {
                           type="button"
                           onClick={() => increaseQuantity(item.id)}
                           aria-label="افزایش تعداد"
+                          disabled={item.quantity >= MAX_CART_QUANTITY}
                         >
                           <PlusIcon size={14} />
                         </QuantityButton>
@@ -887,7 +981,7 @@ const CartPage = () => {
                 <SummaryValue>{formatPrice(subtotal)}</SummaryValue>
               </SummaryRow>
 
-              {discountToman > 0 && (
+              {discountToman > 0 && appliedCoupon?.type !== 'free_delivery' && (
                 <SummaryRow $isDiscount>
                   <SummaryLabel>تخفیف ({appliedCoupon?.code})</SummaryLabel>
                   <SummaryValue style={{ color: '#15803D', fontWeight: 800 }}>
@@ -908,43 +1002,47 @@ const CartPage = () => {
               </SummaryRow>
 
               <CouponSection>
-                <CouponTitle>
+                <CouponTitle htmlFor="coupon-code-input">
                   <TagIcon size={15} />
                   <span>کد تخفیف فودینو</span>
                 </CouponTitle>
+                {couponMessage && <CouponError id="coupon-code-error" role="alert">{couponMessage}</CouponError>}
                 <CouponInputContainer>
                   <CouponInput
+                    ref={couponInputRef}
                     type="text"
                     id="coupon-code-input"
-                    aria-label="کد تخفیف"
-                    placeholder="کد تخفیف (مثلاً FOODINO)"
+                    placeholder="FOODINO"
                     value={couponInput}
-                    onChange={(e) => setCouponInput(e.target.value)}
+                    aria-invalid={!!couponMessage}
+                    aria-describedby={couponMessage ? 'coupon-code-error' : undefined}
+                    onChange={(e) => {
+                      setCouponInput(e.target.value);
+                      setCouponError('');
+                    }}
                     disabled={!!appliedCoupon}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         e.preventDefault();
-                        if (!appliedCoupon && couponInput.trim()) {
-                          applyCouponCode(couponInput, deliveryFee);
+                        if (!appliedCoupon) {
+                          handleApplyCoupon(couponInput, true);
                         }
                       }
                     }}
                   />
                   {appliedCoupon ? (
-                    <CouponRemoveBtn type="button" onClick={removeCoupon}>
+                    <CouponRemoveBtn
+                      ref={couponRemoveRef}
+                      type="button"
+                      onClick={(e) => {
+                        restoreCouponFocus.current = e.detail === 0;
+                        removeCoupon();
+                      }}
+                    >
                       حذف
                     </CouponRemoveBtn>
                   ) : (
-                    <CouponApplyBtn
-                      type="button"
-                      onClick={() => {
-                        if (!couponInput.trim()) {
-                          toast.error('لطفاً کد تخفیف را وارد کنید');
-                          return;
-                        }
-                        applyCouponCode(couponInput, deliveryFee);
-                      }}
-                    >
+                    <CouponApplyBtn type="button" onClick={(e) => handleApplyCoupon(couponInput, e.detail === 0)}>
                       اعمال
                     </CouponApplyBtn>
                   )}
@@ -952,18 +1050,15 @@ const CartPage = () => {
 
                 {!appliedCoupon && (
                   <QuickCouponsRow>
-                    {['FOODINO', 'WELCOME50', 'FREEDEL'].map(code => (
-                      <QuickCouponPill
-                        key={code}
-                        type="button"
-                        onClick={() => {
-                          setCouponInput(code);
-                          applyCouponCode(code, deliveryFee);
-                        }}
-                      >
-                        {code}
-                      </QuickCouponPill>
-                    ))}
+                    <QuickCouponPill
+                      type="button"
+                      onClick={(e) => {
+                        setCouponInput('FOODINO');
+                        handleApplyCoupon('FOODINO', e.detail === 0);
+                      }}
+                    >
+                      FOODINO
+                    </QuickCouponPill>
                   </QuickCouponsRow>
                 )}
 
@@ -981,11 +1076,20 @@ const CartPage = () => {
               </TotalRow>
 
               <CheckoutButton type="button" onClick={handleCheckout}>
-                <span>ادامه فرایند خرید</span>
+                <span>ادامه سفارش</span>
                 <ArrowLeftIcon size={18} />
               </CheckoutButton>
 
-              <ClearCartButton type="button" onClick={clearCart}>
+              <ClearCartButton
+                type="button"
+                onClick={() => {
+                  if (window.confirm('همهٔ غذاها از سبد خرید حذف شوند؟')) {
+                    clearCart();
+                    setCouponInput('');
+                    setCouponError('');
+                  }
+                }}
+              >
                 خالی کردن سبد خرید
               </ClearCartButton>
 
@@ -1000,14 +1104,9 @@ const CartPage = () => {
             <div>
               <div style={{ fontSize: '0.78rem', color: '#6E6055' }}>مبلغ قابل پرداخت:</div>
               <strong style={{ fontSize: '1.05rem', color: '#16120F' }}>{formatPrice(total)}</strong>
-              {discountToman > 0 && (
-                <div style={{ fontSize: '0.72rem', color: '#15803D', fontWeight: 700 }}>
-                  با {formatPrice(discountToman)} تخفیف
-                </div>
-              )}
             </div>
             <MobileCheckoutBtn type="button" onClick={handleCheckout}>
-              ثبت و ادامه خرید
+              ادامه سفارش
             </MobileCheckoutBtn>
           </MobileStickyBar>
         </>

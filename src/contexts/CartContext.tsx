@@ -24,6 +24,8 @@ interface CartState {
   restaurantName?: string;
   appliedCoupon?: Coupon | null;
   discountToman: number;
+  couponDeliveryFeeToman?: number;
+  invalidatedCoupon?: { code: string; message: string };
   orderNote?: string;
 }
 
@@ -54,7 +56,7 @@ type CartAction =
   | { type: 'REMOVE_ITEM'; payload: { id: string } }
   | { type: 'UPDATE_ITEM'; payload: { id: string; quantity: number } }
   | { type: 'UPDATE_ITEM_NOTES'; payload: { id: string; notes: string } }
-  | { type: 'APPLY_COUPON'; payload: { coupon: Coupon; discountToman: number } }
+  | { type: 'APPLY_COUPON'; payload: { coupon: Coupon; discountToman: number; deliveryFeeToman: number } }
   | { type: 'REMOVE_COUPON' }
   | { type: 'SET_ORDER_NOTE'; payload: string }
   | { type: 'CLEAR_CART' }
@@ -70,7 +72,7 @@ const initialState: CartState = {
 };
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-function cartReducer(state: CartState, action: CartAction): CartState {
+function reduceCartState(state: CartState, action: CartAction): CartState {
   switch (action.type) {
     case 'HEAL_ITEMS': {
       const priceMap = new Map(action.payload.map((p) => [p.productId, p]));
@@ -140,6 +142,8 @@ function cartReducer(state: CartState, action: CartAction): CartState {
         ...state,
         appliedCoupon: action.payload.coupon,
         discountToman: action.payload.discountToman,
+        couponDeliveryFeeToman: action.payload.deliveryFeeToman,
+        invalidatedCoupon: undefined,
       };
     }
     case 'REMOVE_COUPON': {
@@ -147,6 +151,8 @@ function cartReducer(state: CartState, action: CartAction): CartState {
         ...state,
         appliedCoupon: null,
         discountToman: 0,
+        couponDeliveryFeeToman: undefined,
+        invalidatedCoupon: undefined,
       };
     }
     case 'SET_ORDER_NOTE': {
@@ -159,6 +165,33 @@ function cartReducer(state: CartState, action: CartAction): CartState {
     case 'SET_CART': return action.payload;
     default: return state;
   }
+}
+
+function subtotalToman(items: readonly CartItem[]) {
+  return items.reduce((total, item) => total + item.price * item.quantity, 0);
+}
+
+function validateCartCoupon(code: string, items: readonly CartItem[], deliveryFeeToman: number) {
+  return validateAndApplyCoupon(code, money(subtotalToman(items) * 10), money(deliveryFeeToman * 10));
+}
+
+function cartReducer(state: CartState, action: CartAction): CartState {
+  const next = reduceCartState(state, action);
+  if (next.items === state.items) return next;
+  if (!next.appliedCoupon) {
+    const invalidated = next.invalidatedCoupon;
+    return invalidated && validateCartCoupon(invalidated.code, next.items, 0).valid
+      ? { ...next, invalidatedCoupon: undefined }
+      : next;
+  }
+
+  const result = validateCartCoupon(next.appliedCoupon.code, next.items, next.couponDeliveryFeeToman ?? 0);
+  return result.valid
+    ? { ...next, discountToman: result.discount.amountIrr / 10 }
+    : {
+      ...reduceCartState(next, { type: 'REMOVE_COUPON' }),
+      invalidatedCoupon: { code: next.appliedCoupon.code, message: result.message },
+    };
 }
 
 function persistedCart(state: CartState) {
@@ -233,37 +266,29 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const updateItem = (id: string, quantity: number) =>
     dispatch({ type: 'UPDATE_ITEM', payload: { id, quantity } });
   const clearCart = () => dispatch({ type: 'CLEAR_CART' });
-  const calculateSubtotal = () => state.items.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0,
-  );
+  const calculateSubtotal = () => subtotalToman(state.items);
   const calculateDiscount = () => state.discountToman;
   const calculateTotal = (deliveryFee = 0) =>
     Math.max(0, calculateSubtotal() - state.discountToman + deliveryFee);
 
   const applyCouponCode = (code: string, deliveryFeeToman = 0) => {
-    const subtotalToman = calculateSubtotal();
-    const subtotalIrr = money(subtotalToman * 10);
-    const deliveryFeeIrr = money(deliveryFeeToman * 10);
-
-    const res = validateAndApplyCoupon(code, subtotalIrr, deliveryFeeIrr);
+    const res = validateCartCoupon(code, state.items, deliveryFeeToman);
     if (!res.valid) {
-      toast.error(res.message);
       return { success: false, message: res.message };
     }
 
     const discountToman = res.discount.amountIrr / 10;
     dispatch({
       type: 'APPLY_COUPON',
-      payload: { coupon: res.coupon, discountToman },
+      payload: { coupon: res.coupon, discountToman, deliveryFeeToman },
     });
-    toast.success(res.message);
+    toast.success(res.message, { id: 'cart-coupon' });
     return { success: true, message: res.message };
   };
 
   const removeCoupon = () => {
     dispatch({ type: 'REMOVE_COUPON' });
-    toast.success('کد تخفیف حذف شد');
+    toast.success('کد تخفیف حذف شد', { id: 'cart-coupon' });
   };
 
   const updateItemNotes = (id: string, notes: string) => {
