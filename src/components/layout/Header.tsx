@@ -37,35 +37,28 @@ const headerCopy = {
 
 const t = (key: keyof typeof headerCopy) => headerCopy[key];
 
-const TopPromoBarContainer = styled.div<{ $visible: boolean }>`
+const TopPromoBarContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.65rem;
+  flex-wrap: wrap;
+  gap: 0.55rem;
   background: linear-gradient(90deg, #16120f 0%, #261b15 50%, #16120f 100%);
   color: #faf6f0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding: ${({ $visible }) => ($visible ? "0.5rem 2.5rem" : "0 2.5rem")};
-  max-height: ${({ $visible }) => ($visible ? "54px" : "0px")};
-  opacity: ${({ $visible }) => ($visible ? 1 : 0)};
-  overflow: hidden;
-  transition: max-height 260ms cubic-bezier(0.2, 0, 0, 1),
-    opacity 200ms cubic-bezier(0.2, 0, 0, 1),
-    padding 260ms cubic-bezier(0.2, 0, 0, 1);
-  pointer-events: ${({ $visible }) => ($visible ? "auto" : "none")};
+  padding: 0.4rem 3.25rem;
   position: relative;
   z-index: 101;
   direction: rtl;
   text-align: center;
-  font-size: 0.825rem;
+  font-size: 0.81rem;
   font-weight: 500;
 
   @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
-    font-size: 0.74rem;
-    padding: ${({ $visible }) =>
-      $visible ? "0.4rem 2.25rem 0.4rem 0.75rem" : "0 2.25rem 0 0.75rem"};
-    gap: 0.35rem;
-    max-height: ${({ $visible }) => ($visible ? "68px" : "0px")};
+    font-size: 0.71rem;
+    padding: 0.35rem 0.65rem 0.35rem 2.75rem;
+    gap: 0.3rem;
+    line-height: 1.45;
   }
 `;
 
@@ -80,22 +73,26 @@ const PromoIndicator = styled.span`
 const PromoCodeButton = styled.button`
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.35rem;
   background: rgba(217, 56, 30, 0.22);
   color: #fde68a;
-  padding: 0.16rem 0.6rem;
+  min-height: 34px;
+  padding: 0.2rem 0.65rem;
   border-radius: 6px;
   font-weight: 700;
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   letter-spacing: 0.06em;
   border: 1px dashed rgba(251, 191, 36, 0.55);
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   cursor: pointer;
   transition: background-color 150ms ease, transform 120ms ease, border-color 150ms ease;
 
-  &:hover {
-    background: rgba(217, 56, 30, 0.36);
-    border-color: #fbbf24;
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background: rgba(217, 56, 30, 0.36);
+      border-color: #fbbf24;
+    }
   }
 
   &:active {
@@ -105,7 +102,9 @@ const PromoCodeButton = styled.button`
 
 const PromoCloseButton = styled.button`
   position: absolute;
-  left: 0.85rem;
+  left: 0.65rem;
+  top: 50%;
+  transform: translateY(-50%);
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: rgba(250, 246, 240, 0.78);
@@ -113,20 +112,26 @@ const PromoCloseButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   transition: background-color 140ms ease, color 140ms ease, transform 120ms ease;
   user-select: none;
   touch-action: manipulation;
 
-  &:hover {
-    color: #ffffff;
-    background: rgba(255, 255, 255, 0.15);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.15);
+    }
   }
 
   &:active {
-    transform: scale(0.9);
+    transform: translateY(-50%) scale(0.92);
+  }
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    left: 0.4rem;
   }
 `;
 
@@ -154,14 +159,11 @@ const HeaderInner = styled.div<{ $isScrolled: boolean }>`
   justify-content: space-between;
   align-items: center;
   gap: 1.25rem;
-  padding: ${({ $isScrolled }) =>
-    $isScrolled ? "0.65rem 1.75rem" : "0.95rem 1.75rem"};
-  transition: padding 220ms ease;
+  padding: 0.75rem 1.75rem;
 
   @media (max-width: ${(props) => props.theme.breakpoints.md}) {
-    padding: ${({ $isScrolled }) =>
-      $isScrolled ? "0.55rem 1rem" : "0.7rem 1rem"};
-    gap: 0.65rem;
+    padding: 0.55rem 0.9rem;
+    gap: 0.5rem;
   }
 `;
 
@@ -170,12 +172,18 @@ const LogoLink = styled(Link)`
   color: inherit;
   display: inline-flex;
   align-items: center;
-  gap: 0.65rem;
+  gap: 0.55rem;
   flex-shrink: 0;
   transition: transform 160ms cubic-bezier(0.2, 0, 0, 1);
 
-  &:hover {
-    transform: translateY(-1px);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      transform: translateY(-1px);
+    }
+  }
+
+  &:active {
+    transform: scale(0.97);
   }
 `;
 
@@ -258,7 +266,8 @@ const SearchInputContainer = styled.div`
   background-color: #ffffff;
   border: 1px solid ${(props) => props.theme.colors.neutral[200]};
   border-radius: ${(props) => props.theme.borderRadius.full};
-  padding: 0.48rem 0.95rem;
+  padding: 0.2rem 0.95rem;
+  min-height: 40px;
   transition: border-color 160ms ease, box-shadow 160ms ease;
 
   &:focus-within {
@@ -269,6 +278,7 @@ const SearchInputContainer = styled.div`
 
 const SearchInput = styled.input`
   width: 100%;
+  min-height: 34px;
   background: transparent;
   border: none;
   outline: none;
@@ -316,10 +326,12 @@ const LoginButton = styled(Link)`
   user-select: none;
   touch-action: manipulation;
 
-  &:hover {
-    border-color: ${(props) => props.theme.colors.neutral[400]};
-    background: ${(props) => props.theme.colors.neutral[100]};
-    transform: translateY(-1px);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      border-color: ${(props) => props.theme.colors.neutral[400]};
+      background: ${(props) => props.theme.colors.neutral[100]};
+      transform: translateY(-1px);
+    }
   }
 
   &:active {
@@ -348,10 +360,12 @@ const SignupButton = styled(Link)`
   touch-action: manipulation;
   box-shadow: 0 4px 12px rgba(217, 56, 30, 0.24);
 
-  &:hover {
-    background-color: ${(props) => props.theme.colors.primary[600]};
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(217, 56, 30, 0.32);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background-color: ${(props) => props.theme.colors.primary[600]};
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(217, 56, 30, 0.32);
+    }
   }
 
   &:active {
@@ -383,11 +397,13 @@ const IconButton = styled(Link)`
   user-select: none;
   touch-action: manipulation;
 
-  &:hover {
-    background-color: ${(props) => props.theme.colors.primary[50]};
-    border-color: ${(props) => props.theme.colors.primary[200]};
-    transform: translateY(-1px);
-    color: ${(props) => props.theme.colors.primary[600]};
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background-color: ${(props) => props.theme.colors.primary[50]};
+      border-color: ${(props) => props.theme.colors.primary[200]};
+      transform: translateY(-1px);
+      color: ${(props) => props.theme.colors.primary[600]};
+    }
   }
 
   &:active {
@@ -430,11 +446,13 @@ const MobileMenuButton = styled.button`
   border: 1px solid ${(props) => props.theme.colors.neutral[200]};
   cursor: pointer;
   color: ${(props) => props.theme.colors.neutral[800]};
-  transition: color 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+  transition: color 150ms ease, transform 120ms ease, border-color 150ms ease;
 
-  &:hover {
-    color: ${(props) => props.theme.colors.primary[500]};
-    border-color: ${(props) => props.theme.colors.primary[200]};
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      color: ${(props) => props.theme.colors.primary[500]};
+      border-color: ${(props) => props.theme.colors.primary[200]};
+    }
   }
 
   &:active {
@@ -445,8 +463,8 @@ const MobileMenuButton = styled.button`
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
   }
 `;
@@ -457,17 +475,19 @@ const MobileCartButton = styled(Link)`
   display: none;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background-color: #ffffff;
   border: 1px solid ${(props) => props.theme.colors.neutral[200]};
-  transition: all 0.2s ease;
+  transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease, transform 120ms ease;
   color: ${(props) => props.theme.colors.neutral[800]};
 
-  &:hover {
-    background-color: ${(props) => props.theme.colors.primary[50]};
-    color: ${(props) => props.theme.colors.primary[500]};
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background-color: ${(props) => props.theme.colors.primary[50]};
+      color: ${(props) => props.theme.colors.primary[500]};
+    }
   }
 
   &:active {
@@ -741,24 +761,26 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
 
   return (
     <>
-      <TopPromoBarContainer $visible={isPromoVisible}>
-        <PromoIndicator>
-          <SparkleIcon size={14} />
-        </PromoIndicator>
-        <span>پیشنهاد ویژه اولین سفارش در فودینو با کد:</span>
-        <PromoCodeButton
-          type="button"
-          onClick={handleCopyPromo}
-          title="کپی کد تخفیف FOODINO"
-        >
-          {copiedPromo ? <CheckCircleIcon size={13} /> : <CopyIcon size={13} />}
-          <span>FOODINO</span>
-        </PromoCodeButton>
-        <span>(۲۰٪ تخفیف تا سقف ۵۰ هزار تومان)</span>
-        <PromoCloseButton onClick={handleDismissPromo} aria-label="بستن اعلان">
-          <CloseIcon size={14} />
-        </PromoCloseButton>
-      </TopPromoBarContainer>
+      {isPromoVisible && (
+        <TopPromoBarContainer>
+          <PromoIndicator>
+            <SparkleIcon size={14} />
+          </PromoIndicator>
+          <span>پیشنهاد ویژه اولین سفارش در فودینو با کد:</span>
+          <PromoCodeButton
+            type="button"
+            onClick={handleCopyPromo}
+            title="کپی کد تخفیف FOODINO"
+          >
+            {copiedPromo ? <CheckCircleIcon size={13} /> : <CopyIcon size={13} />}
+            <span>FOODINO</span>
+          </PromoCodeButton>
+          <span>(۲۰٪ تخفیف تا سقف ۵۰ هزار تومان)</span>
+          <PromoCloseButton onClick={handleDismissPromo} aria-label="بستن اعلان">
+            <CloseIcon size={14} />
+          </PromoCloseButton>
+        </TopPromoBarContainer>
+      )}
 
       <HeaderWrapper $isScrolled={isScrolled}>
         <HeaderInner $isScrolled={isScrolled}>
@@ -937,6 +959,7 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
               placeholder={t("search")}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              aria-label={t("search")}
             />
           </SearchInputContainer>
         </form>

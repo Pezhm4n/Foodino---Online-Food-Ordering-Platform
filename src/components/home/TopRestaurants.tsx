@@ -3,7 +3,6 @@
 import React from "react";
 import styled from "styled-components";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import FavoriteButton from "@/components/common/FavoriteButton";
 import {
   DishArtwork,
@@ -23,9 +22,13 @@ const SectionContainer = styled.section`
   @media (max-width: ${(props) => props.theme.breakpoints.md}) {
     padding: 2.5rem 1rem;
   }
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    padding: 1.85rem 0.9rem;
+  }
 `;
 
-const SectionHeader = styled(motion.div)`
+const SectionHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
@@ -36,7 +39,8 @@ const SectionHeader = styled(motion.div)`
   @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
     flex-direction: column;
     align-items: flex-start;
-    margin-bottom: 1.35rem;
+    margin-bottom: 1.15rem;
+    gap: 0.65rem;
   }
 `;
 
@@ -57,12 +61,20 @@ const SectionTitle = styled.h2`
   font-weight: 800;
   color: ${(props) => props.theme.colors.neutral[900]};
   margin: 0;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    font-size: 1.28rem;
+  }
 `;
 
 const SectionSubtitle = styled.p`
   font-size: 0.95rem;
   color: ${(props) => props.theme.colors.neutral[600]};
   margin: 0;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    font-size: 0.84rem;
+  }
 `;
 
 const ViewAllButton = styled(Link)`
@@ -70,6 +82,7 @@ const ViewAllButton = styled(Link)`
   align-items: center;
   gap: 0.45rem;
   padding: 0.6rem 1.15rem;
+  min-height: 38px;
   background-color: #ffffff;
   border: 1px solid ${(props) => props.theme.colors.neutral[200]};
   border-radius: ${(props) => props.theme.borderRadius.full};
@@ -81,10 +94,21 @@ const ViewAllButton = styled(Link)`
     border-color 180ms var(--ease-out),
     color 180ms var(--ease-out);
 
-  &:hover {
-    border-color: ${(props) => props.theme.colors.primary[400]};
-    color: ${(props) => props.theme.colors.primary[600]};
-    transform: translateX(-3px);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      border-color: ${(props) => props.theme.colors.primary[400]};
+      color: ${(props) => props.theme.colors.primary[600]};
+      transform: translateX(-3px);
+    }
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    font-size: 0.82rem;
+    padding: 0.45rem 0.85rem;
   }
 `;
 
@@ -101,11 +125,11 @@ const RestaurantsGrid = styled.div`
 
   @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
     grid-template-columns: 1fr;
-    gap: 1rem;
+    gap: 0.9rem;
   }
 `;
 
-const RestaurantCard = styled(motion.article)`
+const RestaurantCard = styled.article`
   background-color: #ffffff;
   border-radius: 1.35rem;
   overflow: hidden;
@@ -124,6 +148,10 @@ const RestaurantCard = styled(motion.article)`
       box-shadow: 0 24px 40px -12px rgba(22, 18, 15, 0.15);
       border-color: ${(props) => props.theme.colors.primary[300]};
     }
+  }
+
+  &:active {
+    transform: scale(0.98);
   }
 `;
 
@@ -160,6 +188,15 @@ const CoverStage = styled.div<{ $bgStart: string; $bgEnd: string }>`
     background-size: 16px 16px;
     opacity: 0.35;
   }
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    height: 124px;
+
+    svg {
+      width: 92px;
+      height: 92px;
+    }
+  }
 `;
 
 const CoverArtworkMotion = styled.div`
@@ -167,8 +204,10 @@ const CoverArtworkMotion = styled.div`
   z-index: 2;
   transition: transform 280ms var(--ease-out);
 
-  ${RestaurantCard}:hover & {
-    transform: scale(1.09) translateY(-3px) rotate(-2deg);
+  @media (hover: hover) and (pointer: fine) {
+    ${RestaurantCard}:hover & {
+      transform: scale(1.09) translateY(-3px) rotate(-2deg);
+    }
   }
 `;
 
@@ -195,6 +234,10 @@ const StatusPill = styled.span`
     border-radius: 50%;
     background: #4ade80;
     animation: foodinoPulseDot 2.2s infinite;
+
+    @media (prefers-reduced-motion: reduce) {
+      animation: none;
+    }
   }
 `;
 
@@ -220,6 +263,10 @@ const RestaurantInfo = styled.div`
   display: flex;
   flex-direction: column;
   flex: 1;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    padding: 0.95rem 1rem;
+  }
 `;
 
 const RestaurantName = styled.h3`
@@ -229,8 +276,14 @@ const RestaurantName = styled.h3`
   margin: 0 0 0.25rem;
   transition: color 180ms var(--ease-out);
 
-  ${RestaurantCard}:hover & {
-    color: ${(props) => props.theme.colors.primary[600]};
+  @media (hover: hover) and (pointer: fine) {
+    ${RestaurantCard}:hover & {
+      color: ${(props) => props.theme.colors.primary[600]};
+    }
+  }
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    font-size: 1rem;
   }
 `;
 
@@ -325,12 +378,7 @@ const restaurants = [
 const TopRestaurants = () => {
   return (
     <SectionContainer>
-      <SectionHeader
-        initial={{ opacity: 0, y: 14 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-40px" }}
-        transition={{ duration: 0.42, ease: [0.23, 1, 0.32, 1] }}
-      >
+      <SectionHeader>
         <TitleContainer>
           <Eyebrow>آشپزخانه‌های دارای نشان کیفیت</Eyebrow>
           <SectionTitle>رستوران‌های برتر فودینو</SectionTitle>
@@ -345,22 +393,12 @@ const TopRestaurants = () => {
       </SectionHeader>
 
       <RestaurantsGrid>
-        {restaurants.map((restaurant, index) => {
+        {restaurants.map((restaurant) => {
           const kind = resolveFoodKind(restaurant.cuisineClue, restaurant.name);
           const palette = FOOD_VISUAL_PALETTE[kind];
 
           return (
-            <RestaurantCard
-              key={restaurant.id}
-              initial={{ opacity: 0, y: 22, scale: 0.96 }}
-              whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              viewport={{ once: true, margin: "-30px" }}
-              transition={{
-                duration: 0.46,
-                delay: index * 0.07,
-                ease: [0.23, 1, 0.32, 1],
-              }}
-            >
+            <RestaurantCard key={restaurant.id}>
               <div
                 style={{
                   position: "absolute",

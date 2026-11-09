@@ -52,6 +52,10 @@ export function RestaurantGrid({
         <DishArtwork kind="chef" size={88} variant="thumb" />
         <h3>رستورانی با این مشخصات یافت نشد</h3>
         <p>عبارت جست‌وجو یا فیلتر دسته‌بندی را تغییر دهید تا گزینه‌های بیشتری ببینید.</p>
+        <Link href="/restaurants" className={styles.back} style={{ marginTop: "0.5rem" }}>
+          <span>نمایش همه رستوران‌ها</span>
+          <ArrowLeftIcon size={15} />
+        </Link>
       </div>
     );
   }
@@ -158,6 +162,11 @@ export function RestaurantGrid({
                   {isLowDelivery && feeToman > 0 && (
                     <span className={styles.metaHighlightGreen}>
                       <span>ارسال اقتصادی</span>
+                    </span>
+                  )}
+                  {!isFastDelivery && !(isLowDelivery && feeToman > 0) && (
+                    <span className={styles.metaHighlightGreen}>
+                      <span>تضمین کیفیت پخت</span>
                     </span>
                   )}
                 </div>

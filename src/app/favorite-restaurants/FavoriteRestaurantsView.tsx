@@ -97,7 +97,7 @@ const SearchInput = styled.input`
   background-color: #ffffff;
   color: ${props => props.theme.colors.neutral[900]};
   outline: none;
-  transition: all 0.2s ease;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
 
   &:focus {
     border-color: ${props => props.theme.colors.primary[500]};
@@ -168,7 +168,7 @@ const RemoveButton = styled.button`
   justify-content: center;
   color: ${props => props.theme.colors.primary[500]};
   box-shadow: ${props => props.theme.shadows.xs};
-  transition: all 0.2s ease;
+  transition: transform 0.18s ease, background-color 0.18s ease;
   z-index: 2;
 
   &:hover {
@@ -248,10 +248,31 @@ const ViewMenuButton = styled(Link)`
   font-weight: 800;
   text-decoration: none;
   box-shadow: ${props => props.theme.shadows.brand};
-  transition: all 0.2s ease;
+  transition: background-color 0.18s ease, box-shadow 0.18s ease;
 
   &:hover {
     background-color: ${props => props.theme.colors.primary[600]};
+  }
+`;
+
+const ResetSearchBtn = styled.button`
+  background: none;
+  border: 1px solid ${props => props.theme.colors.primary[300]};
+  color: ${props => props.theme.colors.primary[600]};
+  border-radius: ${props => props.theme.borderRadius.md};
+  padding: 0.45rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 0.75rem;
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.18s ease;
+
+  &:hover {
+    background: ${props => props.theme.colors.primary[50]};
   }
 `;
 
@@ -355,6 +376,7 @@ export default function FavoriteRestaurantsView({
           <SearchInput
             type="text"
             placeholder="جستجو در میان رستوران‌های محبوب..."
+            aria-label="جستجو در میان رستوران‌های محبوب"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
           />
@@ -381,6 +403,9 @@ export default function FavoriteRestaurantsView({
       ) : filtered.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '3rem 1rem', color: '#6E6055' }}>
           <p style={{ fontSize: '1.05rem', fontWeight: 700 }}>رستورانی با عبارت «{searchQuery}» یافت نشد.</p>
+          <ResetSearchBtn type="button" onClick={() => setSearchQuery('')}>
+            پاک کردن جستجو و نمایش همه
+          </ResetSearchBtn>
         </div>
       ) : (
         <Grid>

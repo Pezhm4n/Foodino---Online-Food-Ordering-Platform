@@ -72,10 +72,12 @@ const IconButton = styled.button<{ $isFavorite: boolean; $size: 'sm' | 'md' | 'l
           box-shadow: 0 2px 8px rgba(225, 29, 72, 0.18);
           animation: heartPop 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 
-          &:hover {
-            background-color: #ffe4e6;
-            border-color: #fda4af;
-            transform: scale(1.06);
+          @media (hover: hover) and (pointer: fine) {
+            &:hover {
+              background-color: #ffe4e6;
+              border-color: #fda4af;
+              transform: scale(1.06);
+            }
           }
         `
       : css`
@@ -85,13 +87,20 @@ const IconButton = styled.button<{ $isFavorite: boolean; $size: 'sm' | 'md' | 'l
           color: #52483e;
           box-shadow: 0 2px 6px rgba(22, 18, 15, 0.08);
 
-          &:hover {
-            background-color: #ffffff;
-            border-color: #d5c9b8;
-            color: #e11d48;
-            transform: scale(1.06);
+          @media (hover: hover) and (pointer: fine) {
+            &:hover {
+              background-color: #ffffff;
+              border-color: #d5c9b8;
+              color: #e11d48;
+              transform: scale(1.06);
+            }
           }
         `}
+
+  &:focus-visible {
+    outline: 2px solid #d9381e;
+    outline-offset: 2px;
+  }
 
   &:active {
     transform: scale(0.92);
@@ -170,6 +179,11 @@ const FullButton = styled.button<{ $isFavorite: boolean; $size: 'sm' | 'md' | 'l
             color: #16120f;
           }
         `}
+
+  &:focus-visible {
+    outline: 2px solid #d9381e;
+    outline-offset: 2px;
+  }
 
   &:active {
     transform: scale(0.98);

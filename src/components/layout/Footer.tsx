@@ -25,7 +25,7 @@ const FooterContainer = styled.footer`
   overflow: hidden;
 
   @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
-    padding: 3rem 1.15rem 1.75rem;
+    padding: 2.15rem 1rem 1.5rem;
   }
 `;
 
@@ -44,9 +44,9 @@ const TopTrustStrip = styled.div`
 
   @media (max-width: ${(props) => props.theme.breakpoints.md}) {
     grid-template-columns: 1fr;
-    gap: 0.75rem;
-    padding-bottom: 2rem;
-    margin-bottom: 2rem;
+    gap: 0.6rem;
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
   }
 `;
 
@@ -58,6 +58,11 @@ const TrustPill = styled.div`
   border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: ${(props) => props.theme.borderRadius.xl};
   padding: 1rem 1.15rem;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    padding: 0.7rem 0.85rem;
+    gap: 0.65rem;
+  }
 `;
 
 const TrustIconBox = styled.div`
@@ -70,6 +75,12 @@ const TrustIconBox = styled.div`
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+  }
 `;
 
 const TrustText = styled.div`
@@ -81,11 +92,19 @@ const TrustText = styled.div`
     color: #faf6f0;
     font-size: 0.92rem;
     font-weight: 700;
+
+    @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+      font-size: 0.84rem;
+    }
   }
 
   span {
     color: ${(props) => props.theme.colors.neutral[400]};
     font-size: 0.8rem;
+
+    @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+      font-size: 0.74rem;
+    }
   }
 `;
 
@@ -101,7 +120,7 @@ const FooterContent = styled.div`
 
   @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
     grid-template-columns: 1fr;
-    gap: 1.75rem;
+    gap: 1.35rem;
   }
 `;
 
@@ -157,17 +176,23 @@ const FooterLink = styled(Link)`
   color: ${(props) => props.theme.colors.neutral[400]};
   text-decoration: none;
   font-size: 0.9rem;
-  margin-bottom: 0.55rem;
+  margin-bottom: 0.45rem;
   transition: color 160ms ease, transform 160ms ease;
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  min-height: 32px;
+  min-height: 34px;
   width: fit-content;
 
-  &:hover {
-    color: #faf6f0;
-    transform: translateX(-4px);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      color: #faf6f0;
+      transform: translateX(-4px);
+    }
+  }
+
+  &:active {
+    transform: scale(0.98);
   }
 `;
 
@@ -241,8 +266,10 @@ const CreatorSocialLinks = styled.div`
 const CreatorLink = styled.a`
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.3rem;
-  padding: 0.28rem 0.6rem;
+  min-height: 34px;
+  padding: 0.32rem 0.7rem;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.06);
   color: #faf6f0;
@@ -251,10 +278,16 @@ const CreatorLink = styled.a`
   text-decoration: none;
   transition: background-color 150ms ease, color 150ms ease, transform 120ms ease;
 
-  &:hover {
-    background: ${(props) => props.theme.colors.primary[500]};
-    color: #ffffff;
-    transform: translateY(-1px);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background: ${(props) => props.theme.colors.primary[500]};
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+  }
+
+  &:active {
+    transform: scale(0.96);
   }
 `;
 

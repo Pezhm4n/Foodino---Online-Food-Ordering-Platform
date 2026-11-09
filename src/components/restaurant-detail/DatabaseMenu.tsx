@@ -109,6 +109,7 @@ const SearchBox = styled.div`
 
 const SearchInput = styled.input`
   width: 100%;
+  min-height: 40px;
   padding: 0.7rem 2.65rem 0.7rem 1rem;
   border: 1px solid ${({ theme }) => theme.colors.neutral[200]};
   border-radius: 0.8rem;
@@ -117,7 +118,7 @@ const SearchInput = styled.input`
   outline: none;
   background: ${({ theme }) => theme.colors.neutral[50]};
   color: ${({ theme }) => theme.colors.neutral[900]};
-  transition: all 0.18s;
+  transition: border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
 
   &:focus {
     background: #ffffff;
@@ -138,15 +139,19 @@ const SearchIconWrapper = styled.div`
 
 const ClearSearchBtn = styled.button`
   position: absolute;
-  left: 0.75rem;
+  left: 0.5rem;
   top: 50%;
   transform: translateY(-50%);
   background: none;
   border: none;
   color: ${({ theme }) => theme.colors.neutral[400]};
   cursor: pointer;
+  min-width: 34px;
+  min-height: 34px;
   padding: 0.25rem;
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
 
   &:hover {
     color: ${({ theme }) => theme.colors.neutral[900]};
@@ -156,14 +161,10 @@ const ClearSearchBtn = styled.button`
 const TabsWrapper = styled.div`
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.5rem;
-  overflow-x: auto;
-  padding-bottom: 0.2rem;
-  scrollbar-width: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
+  overflow-x: visible;
+  padding-bottom: 0.1rem;
 `;
 
 const CategoryTab = styled.button<{ $active: boolean }>`
@@ -174,13 +175,14 @@ const CategoryTab = styled.button<{ $active: boolean }>`
   border: 1px solid
     ${({ $active, theme }) =>
       $active ? theme.colors.primary[500] : theme.colors.neutral[200]};
-  padding: 0.45rem 0.95rem;
+  min-height: 34px;
+  padding: 0.4rem 0.85rem;
   border-radius: 9999px;
-  font-size: 0.84rem;
+  font-size: 0.82rem;
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
-  transition: all 0.18s;
+  transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease, transform 120ms ease;
   display: flex;
   align-items: center;
   gap: 0.4rem;
@@ -188,6 +190,10 @@ const CategoryTab = styled.button<{ $active: boolean }>`
   &:hover {
     background: ${({ $active, theme }) =>
       $active ? theme.colors.primary[600] : theme.colors.neutral[200]};
+  }
+
+  &:active {
+    transform: scale(0.96);
   }
 
   span.count {
@@ -199,6 +205,11 @@ const CategoryTab = styled.button<{ $active: boolean }>`
     border-radius: 9999px;
     font-size: 0.74rem;
     font-weight: 800;
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    font-size: 0.76rem;
+    padding: 0.35rem 0.75rem;
   }
 `;
 
@@ -212,7 +223,7 @@ const List = styled.ul`
 
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     grid-template-columns: 1fr;
-    gap: 0.9rem;
+    gap: 0.85rem;
   }
 `;
 
@@ -238,15 +249,27 @@ const Item = styled.li`
   &:nth-child(3) { animation-delay: 110ms; }
   &:nth-child(4) { animation-delay: 155ms; }
 
-  &:hover {
-    border-color: ${({ theme }) => theme.colors.primary[300]};
-    box-shadow: 0 16px 32px -8px rgba(22, 18, 15, 0.12);
-    transform: translateY(-4px);
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      border-color: ${({ theme }) => theme.colors.primary[300]};
+      box-shadow: 0 16px 32px -8px rgba(22, 18, 15, 0.12);
+      transform: translateY(-4px);
+    }
+  }
+
+  &:active {
+    transform: scale(0.985);
   }
 
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    flex-wrap: wrap;
+    align-items: flex-start;
     padding: 0.9rem;
-    gap: 0.75rem;
+    gap: 0.7rem;
   }
 `;
 
@@ -266,13 +289,20 @@ const DishIconBox = styled.div<{ $bgStart: string; $bgEnd: string }>`
   box-shadow: 0 6px 14px -4px rgba(22, 18, 15, 0.18);
   transition: transform 260ms var(--ease-out);
 
-  ${Item}:hover & {
-    transform: scale(1.08) rotate(-3deg);
+  @media (hover: hover) and (pointer: fine) {
+    ${Item}:hover & {
+      transform: scale(1.08) rotate(-3deg);
+    }
   }
 
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
     width: 64px;
     height: 64px;
+
+    svg {
+      width: 52px;
+      height: 52px;
+    }
   }
 `;
 
@@ -280,11 +310,19 @@ const ItemDetails = styled.div`
   flex: 1;
   min-width: 0;
 
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    flex: 1 1 calc(100% - 78px);
+  }
+
   strong {
     display: block;
     font-size: 1.04rem;
     font-weight: 800;
     color: ${({ theme }) => theme.colors.neutral[900]};
+
+    @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+      font-size: 0.96rem;
+    }
   }
 
   p {
@@ -296,6 +334,11 @@ const ItemDetails = styled.div`
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+
+    @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+      font-size: 0.8rem;
+      margin: 0.2rem 0 0.45rem;
+    }
   }
 
   .meta-row {
@@ -340,6 +383,13 @@ const ActionBox = styled.div`
   align-items: center;
   gap: 0.5rem;
   flex-shrink: 0;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    width: 100%;
+    justify-content: flex-end;
+    padding-top: 0.45rem;
+    border-top: 1px dashed ${({ theme }) => theme.colors.neutral[100]};
+  }
 `;
 
 const AddButton = styled.button`
@@ -351,17 +401,19 @@ const AddButton = styled.button`
   cursor: pointer;
   font-weight: 700;
   font-size: 0.85rem;
-  min-height: 42px;
+  min-height: 40px;
   min-width: 78px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.18s ease;
+  transition: background-color 180ms ease, transform 140ms ease, box-shadow 180ms ease;
   box-shadow: 0 6px 14px -4px rgba(217, 56, 30, 0.35);
 
-  &:hover {
-    background: ${({ theme }) => theme.colors.primary[600]};
-    transform: translateY(-1px);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background: ${({ theme }) => theme.colors.primary[600]};
+      transform: translateY(-1px);
+    }
   }
 
   &:active {
@@ -525,6 +577,16 @@ export default function DatabaseMenu({
           <DishArtwork kind="chef" size={76} variant="thumb" />
           <h4>غذایی یافت نشد</h4>
           <p>موردی با مشخصات جستجوی شما در منوی این رستوران پیدا نشد.</p>
+          <AddButton
+            type="button"
+            onClick={() => {
+              setSearchQuery("");
+              setActiveCategory("همه");
+            }}
+            style={{ marginTop: "0.4rem" }}
+          >
+            نمایش همه غذاهای منو
+          </AddButton>
         </EmptyState>
       ) : (
         <List>

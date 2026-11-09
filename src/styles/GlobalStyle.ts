@@ -28,13 +28,16 @@ export const GlobalStyle = createGlobalStyle`
   html {
     scroll-behavior: smooth;
     -webkit-tap-highlight-color: transparent;
+    @media (prefers-reduced-motion: reduce) {
+      scroll-behavior: auto;
+    }
   }
 
   html, body {
     max-width: 100vw;
     margin: 0;
     padding: 0;
-    overflow-x: hidden;
+    overflow-x: clip;
     background: ${({ theme }) => theme.colors.neutral[50]};
     color: ${({ theme }) => theme.colors.neutral[900]};
     font-family: var(--font-vazirmatn), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -158,5 +161,15 @@ export const GlobalStyle = createGlobalStyle`
 
   .foodino-steam-3 {
     animation: foodinoSteam 2.8s ease-in-out 1.7s infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .foodino-dish-hero,
+    .foodino-steam-1,
+    .foodino-steam-2,
+    .foodino-steam-3 {
+      animation: none !important;
+      transform: none !important;
+    }
   }
 `;

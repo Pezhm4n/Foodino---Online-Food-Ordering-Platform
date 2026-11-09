@@ -33,7 +33,7 @@ export default async function RootLayout({
 }) {
   const claims = await requireClaims();
   return (
-    <html lang="fa" dir="rtl" suppressHydrationWarning>
+    <html lang="fa" dir="rtl" className={vazirmatn.variable} suppressHydrationWarning>
       <body
         className={`${vazirmatn.className} ${vazirmatn.variable}`}
         suppressHydrationWarning

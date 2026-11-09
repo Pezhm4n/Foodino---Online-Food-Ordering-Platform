@@ -15,6 +15,7 @@ interface RestaurantNavTabsProps {
 const TabsBar = styled.div`
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.45rem;
   background: #ffffff;
   border: 1px solid ${({ theme }) => theme.colors.neutral[200]};
@@ -22,20 +23,23 @@ const TabsBar = styled.div`
   border-radius: 1rem;
   margin-bottom: 1.5rem;
   direction: rtl;
-  overflow-x: auto;
-  scrollbar-width: none;
+  overflow-x: visible;
   box-shadow: 0 2px 8px rgba(22, 18, 15, 0.03);
 
-  &::-webkit-scrollbar {
-    display: none;
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    gap: 0.3rem;
+    padding: 0.3rem;
+    margin-bottom: 1.15rem;
   }
 `;
 
 const TabButton = styled.button<{ $active: boolean }>`
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-  padding: 0.7rem 1.2rem;
+  min-height: 36px;
+  padding: 0.65rem 1.15rem;
   border: none;
   border-radius: 0.75rem;
   background: ${({ $active, theme }) =>
@@ -46,7 +50,7 @@ const TabButton = styled.button<{ $active: boolean }>`
     $active ? "#FAF6F0" : theme.colors.neutral[600]};
   cursor: pointer;
   white-space: nowrap;
-  transition: all 160ms ease;
+  transition: background-color 160ms ease, color 160ms ease, transform 120ms ease;
 
   &:hover {
     color: ${({ $active, theme }) =>
@@ -55,10 +59,20 @@ const TabButton = styled.button<{ $active: boolean }>`
       $active ? theme.colors.neutral[900] : theme.colors.neutral[100]};
   }
 
+  &:active {
+    transform: scale(0.97);
+  }
+
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    padding: 0.6rem 0.85rem;
-    font-size: 0.82rem;
-    gap: 0.35rem;
+    flex: 1 1 auto;
+    padding: 0.48rem 0.4rem;
+    font-size: 0.73rem;
+    gap: 0.25rem;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
   }
 `;
 
@@ -71,6 +85,11 @@ const CountBadge = styled.span<{ $active: boolean }>`
     $active ? "rgba(255, 255, 255, 0.18)" : theme.colors.neutral[100]};
   color: ${({ $active, theme }) =>
     $active ? "#FAF6F0" : theme.colors.neutral[700]};
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    font-size: 0.66rem;
+    padding: 0.08rem 0.35rem;
+  }
 `;
 
 export default function RestaurantNavTabs({

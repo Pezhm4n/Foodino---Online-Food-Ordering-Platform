@@ -3,7 +3,6 @@
 import React from "react";
 import styled from "styled-components";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import {
   DishArtwork,
   resolveFoodKind,
@@ -20,9 +19,13 @@ const SectionContainer = styled.section`
   @media (max-width: ${(props) => props.theme.breakpoints.md}) {
     padding: 2.5rem 1rem;
   }
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    padding: 1.75rem 0.9rem;
+  }
 `;
 
-const SectionHeaderRow = styled(motion.div)`
+const SectionHeaderRow = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
@@ -32,7 +35,8 @@ const SectionHeaderRow = styled(motion.div)`
   @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
     flex-direction: column;
     align-items: flex-start;
-    margin-bottom: 1.35rem;
+    margin-bottom: 1.15rem;
+    gap: 0.65rem;
   }
 `;
 
@@ -54,12 +58,20 @@ const SectionTitle = styled.h2`
   font-weight: 800;
   color: ${(props) => props.theme.colors.neutral[900]};
   margin: 0;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    font-size: 1.28rem;
+  }
 `;
 
 const SectionSubtitle = styled.p`
   font-size: 0.95rem;
   color: ${(props) => props.theme.colors.neutral[600]};
   margin: 0;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    font-size: 0.84rem;
+  }
 `;
 
 const AllCategoriesLink = styled(Link)`
@@ -72,16 +84,28 @@ const AllCategoriesLink = styled(Link)`
   background: #ffffff;
   border: 1px solid ${(props) => props.theme.colors.neutral[200]};
   padding: 0.55rem 1rem;
+  min-height: 38px;
   border-radius: ${(props) => props.theme.borderRadius.full};
   text-decoration: none;
   transition: transform 180ms var(--ease-out),
     border-color 180ms var(--ease-out),
     color 180ms var(--ease-out);
 
-  &:hover {
-    border-color: ${(props) => props.theme.colors.primary[400]};
-    color: ${(props) => props.theme.colors.primary[600]};
-    transform: translateX(-3px);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      border-color: ${(props) => props.theme.colors.primary[400]};
+      color: ${(props) => props.theme.colors.primary[600]};
+      transform: translateX(-3px);
+    }
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    font-size: 0.82rem;
+    padding: 0.45rem 0.85rem;
   }
 `;
 
@@ -96,11 +120,11 @@ const CategoriesGrid = styled.div`
 
   @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
     grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
+    gap: 0.7rem;
   }
 `;
 
-const CategoryCardMotion = styled(motion.div)`
+const CategoryCardMotion = styled.div`
   display: flex;
 `;
 
@@ -132,6 +156,11 @@ const CategoryCard = styled(Link)`
   &:active {
     transform: scale(0.97);
   }
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    padding: 1rem 0.75rem 0.9rem;
+    border-radius: 1.1rem;
+  }
 `;
 
 const ArtworkStage = styled.div<{ $bgStart: string; $bgEnd: string }>`
@@ -151,15 +180,23 @@ const ArtworkStage = styled.div<{ $bgStart: string; $bgEnd: string }>`
   transition: transform 280ms var(--ease-out),
     box-shadow 280ms var(--ease-out);
 
-  ${CategoryCard}:hover & {
-    transform: scale(1.09) rotate(-4deg) translateY(-2px);
-    box-shadow: 0 16px 26px -6px rgba(22, 18, 15, 0.28);
+  @media (hover: hover) and (pointer: fine) {
+    ${CategoryCard}:hover & {
+      transform: scale(1.09) rotate(-4deg) translateY(-2px);
+      box-shadow: 0 16px 26px -6px rgba(22, 18, 15, 0.28);
+    }
   }
 
   @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
-    width: 76px;
-    height: 76px;
-    border-radius: 22px;
+    width: 64px;
+    height: 64px;
+    border-radius: 18px;
+    margin-bottom: 0.65rem;
+
+    svg {
+      width: 54px;
+      height: 54px;
+    }
   }
 `;
 
@@ -171,6 +208,11 @@ const CulinaryTag = styled.span<{ $bg: string; $color: string }>`
   background: ${(props) => props.$bg};
   color: ${(props) => props.$color};
   margin-bottom: 0.45rem;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    font-size: 0.65rem;
+    margin-bottom: 0.3rem;
+  }
 `;
 
 const CategoryName = styled.h3`
@@ -181,8 +223,15 @@ const CategoryName = styled.h3`
   text-align: center;
   transition: color 180ms var(--ease-out);
 
-  ${CategoryCard}:hover & {
-    color: ${(props) => props.theme.colors.primary[600]};
+  @media (hover: hover) and (pointer: fine) {
+    ${CategoryCard}:hover & {
+      color: ${(props) => props.theme.colors.primary[600]};
+    }
+  }
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    font-size: 0.94rem;
+    margin-bottom: 0.2rem;
   }
 `;
 
@@ -259,12 +308,7 @@ const PopularCategories = ({ initialCategories }: PopularCategoriesProps) => {
 
   return (
     <SectionContainer>
-      <SectionHeaderRow
-        initial={{ opacity: 0, y: 14 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-40px" }}
-        transition={{ duration: 0.42, ease: [0.23, 1, 0.32, 1] }}
-      >
+      <SectionHeaderRow>
         <HeaderTitleGroup>
           <SectionEyebrow>ذائقه و سبک پخت</SectionEyebrow>
           <SectionTitle>دسته‌بندی‌های محبوب</SectionTitle>
@@ -279,7 +323,7 @@ const PopularCategories = ({ initialCategories }: PopularCategoriesProps) => {
       </SectionHeaderRow>
 
       <CategoriesGrid>
-        {displayCategories.map((category, index) => {
+        {displayCategories.map((category) => {
           const kind = resolveFoodKind(
             category.slug,
             category.name,
@@ -288,17 +332,7 @@ const PopularCategories = ({ initialCategories }: PopularCategoriesProps) => {
           const palette = FOOD_VISUAL_PALETTE[kind];
 
           return (
-            <CategoryCardMotion
-              key={category.id}
-              initial={{ opacity: 0, y: 20, scale: 0.96 }}
-              whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              viewport={{ once: true, margin: "-30px" }}
-              transition={{
-                duration: 0.45,
-                delay: index * 0.06,
-                ease: [0.23, 1, 0.32, 1],
-              }}
-            >
+            <CategoryCardMotion key={category.id}>
               <CategoryCard href={`/categories/${category.slug}`}>
                 <ArtworkStage
                   $bgStart={palette.bgStart}

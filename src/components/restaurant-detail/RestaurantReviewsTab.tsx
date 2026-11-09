@@ -182,8 +182,12 @@ const RatingPicker = styled.div`
     border: none;
     cursor: pointer;
     color: ${({ theme }) => theme.colors.neutral[300]};
+    min-width: 34px;
+    min-height: 34px;
     padding: 0.2rem;
     display: inline-flex;
+    align-items: center;
+    justify-content: center;
     transition: transform 0.15s;
 
     &.active {
@@ -241,11 +245,15 @@ const SubmitButton = styled.button`
   cursor: pointer;
   align-self: flex-start;
   box-shadow: 0 6px 14px -4px rgba(217, 56, 30, 0.32);
-  transition: all 0.2s;
+  transition: background-color 180ms ease, transform 140ms ease, opacity 180ms ease;
 
   &:hover:not(:disabled) {
     background: ${({ theme }) => theme.colors.primary[600]};
     transform: translateY(-1px);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.97);
   }
 
   &:disabled {
@@ -585,7 +593,7 @@ export default function RestaurantReviewsTab({
                       star <= selectedRating ? "active" : ""
                     }`}
                     onClick={() => setSelectedRating(star)}
-                    aria-label={`${star} ستاره از ۵`}
+                    aria-label={`${numberFormatter.format(star)} ستاره از ۵`}
                   >
                     <StarIcon size={22} />
                   </button>

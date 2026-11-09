@@ -89,7 +89,8 @@ const BackLink = styled(Link)`
   font-size: 0.85rem;
   font-weight: 700;
   text-decoration: none;
-  transition: all 0.2s ease;
+  min-height: 34px;
+  transition: border-color 0.18s ease, color 0.18s ease, background-color 0.18s ease;
 
   &:hover {
     border-color: ${props => props.theme.colors.primary[400]};
@@ -147,11 +148,18 @@ const BackToRestaurantsButton = styled(Link)`
   font-size: 0.95rem;
   text-decoration: none;
   box-shadow: ${props => props.theme.shadows.brand};
-  transition: all 0.2s ease;
+  min-height: 44px;
+  transition: background-color 0.18s ease, transform 0.18s ease;
 
-  &:hover {
-    background-color: ${props => props.theme.colors.primary[600]};
-    transform: translateY(-2px);
+  @media (hover: hover) {
+    &:hover {
+      background-color: ${props => props.theme.colors.primary[600]};
+      transform: translateY(-2px);
+    }
+  }
+
+  &:active {
+    transform: scale(0.98);
   }
 `;
 
@@ -351,7 +359,7 @@ const QuantityButton = styled.button`
   justify-content: center;
   cursor: pointer;
   color: ${props => props.theme.colors.neutral[800]};
-  transition: all 0.15s ease;
+  transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
   user-select: none;
   touch-action: manipulation;
 
@@ -386,7 +394,7 @@ const RemoveButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.15s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 
   &:hover {
     background-color: ${props => props.theme.colors.error[50]};
@@ -551,15 +559,19 @@ const QuickCouponsRow = styled.div`
 `;
 
 const QuickCouponPill = styled.button`
-  padding: 0.2rem 0.55rem;
+  padding: 0.35rem 0.65rem;
   border-radius: 6px;
   border: 1px solid ${props => props.theme.colors.primary[200]};
   background: #ffffff;
   color: ${props => props.theme.colors.primary[600]};
-  font-size: 0.74rem;
+  font-size: 0.76rem;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.15s ease;
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 
   &:hover {
     background: ${props => props.theme.colors.primary[50]};
@@ -617,11 +629,14 @@ const CheckoutButton = styled.button`
   justify-content: center;
   gap: 0.5rem;
   box-shadow: ${props => props.theme.shadows.brand};
-  transition: all 0.2s ease;
+  min-height: 48px;
+  transition: background-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
 
-  &:hover {
-    background-color: ${props => props.theme.colors.primary[600]};
-    transform: translateY(-2px);
+  @media (hover: hover) {
+    &:hover {
+      background-color: ${props => props.theme.colors.primary[600]};
+      transform: translateY(-2px);
+    }
   }
 
   &:active {
@@ -640,7 +655,8 @@ const ClearCartButton = styled.button`
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  min-height: 38px;
+  transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease;
 
   &:hover {
     border-color: ${props => props.theme.colors.error[500]};
@@ -881,6 +897,8 @@ const CartPage = () => {
                 <CouponInputContainer>
                   <CouponInput
                     type="text"
+                    id="coupon-code-input"
+                    aria-label="کد تخفیف"
                     placeholder="کد تخفیف (مثلاً FOODINO)"
                     value={couponInput}
                     onChange={(e) => setCouponInput(e.target.value)}

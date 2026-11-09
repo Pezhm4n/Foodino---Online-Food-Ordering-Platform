@@ -6,4 +6,5 @@ export const vazirmatn = localFont({
   weight: '100 900',
   style: 'normal',
   variable: '--font-vazirmatn',
+  preload: false,
 });

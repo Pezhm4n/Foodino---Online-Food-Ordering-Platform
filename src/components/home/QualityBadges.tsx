@@ -3,7 +3,6 @@
 import React from "react";
 import styled from "styled-components";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import {
   StarIcon,
   ShieldCheckIcon,
@@ -24,6 +23,10 @@ const OuterSection = styled.section`
   @media (max-width: ${(props) => props.theme.breakpoints.md}) {
     padding: 3rem 1rem 3.5rem;
   }
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    padding: 1.95rem 0.9rem 2.25rem;
+  }
 `;
 
 const Container = styled.div`
@@ -36,14 +39,22 @@ const Container = styled.div`
   @media (max-width: ${(props) => props.theme.breakpoints.md}) {
     gap: 3rem;
   }
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    gap: 2.15rem;
+  }
 `;
 
-const BlockHeader = styled(motion.div)`
+const BlockHeader = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 0.4rem;
   margin-bottom: 1.85rem;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    margin-bottom: 1.15rem;
+  }
 `;
 
 const Eyebrow = styled.span`
@@ -57,6 +68,10 @@ const BlockTitle = styled.h2`
   font-weight: 800;
   color: ${(props) => props.theme.colors.neutral[900]};
   margin: 0;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    font-size: 1.28rem;
+  }
 `;
 
 const BlockSubtitle = styled.p`
@@ -64,6 +79,10 @@ const BlockSubtitle = styled.p`
   color: ${(props) => props.theme.colors.neutral[600]};
   margin: 0;
   max-width: 60ch;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    font-size: 0.84rem;
+  }
 `;
 
 /* ============================================================================
@@ -77,11 +96,11 @@ const StepsRow = styled.div`
 
   @media (max-width: ${(props) => props.theme.breakpoints.md}) {
     grid-template-columns: 1fr;
-    gap: 1rem;
+    gap: 0.85rem;
   }
 `;
 
-const StepCard = styled(motion.div)`
+const StepCard = styled.div`
   background: #ffffff;
   border: 1px solid ${(props) => props.theme.colors.neutral[200]};
   border-radius: 1.35rem;
@@ -101,6 +120,12 @@ const StepCard = styled(motion.div)`
       box-shadow: 0 20px 34px -10px rgba(22, 18, 15, 0.12);
       border-color: ${(props) => props.theme.colors.primary[300]};
     }
+  }
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    padding: 1.15rem 1.1rem;
+    border-radius: 1.15rem;
+    gap: 0.55rem;
   }
 `;
 
@@ -135,9 +160,11 @@ const StepIconCircle = styled.div`
   transition: transform 240ms var(--ease-out),
     background-color 240ms var(--ease-out);
 
-  ${StepCard}:hover & {
-    transform: scale(1.08) rotate(-4deg);
-    background: ${(props) => props.theme.colors.primary[500]};
+  @media (hover: hover) and (pointer: fine) {
+    ${StepCard}:hover & {
+      transform: scale(1.08) rotate(-4deg);
+      background: ${(props) => props.theme.colors.primary[500]};
+    }
   }
 `;
 
@@ -146,6 +173,10 @@ const StepTitle = styled.h3`
   font-weight: 800;
   color: ${(props) => props.theme.colors.neutral[900]};
   margin: 0.25rem 0 0;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    font-size: 1rem;
+  }
 `;
 
 const StepDesc = styled.p`
@@ -153,6 +184,10 @@ const StepDesc = styled.p`
   color: ${(props) => props.theme.colors.neutral[600]};
   line-height: 1.7;
   margin: 0;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    font-size: 0.82rem;
+  }
 `;
 
 /* ============================================================================
@@ -166,10 +201,11 @@ const BentoGrid = styled.div`
 
   @media (max-width: ${(props) => props.theme.breakpoints.lg}) {
     grid-template-columns: 1fr;
+    gap: 0.9rem;
   }
 `;
 
-const DarkFeatureBento = styled(motion.div)`
+const DarkFeatureBento = styled.div`
   background: linear-gradient(145deg, #16120f 0%, #2b1d16 100%);
   color: #faf6f0;
   border-radius: 1.5rem;
@@ -184,7 +220,9 @@ const DarkFeatureBento = styled(motion.div)`
   box-shadow: 0 22px 44px -14px rgba(22, 18, 15, 0.35);
 
   @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
-    padding: 1.5rem 1.25rem;
+    padding: 1.25rem 1.1rem;
+    border-radius: 1.2rem;
+    gap: 1.15rem;
   }
 `;
 
@@ -208,6 +246,10 @@ const BentoHeading = styled.h3`
   color: #faf6f0;
   margin: 0.75rem 0 0.65rem;
   line-height: 1.35;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    font-size: 1.18rem;
+  }
 `;
 
 const BentoText = styled.p`
@@ -215,6 +257,10 @@ const BentoText = styled.p`
   color: rgba(250, 246, 240, 0.78);
   line-height: 1.75;
   margin: 0;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    font-size: 0.82rem;
+  }
 `;
 
 const SimulatedUIPanel = styled.div`
@@ -240,6 +286,10 @@ const TelemetryLeft = styled.div`
     border-radius: 50%;
     background: #4ade80;
     animation: foodinoPulseDot 2s infinite;
+
+    @media (prefers-reduced-motion: reduce) {
+      animation: none;
+    }
   }
 `;
 
@@ -247,9 +297,13 @@ const BentoSideStack = styled.div`
   display: grid;
   grid-template-rows: 1fr 1fr;
   gap: 1.35rem;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    gap: 0.9rem;
+  }
 `;
 
-const LightBentoCard = styled(motion.div)`
+const LightBentoCard = styled.div`
   background: #ffffff;
   border: 1px solid ${(props) => props.theme.colors.neutral[200]};
   border-radius: 1.5rem;
@@ -271,11 +325,21 @@ const LightBentoCard = styled(motion.div)`
     }
   }
 
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    padding: 1.15rem 1.1rem;
+    border-radius: 1.2rem;
+    gap: 0.55rem;
+  }
+
   h4 {
     font-size: 1.15rem;
     font-weight: 800;
     color: ${(props) => props.theme.colors.neutral[900]};
     margin: 0;
+
+    @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+      font-size: 1rem;
+    }
   }
 
   p {
@@ -283,6 +347,10 @@ const LightBentoCard = styled(motion.div)`
     color: ${(props) => props.theme.colors.neutral[600]};
     line-height: 1.7;
     margin: 0;
+
+    @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+      font-size: 0.82rem;
+    }
   }
 `;
 
@@ -297,11 +365,11 @@ const ReviewsGrid = styled.div`
 
   @media (max-width: ${(props) => props.theme.breakpoints.lg}) {
     grid-template-columns: 1fr;
-    gap: 1rem;
+    gap: 0.9rem;
   }
 `;
 
-const ReviewCard = styled(motion.article)`
+const ReviewCard = styled.article`
   background: #ffffff;
   border: 1px solid ${(props) => props.theme.colors.neutral[200]};
   border-radius: 1.35rem;
@@ -320,6 +388,12 @@ const ReviewCard = styled(motion.article)`
       box-shadow: 0 20px 36px -12px rgba(22, 18, 15, 0.12);
       border-color: ${(props) => props.theme.colors.primary[200]};
     }
+  }
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    padding: 1.15rem 1.1rem;
+    border-radius: 1.15rem;
+    gap: 0.8rem;
   }
 `;
 
@@ -387,6 +461,7 @@ const OrderedDishTag = styled(Link)`
   align-items: center;
   justify-content: space-between;
   padding: 0.5rem 0.8rem;
+  min-height: 36px;
   background: ${(props) => props.theme.colors.neutral[50]};
   border: 1px solid ${(props) => props.theme.colors.neutral[200]};
   border-radius: 0.75rem;
@@ -398,10 +473,16 @@ const OrderedDishTag = styled(Link)`
     color 180ms var(--ease-out),
     transform 180ms var(--ease-out);
 
-  &:hover {
-    border-color: ${(props) => props.theme.colors.primary[400]};
-    color: ${(props) => props.theme.colors.primary[600]};
-    transform: translateX(-2px);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      border-color: ${(props) => props.theme.colors.primary[400]};
+      color: ${(props) => props.theme.colors.primary[600]};
+      transform: translateX(-2px);
+    }
+  }
+
+  &:active {
+    transform: scale(0.98);
   }
 `;
 
@@ -441,12 +522,7 @@ const QualityBadges = () => {
       <Container>
         {/* بخش ۱: مراحل سفارش */}
         <div>
-          <BlockHeader
-            initial={{ opacity: 0, y: 14 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-40px" }}
-            transition={{ duration: 0.42, ease: [0.23, 1, 0.32, 1] }}
-          >
+          <BlockHeader>
             <Eyebrow>مسیر ساده و شفاف</Eyebrow>
             <BlockTitle>چطور در فودینو سفارش دهیم؟</BlockTitle>
             <BlockSubtitle>
@@ -455,12 +531,7 @@ const QualityBadges = () => {
           </BlockHeader>
 
           <StepsRow>
-            <StepCard
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-30px" }}
-              transition={{ duration: 0.45, delay: 0, ease: [0.23, 1, 0.32, 1] }}
-            >
+            <StepCard>
               <StepTopRow>
                 <StepNumberBadge>گام اول</StepNumberBadge>
                 <StepIconCircle>
@@ -474,16 +545,7 @@ const QualityBadges = () => {
               </StepDesc>
             </StepCard>
 
-            <StepCard
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-30px" }}
-              transition={{
-                duration: 0.45,
-                delay: 0.08,
-                ease: [0.23, 1, 0.32, 1],
-              }}
-            >
+            <StepCard>
               <StepTopRow>
                 <StepNumberBadge>گام دوم</StepNumberBadge>
                 <StepIconCircle>
@@ -497,16 +559,7 @@ const QualityBadges = () => {
               </StepDesc>
             </StepCard>
 
-            <StepCard
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-30px" }}
-              transition={{
-                duration: 0.45,
-                delay: 0.16,
-                ease: [0.23, 1, 0.32, 1],
-              }}
-            >
+            <StepCard>
               <StepTopRow>
                 <StepNumberBadge>گام سوم</StepNumberBadge>
                 <StepIconCircle>
@@ -524,23 +577,13 @@ const QualityBadges = () => {
 
         {/* بخش ۲: استانداردهای طلایی فودینو (Bento) */}
         <div>
-          <BlockHeader
-            initial={{ opacity: 0, y: 14 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-40px" }}
-            transition={{ duration: 0.42, ease: [0.23, 1, 0.32, 1] }}
-          >
+          <BlockHeader>
             <Eyebrow>تعهد کیفیت فودینو</Eyebrow>
             <BlockTitle>چرا حرفه‌ای‌ها فودینو را انتخاب می‌کنند؟</BlockTitle>
           </BlockHeader>
 
           <BentoGrid>
-            <DarkFeatureBento
-              initial={{ opacity: 0, y: 22 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-30px" }}
-              transition={{ duration: 0.48, ease: [0.23, 1, 0.32, 1] }}
-            >
+            <DarkFeatureBento>
               <div>
                 <BentoTag>
                   <FlameIcon size={14} />
@@ -579,6 +622,7 @@ const QualityBadges = () => {
                     background: "#D9381E",
                     color: "#FFFFFF",
                     padding: "0.45rem 0.9rem",
+                    minHeight: "34px",
                     borderRadius: "999px",
                     fontSize: "0.78rem",
                     fontWeight: 700,
@@ -594,16 +638,7 @@ const QualityBadges = () => {
             </DarkFeatureBento>
 
             <BentoSideStack>
-              <LightBentoCard
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-30px" }}
-                transition={{
-                  duration: 0.46,
-                  delay: 0.08,
-                  ease: [0.23, 1, 0.32, 1],
-                }}
-              >
+              <LightBentoCard>
                 <div
                   style={{
                     display: "inline-flex",
@@ -624,16 +659,7 @@ const QualityBadges = () => {
                 </p>
               </LightBentoCard>
 
-              <LightBentoCard
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-30px" }}
-                transition={{
-                  duration: 0.46,
-                  delay: 0.16,
-                  ease: [0.23, 1, 0.32, 1],
-                }}
-              >
+              <LightBentoCard>
                 <div
                   style={{
                     display: "inline-flex",
@@ -659,12 +685,7 @@ const QualityBadges = () => {
 
         {/* بخش ۳: تجربه مشتریان */}
         <div>
-          <BlockHeader
-            initial={{ opacity: 0, y: 14 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-40px" }}
-            transition={{ duration: 0.42, ease: [0.23, 1, 0.32, 1] }}
-          >
+          <BlockHeader>
             <Eyebrow>صدای مشتریان</Eyebrow>
             <BlockTitle>تجربه واقعی سفارش‌دهندگان</BlockTitle>
             <BlockSubtitle>
@@ -673,18 +694,8 @@ const QualityBadges = () => {
           </BlockHeader>
 
           <ReviewsGrid>
-            {REVIEWS.map((review, index) => (
-              <ReviewCard
-                key={review.id}
-                initial={{ opacity: 0, y: 22 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-30px" }}
-                transition={{
-                  duration: 0.46,
-                  delay: index * 0.08,
-                  ease: [0.23, 1, 0.32, 1],
-                }}
-              >
+            {REVIEWS.map((review) => (
+              <ReviewCard key={review.id}>
                 <ReviewHeader>
                   <ReviewerProfile>
                     <AvatarInitial>{review.initial}</AvatarInitial>

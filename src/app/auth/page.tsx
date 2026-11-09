@@ -78,14 +78,14 @@ const TabButton = styled.button<{ $active: boolean }>`
   padding: 0.7rem;
   text-align: center;
   background: ${props => (props.$active ? '#ffffff' : 'transparent')};
-  color: ${props => (props.$active ? props.theme.colors.neutral[900] : props.theme.colors.neutral[500])};
+  color: ${props => (props.$active ? props.theme.colors.neutral[900] : props.theme.colors.neutral[600])};
   border: none;
   border-radius: ${props => props.theme.borderRadius.lg};
   font-weight: ${props => (props.$active ? 800 : 600)};
   font-size: 0.92rem;
   cursor: pointer;
   box-shadow: ${props => (props.$active ? props.theme.shadows.xs : 'none')};
-  transition: all 0.2s ease;
+  transition: color 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
   min-height: 40px;
 
   &:hover {
@@ -119,7 +119,7 @@ const FormLabel = styled.label`
 
 const HintText = styled.span`
   font-size: 0.75rem;
-  color: ${props => props.theme.colors.neutral[400]};
+  color: ${props => props.theme.colors.neutral[500]};
 `;
 
 const InputWrapper = styled.div`
@@ -137,7 +137,7 @@ const FormInput = styled.input<{ $hasError?: boolean; $hasToggle?: boolean }>`
   background-color: ${props => (props.$hasError ? '#FEF2F2' : props.theme.colors.neutral[50])};
   color: ${props => props.theme.colors.neutral[900]};
   outline: none;
-  transition: all 0.2s ease;
+  transition: border-color 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
 
   &:focus {
     background-color: #ffffff;
@@ -153,21 +153,21 @@ const FormInput = styled.input<{ $hasError?: boolean; $hasToggle?: boolean }>`
 
 const TogglePasswordButton = styled.button`
   position: absolute;
-  left: 0.65rem;
+  left: 0.45rem;
   top: 50%;
   transform: translateY(-50%);
   background: none;
   border: none;
   color: ${props => props.theme.colors.neutral[500]};
   cursor: pointer;
-  width: 34px;
-  height: 34px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2;
-  transition: all 0.15s ease;
+  transition: color 0.15s ease, background-color 0.15s ease;
 
   &:hover {
     color: ${props => props.theme.colors.neutral[800]};
@@ -205,7 +205,9 @@ const ForgotPasswordLink = styled.a`
   font-weight: 600;
   color: ${props => props.theme.colors.primary[600]};
   text-align: left;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
   cursor: pointer;
 
   &:hover {
@@ -222,13 +224,20 @@ const SubmitButton = styled.button`
   border: none;
   border-radius: ${props => props.theme.borderRadius.xl};
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
   margin-top: 0.5rem;
   box-shadow: ${props => props.theme.shadows.brand};
+  min-height: 48px;
 
-  &:hover:not(:disabled) {
-    background-color: ${props => props.theme.colors.primary[600]};
-    transform: translateY(-1px);
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      background-color: ${props => props.theme.colors.primary[600]};
+      transform: translateY(-1px);
+    }
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.99);
   }
 
   &:disabled {
@@ -250,6 +259,10 @@ const TermsText = styled.p`
 const TermsLink = styled.a`
   color: ${props => props.theme.colors.primary[600]};
   font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+
   &:hover {
     text-decoration: underline;
   }
@@ -262,7 +275,7 @@ const SecurityBadge = styled.div`
   gap: 0.4rem;
   margin-top: 0.85rem;
   font-size: 0.75rem;
-  color: ${props => props.theme.colors.neutral[400]};
+  color: ${props => props.theme.colors.neutral[500]};
 `;
 
 function toAsciiDigits(str: string): string {
@@ -451,9 +464,11 @@ const AuthContent = () => {
             : 'عضویت سریع در خانواده بزرگ مشتریان فودینو'}
         </PageSub>
 
-        <TabContainer>
+        <TabContainer role="tablist" aria-label="انتخاب حالت ورود یا ثبت‌نام">
           <TabButton
             type="button"
+            role="tab"
+            aria-selected={activeTab === 'login'}
             $active={activeTab === 'login'}
             onClick={() => handleTabChange('login')}
           >
@@ -461,6 +476,8 @@ const AuthContent = () => {
           </TabButton>
           <TabButton
             type="button"
+            role="tab"
+            aria-selected={activeTab === 'register'}
             $active={activeTab === 'register'}
             onClick={() => handleTabChange('register')}
           >
@@ -488,6 +505,7 @@ const AuthContent = () => {
                   name="email"
                   autoComplete="email"
                   placeholder="example@domain.com"
+                  aria-label="ایمیل"
                   dir="ltr"
                   value={loginForm.email}
                   onChange={handleLoginChange}
@@ -515,6 +533,8 @@ const AuthContent = () => {
                   id="password"
                   name="password"
                   autoComplete="current-password"
+                  placeholder="••••••••"
+                  aria-label="رمز عبور"
                   dir="ltr"
                   value={loginForm.password}
                   onChange={handleLoginChange}
@@ -552,6 +572,7 @@ const AuthContent = () => {
                   id="firstName"
                   name="firstName"
                   placeholder="مثال: علی"
+                  aria-label="نام"
                   value={registerForm.firstName}
                   onChange={handleRegisterChange}
                   $hasError={Boolean(fieldErrors.firstName)}
@@ -571,6 +592,7 @@ const AuthContent = () => {
                   id="lastName"
                   name="lastName"
                   placeholder="مثال: محمدی"
+                  aria-label="نام خانوادگی"
                   value={registerForm.lastName}
                   onChange={handleRegisterChange}
                   $hasError={Boolean(fieldErrors.lastName)}
@@ -594,6 +616,7 @@ const AuthContent = () => {
                   autoComplete="email"
                   dir="ltr"
                   placeholder="user@example.com"
+                  aria-label="ایمیل"
                   value={registerForm.email}
                   onChange={handleRegisterChange}
                   $hasError={Boolean(fieldErrors.email)}
@@ -619,7 +642,8 @@ const AuthContent = () => {
                   name="phone"
                   autoComplete="tel"
                   dir="ltr"
-                  placeholder="09123456789"
+                  placeholder="۰۹۱۲۳۴۵۶۷۸۹"
+                  aria-label="شماره موبایل"
                   maxLength={11}
                   value={registerForm.phone}
                   onChange={handleRegisterChange}
@@ -646,7 +670,8 @@ const AuthContent = () => {
                   name="password"
                   autoComplete="new-password"
                   dir="ltr"
-                  placeholder="حداقل ۶ کاراکتر"
+                  placeholder="••••••••"
+                  aria-label="رمز عبور"
                   value={registerForm.password}
                   onChange={handleRegisterChange}
                   $hasError={Boolean(fieldErrors.password)}
@@ -678,7 +703,8 @@ const AuthContent = () => {
                   name="confirmPassword"
                   autoComplete="new-password"
                   dir="ltr"
-                  placeholder="تکرار همان رمز عبور"
+                  placeholder="••••••••"
+                  aria-label="تکرار رمز عبور"
                   value={registerForm.confirmPassword}
                   onChange={handleRegisterChange}
                   $hasError={Boolean(fieldErrors.confirmPassword)}

@@ -150,11 +150,13 @@ const SubmitButton = styled.button`
   justify-content: center;
   gap: 0.5rem;
   box-shadow: ${({ theme }) => theme.shadows.brand};
-  transition: all 0.2s ease;
+  transition: background 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
 
-  &:hover {
-    background: ${({ theme }) => theme.colors.primary[600]};
-    transform: translateY(-2px);
+  @media (hover: hover) {
+    &:hover {
+      background: ${({ theme }) => theme.colors.primary[600]};
+      transform: translateY(-2px);
+    }
   }
 
   &:active {
@@ -215,6 +217,7 @@ const RecentLink = styled(Link)`
   font-weight: 800;
   color: ${({ theme }) => theme.colors.primary[600]};
   text-decoration: none;
+  min-height: 34px;
 `;
 
 const LinksFooter = styled.div`
@@ -222,12 +225,17 @@ const LinksFooter = styled.div`
   display: flex;
   justify-content: space-between;
   font-size: 0.875rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 `;
 
 const FooterLink = styled(Link)`
   color: ${({ theme }) => theme.colors.neutral[600]};
   font-weight: 600;
   text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
 
   &:hover {
     color: ${({ theme }) => theme.colors.primary[600]};
@@ -305,7 +313,8 @@ export default function OrderTrackingForm() {
             <Input
               id="tracking-token"
               type="text"
-              placeholder="مثال: abc123def456_..."
+              placeholder="abc123def456_..."
+              aria-label="کد رهگیری سفارش"
               value={tokenInput}
               onChange={(e) => {
                 setTokenInput(e.target.value);

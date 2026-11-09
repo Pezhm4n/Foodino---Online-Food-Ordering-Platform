@@ -49,15 +49,22 @@ const HeroWrapper = styled.div`
 const Breadcrumbs = styled.nav`
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  flex-wrap: wrap;
+  gap: 0.45rem;
   font-size: 0.84rem;
   color: ${({ theme }) => theme.colors.neutral[500]};
-  margin-bottom: 1rem;
+  margin-bottom: 0.85rem;
 
   a {
     color: ${({ theme }) => theme.colors.neutral[500]};
     text-decoration: none;
     font-weight: 500;
+    min-height: 34px;
+    min-width: 36px;
+    padding: 0 0.45rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     transition: color 0.18s;
     &:hover {
       color: ${({ theme }) => theme.colors.primary[500]};
@@ -82,6 +89,10 @@ const CoverCard = styled.div`
   box-shadow: 0 12px 32px -10px rgba(22, 18, 15, 0.08);
   overflow: hidden;
   animation: foodinoFadeUp 440ms var(--ease-out) both;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
 `;
 
 const CoverBanner = styled.div<{ $bgStart: string; $bgEnd: string }>`
@@ -112,8 +123,8 @@ const CoverBanner = styled.div<{ $bgStart: string; $bgEnd: string }>`
   }
 
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    height: 148px;
-    padding: 1rem 1.25rem;
+    height: 124px;
+    padding: 0.85rem 1rem;
   }
 `;
 
@@ -126,8 +137,8 @@ const CoverBannerArt = styled.div`
   pointer-events: none;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    left: 1rem;
-    transform: translateY(-50%) scale(0.78);
+    left: 0.65rem;
+    transform: translateY(-50%) scale(0.68);
   }
 `;
 
@@ -149,9 +160,10 @@ const CoverBadgePill = styled.div`
   font-weight: 700;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    top: 0.85rem;
-    right: 1rem;
-    font-size: 0.7rem;
+    top: 0.75rem;
+    right: 0.85rem;
+    font-size: 0.68rem;
+    padding: 0.25rem 0.65rem;
   }
 `;
 
@@ -160,7 +172,7 @@ const ContentContainer = styled.div`
   position: relative;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    padding: 0.85rem 1.15rem 1.35rem;
+    padding: 0.75rem 0.95rem 1.15rem;
   }
 `;
 
@@ -175,7 +187,8 @@ const TopRow = styled.div`
   z-index: 3;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    margin-top: -44px;
+    margin-top: -38px;
+    margin-bottom: 0.85rem;
   }
 `;
 
@@ -197,9 +210,14 @@ const AvatarBox = styled.div<{ $bgStart: string; $bgEnd: string }>`
   flex-shrink: 0;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    width: 72px;
-    height: 72px;
-    border-radius: 1.1rem;
+    width: 64px;
+    height: 64px;
+    border-radius: 1rem;
+
+    svg {
+      width: 48px;
+      height: 48px;
+    }
   }
 `;
 
@@ -244,6 +262,10 @@ const RestaurantTitle = styled.h1`
   font-weight: 900;
   color: ${({ theme }) => theme.colors.neutral[900]};
   margin: 0;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    font-size: 1.32rem;
+  }
 `;
 
 const OpenBadge = styled.span`
@@ -265,6 +287,10 @@ const OpenBadge = styled.span`
     border-radius: 50%;
     background: ${({ theme }) => theme.colors.success[500]};
     animation: foodinoPulseDot 2.2s infinite;
+
+    @media (prefers-reduced-motion: reduce) {
+      animation: none;
+    }
   }
 `;
 
@@ -283,6 +309,10 @@ const Description = styled.p`
   color: ${({ theme }) => theme.colors.neutral[600]};
   margin: 0.15rem 0 0;
   line-height: 1.7;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    font-size: 0.85rem;
+  }
 `;
 
 const BadgesGrid = styled.div`
@@ -294,7 +324,8 @@ const BadgesGrid = styled.div`
 
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     grid-template-columns: repeat(2, 1fr);
-    gap: 0.65rem;
+    gap: 0.55rem;
+    padding-top: 1rem;
   }
 `;
 
@@ -308,6 +339,12 @@ const BadgeCard = styled.div`
   gap: 0.7rem;
   min-width: 0;
 
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    padding: 0.55rem 0.65rem;
+    gap: 0.45rem;
+    border-radius: 0.75rem;
+  }
+
   .icon-box {
     width: 38px;
     height: 38px;
@@ -319,6 +356,17 @@ const BadgeCard = styled.div`
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+
+    @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+
+      svg {
+        width: 15px;
+        height: 15px;
+      }
+    }
   }
 
   .texts {
@@ -330,19 +378,22 @@ const BadgeCard = styled.div`
       font-size: 0.74rem;
       color: ${({ theme }) => theme.colors.neutral[500]};
       margin-bottom: 0.12rem;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+
+      @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+        font-size: 0.68rem;
+      }
     }
 
     .value {
       font-size: 0.88rem;
       font-weight: 800;
       color: ${({ theme }) => theme.colors.neutral[900]};
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
       font-variant-numeric: tabular-nums;
+      line-height: 1.35;
+
+      @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+        font-size: 0.76rem;
+      }
     }
   }
 `;

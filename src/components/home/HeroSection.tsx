@@ -68,10 +68,18 @@ const HeroSectionOuter = styled.section`
     );
     pointer-events: none;
     animation: ${ambientOrbDrift} 9s ease-in-out infinite;
+
+    @media (prefers-reduced-motion: reduce) {
+      animation: none;
+    }
   }
 
   @media (max-width: ${(props) => props.theme.breakpoints.md}) {
-    padding: 2rem 1rem 2.75rem;
+    padding: 2rem 1rem 2.5rem;
+  }
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    padding: 1.35rem 0.9rem 1.85rem;
   }
 `;
 
@@ -87,11 +95,15 @@ const HeroGrid = styled.div`
 
   @media (max-width: ${(props) => props.theme.breakpoints.lg}) {
     grid-template-columns: 1fr;
-    gap: 2.25rem;
+    gap: 2rem;
+  }
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    gap: 1.45rem;
   }
 `;
 
-const ContentColumn = styled(motion.div)`
+const ContentColumn = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -102,7 +114,7 @@ const ContentColumn = styled(motion.div)`
   }
 `;
 
-const EditorialEyebrow = styled(motion.div)`
+const EditorialEyebrow = styled.div`
   display: inline-flex;
   align-items: center;
   gap: 0.55rem;
@@ -122,10 +134,20 @@ const EditorialEyebrow = styled(motion.div)`
     border-radius: 50%;
     background: ${(props) => props.theme.colors.primary[500]};
     animation: ${eyebrowPulse} 2.2s infinite;
+
+    @media (prefers-reduced-motion: reduce) {
+      animation: none;
+    }
+  }
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    font-size: 0.72rem;
+    padding: 0.3rem 0.7rem;
+    margin-bottom: 0.85rem;
   }
 `;
 
-const HeroHeadline = styled(motion.h1)`
+const HeroHeadline = styled.h1`
   font-size: clamp(2.1rem, 4.2vw, 3.45rem);
   font-weight: 900;
   color: ${(props) => props.theme.colors.neutral[900]};
@@ -138,9 +160,15 @@ const HeroHeadline = styled(motion.h1)`
     position: relative;
     display: inline-block;
   }
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    font-size: 1.58rem;
+    line-height: 1.32;
+    margin-bottom: 0.75rem;
+  }
 `;
 
-const HeroLead = styled(motion.p)`
+const HeroLead = styled.p`
   font-size: 1.08rem;
   color: ${(props) => props.theme.colors.neutral[600]};
   line-height: 1.85;
@@ -148,12 +176,13 @@ const HeroLead = styled(motion.p)`
   max-width: 56ch;
 
   @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
-    font-size: 0.95rem;
-    margin-bottom: 1.35rem;
+    font-size: 0.86rem;
+    line-height: 1.7;
+    margin-bottom: 1.15rem;
   }
 `;
 
-const SearchBoxWrapper = styled(motion.div)`
+const SearchBoxWrapper = styled.div`
   width: 100%;
   max-width: 580px;
   display: flex;
@@ -227,10 +256,12 @@ const SearchSubmitButton = styled.button`
     box-shadow 160ms var(--ease-out);
   box-shadow: 0 6px 16px -4px rgba(217, 56, 30, 0.35);
 
-  &:hover {
-    background: ${(props) => props.theme.colors.primary[600]};
-    transform: translateY(-2px);
-    box-shadow: 0 10px 22px -4px rgba(217, 56, 30, 0.45);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background: ${(props) => props.theme.colors.primary[600]};
+      transform: translateY(-2px);
+      box-shadow: 0 10px 22px -4px rgba(217, 56, 30, 0.45);
+    }
   }
 
   &:active {
@@ -238,8 +269,9 @@ const SearchSubmitButton = styled.button`
   }
 
   @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
-    padding: 0.7rem 1.1rem;
-    font-size: 0.85rem;
+    padding: 0.65rem 1rem;
+    min-height: 42px;
+    font-size: 0.82rem;
   }
 `;
 
@@ -262,12 +294,16 @@ const CravingLabel = styled.span`
 `;
 
 const CravingPill = styled(Link)`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
   font-size: 0.78rem;
   font-weight: 600;
   color: ${(props) => props.theme.colors.neutral[700]};
   background: rgba(255, 255, 255, 0.82);
   border: 1px solid ${(props) => props.theme.colors.neutral[200]};
-  padding: 0.28rem 0.75rem;
+  padding: 0.3rem 0.78rem;
   border-radius: ${(props) => props.theme.borderRadius.full};
   text-decoration: none;
   transition: transform 180ms var(--ease-out),
@@ -276,12 +312,14 @@ const CravingPill = styled(Link)`
     color 180ms var(--ease-out),
     box-shadow 180ms var(--ease-out);
 
-  &:hover {
-    background: #ffffff;
-    border-color: ${(props) => props.theme.colors.primary[400]};
-    color: ${(props) => props.theme.colors.primary[600]};
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(217, 56, 30, 0.1);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background: #ffffff;
+      border-color: ${(props) => props.theme.colors.primary[400]};
+      color: ${(props) => props.theme.colors.primary[600]};
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(217, 56, 30, 0.1);
+    }
   }
 
   &:active {
@@ -289,11 +327,11 @@ const CravingPill = styled(Link)`
   }
 `;
 
-const HeroActionsRow = styled(motion.div)`
+const HeroActionsRow = styled.div`
   display: flex;
   align-items: center;
   gap: 0.85rem;
-  margin-top: 1.65rem;
+  margin-top: 1.5rem;
   flex-wrap: wrap;
 
   @media (max-width: ${(props) => props.theme.breakpoints.lg}) {
@@ -302,6 +340,8 @@ const HeroActionsRow = styled(motion.div)`
 
   @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
     width: 100%;
+    margin-top: 1.15rem;
+    gap: 0.6rem;
   }
 `;
 
@@ -323,10 +363,12 @@ const PrimaryCTA = styled(Link)`
     box-shadow 180ms var(--ease-out);
   box-shadow: 0 10px 24px -6px rgba(22, 18, 15, 0.25);
 
-  &:hover {
-    background: ${(props) => props.theme.colors.neutral[800]};
-    transform: translateY(-2px);
-    box-shadow: 0 14px 28px -6px rgba(22, 18, 15, 0.32);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background: ${(props) => props.theme.colors.neutral[800]};
+      transform: translateY(-2px);
+      box-shadow: 0 14px 28px -6px rgba(22, 18, 15, 0.32);
+    }
   }
 
   &:active {
@@ -335,8 +377,9 @@ const PrimaryCTA = styled(Link)`
 
   @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
     flex: 1;
-    padding: 0.75rem 1rem;
-    font-size: 0.86rem;
+    min-height: 44px;
+    padding: 0.68rem 0.9rem;
+    font-size: 0.82rem;
   }
 `;
 
@@ -358,10 +401,12 @@ const SecondaryCTA = styled(Link)`
     border-color 180ms var(--ease-out),
     background-color 180ms var(--ease-out);
 
-  &:hover {
-    border-color: ${(props) => props.theme.colors.neutral[400]};
-    background: ${(props) => props.theme.colors.neutral[50]};
-    transform: translateY(-2px);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      border-color: ${(props) => props.theme.colors.neutral[400]};
+      background: ${(props) => props.theme.colors.neutral[50]};
+      transform: translateY(-2px);
+    }
   }
 
   &:active {
@@ -370,12 +415,13 @@ const SecondaryCTA = styled(Link)`
 
   @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
     flex: 1;
-    padding: 0.75rem 1rem;
-    font-size: 0.86rem;
+    min-height: 44px;
+    padding: 0.68rem 0.9rem;
+    font-size: 0.82rem;
   }
 `;
 
-const MetricsStrip = styled(motion.div)`
+const MetricsStrip = styled.div`
   display: grid;
   grid-template-columns: repeat(3, auto);
   gap: 2rem;
@@ -384,7 +430,9 @@ const MetricsStrip = styled(motion.div)`
   border-top: 1px solid ${(props) => props.theme.colors.neutral[200]};
 
   @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
-    gap: 1.15rem;
+    gap: 0.9rem;
+    margin-top: 1.35rem;
+    padding-top: 1.1rem;
     width: 100%;
     justify-content: space-around;
   }
@@ -400,12 +448,20 @@ const MetricItem = styled.div`
     font-weight: 800;
     color: ${(props) => props.theme.colors.neutral[900]};
     letter-spacing: -0.02em;
+
+    @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+      font-size: 1.05rem;
+    }
   }
 
   span {
     font-size: 0.78rem;
     color: ${(props) => props.theme.colors.neutral[500]};
     font-weight: 500;
+
+    @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+      font-size: 0.7rem;
+    }
   }
 `;
 
@@ -443,7 +499,7 @@ const SHOWCASE_DISHES: readonly ShowcaseDish[] = [
     price: "۲۵۰,۰۰۰ تومان",
     restaurant: "برگرلند",
     calories: "۶۸۰ کیلوکالری",
-    tempTag: "سرو داغ ۶۸°C",
+    tempTag: "سرو داغ ۶۸ درجه",
     stageBg: "linear-gradient(145deg, #281710 0%, #522514 100%)",
     accentColor: "#D9381E",
     link: "/restaurants/burger-land",
@@ -460,7 +516,7 @@ const SHOWCASE_DISHES: readonly ShowcaseDish[] = [
     price: "۱۴۵,۰۰۰ تومان",
     restaurant: "پیتزا برتر",
     calories: "۷۲۰ کیلوکالری",
-    tempTag: "تنور سنگی ۳۸۰°C",
+    tempTag: "تنور سنگی ۳۸۰ درجه",
     stageBg: "linear-gradient(145deg, #2D120C 0%, #6E2011 100%)",
     accentColor: "#E59A11",
     link: "/restaurants/best-pizza",
@@ -501,7 +557,7 @@ const SHOWCASE_DISHES: readonly ShowcaseDish[] = [
   },
 ];
 
-const VisualStageColumn = styled(motion.div)`
+const VisualStageColumn = styled.div`
   position: relative;
   display: flex;
   justify-content: center;
@@ -530,6 +586,11 @@ const StageBentoCard = styled.div<{
       ? "transform 90ms ease-out"
       : "transform 480ms var(--ease-out)"};
   position: relative;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    padding: 0.9rem;
+    border-radius: 1.35rem;
+  }
 `;
 
 const StageArtworkBox = styled.div<{ $bg: string }>`
@@ -556,6 +617,11 @@ const StageArtworkBox = styled.div<{ $bg: string }>`
     opacity: 0.35;
     pointer-events: none;
   }
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    border-radius: 1.1rem;
+    padding: 0.95rem 0.85rem 0.85rem;
+  }
 `;
 
 const StageTopBadges = styled.div`
@@ -579,6 +645,11 @@ const TelemetryPill = styled.span`
   backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.18);
   color: #fffdf9;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    font-size: 0.68rem;
+    padding: 0.24rem 0.55rem;
+  }
 `;
 
 const ArtworkPlateTrigger = styled(motion.button)`
@@ -591,6 +662,15 @@ const ArtworkPlateTrigger = styled(motion.button)`
   display: flex;
   align-items: center;
   justify-content: center;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    min-height: 132px;
+
+    svg {
+      width: 128px;
+      height: 128px;
+    }
+  }
 `;
 
 const StageBottomMeta = styled.div`
@@ -613,6 +693,10 @@ const SwitcherTabs = styled.div`
   border-radius: 0.95rem;
   margin: 1rem 0;
   position: relative;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    margin: 0.75rem 0;
+  }
 `;
 
 const SwitcherTab = styled.button<{ $active: boolean }>`
@@ -622,7 +706,8 @@ const SwitcherTab = styled.button<{ $active: boolean }>`
     $active ? theme.colors.neutral[900] : theme.colors.neutral[600]};
   border: none;
   border-radius: 0.7rem;
-  padding: 0.48rem 0.25rem;
+  min-height: 34px;
+  padding: 0.42rem 0.2rem;
   font-size: 0.76rem;
   font-weight: 700;
   cursor: pointer;
@@ -632,6 +717,10 @@ const SwitcherTab = styled.button<{ $active: boolean }>`
 
   &:hover {
     color: ${(props) => props.theme.colors.neutral[900]};
+  }
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    font-size: 0.7rem;
   }
 `;
 
@@ -662,6 +751,10 @@ const DishTitle = styled.h2`
   font-weight: 800;
   color: ${(props) => props.theme.colors.neutral[900]};
   margin: 0;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    font-size: 1.02rem;
+  }
 `;
 
 const RatingBadge = styled.span`
@@ -683,6 +776,11 @@ const DishDescription = styled.p`
   margin: 0 0 1rem;
   line-height: 1.65;
   min-height: 2.75rem;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    font-size: 0.78rem;
+    margin-bottom: 0.75rem;
+  }
 `;
 
 const DishFooterRow = styled.div`
@@ -707,6 +805,10 @@ const PriceBlock = styled.div`
     font-size: 1.08rem;
     font-weight: 800;
     color: ${(props) => props.theme.colors.neutral[900]};
+
+    @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+      font-size: 0.96rem;
+    }
   }
 `;
 
@@ -726,39 +828,23 @@ const OrderRestaurantLink = styled(Link)`
     box-shadow 160ms var(--ease-out);
   box-shadow: 0 6px 16px -4px rgba(217, 56, 30, 0.35);
 
-  &:hover {
-    background: ${(props) => props.theme.colors.primary[600]};
-    transform: translateY(-2px);
-    box-shadow: 0 10px 22px -4px rgba(217, 56, 30, 0.45);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background: ${(props) => props.theme.colors.primary[600]};
+      transform: translateY(-2px);
+      box-shadow: 0 10px 22px -4px rgba(217, 56, 30, 0.45);
+    }
   }
 
   &:active {
     transform: scale(0.97);
   }
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    font-size: 0.78rem;
+    padding: 0.55rem 0.9rem;
+  }
 `;
-
-const heroContainerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.075,
-      delayChildren: 0.04,
-    },
-  },
-};
-
-const heroItemVariants = {
-  hidden: { opacity: 0, y: 18 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.48,
-      ease: [0.23, 1, 0.32, 1] as const,
-    },
-  },
-};
 
 const HeroSection = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -822,28 +908,24 @@ const HeroSection = () => {
   return (
     <HeroSectionOuter>
       <HeroGrid>
-        <ContentColumn
-          variants={heroContainerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          <EditorialEyebrow variants={heroItemVariants}>
+        <ContentColumn>
+          <EditorialEyebrow>
             <span className="dot" />
             <span>آشپزخانه‌های منتخب شهر • ارسال گرم زیر ۳۵ دقیقه</span>
           </EditorialEyebrow>
 
-          <HeroHeadline variants={heroItemVariants}>
+          <HeroHeadline>
             طعمِ داغِ تنور و گریل، مستقیماً از{" "}
             <span className="highlight">بهترین رستوران‌ها</span> تا میز شما
           </HeroHeadline>
 
-          <HeroLead variants={heroItemVariants}>
+          <HeroLead>
             در فودینو، منوی زنده‌ی برترین رستوران‌ها و آشپزخانه‌های تخصصی شهر را
             مرور کنید، جزئیات و ترکیبات هر غذا را ببینید و سفارشتان را داغ و
             تازه تحویل بگیرید.
           </HeroLead>
 
-          <SearchBoxWrapper variants={heroItemVariants}>
+          <SearchBoxWrapper>
             <SearchFormCard onSubmit={handleSearch} role="search">
               <SearchIconSlot>
                 <SearchVectorIcon size={20} />
@@ -871,7 +953,7 @@ const HeroSection = () => {
             </CravingPillsRow>
           </SearchBoxWrapper>
 
-          <HeroActionsRow variants={heroItemVariants}>
+          <HeroActionsRow>
             <PrimaryCTA href="/restaurants">
               <span>مشاهده همه رستوران‌ها</span>
               <ArrowLeftIcon size={17} />
@@ -881,7 +963,7 @@ const HeroSection = () => {
             </SecondaryCTA>
           </HeroActionsRow>
 
-          <MetricsStrip variants={heroItemVariants}>
+          <MetricsStrip>
             <MetricItem>
               <strong>+۱۲۰</strong>
               <span>رستوران و آشپزخانه منتخب</span>
@@ -901,13 +983,6 @@ const HeroSection = () => {
           ref={showcaseRef}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{
-            duration: 0.56,
-            delay: 0.14,
-            ease: [0.23, 1, 0.32, 1],
-          }}
         >
           <StageBentoCard
             $rx={rotate.x}

@@ -10,6 +10,8 @@ import {
   CloseIcon,
   FlameIcon,
   SparkleIcon,
+  PlusIcon,
+  MinusIcon,
 } from "@/components/ui/FoodVisuals";
 
 export interface DishNutrition {
@@ -460,7 +462,7 @@ const AddToCartBtn = styled.button`
   font-size: 0.95rem;
   cursor: pointer;
   box-shadow: 0 6px 16px -4px rgba(217, 56, 30, 0.35);
-  transition: all 0.2s;
+  transition: background-color 180ms ease, transform 140ms ease, box-shadow 180ms ease;
   white-space: nowrap;
   display: flex;
   align-items: center;
@@ -473,9 +475,15 @@ const AddToCartBtn = styled.button`
     font-size: 1rem;
   }
 
-  &:hover {
-    background: ${({ theme }) => theme.colors.primary[600]};
-    transform: translateY(-1px);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background: ${({ theme }) => theme.colors.primary[600]};
+      transform: translateY(-1px);
+    }
+  }
+
+  &:active {
+    transform: scale(0.97);
   }
 `;
 
@@ -669,7 +677,7 @@ export default function FoodDetailModal({
                 onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                 aria-label="کاهش تعداد"
               >
-                -
+                <MinusIcon size={14} />
               </QtyBtn>
               <QtyValue
                 aria-live="polite"
@@ -682,7 +690,7 @@ export default function FoodDetailModal({
                 onClick={() => setQuantity((q) => Math.min(20, q + 1))}
                 aria-label="افزایش تعداد"
               >
-                +
+                <PlusIcon size={14} />
               </QtyBtn>
             </QuantityBox>
           </MobileFooterRow>
@@ -715,7 +723,7 @@ export default function FoodDetailModal({
                   onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                   aria-label="کاهش تعداد"
                 >
-                  -
+                  <MinusIcon size={14} />
                 </QtyBtn>
                 <QtyValue
                   aria-live="polite"
@@ -728,11 +736,11 @@ export default function FoodDetailModal({
                   onClick={() => setQuantity((q) => Math.min(20, q + 1))}
                   aria-label="افزایش تعداد"
                 >
-                  +
+                  <PlusIcon size={14} />
                 </QtyBtn>
               </QuantityBox>
               <AddToCartBtn type="button" onClick={handleAddToCart}>
-                افزودن به سبد
+                افزودن به سبد خرید
               </AddToCartBtn>
             </ControlsGroup>
           </DesktopFooterControls>

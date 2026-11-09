@@ -144,7 +144,7 @@ const FormInput = styled.input`
   background-color: ${props => props.theme.colors.neutral[50]};
   color: ${props => props.theme.colors.neutral[900]};
   outline: none;
-  transition: all 0.2s ease;
+  transition: border-color 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
 
   &:focus {
     background-color: #ffffff;
@@ -164,7 +164,7 @@ const FormTextarea = styled.textarea`
   min-height: 130px;
   resize: vertical;
   outline: none;
-  transition: all 0.2s ease;
+  transition: border-color 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
 
   &:focus {
     background-color: #ffffff;
@@ -188,11 +188,17 @@ const SubmitButton = styled.button`
   border-radius: ${props => props.theme.borderRadius.xl};
   cursor: pointer;
   box-shadow: ${props => props.theme.shadows.brand};
-  transition: all 0.2s ease;
+  transition: background-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
 
-  &:hover:not(:disabled) {
-    background-color: ${props => props.theme.colors.primary[600]};
-    transform: translateY(-1px);
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      background-color: ${props => props.theme.colors.primary[600]};
+      transform: translateY(-1px);
+    }
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
   }
 
   &:disabled {
@@ -257,7 +263,7 @@ const NavigationButton = styled.a`
   background-color: ${props => props.theme.colors.neutral[50]};
   color: ${props => props.theme.colors.neutral[800]};
   border: 1px solid ${props => props.theme.colors.neutral[200]};
-  transition: all 0.15s ease;
+  transition: border-color 0.15s ease, color 0.15s ease;
 
   &:hover {
     border-color: ${props => props.theme.colors.primary[400]};
@@ -328,7 +334,7 @@ const ContactPage = () => {
             </IconBox>
             <span>دفتر مرکزی</span>
           </CardTitle>
-          <InfoItem>تهران، خیابان ولیعصر، نرسیده به میدان ونک، برج فناوری فودینو، طبقه پنجم</InfoItem>
+          <InfoItem>تهران، خیابان ولیعصر، تقاطع خیابان بهشتی، پلاک ۴۵</InfoItem>
         </ContactInfoCard>
 
         <ContactInfoCard>
@@ -338,8 +344,8 @@ const ContactPage = () => {
             </IconBox>
             <span>تلفن تماس</span>
           </CardTitle>
-          <InfoItem>پشتیبانی ۲۴ ساعته: ۰۲۱-۸۸۸۸۱۱۱۱</InfoItem>
-          <InfoItem>صدای مشتریان: ۰۲۱-۸۸۸۸۲۲۲۲</InfoItem>
+          <InfoItem>پشتیبانی ۲۴ ساعته: ۰۲۱ - ۸۸۴۵ ۹۲۰۰</InfoItem>
+          <InfoItem>صدای مشتریان: ۰۲۱ - ۸۸۴۵ ۹۲۰۱</InfoItem>
         </ContactInfoCard>
 
         <ContactInfoCard>
@@ -395,7 +401,7 @@ const ContactPage = () => {
               <FormInput
                 id="phone"
                 name="phone"
-                placeholder="09123456789"
+                placeholder="۰۹۱۲۳۴۵۶۷۸۹"
                 value={formData.phone}
                 onChange={handleChange}
               />
@@ -439,7 +445,7 @@ const ContactPage = () => {
         <MapHeader>
           <MapTitleGroup>
             <h3>موقعیت مکانی فودینو روی نقشه</h3>
-            <p>تهران، خیابان ولیعصر، برج فناوری فودینو</p>
+            <p>تهران، خیابان ولیعصر، تقاطع خیابان بهشتی، پلاک ۴۵</p>
           </MapTitleGroup>
           <NavigationButtonGroup>
             <NavigationButton
