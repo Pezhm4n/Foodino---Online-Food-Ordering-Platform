@@ -32,8 +32,11 @@ export default async function RootLayout({
 }) {
   const claims = await requireClaims();
   return (
-    <html lang="fa" dir="rtl">
-      <body className={`${vazirmatn.className} ${vazirmatn.variable}`}>
+    <html lang="fa" dir="rtl" suppressHydrationWarning>
+      <body
+        className={`${vazirmatn.className} ${vazirmatn.variable}`}
+        suppressHydrationWarning
+      >
         <StyledComponentsRegistry>
           <Layout isAuthenticated={claims !== null}>{children}</Layout>
         </StyledComponentsRegistry>
