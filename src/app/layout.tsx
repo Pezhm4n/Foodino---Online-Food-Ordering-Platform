@@ -13,8 +13,9 @@ export const metadata: Metadata = {
   description: 'سفارش آنلاین غذا از بهترین رستوران‌های شهر با فودینو',
   alternates: { canonical: '/' },
   icons: {
-    icon: [{ url: '/icon.svg', type: 'image/svg+xml' }],
-    apple: '/icon.svg',
+    icon: [{ url: '/icon.svg?v=2', type: 'image/svg+xml' }],
+    shortcut: '/icon.svg?v=2',
+    apple: '/icon.svg?v=2',
   },
   openGraph: {
     type: 'website',
