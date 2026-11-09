@@ -4,6 +4,7 @@ import React from "react";
 import styled from "styled-components";
 import Link from "next/link";
 import { useCart } from "@/contexts/CartContext";
+import { BagIcon, ArrowLeftIcon } from "@/components/ui/FoodVisuals";
 
 const FloatingWrapper = styled.div`
   position: fixed;
@@ -35,48 +36,37 @@ const FloatingWrapper = styled.div`
 `;
 
 const Capsule = styled.div`
-  background: #0f172a;
-  color: white;
+  background: #16120f;
+  color: #faf6f0;
   border-radius: 9999px;
   padding: 0.5rem 0.65rem 0.5rem 1.15rem;
-  box-shadow: 0 12px 32px -4px rgba(15, 23, 42, 0.45), 0 2px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 20px 38px -8px rgba(22, 18, 15, 0.48);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    padding: 0.4rem 0.5rem 0.4rem 0.85rem;
-    gap: 0.5rem;
-  }
 `;
 
 const InfoSide = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.65rem;
   min-width: 0;
 
   .icon-bubble {
-    width: 34px;
-    height: 34px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
-    background: #ff5a00;
+    background: ${({ theme }) => theme.colors.primary[500]};
+    color: #ffffff;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1rem;
-    box-shadow: 0 2px 6px rgba(255, 90, 0, 0.4);
+    box-shadow: 0 4px 10px rgba(217, 56, 30, 0.4);
     flex-shrink: 0;
-
-    @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-      width: 28px;
-      height: 28px;
-      font-size: 0.85rem;
-    }
   }
 
   .text-box {
@@ -85,36 +75,28 @@ const InfoSide = styled.div`
     min-width: 0;
 
     .count {
-      font-size: 0.725rem;
-      color: #94a3b8;
+      font-size: 0.74rem;
+      color: rgba(250, 246, 240, 0.7);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-
-      @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-        font-size: 0.675rem;
-      }
     }
 
     .amount {
-      font-size: 0.9rem;
+      font-size: 0.92rem;
       font-weight: 800;
       color: #ffffff;
       white-space: nowrap;
-
-      @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-        font-size: 0.825rem;
-      }
     }
   }
 `;
 
 const CheckoutButton = styled(Link)`
-  background: linear-gradient(135deg, #ff5a00 0%, #ea580c 100%);
-  color: white;
+  background: ${({ theme }) => theme.colors.primary[500]};
+  color: #ffffff;
   border-radius: 9999px;
-  padding: 0.45rem 1rem;
-  font-size: 0.825rem;
+  padding: 0.5rem 1.05rem;
+  font-size: 0.84rem;
   font-weight: 700;
   text-decoration: none;
   display: inline-flex;
@@ -122,28 +104,16 @@ const CheckoutButton = styled(Link)`
   gap: 0.35rem;
   white-space: nowrap;
   flex-shrink: 0;
-  box-shadow: 0 3px 10px rgba(255, 90, 0, 0.35);
-  transition: transform 120ms cubic-bezier(0.2, 0, 0, 1), box-shadow 140ms cubic-bezier(0.2, 0, 0, 1);
-  user-select: none;
-  touch-action: manipulation;
+  box-shadow: 0 4px 12px rgba(217, 56, 30, 0.35);
+  transition: transform 120ms ease, background-color 140ms ease;
 
   &:hover {
+    background: ${({ theme }) => theme.colors.primary[600]};
     transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(255, 90, 0, 0.45);
   }
 
   &:active {
     transform: scale(0.96);
-  }
-
-  &:focus-visible {
-    outline: 2px solid #ffffff;
-    outline-offset: 2px;
-  }
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    padding: 0.4rem 0.75rem;
-    font-size: 0.78rem;
   }
 `;
 
@@ -169,20 +139,31 @@ export default function FloatingCartPill() {
     <FloatingWrapper>
       <Capsule>
         <InfoSide>
-          <div className="icon-bubble" aria-hidden="true">🛍️</div>
+          <div className="icon-bubble" aria-hidden="true">
+            <BagIcon size={17} />
+          </div>
           <div className="text-box">
-            <span className="count" style={{ fontVariantNumeric: "tabular-nums" }}>
+            <span
+              className="count"
+              style={{ fontVariantNumeric: "tabular-nums" }}
+            >
               سبد خرید ({numberFormatter.format(totalItems)} قلم)
             </span>
-            <span className="amount" style={{ fontVariantNumeric: "tabular-nums" }}>
+            <span
+              className="amount"
+              style={{ fontVariantNumeric: "tabular-nums" }}
+            >
               {numberFormatter.format(totalPrice)} تومان
             </span>
           </div>
         </InfoSide>
 
-        <CheckoutButton href="/cart" aria-label="مشاهده سبد و تکمیل نهایی خرید">
+        <CheckoutButton
+          href="/cart"
+          aria-label="مشاهده سبد و تکمیل نهایی خرید"
+        >
           <span>تکمیل خرید</span>
-          <span aria-hidden="true">←</span>
+          <ArrowLeftIcon size={15} />
         </CheckoutButton>
       </Capsule>
     </FloatingWrapper>

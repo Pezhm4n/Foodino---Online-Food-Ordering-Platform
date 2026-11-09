@@ -1,111 +1,131 @@
 "use client";
 
-import React from 'react';
-import styled, { keyframes } from 'styled-components';
-import Link from 'next/link';
+import React from "react";
+import styled from "styled-components";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import {
+  DishArtwork,
+  resolveFoodKind,
+  FOOD_VISUAL_PALETTE,
+  ArrowLeftIcon,
+} from "@/components/ui/FoodVisuals";
 
-const categoriesEntrance = keyframes`
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+const SectionContainer = styled.section`
+  padding: 4rem 1.75rem;
+  max-width: 1240px;
+  margin: 0 auto;
+  direction: rtl;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.md}) {
+    padding: 2.5rem 1rem;
   }
 `;
 
-const SectionContainer = styled.section`
-  padding: 4rem 2rem;
-  
-  @media (max-width: ${props => props.theme.breakpoints.md}) {
-    padding: 2.25rem 1rem;
-  }
+const SectionHeaderRow = styled(motion.div)`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 2rem;
+  gap: 1rem;
 
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    padding: 1.5rem 0.875rem;
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 1.35rem;
   }
+`;
+
+const HeaderTitleGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+`;
+
+const SectionEyebrow = styled.span`
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: ${(props) => props.theme.colors.primary[600]};
+  letter-spacing: 0.02em;
 `;
 
 const SectionTitle = styled.h2`
-  font-size: ${props => props.theme.typography.fontSizes['3xl']};
+  font-size: clamp(1.45rem, 2.5vw, 2rem);
   font-weight: 800;
-  color: ${props => props.theme.colors.neutral[900]};
-  text-align: center;
-  margin-bottom: 0.5rem;
-
-  @media (max-width: ${props => props.theme.breakpoints.md}) {
-    font-size: 1.5rem;
-  }
-
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    font-size: 1.25rem;
-    margin-bottom: 0.35rem;
-  }
+  color: ${(props) => props.theme.colors.neutral[900]};
+  margin: 0;
 `;
 
 const SectionSubtitle = styled.p`
-  font-size: ${props => props.theme.typography.fontSizes.lg};
-  color: ${props => props.theme.colors.neutral[600]};
-  text-align: center;
-  max-width: 700px;
-  margin: 0 auto 2.5rem;
+  font-size: 0.95rem;
+  color: ${(props) => props.theme.colors.neutral[600]};
+  margin: 0;
+`;
 
-  @media (max-width: ${props => props.theme.breakpoints.md}) {
-    font-size: 0.95rem;
-    margin-bottom: 1.5rem;
-  }
+const AllCategoriesLink = styled(Link)`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: ${(props) => props.theme.colors.neutral[800]};
+  background: #ffffff;
+  border: 1px solid ${(props) => props.theme.colors.neutral[200]};
+  padding: 0.55rem 1rem;
+  border-radius: ${(props) => props.theme.borderRadius.full};
+  text-decoration: none;
+  transition: transform 180ms var(--ease-out),
+    border-color 180ms var(--ease-out),
+    color 180ms var(--ease-out);
 
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    font-size: 0.8rem;
-    margin-bottom: 1rem;
+  &:hover {
+    border-color: ${(props) => props.theme.colors.primary[400]};
+    color: ${(props) => props.theme.colors.primary[600]};
+    transform: translateX(-3px);
   }
 `;
 
 const CategoriesGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 1.5rem;
-  max-width: 1200px;
-  margin: 0 auto;
-  animation: ${categoriesEntrance} 460ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1.15rem;
 
-  @media (max-width: ${props => props.theme.breakpoints.md}) {
-    gap: 1rem;
+  @media (max-width: ${(props) => props.theme.breakpoints.lg}) {
+    grid-template-columns: repeat(3, 1fr);
   }
 
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
     grid-template-columns: repeat(2, 1fr);
-    gap: 0.6rem;
+    gap: 0.75rem;
   }
 `;
 
+const CategoryCardMotion = styled(motion.div)`
+  display: flex;
+`;
+
 const CategoryCard = styled(Link)`
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 1.5rem 1.25rem;
-  border-radius: ${props => props.theme.borderRadius.xl};
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  background-color: white;
-  border: 1px solid ${props => props.theme.colors.neutral[200]};
-  transition: transform 180ms cubic-bezier(0.2, 0, 0, 1),
-    box-shadow 180ms cubic-bezier(0.2, 0, 0, 1),
-    border-color 180ms cubic-bezier(0.2, 0, 0, 1);
+  width: 100%;
+  padding: 1.4rem 1.1rem 1.2rem;
+  border-radius: 1.35rem;
+  background: #ffffff;
+  border: 1px solid ${(props) => props.theme.colors.neutral[200]};
+  box-shadow: 0 4px 14px -4px rgba(22, 18, 15, 0.05);
+  transition: transform 240ms var(--ease-out),
+    box-shadow 240ms var(--ease-out),
+    border-color 240ms var(--ease-out);
   text-decoration: none;
-  user-select: none;
-  touch-action: manipulation;
+  overflow: hidden;
 
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    padding: 0.75rem 0.5rem;
-    border-radius: 0.85rem;
-  }
-  
   @media (hover: hover) and (pointer: fine) {
     &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 18px -4px rgba(255, 90, 0, 0.12), 0 4px 8px -2px rgba(0, 0, 0, 0.04);
-      border-color: ${props => props.theme.colors.primary[300]};
+      transform: translateY(-6px);
+      box-shadow: 0 22px 36px -12px rgba(22, 18, 15, 0.14);
+      border-color: ${(props) => props.theme.colors.primary[300]};
     }
   }
 
@@ -114,48 +134,62 @@ const CategoryCard = styled(Link)`
   }
 `;
 
-const IconContainer = styled.div`
-  width: 72px;
-  height: 72px;
-  position: relative;
-  margin-bottom: 0.85rem;
-  background: linear-gradient(135deg, ${props => props.theme.colors.primary[50]} 0%, ${props => props.theme.colors.primary[100]} 100%);
-  border-radius: 50%;
+const ArtworkStage = styled.div<{ $bgStart: string; $bgEnd: string }>`
+  width: 92px;
+  height: 92px;
+  border-radius: 26px;
+  background: linear-gradient(
+    145deg,
+    ${(props) => props.$bgStart} 0%,
+    ${(props) => props.$bgEnd} 100%
+  );
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2.25rem;
-  transition: transform 0.2s ease;
+  margin-bottom: 1rem;
+  box-shadow: 0 10px 20px -6px rgba(22, 18, 15, 0.22);
+  transition: transform 280ms var(--ease-out),
+    box-shadow 280ms var(--ease-out);
 
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    width: 48px;
-    height: 48px;
-    font-size: 1.5rem;
-    margin-bottom: 0.4rem;
+  ${CategoryCard}:hover & {
+    transform: scale(1.09) rotate(-4deg) translateY(-2px);
+    box-shadow: 0 16px 26px -6px rgba(22, 18, 15, 0.28);
+  }
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    width: 76px;
+    height: 76px;
+    border-radius: 22px;
   }
 `;
 
-const CategoryName = styled.h3`
-  font-size: ${props => props.theme.typography.fontSizes.lg};
-  font-weight: ${props => props.theme.typography.fontWeights.semibold};
-  color: ${props => props.theme.colors.neutral[900]};
-  margin-bottom: 0.35rem;
-  text-align: center;
+const CulinaryTag = styled.span<{ $bg: string; $color: string }>`
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  background: ${(props) => props.$bg};
+  color: ${(props) => props.$color};
+  margin-bottom: 0.45rem;
+`;
 
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    font-size: 0.85rem;
-    font-weight: 700;
-    margin-bottom: 0.15rem;
+const CategoryName = styled.h3`
+  font-size: 1.08rem;
+  font-weight: 800;
+  color: ${(props) => props.theme.colors.neutral[900]};
+  margin: 0 0 0.3rem;
+  text-align: center;
+  transition: color 180ms var(--ease-out);
+
+  ${CategoryCard}:hover & {
+    color: ${(props) => props.theme.colors.primary[600]};
   }
 `;
 
 const ItemCount = styled.span`
-  font-size: ${props => props.theme.typography.fontSizes.sm};
-  color: ${props => props.theme.colors.neutral[500]};
-
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    font-size: 0.7rem;
-  }
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: ${(props) => props.theme.colors.neutral[500]};
 `;
 
 export interface CategoryItem {
@@ -166,50 +200,49 @@ export interface CategoryItem {
   count?: number | string;
 }
 
-// دسته‌بندی‌های استاندارد همگام با دیتابیس
 const defaultCategories: CategoryItem[] = [
   {
-    id: '10000000-0000-4000-8000-000000000001',
-    name: 'پیتزا',
-    icon: '🍕',
+    id: "10000000-0000-4000-8000-000000000001",
+    name: "پیتزا",
+    icon: "pizza",
     count: 1,
-    slug: 'pizza',
+    slug: "pizza",
   },
   {
-    id: '10000000-0000-4000-8000-000000000002',
-    name: 'برگر',
-    icon: '🍔',
+    id: "10000000-0000-4000-8000-000000000002",
+    name: "برگر",
+    icon: "burger",
     count: 1,
-    slug: 'burger',
+    slug: "burger",
   },
   {
-    id: '10000000-0000-4000-8000-000000000003',
-    name: 'غذای ایرانی',
-    icon: '🍚',
+    id: "10000000-0000-4000-8000-000000000003",
+    name: "غذای ایرانی",
+    icon: "iranian",
     count: 1,
-    slug: 'iranian',
+    slug: "iranian",
   },
   {
-    id: '10000000-0000-4000-8000-000000000004',
-    name: 'سوشی',
-    icon: '🍣',
+    id: "10000000-0000-4000-8000-000000000004",
+    name: "سوشی",
+    icon: "sushi",
     count: 1,
-    slug: 'sushi',
+    slug: "sushi",
   },
   {
-    id: '10000000-0000-4000-8000-000000000005',
-    name: 'غذای سالم',
-    icon: '🥗',
+    id: "10000000-0000-4000-8000-000000000005",
+    name: "غذای سالم",
+    icon: "healthy",
     count: 1,
-    slug: 'healthy',
+    slug: "healthy",
   },
 ];
 
 const formatCount = (count?: number | string) => {
-  if (count === undefined || count === null) return 'مشاهده رستوران‌ها';
-  if (typeof count === 'number') {
-    if (count === 0) return 'به زودی';
-    return `${count.toLocaleString('fa-IR')} رستوران`;
+  if (count === undefined || count === null) return "مشاهده منو";
+  if (typeof count === "number") {
+    if (count === 0) return "به‌زودی";
+    return `${count.toLocaleString("fa-IR")} رستوران فعال`;
   }
   return count;
 };
@@ -219,30 +252,72 @@ interface PopularCategoriesProps {
 }
 
 const PopularCategories = ({ initialCategories }: PopularCategoriesProps) => {
-  const displayCategories = initialCategories && initialCategories.length > 0 
-    ? initialCategories 
-    : defaultCategories;
+  const displayCategories =
+    initialCategories && initialCategories.length > 0
+      ? initialCategories
+      : defaultCategories;
 
   return (
     <SectionContainer>
-      <SectionTitle>دسته‌بندی‌های محبوب</SectionTitle>
-      <SectionSubtitle>
-        از میان دسته‌بندی‌های مختلف، غذای مورد علاقه خود را انتخاب کنید
-      </SectionSubtitle>
-      
+      <SectionHeaderRow
+        initial={{ opacity: 0, y: 14 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-40px" }}
+        transition={{ duration: 0.42, ease: [0.23, 1, 0.32, 1] }}
+      >
+        <HeaderTitleGroup>
+          <SectionEyebrow>ذائقه و سبک پخت</SectionEyebrow>
+          <SectionTitle>دسته‌بندی‌های محبوب</SectionTitle>
+          <SectionSubtitle>
+            انتخاب سریع بر اساس سبک آشپزی؛ از تنور ایتالیایی تا مطبخ اصیل ایرانی
+          </SectionSubtitle>
+        </HeaderTitleGroup>
+        <AllCategoriesLink href="/categories">
+          <span>همه دسته‌بندی‌ها</span>
+          <ArrowLeftIcon size={15} />
+        </AllCategoriesLink>
+      </SectionHeaderRow>
+
       <CategoriesGrid>
-        {displayCategories.map((category) => (
-          <CategoryCard key={category.id} href={`/categories/${category.slug}`}>
-            <IconContainer>
-              {category.icon}
-            </IconContainer>
-            <CategoryName>{category.name}</CategoryName>
-            <ItemCount>{formatCount(category.count)}</ItemCount>
-          </CategoryCard>
-        ))}
+        {displayCategories.map((category, index) => {
+          const kind = resolveFoodKind(
+            category.slug,
+            category.name,
+            category.icon
+          );
+          const palette = FOOD_VISUAL_PALETTE[kind];
+
+          return (
+            <CategoryCardMotion
+              key={category.id}
+              initial={{ opacity: 0, y: 20, scale: 0.96 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, margin: "-30px" }}
+              transition={{
+                duration: 0.45,
+                delay: index * 0.06,
+                ease: [0.23, 1, 0.32, 1],
+              }}
+            >
+              <CategoryCard href={`/categories/${category.slug}`}>
+                <ArtworkStage
+                  $bgStart={palette.bgStart}
+                  $bgEnd={palette.bgEnd}
+                >
+                  <DishArtwork kind={kind} size={76} variant="thumb" />
+                </ArtworkStage>
+                <CulinaryTag $bg={palette.tagBg} $color={palette.tagColor}>
+                  {palette.label}
+                </CulinaryTag>
+                <CategoryName>{category.name}</CategoryName>
+                <ItemCount>{formatCount(category.count)}</ItemCount>
+              </CategoryCard>
+            </CategoryCardMotion>
+          );
+        })}
       </CategoriesGrid>
     </SectionContainer>
   );
 };
 
-export default PopularCategories; 
+export default PopularCategories;

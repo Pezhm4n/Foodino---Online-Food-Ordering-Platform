@@ -5,6 +5,18 @@ import styled from 'styled-components';
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
 import { removeFavoriteAction } from '@/app/profile/actions';
+import {
+  DishArtwork,
+  resolveFoodKind,
+  FOOD_VISUAL_PALETTE,
+  HeartIcon,
+  StarIcon,
+  ClockIcon,
+  CourierIcon,
+  SearchIcon,
+  ArrowLeftIcon,
+  UtensilsIcon,
+} from '@/components/ui/FoodVisuals';
 
 export interface FavoriteRestaurant {
   id: string;
@@ -21,15 +33,10 @@ export interface FavoriteRestaurant {
 }
 
 const PageContainer = styled.div`
-  max-width: 1100px;
+  max-width: 1180px;
   margin: 0 auto;
-  padding: 1.25rem 1rem 4rem;
+  padding: 2rem 1.25rem 4.5rem;
   direction: rtl;
-  font-family: var(--font-vazirmatn);
-
-  @media (min-width: 768px) {
-    padding: 2.5rem 1.5rem 5rem;
-  }
 `;
 
 const HeaderSection = styled.div`
@@ -42,49 +49,37 @@ const HeaderSection = styled.div`
     flex-direction: row;
     align-items: flex-end;
     justify-content: space-between;
-    margin-bottom: 2.5rem;
+    margin-bottom: 2.25rem;
   }
 `;
 
 const HeaderInfo = styled.div`
   h1 {
-    font-size: 1.5rem;
-    font-weight: 800;
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    font-weight: 900;
     color: ${props => props.theme.colors.neutral[900]};
     margin: 0 0 0.35rem;
-
-    @media (min-width: 768px) {
-      font-size: 2rem;
-    }
   }
 
   p {
-    font-size: 0.9rem;
-    color: ${props => props.theme.colors.neutral[600]};
+    font-size: 0.95rem;
+    color: ${props => props.theme.colors.neutral[500]};
     margin: 0;
-
-    @media (min-width: 768px) {
-      font-size: 1rem;
-    }
   }
 `;
 
 const CountBadge = styled.span`
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.4rem 0.9rem;
-  background-color: #fff1f2;
-  color: #e11d48;
-  border: 1px solid #fecdd3;
+  gap: 0.4rem;
+  padding: 0.45rem 1rem;
+  background-color: ${props => props.theme.colors.primary[50]};
+  color: ${props => props.theme.colors.primary[600]};
+  border: 1px solid ${props => props.theme.colors.primary[100]};
   border-radius: 9999px;
   font-size: 0.85rem;
-  font-weight: 700;
+  font-weight: 800;
   align-self: flex-start;
-
-  @media (min-width: 768px) {
-    align-self: auto;
-  }
 `;
 
 const FilterContainer = styled.div`
@@ -94,174 +89,130 @@ const FilterContainer = styled.div`
 
 const SearchInput = styled.input`
   width: 100%;
-  min-height: 48px;
-  padding: 0.75rem 1rem 0.75rem 2.75rem;
+  min-height: 50px;
+  padding: 0.8rem 1rem 0.8rem 2.85rem;
   font-size: 0.95rem;
-  border: 1.5px solid ${props => props.theme.colors.neutral[300]};
+  border: 1.5px solid ${props => props.theme.colors.neutral[200]};
   border-radius: ${props => props.theme.borderRadius.xl};
-  background-color: white;
+  background-color: #ffffff;
   color: ${props => props.theme.colors.neutral[900]};
-  font-family: var(--font-vazirmatn);
   outline: none;
   transition: all 0.2s ease;
 
   &:focus {
     border-color: ${props => props.theme.colors.primary[500]};
-    box-shadow: 0 0 0 3px rgba(255, 90, 0, 0.15);
-  }
-
-  &::placeholder {
-    color: ${props => props.theme.colors.neutral[400]};
-  }
-
-  @media (max-width: 640px) {
-    min-height: 42px;
-    font-size: 0.875rem;
-    padding: 0.6rem 0.85rem 0.6rem 2.5rem;
+    box-shadow: 0 0 0 3px ${props => props.theme.colors.primary[100]};
   }
 `;
 
-const SearchIcon = styled.span`
+const SearchIconWrap = styled.span`
   position: absolute;
   left: 1rem;
   top: 50%;
   transform: translateY(-50%);
   color: ${props => props.theme.colors.neutral[400]};
   pointer-events: none;
-  font-size: 1.1rem;
-
-  @media (max-width: 640px) {
-    left: 0.75rem;
-    font-size: 0.95rem;
-  }
+  display: inline-flex;
 `;
 
 const Grid = styled.div`
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.25rem;
-
-  @media (max-width: 640px) {
-    gap: 0.85rem;
-  }
-
-  @media (min-width: 640px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  @media (min-width: 1024px) {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-  }
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 1.5rem;
 `;
 
 const RestaurantCard = styled.div`
-  background: white;
-  border-radius: ${props => props.theme.borderRadius.xl};
+  background: #ffffff;
+  border-radius: ${props => props.theme.borderRadius['2xl']};
   border: 1px solid ${props => props.theme.colors.neutral[200]};
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  box-shadow: ${props => props.theme.shadows.sm};
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-
-  @media (max-width: 640px) {
-    border-radius: 0.85rem;
-  }
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
 
   &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    transform: translateY(-4px);
+    box-shadow: ${props => props.theme.shadows.lg};
   }
 `;
 
-const CardCover = styled.div<{ $bg?: string | null }>`
-  height: 120px;
-  background: ${props => props.$bg ? `url(${props.$bg}) center/cover no-repeat` : 'linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%)'};
+const CardCover = styled.div<{ $bg: string }>`
+  height: 138px;
+  background: ${props => props.$bg};
   position: relative;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  padding: 0.75rem;
+  padding: 0.9rem;
+  overflow: hidden;
+`;
 
-  @media (max-width: 640px) {
-    height: 105px;
-    padding: 0.6rem;
-  }
+const CoverArtworkWrap = styled.div`
+  position: absolute;
+  left: 50%;
+  bottom: -14px;
+  transform: translateX(-50%);
+  pointer-events: none;
 `;
 
 const RemoveButton = styled.button`
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(4px);
-  border: none;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid ${props => props.theme.colors.neutral[200]};
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #e11d48;
-  font-size: 1.1rem;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  color: ${props => props.theme.colors.primary[500]};
+  box-shadow: ${props => props.theme.shadows.xs};
   transition: all 0.2s ease;
+  z-index: 2;
 
   &:hover {
-    background: white;
-    transform: scale(1.1);
-    color: #be123c;
-  }
-
-  &:active {
-    transform: scale(0.95);
+    background: #ffffff;
+    transform: scale(1.08);
   }
 `;
 
 const RatingBadge = styled.span`
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
-  padding: 0.25rem 0.6rem;
+  gap: 0.3rem;
+  padding: 0.3rem 0.65rem;
   background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(4px);
   border-radius: 9999px;
   font-size: 0.8rem;
-  font-weight: 700;
-  color: #b45309;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  font-weight: 800;
+  color: ${props => props.theme.colors.neutral[900]};
+  z-index: 2;
+
+  svg {
+    color: #E59A11;
+  }
 `;
 
 const CardBody = styled.div`
-  padding: 1.25rem;
+  padding: 1.35rem;
   flex: 1;
   display: flex;
   flex-direction: column;
-
-  @media (max-width: 640px) {
-    padding: 0.85rem;
-  }
 `;
 
 const RestaurantName = styled.h3`
   font-size: 1.15rem;
-  font-weight: 700;
+  font-weight: 800;
   color: ${props => props.theme.colors.neutral[900]};
   margin: 0 0 0.4rem;
-
-  @media (max-width: 640px) {
-    font-size: 1.05rem;
-  }
 `;
 
 const RestaurantDesc = styled.p`
-  font-size: 0.85rem;
+  font-size: 0.86rem;
   color: ${props => props.theme.colors.neutral[600]};
   margin: 0 0 1rem;
-  line-height: 1.5;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  line-height: 1.6;
   flex: 1;
 `;
 
@@ -269,11 +220,18 @@ const MetaRow = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: 0.75rem;
+  padding-top: 0.85rem;
   border-top: 1px solid ${props => props.theme.colors.neutral[100]};
   font-size: 0.8rem;
-  color: ${props => props.theme.colors.neutral[500]};
-  margin-bottom: 1rem;
+  font-weight: 600;
+  color: ${props => props.theme.colors.neutral[600]};
+  margin-bottom: 1.1rem;
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
 `;
 
 const ViewMenuButton = styled(Link)`
@@ -285,45 +243,38 @@ const ViewMenuButton = styled(Link)`
   min-height: 44px;
   background-color: ${props => props.theme.colors.primary[500]};
   color: white;
-  border-radius: ${props => props.theme.borderRadius.lg};
+  border-radius: ${props => props.theme.borderRadius.xl};
   font-size: 0.9rem;
-  font-weight: 700;
+  font-weight: 800;
   text-decoration: none;
-  box-shadow: 0 4px 12px rgba(255, 90, 0, 0.2);
+  box-shadow: ${props => props.theme.shadows.brand};
   transition: all 0.2s ease;
 
   &:hover {
     background-color: ${props => props.theme.colors.primary[600]};
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(255, 90, 0, 0.3);
-  }
-
-  &:active {
-    transform: translateY(0);
   }
 `;
 
 const EmptyStateContainer = styled.div`
-  background: white;
-  border-radius: ${props => props.theme.borderRadius.xl};
+  background: #ffffff;
+  border-radius: ${props => props.theme.borderRadius['2xl']};
   border: 1px solid ${props => props.theme.colors.neutral[200]};
-  padding: 3rem 1.5rem;
+  padding: 3.5rem 2rem;
   text-align: center;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-  max-width: 540px;
+  box-shadow: ${props => props.theme.shadows.sm};
+  max-width: 560px;
   margin: 2rem auto;
 `;
 
 const EmptyIcon = styled.div`
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  background: #fff1f2;
-  color: #e11d48;
+  width: 76px;
+  height: 76px;
+  border-radius: 24px;
+  background: ${props => props.theme.colors.primary[50]};
+  color: ${props => props.theme.colors.primary[500]};
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2.25rem;
   margin: 0 auto 1.25rem;
 `;
 
@@ -336,8 +287,8 @@ const EmptyTitle = styled.h2`
 
 const EmptyText = styled.p`
   font-size: 0.95rem;
-  color: ${props => props.theme.colors.neutral[600]};
-  line-height: 1.6;
+  color: ${props => props.theme.colors.neutral[500]};
+  line-height: 1.7;
   margin: 0 0 1.75rem;
 `;
 
@@ -347,20 +298,14 @@ const ExploreButton = styled(Link)`
   justify-content: center;
   gap: 0.5rem;
   min-height: 46px;
-  padding: 0.75rem 2rem;
+  padding: 0.8rem 1.85rem;
   background-color: ${props => props.theme.colors.primary[500]};
   color: white;
-  border-radius: ${props => props.theme.borderRadius.lg};
+  border-radius: ${props => props.theme.borderRadius.xl};
   font-size: 0.95rem;
-  font-weight: 700;
+  font-weight: 800;
   text-decoration: none;
-  box-shadow: 0 4px 14px rgba(255, 90, 0, 0.25);
-  transition: all 0.2s ease;
-
-  &:hover {
-    background-color: ${props => props.theme.colors.primary[600]};
-    transform: translateY(-1px);
-  }
+  box-shadow: ${props => props.theme.shadows.brand};
 `;
 
 export default function FavoriteRestaurantsView({
@@ -372,7 +317,7 @@ export default function FavoriteRestaurantsView({
 
   const handleRemove = (restaurantId: string, restaurantName: string) => {
     setFavorites(prev => prev.filter(r => r.id !== restaurantId));
-    toast.success(`${restaurantName} از علاقه‌مندی‌ها حذف شد.`, { icon: '🗑️' });
+    toast.success(`${restaurantName} از علاقه‌مندی‌ها حذف شد.`);
 
     startTransition(async () => {
       const fd = new FormData();
@@ -399,8 +344,8 @@ export default function FavoriteRestaurantsView({
         </HeaderInfo>
         {favorites.length > 0 && (
           <CountBadge>
-            <span>❤️</span>
-            <span>{favorites.length} رستوران محبوب</span>
+            <HeartIcon size={16} filled />
+            <span>{favorites.length.toLocaleString('fa-IR')} رستوران محبوب</span>
           </CountBadge>
         )}
       </HeaderSection>
@@ -413,59 +358,77 @@ export default function FavoriteRestaurantsView({
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
           />
-          <SearchIcon>🔍</SearchIcon>
+          <SearchIconWrap>
+            <SearchIcon size={18} />
+          </SearchIconWrap>
         </FilterContainer>
       )}
 
       {favorites.length === 0 ? (
         <EmptyStateContainer>
-          <EmptyIcon>❤️</EmptyIcon>
+          <EmptyIcon>
+            <HeartIcon size={34} />
+          </EmptyIcon>
           <EmptyTitle>لیست علاقه‌مندی‌های شما خالی است</EmptyTitle>
           <EmptyText>
             شما هنوز هیچ رستورانی را به لیست علاقه‌مندی‌های خود اضافه نکرده‌اید. با کلیک روی آیکون قلب در صفحه هر رستوران، آن را در این بخش ذخیره کنید.
           </EmptyText>
           <ExploreButton href="/restaurants">
-            <span>🍽️ کشف و مشاهده رستوران‌ها</span>
+            <UtensilsIcon size={17} />
+            <span>کشف و مشاهده رستوران‌ها</span>
           </ExploreButton>
         </EmptyStateContainer>
       ) : filtered.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '3rem 1rem', color: '#64748b' }}>
-          <p style={{ fontSize: '1.1rem', fontWeight: 600 }}>رستورانی با عبارت «{searchQuery}» یافت نشد.</p>
+        <div style={{ textAlign: 'center', padding: '3rem 1rem', color: '#6E6055' }}>
+          <p style={{ fontSize: '1.05rem', fontWeight: 700 }}>رستورانی با عبارت «{searchQuery}» یافت نشد.</p>
         </div>
       ) : (
         <Grid>
-          {filtered.map(restaurant => (
-            <RestaurantCard key={restaurant.id}>
-              <CardCover $bg={restaurant.coverPath}>
-                <RatingBadge>
-                  <span>★</span>
-                  <span>{restaurant.rating.toFixed(1)}</span>
-                </RatingBadge>
-                <RemoveButton
-                  type="button"
-                  onClick={() => handleRemove(restaurant.id, restaurant.name)}
-                  title="حذف از علاقه‌مندی‌ها"
-                  aria-label="حذف از علاقه‌مندی‌ها"
-                >
-                  ❤️
-                </RemoveButton>
-              </CardCover>
-              <CardBody>
-                <RestaurantName>{restaurant.name}</RestaurantName>
-                <RestaurantDesc>
-                  {restaurant.description || 'انواع غذاهای باکیفیت و تازه'}
-                </RestaurantDesc>
-                <MetaRow>
-                  <span>⚡ {restaurant.estimatedDeliveryMin} الی {restaurant.estimatedDeliveryMax} دقیقه</span>
-                  <span>{restaurant.deliveryFeeIrr > 0 ? `${(restaurant.deliveryFeeIrr / 10).toLocaleString('fa-IR')} تومان` : 'ارسال رایگان'}</span>
-                </MetaRow>
-                <ViewMenuButton href={`/restaurants/${restaurant.slug}`} prefetch={true}>
-                  <span>مشاهده منو و سفارش</span>
-                  <span>←</span>
-                </ViewMenuButton>
-              </CardBody>
-            </RestaurantCard>
-          ))}
+          {filtered.map(restaurant => {
+            const foodKind = resolveFoodKind(`${restaurant.name} ${restaurant.slug} ${restaurant.description}`);
+            const palette = FOOD_VISUAL_PALETTE[foodKind];
+            return (
+              <RestaurantCard key={restaurant.id}>
+                <CardCover $bg={`linear-gradient(135deg, ${palette.bgStart} 0%, ${palette.bgEnd} 100%)`}>
+                  <RatingBadge>
+                    <StarIcon size={14} />
+                    <span>{restaurant.rating.toLocaleString('fa-IR', { minimumFractionDigits: 1 })}</span>
+                  </RatingBadge>
+                  <RemoveButton
+                    type="button"
+                    onClick={() => handleRemove(restaurant.id, restaurant.name)}
+                    title="حذف از علاقه‌مندی‌ها"
+                    aria-label="حذف از علاقه‌مندی‌ها"
+                  >
+                    <HeartIcon size={18} filled />
+                  </RemoveButton>
+                  <CoverArtworkWrap>
+                    <DishArtwork kind={foodKind} size={96} />
+                  </CoverArtworkWrap>
+                </CardCover>
+                <CardBody>
+                  <RestaurantName>{restaurant.name}</RestaurantName>
+                  <RestaurantDesc>
+                    {restaurant.description || 'انواع غذاهای باکیفیت و تازه با پخت روزانه'}
+                  </RestaurantDesc>
+                  <MetaRow>
+                    <span>
+                      <ClockIcon size={14} />
+                      {restaurant.estimatedDeliveryMin.toLocaleString('fa-IR')} الی {restaurant.estimatedDeliveryMax.toLocaleString('fa-IR')} دقیقه
+                    </span>
+                    <span>
+                      <CourierIcon size={14} />
+                      {restaurant.deliveryFeeIrr > 0 ? `${(restaurant.deliveryFeeIrr / 10).toLocaleString('fa-IR')} تومان` : 'ارسال رایگان'}
+                    </span>
+                  </MetaRow>
+                  <ViewMenuButton href={`/restaurants/${restaurant.slug}`} prefetch={true}>
+                    <span>مشاهده منو و سفارش</span>
+                    <ArrowLeftIcon size={15} />
+                  </ViewMenuButton>
+                </CardBody>
+              </RestaurantCard>
+            );
+          })}
         </Grid>
       )}
     </PageContainer>

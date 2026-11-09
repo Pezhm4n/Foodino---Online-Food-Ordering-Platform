@@ -1,11 +1,16 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
-import styled, { keyframes } from 'styled-components';
-import { createPortal } from 'react-dom';
-import { Toaster } from 'react-hot-toast';
+import React, { useEffect, useState } from "react";
+import styled, { keyframes } from "styled-components";
+import { createPortal } from "react-dom";
+import { Toaster } from "react-hot-toast";
+import {
+  CheckCircleIcon,
+  AlertCircleIcon,
+  InfoIcon,
+  CloseIcon,
+} from "@/components/ui/FoodVisuals";
 
-// انیمیشن‌های Toast با حفظ محور افقی
 const slideIn = keyframes`
   from {
     transform: translate(-50%, 14px);
@@ -28,10 +33,8 @@ const slideOut = keyframes`
   }
 `;
 
-// نوع‌های Toast
-export type ToastType = 'success' | 'error' | 'info' | 'warning';
+export type ToastType = "success" | "error" | "info" | "warning";
 
-// انواع اطلاعات Toast
 export interface ToastInfo {
   id: string;
   message: string;
@@ -39,115 +42,140 @@ export interface ToastInfo {
   duration?: number;
 }
 
-// مؤلفه پایه Toast
 const ToastBase = styled.div<{ $type: ToastType; $visible: boolean }>`
   position: fixed;
   bottom: 1.5rem;
   left: 50%;
   transform: translateX(-50%);
-  padding: 0.85rem 1.35rem;
-  min-width: 250px;
+  padding: 0.85rem 1.25rem;
+  min-width: 260px;
   max-width: 90vw;
-  border-radius: ${props => props.theme.borderRadius.lg};
-  color: white;
+  border-radius: ${(props) => props.theme.borderRadius.xl};
+  color: #faf6f0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  gap: 0.75rem;
+  box-shadow: 0 20px 36px -10px rgba(22, 18, 15, 0.32);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   z-index: 9999;
-  animation: ${props => (props.$visible ? slideIn : slideOut)} 200ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  
-  background-color: ${props => {
+  direction: rtl;
+  animation: ${(props) => (props.$visible ? slideIn : slideOut)} 200ms
+    cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+  background-color: ${(props) => {
     switch (props.$type) {
-      case 'success': return props.theme.colors.success[500];
-      case 'error': return props.theme.colors.error[500];
-      case 'warning': return props.theme.colors.warning[500];
-      case 'info': return props.theme.colors.primary[500];
-      default: return props.theme.colors.primary[500];
+      case "success":
+        return props.theme.colors.success[600];
+      case "error":
+        return props.theme.colors.error[600];
+      case "warning":
+        return props.theme.colors.warning[600];
+      case "info":
+      default:
+        return props.theme.colors.secondary[900];
     }
   }};
 `;
 
-const ToastIcon = styled.div`
-  margin-right: 0.75rem;
-  font-size: 1.2rem;
+const ToastIconWrap = styled.div`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 `;
 
 const ToastMessage = styled.div`
   flex: 1;
-  font-size: ${props => props.theme.typography.fontSizes.md};
+  font-size: 0.9rem;
+  font-weight: 600;
 `;
 
 const CloseButton = styled.button`
   background: none;
   border: none;
-  color: white;
+  color: rgba(255, 255, 255, 0.85);
   cursor: pointer;
-  margin-left: 0.75rem;
   padding: 0.25rem;
-  opacity: 0.7;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   transition: opacity 0.2s;
-  
+
   &:hover {
     opacity: 1;
   }
 `;
 
-// کامپوننت Toast
-const Toast: React.FC<{ toast: ToastInfo; onClose: () => void }> = ({ toast, onClose }) => {
+const Toast: React.FC<{ toast: ToastInfo; onClose: () => void }> = ({
+  toast,
+  onClose,
+}) => {
   const [visible, setVisible] = useState(true);
-  
-  // بستن اتوماتیک Toast
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setVisible(false);
-      const animationDuration = 200; // میلی‌ثانیه هماهنگ با توکن
-      setTimeout(onClose, animationDuration);
+      setTimeout(onClose, 200);
     }, toast.duration || 3000);
-    
+
     return () => clearTimeout(timer);
   }, [toast, onClose]);
-  
-  // آیکون متناسب با نوع Toast
+
   const renderIcon = () => {
     switch (toast.type) {
-      case 'success':
-        return <ToastIcon>✓</ToastIcon>;
-      case 'error':
-        return <ToastIcon>✗</ToastIcon>;
-      case 'warning':
-        return <ToastIcon>⚠</ToastIcon>;
-      case 'info':
-        return <ToastIcon>ℹ</ToastIcon>;
+      case "success":
+        return (
+          <ToastIconWrap>
+            <CheckCircleIcon size={18} />
+          </ToastIconWrap>
+        );
+      case "error":
+      case "warning":
+        return (
+          <ToastIconWrap>
+            <AlertCircleIcon size={18} />
+          </ToastIconWrap>
+        );
+      case "info":
       default:
-        return null;
+        return (
+          <ToastIconWrap>
+            <InfoIcon size={18} />
+          </ToastIconWrap>
+        );
     }
   };
-  
+
   return (
     <ToastBase $type={toast.type} $visible={visible}>
       {renderIcon()}
       <ToastMessage>{toast.message}</ToastMessage>
-      <CloseButton onClick={() => { setVisible(false); setTimeout(onClose, 200); }}>
-        ×
+      <CloseButton
+        onClick={() => {
+          setVisible(false);
+          setTimeout(onClose, 200);
+        }}
+        aria-label="بستن پیام"
+      >
+        <CloseIcon size={15} />
       </CloseButton>
     </ToastBase>
   );
 };
 
-// کانتینر برای نمایش چندین Toast
-const ToastContainer: React.FC<{ toasts: ToastInfo[]; removeToast: (id: string) => void }> = ({ 
-  toasts,
-  removeToast 
-}) => {
-  if (typeof document === 'undefined') {
+const ToastContainer: React.FC<{
+  toasts: ToastInfo[];
+  removeToast: (id: string) => void;
+}> = ({ toasts, removeToast }) => {
+  if (typeof document === "undefined") {
     return null;
   }
 
   return createPortal(
     <>
-      {toasts.map(toast => (
-        <Toast 
+      {toasts.map((toast) => (
+        <Toast
           key={toast.id}
           toast={toast}
           onClose={() => removeToast(toast.id)}
@@ -158,7 +186,6 @@ const ToastContainer: React.FC<{ toasts: ToastInfo[]; removeToast: (id: string) 
   );
 };
 
-// Context برای مدیریت Toast‌ها
 export const ToastContext = React.createContext<{
   addToast: (message: string, type: ToastType, duration?: number) => void;
   removeToast: (id: string) => void;
@@ -167,21 +194,24 @@ export const ToastContext = React.createContext<{
   removeToast: () => {},
 });
 
-// Provider برای ToastContext
-export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [toasts, setToasts] = useState<ToastInfo[]>([]);
-  
-  // اضافه کردن یک Toast جدید
-  const addToast = (message: string, type: ToastType = 'info', duration = 3000) => {
+
+  const addToast = (
+    message: string,
+    type: ToastType = "info",
+    duration = 3000
+  ) => {
     const id = Date.now().toString();
-    setToasts(prev => [...prev, { id, message, type, duration }]);
+    setToasts((prev) => [...prev, { id, message, type, duration }]);
   };
-  
-  // حذف یک Toast
+
   const removeToast = (id: string) => {
-    setToasts(prev => prev.filter(toast => toast.id !== id));
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
   };
-  
+
   return (
     <ToastContext.Provider value={{ addToast, removeToast }}>
       <Toaster
@@ -191,25 +221,28 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           zIndex: 99999,
         }}
         toastOptions={{
-          duration: 4000,
+          duration: 3600,
           style: {
-            background: '#333',
-            color: '#fff',
-            fontFamily: 'Vazirmatn, system-ui, sans-serif',
-            fontSize: '0.875rem',
-            padding: '12px',
-            borderRadius: '8px',
+            background: "#16120F",
+            color: "#FAF6F0",
+            fontFamily: "var(--font-vazirmatn), system-ui, sans-serif",
+            fontSize: "0.875rem",
+            fontWeight: 600,
+            padding: "12px 16px",
+            borderRadius: "14px",
+            border: "1px solid rgba(255, 255, 255, 0.12)",
+            boxShadow: "0 16px 32px -8px rgba(22, 18, 15, 0.3)",
           },
           success: {
             iconTheme: {
-              primary: '#22c55e',
-              secondary: '#fff',
+              primary: "#22C55E",
+              secondary: "#16120F",
             },
           },
           error: {
             iconTheme: {
-              primary: '#ef4444',
-              secondary: '#fff',
+              primary: "#EF4444",
+              secondary: "#16120F",
             },
           },
         }}
@@ -220,13 +253,12 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   );
 };
 
-// Hook برای استفاده از Toast در کامپوننت‌ها
 export const useToast = () => {
   const context = React.useContext(ToastContext);
   if (!context) {
-    throw new Error('useToast must be used within a ToastProvider');
+    throw new Error("useToast must be used within a ToastProvider");
   }
   return context;
 };
 
-export default ToastProvider; 
+export default ToastProvider;

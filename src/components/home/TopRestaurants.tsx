@@ -1,369 +1,424 @@
 "use client";
 
-import React from 'react';
-import styled, { keyframes } from 'styled-components';
-import Link from 'next/link';
-import FavoriteButton from '@/components/common/FavoriteButton';
+import React from "react";
+import styled from "styled-components";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import FavoriteButton from "@/components/common/FavoriteButton";
+import {
+  DishArtwork,
+  resolveFoodKind,
+  FOOD_VISUAL_PALETTE,
+  StarIcon,
+  ClockIcon,
+  CourierIcon,
+  ArrowLeftIcon,
+} from "@/components/ui/FoodVisuals";
 
 const SectionContainer = styled.section`
-  padding: 4rem 2rem;
-  background-color: ${props => props.theme.colors.neutral[50]};
-  
-  @media (max-width: ${props => props.theme.breakpoints.md}) {
-    padding: 2.25rem 1rem;
-  }
+  padding: 4rem 1.75rem;
+  background-color: ${(props) => props.theme.colors.neutral[50]};
+  direction: rtl;
 
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    padding: 1.5rem 0.875rem;
+  @media (max-width: ${(props) => props.theme.breakpoints.md}) {
+    padding: 2.5rem 1rem;
   }
 `;
 
-const SectionHeader = styled.div`
+const SectionHeader = styled(motion.div)`
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  max-width: 1200px;
-  margin: 0 auto 2rem;
-  
-  @media (max-width: ${props => props.theme.breakpoints.md}) {
+  align-items: flex-end;
+  max-width: 1240px;
+  margin: 0 auto 2.25rem;
+  gap: 1rem;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.75rem;
-    margin-bottom: 1.25rem;
+    margin-bottom: 1.35rem;
   }
 `;
 
-const TitleContainer = styled.div``;
+const TitleContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+`;
+
+const Eyebrow = styled.span`
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: ${(props) => props.theme.colors.primary[600]};
+`;
 
 const SectionTitle = styled.h2`
-  font-size: ${props => props.theme.typography.fontSizes['3xl']};
+  font-size: clamp(1.45rem, 2.5vw, 2rem);
   font-weight: 800;
-  color: ${props => props.theme.colors.neutral[900]};
-  margin-bottom: 0.5rem;
-
-  @media (max-width: ${props => props.theme.breakpoints.md}) {
-    font-size: 1.5rem;
-  }
-
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    font-size: 1.25rem;
-    margin-bottom: 0.25rem;
-  }
+  color: ${(props) => props.theme.colors.neutral[900]};
+  margin: 0;
 `;
 
 const SectionSubtitle = styled.p`
-  font-size: ${props => props.theme.typography.fontSizes.md};
-  color: ${props => props.theme.colors.neutral[600]};
-
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    font-size: 0.8rem;
-  }
+  font-size: 0.95rem;
+  color: ${(props) => props.theme.colors.neutral[600]};
+  margin: 0;
 `;
 
 const ViewAllButton = styled(Link)`
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  padding: 0.75rem 1.5rem;
-  background-color: white;
-  border: 1px solid ${props => props.theme.colors.neutral[300]};
-  border-radius: ${props => props.theme.borderRadius.md};
-  font-weight: ${props => props.theme.typography.fontWeights.medium};
-  color: ${props => props.theme.colors.neutral[900]};
+  gap: 0.45rem;
+  padding: 0.6rem 1.15rem;
+  background-color: #ffffff;
+  border: 1px solid ${(props) => props.theme.colors.neutral[200]};
+  border-radius: ${(props) => props.theme.borderRadius.full};
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: ${(props) => props.theme.colors.neutral[800]};
   text-decoration: none;
-  transition: border-color 140ms cubic-bezier(0.2, 0, 0, 1),
-    color 140ms cubic-bezier(0.2, 0, 0, 1),
-    background-color 140ms cubic-bezier(0.2, 0, 0, 1),
-    transform 120ms cubic-bezier(0.2, 0, 0, 1);
-  min-height: 44px;
-  user-select: none;
-  touch-action: manipulation;
-  
+  transition: transform 180ms var(--ease-out),
+    border-color 180ms var(--ease-out),
+    color 180ms var(--ease-out);
+
   &:hover {
-    border-color: ${props => props.theme.colors.primary[500]};
-    color: ${props => props.theme.colors.primary[500]};
-  }
-
-  &:active {
-    transform: scale(0.98);
-  }
-
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    width: 100%;
-    justify-content: center;
-    padding: 0.55rem 1rem;
-    font-size: 0.85rem;
-    min-height: 38px;
-  }
-`;
-
-const restaurantsEntrance = keyframes`
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+    border-color: ${(props) => props.theme.colors.primary[400]};
+    color: ${(props) => props.theme.colors.primary[600]};
+    transform: translateX(-3px);
   }
 `;
 
 const RestaurantsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 2rem;
-  max-width: 1200px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.35rem;
+  max-width: 1240px;
   margin: 0 auto;
-  animation: ${restaurantsEntrance} 460ms cubic-bezier(0.16, 1, 0.3, 1) both;
 
-  @media (max-width: ${props => props.theme.breakpoints.md}) {
-    gap: 1.25rem;
+  @media (max-width: 1080px) {
+    grid-template-columns: repeat(2, 1fr);
   }
 
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
     grid-template-columns: 1fr;
-    gap: 0.75rem;
+    gap: 1rem;
   }
 `;
 
-const RestaurantCard = styled.div`
-  background-color: white;
-  border-radius: ${props => props.theme.borderRadius.xl};
+const RestaurantCard = styled(motion.article)`
+  background-color: #ffffff;
+  border-radius: 1.35rem;
   overflow: hidden;
-  border: 1px solid ${props => props.theme.colors.neutral[200]};
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  transition: transform 200ms cubic-bezier(0.2, 0, 0, 1),
-    box-shadow 200ms cubic-bezier(0.2, 0, 0, 1),
-    border-color 200ms cubic-bezier(0.2, 0, 0, 1);
+  border: 1px solid ${(props) => props.theme.colors.neutral[200]};
+  box-shadow: 0 6px 18px -6px rgba(22, 18, 15, 0.06);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: transform 240ms var(--ease-out),
+    box-shadow 240ms var(--ease-out),
+    border-color 240ms var(--ease-out);
 
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    border-radius: 1rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  }
-  
   @media (hover: hover) and (pointer: fine) {
     &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 24px -4px rgba(0, 0, 0, 0.1);
-      border-color: ${props => props.theme.colors.neutral[300]};
+      transform: translateY(-6px);
+      box-shadow: 0 24px 40px -12px rgba(22, 18, 15, 0.15);
+      border-color: ${(props) => props.theme.colors.primary[300]};
     }
-  }
-
-  &:active {
-    transform: scale(0.99);
   }
 `;
 
 const CardLink = styled(Link)`
   text-decoration: none;
   color: inherit;
-  display: block;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 `;
 
-const ImageContainer = styled.div`
+const CoverStage = styled.div<{ $bgStart: string; $bgEnd: string }>`
   position: relative;
   width: 100%;
-  height: 160px;
-  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+  height: 148px;
+  background: linear-gradient(
+    135deg,
+    ${(props) => props.$bgStart} 0%,
+    ${(props) => props.$bgEnd} 100%
+  );
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 4rem;
-  border-bottom: 1px solid ${props => props.theme.colors.neutral[100]};
-  transition: transform 0.3s ease;
+  overflow: hidden;
 
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    height: 110px;
-    font-size: 2.5rem;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(
+      rgba(255, 255, 255, 0.12) 1px,
+      transparent 1px
+    );
+    background-size: 16px 16px;
+    opacity: 0.35;
   }
+`;
+
+const CoverArtworkMotion = styled.div`
+  position: relative;
+  z-index: 2;
+  transition: transform 280ms var(--ease-out);
+
+  ${RestaurantCard}:hover & {
+    transform: scale(1.09) translateY(-3px) rotate(-2deg);
+  }
+`;
+
+const StatusPill = styled.span`
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(22, 18, 15, 0.72);
+  backdrop-filter: blur(8px);
+  color: #faf6f0;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+
+  span.dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #4ade80;
+    animation: foodinoPulseDot 2.2s infinite;
+  }
+`;
+
+const RatingFloatingBadge = styled.span`
+  position: absolute;
+  bottom: 0.75rem;
+  right: 0.85rem;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: #ffffff;
+  color: ${(props) => props.theme.colors.neutral[900]};
+  padding: 0.22rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 `;
 
 const RestaurantInfo = styled.div`
-  padding: 1.5rem;
-
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    padding: 0.85rem;
-  }
+  padding: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 `;
 
 const RestaurantName = styled.h3`
-  font-size: ${props => props.theme.typography.fontSizes.xl};
-  font-weight: ${props => props.theme.typography.fontWeights.semibold};
-  color: ${props => props.theme.colors.neutral[900]};
-  margin-bottom: 0.5rem;
+  font-size: 1.12rem;
+  font-weight: 800;
+  color: ${(props) => props.theme.colors.neutral[900]};
+  margin: 0 0 0.25rem;
+  transition: color 180ms var(--ease-out);
 
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    font-size: 1.05rem;
-    margin-bottom: 0.25rem;
+  ${RestaurantCard}:hover & {
+    color: ${(props) => props.theme.colors.primary[600]};
   }
 `;
 
 const RestaurantType = styled.span`
   display: block;
-  font-size: ${props => props.theme.typography.fontSizes.sm};
-  color: ${props => props.theme.colors.neutral[700]};
-  margin-bottom: 1rem;
-
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    font-size: 0.8rem;
-    margin-bottom: 0.5rem;
-  }
+  font-size: 0.82rem;
+  color: ${(props) => props.theme.colors.neutral[600]};
+  margin-bottom: 0.85rem;
 `;
 
 const TagsContainer = styled.div`
   display: flex;
-  gap: 0.5rem;
+  gap: 0.4rem;
   margin-bottom: 1rem;
   flex-wrap: wrap;
-
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    gap: 0.35rem;
-    margin-bottom: 0.65rem;
-  }
 `;
 
 const Tag = styled.span`
-  font-size: ${props => props.theme.typography.fontSizes.xs};
-  color: ${props => props.theme.colors.neutral[700]};
-  background-color: ${props => props.theme.colors.neutral[100]};
-  padding: 0.25rem 0.75rem;
-  border-radius: ${props => props.theme.borderRadius.full};
-
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    font-size: 0.7rem;
-    padding: 0.2rem 0.55rem;
-  }
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: ${(props) => props.theme.colors.neutral[700]};
+  background-color: ${(props) => props.theme.colors.neutral[100]};
+  padding: 0.2rem 0.6rem;
+  border-radius: ${(props) => props.theme.borderRadius.full};
 `;
 
 const CardFooter = styled.div`
+  margin-top: auto;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 1rem;
-  border-top: 1px solid ${props => props.theme.colors.neutral[100]};
-
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    padding-top: 0.65rem;
-  }
+  padding-top: 0.85rem;
+  border-top: 1px solid ${(props) => props.theme.colors.neutral[100]};
+  font-size: 0.78rem;
+  color: ${(props) => props.theme.colors.neutral[600]};
+  font-weight: 600;
 `;
 
-const Rating = styled.div`
-  display: flex;
+const MetaChip = styled.span`
+  display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.3rem;
 `;
 
-const StarIcon = styled.span`
-  color: ${props => props.theme.colors.warning[500]};
-`;
-
-const RatingText = styled.span`
-  font-size: ${props => props.theme.typography.fontSizes.sm};
-  font-weight: ${props => props.theme.typography.fontWeights.medium};
-  color: ${props => props.theme.colors.neutral[900]};
-`;
-
-const DeliveryInfo = styled.div`
-  font-size: ${props => props.theme.typography.fontSizes.sm};
-  color: ${props => props.theme.colors.neutral[700]};
-`;
-
-// رستوران‌های برتر همگام با دیتابیس
 const restaurants = [
   {
-    id: '20000000-0000-4000-8000-000000000001',
-    name: 'پیتزا برتر',
-    icon: '🍕',
-    type: 'فست فود',
-    tags: ['پیتزا', 'برگر', 'ساندویچ'],
-    rating: 4.8,
-    deliveryTime: '30-45 دقیقه',
-    slug: 'best-pizza',
+    id: "20000000-0000-4000-8000-000000000001",
+    name: "پیتزا برتر",
+    cuisineClue: "pizza",
+    type: "پیتزا ناپولیتن و فست‌فود ایتالیایی",
+    tags: ["پیتزا تنوری", "نان سیر", "پپرونی"],
+    rating: "۴.۸",
+    deliveryTime: "۳۰ تا ۴۵ دقیقه",
+    deliveryFee: "۱۵,۰۰۰ تومان",
+    slug: "best-pizza",
   },
   {
-    id: '20000000-0000-4000-8000-000000000002',
-    name: 'رستوران سنتی بهشت',
-    icon: '🍖',
-    type: 'غذای ایرانی',
-    tags: ['چلوکباب', 'خورشت', 'دیزی'],
-    rating: 4.6,
-    deliveryTime: '40-55 دقیقه',
-    slug: 'traditional-iranian',
+    id: "20000000-0000-4000-8000-000000000002",
+    name: "برگرلند",
+    cuisineClue: "burger",
+    type: "برگر دست‌ساز ذغالی و سوخاری",
+    tags: ["چیزبرگر دودی", "ماشروم برگر", "سوخاری"],
+    rating: "۴.۶",
+    deliveryTime: "۲۵ تا ۴۰ دقیقه",
+    deliveryFee: "۱۸,۰۰۰ تومان",
+    slug: "burger-land",
   },
   {
-    id: '20000000-0000-4000-8000-000000000004',
-    name: 'سوشی بار توکیو',
-    icon: '🍣',
-    type: 'ژاپنی و دریایی',
-    tags: ['سوشی', 'ساشیمی', 'رامن'],
-    rating: 4.5,
-    deliveryTime: '35-50 دقیقه',
-    slug: 'sushi-bar',
+    id: "20000000-0000-4000-8000-000000000004",
+    name: "رستوران ایرانی سنتی",
+    cuisineClue: "iranian",
+    type: "کباب‌های زعفرانی و خورشت‌های اصیل",
+    tags: ["چلوکباب کوبیده", "جوجه زعفرانی", "قورمه‌سبزی"],
+    rating: "۴.۷",
+    deliveryTime: "۴۰ تا ۵۵ دقیقه",
+    deliveryFee: "۲۰,۰۰۰ تومان",
+    slug: "traditional-iranian",
   },
   {
-    id: '20000000-0000-4000-8000-000000000003',
-    name: 'ته‌چین شیراز',
-    icon: '🍲',
-    type: 'غذای اصیل ایرانی',
-    tags: ['ته‌چین', 'خوراک', 'محلی'],
-    rating: 4.7,
-    deliveryTime: '25-40 دقیقه',
-    slug: 'shiraz-tahchin',
+    id: "20000000-0000-4000-8000-000000000003",
+    name: "سوشی تاکو",
+    cuisineClue: "sushi",
+    type: "سوشی، ساشیمی و نودل‌های آسیایی",
+    tags: ["سالمون رول", "کریسپی رول", "نودل"],
+    rating: "۴.۹",
+    deliveryTime: "۳۵ تا ۵۰ دقیقه",
+    deliveryFee: "۲۰,۰۰۰ تومان",
+    slug: "sushi-tako",
   },
 ];
 
 const TopRestaurants = () => {
   return (
     <SectionContainer>
-      <SectionHeader>
+      <SectionHeader
+        initial={{ opacity: 0, y: 14 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-40px" }}
+        transition={{ duration: 0.42, ease: [0.23, 1, 0.32, 1] }}
+      >
         <TitleContainer>
-          <SectionTitle>رستوران‌های برتر</SectionTitle>
-          <SectionSubtitle>بهترین رستوران‌های شهر با بالاترین امتیاز کاربران</SectionSubtitle>
+          <Eyebrow>آشپزخانه‌های دارای نشان کیفیت</Eyebrow>
+          <SectionTitle>رستوران‌های برتر فودینو</SectionTitle>
+          <SectionSubtitle>
+            برترین رستوران‌های شهر بر اساس امتیاز مشتریان و سرعت آماده‌سازی
+          </SectionSubtitle>
         </TitleContainer>
         <ViewAllButton href="/restaurants">
-          مشاهده همه
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ marginRight: '0.5rem' }}>
-            <path d="M19 12H5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="M12 19L5 12L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
+          <span>مشاهده همه رستوران‌ها</span>
+          <ArrowLeftIcon size={15} />
         </ViewAllButton>
       </SectionHeader>
-      
+
       <RestaurantsGrid>
-        {restaurants.map((restaurant) => (
-          <RestaurantCard key={restaurant.id} style={{ position: 'relative' }}>
-            <div style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 10 }}>
-              <FavoriteButton
-                restaurantId={restaurant.id}
-                restaurantName={restaurant.name}
-                size="sm"
-              />
-            </div>
-            <CardLink href={`/restaurants/${restaurant.slug}`}>
-              <ImageContainer>
-                {restaurant.icon}
-              </ImageContainer>
-              <RestaurantInfo>
-                <RestaurantName>{restaurant.name}</RestaurantName>
-                <RestaurantType>{restaurant.type}</RestaurantType>
-                <TagsContainer>
-                  {restaurant.tags.map((tag, index) => (
-                    <Tag key={index}>{tag}</Tag>
-                  ))}
-                </TagsContainer>
-                <CardFooter>
-                  <Rating>
-                    <StarIcon>★</StarIcon>
-                    <RatingText>{restaurant.rating}</RatingText>
-                  </Rating>
-                  <DeliveryInfo>{restaurant.deliveryTime}</DeliveryInfo>
-                </CardFooter>
-              </RestaurantInfo>
-            </CardLink>
-          </RestaurantCard>
-        ))}
+        {restaurants.map((restaurant, index) => {
+          const kind = resolveFoodKind(restaurant.cuisineClue, restaurant.name);
+          const palette = FOOD_VISUAL_PALETTE[kind];
+
+          return (
+            <RestaurantCard
+              key={restaurant.id}
+              initial={{ opacity: 0, y: 22, scale: 0.96 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, margin: "-30px" }}
+              transition={{
+                duration: 0.46,
+                delay: index * 0.07,
+                ease: [0.23, 1, 0.32, 1],
+              }}
+            >
+              <div
+                style={{
+                  position: "absolute",
+                  top: "10px",
+                  left: "10px",
+                  zIndex: 10,
+                }}
+              >
+                <FavoriteButton
+                  restaurantId={restaurant.id}
+                  restaurantName={restaurant.name}
+                  size="sm"
+                />
+              </div>
+              <CardLink href={`/restaurants/${restaurant.slug}`}>
+                <CoverStage
+                  $bgStart={palette.bgStart}
+                  $bgEnd={palette.bgEnd}
+                >
+                  <StatusPill>
+                    <span className="dot" />
+                    <span>سفارش می‌پذیرد</span>
+                  </StatusPill>
+                  <CoverArtworkMotion>
+                    <DishArtwork kind={kind} size={112} variant="thumb" />
+                  </CoverArtworkMotion>
+                  <RatingFloatingBadge>
+                    <StarIcon size={13} style={{ color: "#E59A11" }} />
+                    <span>{restaurant.rating}</span>
+                  </RatingFloatingBadge>
+                </CoverStage>
+
+                <RestaurantInfo>
+                  <RestaurantName>{restaurant.name}</RestaurantName>
+                  <RestaurantType>{restaurant.type}</RestaurantType>
+                  <TagsContainer>
+                    {restaurant.tags.map((tag, idx) => (
+                      <Tag key={idx}>{tag}</Tag>
+                    ))}
+                  </TagsContainer>
+                  <CardFooter>
+                    <MetaChip>
+                      <ClockIcon size={14} />
+                      <span>{restaurant.deliveryTime}</span>
+                    </MetaChip>
+                    <MetaChip>
+                      <CourierIcon size={14} />
+                      <span>{restaurant.deliveryFee}</span>
+                    </MetaChip>
+                  </CardFooter>
+                </RestaurantInfo>
+              </CardLink>
+            </RestaurantCard>
+          );
+        })}
       </RestaurantsGrid>
     </SectionContainer>
   );
 };
 
-export default TopRestaurants; 
+export default TopRestaurants;

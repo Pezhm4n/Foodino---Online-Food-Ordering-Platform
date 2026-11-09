@@ -6,6 +6,12 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import type { RestaurantSummary } from "@/application/ports/catalog-repository";
 import { submitRestaurantReviewAction } from "@/app/restaurants/actions";
+import {
+  StarIcon,
+  InfoIcon,
+  CheckCircleIcon,
+  SparkleIcon,
+} from "@/components/ui/FoodVisuals";
 
 export interface ReviewItem {
   id: string;
@@ -26,16 +32,16 @@ interface RestaurantReviewsTabProps {
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.35rem;
   direction: rtl;
 `;
 
 const OverviewCard = styled.div`
-  background: white;
-  border-radius: 1rem;
-  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  border-radius: 1.25rem;
+  border: 1px solid ${({ theme }) => theme.colors.neutral[200]};
   padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 14px -4px rgba(22, 18, 15, 0.05);
   display: grid;
   grid-template-columns: 200px 1fr;
   gap: 2rem;
@@ -44,7 +50,7 @@ const OverviewCard = styled.div`
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     grid-template-columns: 1fr;
     gap: 1.25rem;
-    padding: 1.15rem 1rem;
+    padding: 1.2rem 1rem;
   }
 `;
 
@@ -54,46 +60,47 @@ const ScoreBox = styled.div`
   align-items: center;
   justify-content: center;
   text-align: center;
-  border-left: 1px solid #f1f5f9;
+  border-left: 1px solid ${({ theme }) => theme.colors.neutral[200]};
   padding-left: 1.5rem;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     border-left: none;
     padding-left: 0;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid ${({ theme }) => theme.colors.neutral[200]};
     padding-bottom: 1rem;
   }
 
   .big-score {
     font-size: 2.75rem;
-    font-weight: 800;
-    color: #0f172a;
+    font-weight: 900;
+    color: ${({ theme }) => theme.colors.neutral[900]};
     line-height: 1;
-    margin-bottom: 0.35rem;
+    margin-bottom: 0.45rem;
   }
 
   .stars {
-    color: #f59e0b;
-    font-size: 1.25rem;
-    margin-bottom: 0.35rem;
+    color: #e59a11;
+    display: inline-flex;
+    gap: 0.2rem;
+    margin-bottom: 0.4rem;
   }
 
   .total-count {
     font-size: 0.8rem;
-    color: #64748b;
+    color: ${({ theme }) => theme.colors.neutral[500]};
   }
 `;
 
 const BreakdownList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.85rem;
 `;
 
 const BreakdownItem = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.3rem;
 
   .top-row {
     display: flex;
@@ -102,50 +109,48 @@ const BreakdownItem = styled.div`
 
     .title {
       font-weight: 600;
-      color: #334155;
+      color: ${({ theme }) => theme.colors.neutral[700]};
     }
     .val {
-      font-weight: 700;
-      color: #0f172a;
+      font-weight: 800;
+      color: ${({ theme }) => theme.colors.neutral[900]};
     }
   }
 
   .bar-bg {
-    height: 7px;
-    background: #f1f5f9;
+    height: 8px;
+    background: ${({ theme }) => theme.colors.neutral[100]};
     border-radius: 9999px;
     overflow: hidden;
 
     .bar-fill {
       height: 100%;
-      background: linear-gradient(90deg, #f59e0b 0%, #ea580c 100%);
+      background: linear-gradient(90deg, #e59a11 0%, #d9381e 100%);
       border-radius: 9999px;
     }
   }
 `;
 
 const ReviewFormCard = styled.div`
-  background: white;
-  border-radius: 1rem;
-  border: 1px solid #fed7aa;
-  background: linear-gradient(180deg, #fffaf5 0%, #ffffff 100%);
+  background: linear-gradient(180deg, #fef4f0 0%, #ffffff 100%);
+  border-radius: 1.25rem;
+  border: 1px solid ${({ theme }) => theme.colors.primary[200]};
   padding: 1.5rem;
-  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.05);
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    padding: 1rem;
-  }
+  box-shadow: 0 6px 18px -6px rgba(217, 56, 30, 0.08);
 
   h3 {
     font-size: 1.05rem;
     font-weight: 800;
-    color: #9a3412;
+    color: ${({ theme }) => theme.colors.primary[700]};
     margin: 0 0 0.35rem;
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
   }
 
   p.subtitle {
-    font-size: 0.825rem;
-    color: #64748b;
+    font-size: 0.84rem;
+    color: ${({ theme }) => theme.colors.neutral[600]};
     margin: 0 0 1rem;
   }
 `;
@@ -164,7 +169,7 @@ const RatingPicker = styled.div`
   .label {
     font-size: 0.85rem;
     font-weight: 700;
-    color: #334155;
+    color: ${({ theme }) => theme.colors.neutral[800]};
   }
 
   .stars-row {
@@ -175,13 +180,14 @@ const RatingPicker = styled.div`
   button.star-btn {
     background: none;
     border: none;
-    font-size: 1.5rem;
     cursor: pointer;
-    color: #cbd5e1;
+    color: ${({ theme }) => theme.colors.neutral[300]};
+    padding: 0.2rem;
+    display: inline-flex;
     transition: transform 0.15s;
 
     &.active {
-      color: #f59e0b;
+      color: #e59a11;
     }
 
     &:hover {
@@ -197,24 +203,24 @@ const InputGroup = styled.div`
 
   label {
     font-size: 0.825rem;
-    font-weight: 600;
-    color: #334155;
+    font-weight: 700;
+    color: ${({ theme }) => theme.colors.neutral[800]};
   }
 
   input,
   textarea {
-    border: 1px solid #cbd5e1;
-    border-radius: 0.6rem;
-    padding: 0.6rem 0.85rem;
-    font-size: 0.875rem;
+    border: 1px solid ${({ theme }) => theme.colors.neutral[200]};
+    border-radius: 0.75rem;
+    padding: 0.65rem 0.9rem;
+    font-size: 0.88rem;
     font-family: inherit;
-    background: white;
+    background: #ffffff;
     outline: none;
     transition: border-color 0.2s, box-shadow 0.2s;
 
     &:focus {
-      border-color: #ff5a00;
-      box-shadow: 0 0 0 3px rgba(255, 90, 0, 0.12);
+      border-color: ${({ theme }) => theme.colors.primary[500]};
+      box-shadow: 0 0 0 3px ${({ theme }) => theme.colors.primary[100]};
     }
   }
 
@@ -225,20 +231,20 @@ const InputGroup = styled.div`
 `;
 
 const SubmitButton = styled.button`
-  background: linear-gradient(135deg, #ff5a00 0%, #ea580c 100%);
-  color: white;
+  background: ${({ theme }) => theme.colors.primary[500]};
+  color: #ffffff;
   border: none;
-  border-radius: 0.6rem;
-  padding: 0.65rem 1.25rem;
+  border-radius: 0.75rem;
+  padding: 0.7rem 1.35rem;
   font-size: 0.9rem;
   font-weight: 700;
   cursor: pointer;
   align-self: flex-start;
-  box-shadow: 0 2px 8px rgba(255, 90, 0, 0.25);
+  box-shadow: 0 6px 14px -4px rgba(217, 56, 30, 0.32);
   transition: all 0.2s;
 
   &:hover:not(:disabled) {
-    box-shadow: 0 4px 12px rgba(255, 90, 0, 0.4);
+    background: ${({ theme }) => theme.colors.primary[600]};
     transform: translateY(-1px);
   }
 
@@ -249,9 +255,12 @@ const SubmitButton = styled.button`
 `;
 
 const StatusNotice = styled.div<{ $type: "info" | "warning" }>`
-  background: ${({ $type }) => ($type === "info" ? "#f8fafc" : "#fff7ed")};
-  border: 1px solid ${({ $type }) => ($type === "info" ? "#e2e8f0" : "#fed7aa")};
-  border-radius: 0.75rem;
+  background: ${({ $type, theme }) =>
+    $type === "info" ? "#ffffff" : theme.colors.primary[50]};
+  border: 1px solid
+    ${({ $type, theme }) =>
+      $type === "info" ? theme.colors.neutral[200] : theme.colors.primary[200]};
+  border-radius: 1rem;
   padding: 1rem 1.25rem;
   display: flex;
   align-items: center;
@@ -260,17 +269,21 @@ const StatusNotice = styled.div<{ $type: "info" | "warning" }>`
   flex-wrap: wrap;
 
   .text {
-    font-size: 0.85rem;
-    color: ${({ $type }) => ($type === "info" ? "#475569" : "#9a3412")};
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.86rem;
+    color: ${({ $type, theme }) =>
+      $type === "info" ? theme.colors.neutral[700] : theme.colors.primary[800]};
     font-weight: 600;
   }
 
   a {
-    background: #ea580c;
-    color: white;
-    padding: 0.4rem 0.85rem;
-    border-radius: 0.5rem;
-    font-size: 0.8rem;
+    background: ${({ theme }) => theme.colors.primary[500]};
+    color: #ffffff;
+    padding: 0.45rem 0.95rem;
+    border-radius: 0.65rem;
+    font-size: 0.82rem;
     font-weight: 700;
     text-decoration: none;
   }
@@ -283,18 +296,14 @@ const ReviewsList = styled.div`
 `;
 
 const ReviewCard = styled.div`
-  background: white;
-  border-radius: 1rem;
-  border: 1px solid #e2e8f0;
-  padding: 1.15rem;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+  background: #ffffff;
+  border-radius: 1.15rem;
+  border: 1px solid ${({ theme }) => theme.colors.neutral[200]};
+  padding: 1.25rem;
+  box-shadow: 0 4px 12px -4px rgba(22, 18, 15, 0.04);
   display: flex;
   flex-direction: column;
   gap: 0.65rem;
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    padding: 0.85rem;
-  }
 
   .header {
     display: flex;
@@ -304,71 +313,72 @@ const ReviewCard = styled.div`
     .user-info {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.6rem;
     }
 
     .avatar {
-      width: 32px;
-      height: 32px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
-      background: #ffefe5;
-      color: #ea580c;
-      font-size: 0.85rem;
-      font-weight: 700;
+      background: ${({ theme }) => theme.colors.primary[50]};
+      border: 1px solid ${({ theme }) => theme.colors.primary[200]};
+      color: ${({ theme }) => theme.colors.primary[700]};
+      font-size: 0.88rem;
+      font-weight: 800;
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
     .user-name {
-      font-weight: 700;
-      font-size: 0.9rem;
-      color: #0f172a;
+      font-weight: 800;
+      font-size: 0.92rem;
+      color: ${({ theme }) => theme.colors.neutral[900]};
     }
 
     .verified-buyer {
-      font-size: 0.725rem;
-      color: #16a34a;
-      background: #dcfce7;
-      padding: 0.1rem 0.4rem;
-      border-radius: 4px;
-      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      font-size: 0.72rem;
+      color: ${({ theme }) => theme.colors.success[700]};
+      background: ${({ theme }) => theme.colors.success[50]};
+      padding: 0.12rem 0.45rem;
+      border-radius: 999px;
+      font-weight: 700;
     }
 
     .date {
-      font-size: 0.75rem;
-      color: #94a3b8;
+      font-size: 0.76rem;
+      color: ${({ theme }) => theme.colors.neutral[500]};
     }
   }
 
   .rating-stars {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 0.25rem;
-    color: #f59e0b;
+    gap: 0.2rem;
+    color: #e59a11;
     font-size: 0.85rem;
     font-weight: 700;
   }
 
   .comment {
-    font-size: 0.875rem;
-    color: #334155;
-    line-height: 1.6;
+    font-size: 0.88rem;
+    color: ${({ theme }) => theme.colors.neutral[700]};
+    line-height: 1.7;
     margin: 0;
-
-    @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-      font-size: 0.825rem;
-    }
   }
 
   .ordered-item {
-    font-size: 0.75rem;
-    color: #ea580c;
-    background: #fff7ed;
-    padding: 0.18rem 0.55rem;
-    border-radius: 6px;
+    font-size: 0.76rem;
+    color: ${({ theme }) => theme.colors.primary[700]};
+    background: ${({ theme }) => theme.colors.primary[50]};
+    border: 1px solid ${({ theme }) => theme.colors.primary[100]};
+    padding: 0.22rem 0.65rem;
+    border-radius: 0.55rem;
     align-self: flex-start;
-    font-weight: 600;
+    font-weight: 700;
   }
 `;
 
@@ -380,7 +390,8 @@ function getCuratedFallbacks(name: string): ReviewItem[] {
         userName: "مهرداد نوری",
         rating: 5,
         createdAt: "۲ روز پیش",
-        comment: "سوشی سالمون فوق‌العاده تازه بود و واسابی اصیل همراهش عالی بود. بسته‌بندی یخ‌خشک هم واقعاً حرفه‌ای بود.",
+        comment:
+          "سوشی سالمون فوق‌العاده تازه بود و واسابی اصیل همراهش عالی بود. بسته‌بندی ایزوله خنک واقعاً حرفه‌ای بود.",
         foodName: "سوشی سالمون نروژی",
       },
       {
@@ -388,16 +399,9 @@ function getCuratedFallbacks(name: string): ReviewItem[] {
         userName: "سارا کمالی",
         rating: 5,
         createdAt: "هفته گذشته",
-        comment: "رول فیلادلفیا حجم مناسبی داشت و میگو تمپورا هنوز کریسپی و داغ به دستم رسید. حتماً دوباره سفارش می‌دم.",
-        foodName: "رول فیلادلفیا + تمپورا",
-      },
-      {
-        id: "curated-3",
-        userName: "امیرحسین رضایی",
-        rating: 4,
-        createdAt: "۲ هفته پیش",
-        comment: "رامن بسیار خوش‌طعم با فیله‌های نرم و آبگوشت غنی. یکی از بهترین سوشی‌بارهای آنلاین در فودینو.",
-        foodName: "رامن نودل با فیله گوشت",
+        comment:
+          "رول فیلادلفیا حجم مناسبی داشت و کریسپی رول هنوز ترد به دستم رسید. حتماً دوباره سفارش می‌دم.",
+        foodName: "رول فیلادلفیا + کریسپی رول",
       },
     ];
   }
@@ -408,7 +412,8 @@ function getCuratedFallbacks(name: string): ReviewItem[] {
         userName: "علیرضا مقدم",
         rating: 5,
         createdAt: "دیروز",
-        comment: "پیتزا پپرونی تند و عالی با پنیر موزارلای کشسانی و داغ. زمان ارسال زیر ۳۰ دقیقه بود!",
+        comment:
+          "پیتزا پپرونی تند و عالی با پنیر موزارلای کشسانی و داغ. زمان ارسال زیر ۳۰ دقیقه بود!",
         foodName: "پیتزا پپرونی تند",
       },
       {
@@ -416,15 +421,8 @@ function getCuratedFallbacks(name: string): ReviewItem[] {
         userName: "نیلوفر شمس",
         rating: 5,
         createdAt: "۳ روز پیش",
-        comment: "خمیر پیتزا بسیار سبک و ترد بود و سس سیر دست‌ساز طعم خاصی به غذا داده بود.",
-        foodName: "پیتزا سیر و استیک",
-      },
-      {
-        id: "curated-6",
-        userName: "پویا کریمی",
-        rating: 4,
-        createdAt: "هفته گذشته",
-        comment: "بسته‌بندی عالی و گرم بود. سیب‌زمینی‌ها هم خمیر نشده بودند و حسابی ترد بودن.",
+        comment:
+          "خمیر پیتزا بسیار سبک و ترد بود و نان سیر کنار غذا طعم خاصی داشت.",
         foodName: "پیتزا مخصوص ایتالیایی",
       },
     ];
@@ -435,7 +433,8 @@ function getCuratedFallbacks(name: string): ReviewItem[] {
       userName: "فرزاد حسینی",
       rating: 5,
       createdAt: "دیروز",
-      comment: "کیفیت غذا واقعاً عالی بود و طبق توضیحاتی که نوشته بودم بدون کم‌وکاست ارسال شد.",
+      comment:
+        "کیفیت غذا واقعاً عالی بود و طبق توضیحاتی که نوشته بودم بدون کم‌وکاست و داغ ارسال شد.",
       foodName: "غذای اصلی رستوران",
     },
     {
@@ -443,7 +442,8 @@ function getCuratedFallbacks(name: string): ReviewItem[] {
       userName: "مریم زندی",
       rating: 4,
       createdAt: "۴ روز پیش",
-      comment: "ارسال سریع و کیفیت بالا. طعم مواد اولیه کاملاً تازه و باکیفیت حس می‌شد.",
+      comment:
+        "ارسال سریع و کیفیت بالا. طعم مواد اولیه کاملاً تازه و باکیفیت حس می‌شد.",
       foodName: "منوی ویژه",
     },
   ];
@@ -459,7 +459,6 @@ export default function RestaurantReviewsTab({
   const [isPending, startTransition] = useTransition();
   const numberFormatter = new Intl.NumberFormat("fa-IR");
 
-  // ترکیب نظرات دیتابیس با نظرات اولیه
   const allReviews: ReviewItem[] = [
     ...reviews,
     ...getCuratedFallbacks(restaurant.name),
@@ -489,10 +488,19 @@ export default function RestaurantReviewsTab({
     <Container>
       <OverviewCard>
         <ScoreBox>
-          <div className="big-score">{numberFormatter.format(restaurant.rating)}</div>
-          <div className="stars" aria-hidden="true">★★★★★</div>
+          <div className="big-score">
+            {numberFormatter.format(restaurant.rating)}
+          </div>
+          <div className="stars" aria-hidden="true">
+            <StarIcon size={18} />
+            <StarIcon size={18} />
+            <StarIcon size={18} />
+            <StarIcon size={18} />
+            <StarIcon size={18} />
+          </div>
           <div className="total-count">
-            بر اساس {numberFormatter.format(allReviews.length + 240)} نظر ثبت‌شده
+            بر اساس {numberFormatter.format(allReviews.length + 240)} نظر
+            ثبت‌شده
           </div>
         </ScoreBox>
 
@@ -500,9 +508,16 @@ export default function RestaurantReviewsTab({
           <BreakdownItem>
             <div className="top-row">
               <span className="title">کیفیت و طعم غذا</span>
-              <span className="val" style={{ fontVariantNumeric: "tabular-nums" }}>۴.۸ از ۵</span>
+              <span className="val">۴.۸ از ۵</span>
             </div>
-            <div className="bar-bg" role="meter" aria-label="کیفیت و طعم غذا" aria-valuenow={96} aria-valuemin={0} aria-valuemax={100}>
+            <div
+              className="bar-bg"
+              role="meter"
+              aria-label="کیفیت و طعم غذا"
+              aria-valuenow={96}
+              aria-valuemin={0}
+              aria-valuemax={100}
+            >
               <div className="bar-fill" style={{ width: "96%" }} />
             </div>
           </BreakdownItem>
@@ -510,9 +525,16 @@ export default function RestaurantReviewsTab({
           <BreakdownItem>
             <div className="top-row">
               <span className="title">کیفیت و بهداشت بسته‌بندی</span>
-              <span className="val" style={{ fontVariantNumeric: "tabular-nums" }}>۴.۷ از ۵</span>
+              <span className="val">۴.۷ از ۵</span>
             </div>
-            <div className="bar-bg" role="meter" aria-label="کیفیت و بهداشت بسته‌بندی" aria-valuenow={94} aria-valuemin={0} aria-valuemax={100}>
+            <div
+              className="bar-bg"
+              role="meter"
+              aria-label="کیفیت و بهداشت بسته‌بندی"
+              aria-valuenow={94}
+              aria-valuemin={0}
+              aria-valuemax={100}
+            >
               <div className="bar-fill" style={{ width: "94%" }} />
             </div>
           </BreakdownItem>
@@ -520,36 +542,52 @@ export default function RestaurantReviewsTab({
           <BreakdownItem>
             <div className="top-row">
               <span className="title">سرعت تحویل پیک</span>
-              <span className="val" style={{ fontVariantNumeric: "tabular-nums" }}>۴.۶ از ۵</span>
+              <span className="val">۴.۶ از ۵</span>
             </div>
-            <div className="bar-bg" role="meter" aria-label="سرعت تحویل پیک" aria-valuenow={92} aria-valuemin={0} aria-valuemax={100}>
+            <div
+              className="bar-bg"
+              role="meter"
+              aria-label="سرعت تحویل پیک"
+              aria-valuenow={92}
+              aria-valuemin={0}
+              aria-valuemax={100}
+            >
               <div className="bar-fill" style={{ width: "92%" }} />
             </div>
           </BreakdownItem>
         </BreakdownList>
       </OverviewCard>
 
-      {/* فرم ثبت نظر اختصاصی خریداران */}
       {canReview ? (
         <ReviewFormCard>
-          <h3>✍️ ثبت نظر و تجربه خرید شما</h3>
+          <h3>
+            <SparkleIcon size={16} />
+            <span>ثبت نظر و تجربه خرید شما</span>
+          </h3>
           <p className="subtitle">
-            تجربه شما به سایر کاربران در انتخاب غذا از «{restaurant.name}» کمک می‌کند.
+            تجربه شما به سایر کاربران در انتخاب غذا از «{restaurant.name}» کمک
+            می‌کند.
           </p>
 
           <Form onSubmit={handleSubmit}>
             <RatingPicker>
               <span className="label">امتیاز شما:</span>
-              <div className="stars-row" role="group" aria-label="انتخاب امتیاز به ستاره">
+              <div
+                className="stars-row"
+                role="group"
+                aria-label="انتخاب امتیاز به ستاره"
+              >
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
                     key={star}
                     type="button"
-                    className={`star-btn ${star <= selectedRating ? "active" : ""}`}
+                    className={`star-btn ${
+                      star <= selectedRating ? "active" : ""
+                    }`}
                     onClick={() => setSelectedRating(star)}
                     aria-label={`${star} ستاره از ۵`}
                   >
-                    ★
+                    <StarIcon size={22} />
                   </button>
                 ))}
               </div>
@@ -585,19 +623,24 @@ export default function RestaurantReviewsTab({
       ) : isLoggedIn ? (
         <StatusNotice $type="warning">
           <span className="text">
-            ℹ️ ثبت نظر مختص مشتریانی است که از این رستوران سفارش موفق داشته‌اند.
+            <InfoIcon size={17} />
+            <span>
+              ثبت نظر مختص مشتریانی است که از این رستوران سفارش موفق داشته‌اند.
+            </span>
           </span>
         </StatusNotice>
       ) : (
         <StatusNotice $type="info">
           <span className="text">
-            🔒 برای ثبت نظر درباره این رستوران، ابتدا وارد حساب کاربری خود شوید.
+            <InfoIcon size={17} />
+            <span>
+              برای ثبت نظر درباره این رستوران، ابتدا وارد حساب کاربری خود شوید.
+            </span>
           </span>
           <Link href="/auth">ورود به حساب</Link>
         </StatusNotice>
       )}
 
-      {/* لیست نظرات کاربران */}
       <ReviewsList>
         {allReviews.map((rev) => (
           <ReviewCard key={rev.id}>
@@ -608,8 +651,12 @@ export default function RestaurantReviewsTab({
                 </div>
                 <div>
                   <span className="user-name">{rev.userName}</span>
-                  <span className="verified-buyer" style={{ marginRight: "0.4rem" }}>
-                    ✓ خریدار
+                  <span
+                    className="verified-buyer"
+                    style={{ marginRight: "0.4rem" }}
+                  >
+                    <CheckCircleIcon size={11} />
+                    <span>خریدار</span>
                   </span>
                 </div>
               </div>
@@ -617,16 +664,26 @@ export default function RestaurantReviewsTab({
             </div>
 
             <div className="rating-stars">
-              {"★".repeat(rev.rating)}
-              <span style={{ marginRight: "0.25rem", color: "#64748b", fontSize: "0.78rem" }}>
-                ({rev.rating} از ۵)
+              {Array.from({ length: rev.rating }).map((_, idx) => (
+                <StarIcon key={idx} size={14} />
+              ))}
+              <span
+                style={{
+                  marginRight: "0.3rem",
+                  color: "#6E6255",
+                  fontSize: "0.78rem",
+                }}
+              >
+                ({numberFormatter.format(rev.rating)} از ۵)
               </span>
             </div>
 
             <p className="comment">{rev.comment}</p>
 
             {rev.foodName && (
-              <span className="ordered-item">سفارش داده شده: {rev.foodName}</span>
+              <span className="ordered-item">
+                سفارش داده شده: {rev.foodName}
+              </span>
             )}
           </ReviewCard>
         ))}

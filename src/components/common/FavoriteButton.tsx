@@ -44,8 +44,8 @@ const IconButton = styled.button<{ $isFavorite: boolean; $size: 'sm' | 'md' | 'l
     switch ($size) {
       case 'sm':
         return css`
-          width: 32px;
-          height: 32px;
+          width: 34px;
+          height: 34px;
           font-size: 0.95rem;
         `;
       case 'lg':
@@ -81,13 +81,13 @@ const IconButton = styled.button<{ $isFavorite: boolean; $size: 'sm' | 'md' | 'l
       : css`
           background-color: rgba(255, 255, 255, 0.95);
           backdrop-filter: blur(4px);
-          border: 1.5px solid rgba(226, 232, 240, 0.9);
-          color: #64748b;
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+          border: 1.5px solid rgba(230, 221, 208, 0.95);
+          color: #52483e;
+          box-shadow: 0 2px 6px rgba(22, 18, 15, 0.08);
 
           &:hover {
-            background-color: white;
-            border-color: #cbd5e1;
+            background-color: #ffffff;
+            border-color: #d5c9b8;
             color: #e11d48;
             transform: scale(1.06);
           }
@@ -159,15 +159,15 @@ const FullButton = styled.button<{ $isFavorite: boolean; $size: 'sm' | 'md' | 'l
           }
         `
       : css`
-          background-color: white;
-          border: 1.5px solid #e2e8f0;
-          color: #334155;
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+          background-color: #ffffff;
+          border: 1.5px solid #e6ddd0;
+          color: #241e1a;
+          box-shadow: 0 2px 6px rgba(22, 18, 15, 0.04);
 
           &:hover {
-            background-color: #f8fafc;
-            border-color: #cbd5e1;
-            color: #0f172a;
+            background-color: #faf6f0;
+            border-color: #d5c9b8;
+            color: #16120f;
           }
         `}
 
@@ -206,15 +206,15 @@ export default function FavoriteButton({
         const result = await toggleFavoriteAction(restaurantId);
         setIsFavorite(result.isFavorite);
         if (result.isFavorite) {
-          toast.success(`«${restaurantName}» به علاقه‌مندی‌ها افزوده شد.`, { icon: '❤️' });
+          toast.success(`«${restaurantName}» به علاقه‌مندی‌ها افزوده شد.`);
         } else {
-          toast.success(`«${restaurantName}» از علاقه‌مندی‌ها حذف شد.`, { icon: '🗑️' });
+          toast.success(`«${restaurantName}» از علاقه‌مندی‌ها حذف شد.`);
         }
       } catch (error) {
         setIsFavorite(previousState);
         const errMsg = error instanceof Error ? error.message : '';
         if (errMsg.includes('AUTHENTICATION_REQUIRED')) {
-          toast.error('برای نشان کردن رستوران لطفاً ابتدا وارد حساب کاربری خود شوید.', { icon: '🔒' });
+          toast.error('برای نشان کردن رستوران لطفاً ابتدا وارد حساب کاربری خود شوید.');
           if (typeof window !== 'undefined') {
             router.push(`/auth?next=${encodeURIComponent(window.location.pathname)}`);
           }
@@ -249,11 +249,11 @@ export default function FavoriteButton({
         $isFavorite={isFavorite}
         $size={size}
         className={className}
-        aria-label={isFavorite ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها'}
+        aria-label={isFavorite ? 'حذف از علاقه‌مندی‌ها' : 'ذخیره در علاقه‌مندی‌ها'}
         aria-pressed={isFavorite}
       >
         {HeartSvg}
-        <span>{isFavorite ? 'نشان‌شده در علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها'}</span>
+        <span>{isFavorite ? 'نشان‌شده در علاقه‌مندی‌ها' : 'ذخیره در علاقه‌مندی‌ها'}</span>
       </FullButton>
     );
   }
@@ -266,9 +266,9 @@ export default function FavoriteButton({
       $isFavorite={isFavorite}
       $size={size}
       className={className}
-      aria-label={isFavorite ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها'}
+      aria-label={isFavorite ? 'حذف از علاقه‌مندی‌ها' : 'ذخیره در علاقه‌مندی‌ها'}
       aria-pressed={isFavorite}
-      title={isFavorite ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها'}
+      title={isFavorite ? 'حذف از علاقه‌مندی‌ها' : 'ذخیره در علاقه‌مندی‌ها'}
     >
       {HeartSvg}
     </IconButton>

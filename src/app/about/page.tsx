@@ -2,353 +2,400 @@
 
 import React from 'react';
 import styled from 'styled-components';
+import Link from 'next/link';
+import {
+  UtensilsIcon,
+  CourierIcon,
+  ShieldCheckIcon,
+  UserIcon,
+  StoreIcon,
+  ArrowLeftIcon,
+} from '@/components/ui/FoodVisuals';
 
-// کامپوننت‌های استایل شده
 const AboutPageContainer = styled.div`
-  max-width: 1200px;
+  max-width: 1180px;
   margin: 0 auto;
-  padding: 3rem 1.5rem 5rem;
+  padding: 2.5rem 1.5rem 5rem;
   direction: rtl;
 
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    padding: 1.5rem 0.85rem 3rem;
+    padding: 1.5rem 1rem 3.5rem;
   }
 `;
 
-const HeroSection = styled.div`
-  text-align: center;
-  margin-bottom: 4rem;
+const HeroBanner = styled.section`
+  background: linear-gradient(135deg, #16120F 0%, #2C211B 100%);
+  color: #FAF6F0;
+  border-radius: ${props => props.theme.borderRadius['3xl']};
+  padding: 3.5rem 2.5rem;
+  margin-bottom: 3.5rem;
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 2.5rem;
+  align-items: center;
+  box-shadow: ${props => props.theme.shadows.lg};
 
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    margin-bottom: 2rem;
+  @media (max-width: ${props => props.theme.breakpoints.md}) {
+    grid-template-columns: 1fr;
+    padding: 2.25rem 1.5rem;
+    gap: 1.75rem;
   }
+`;
+
+const Kicker = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  background: rgba(217, 56, 30, 0.22);
+  border: 1px solid rgba(217, 56, 30, 0.45);
+  color: #FCA5A5;
+  font-size: 0.78rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
 `;
 
 const PageTitle = styled.h1`
-  font-size: 2.25rem;
-  font-weight: 800;
-  color: ${props => props.theme.colors.neutral[900]};
-  margin-bottom: 1rem;
-
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    font-size: 1.45rem;
-    margin-bottom: 0.5rem;
-  }
+  font-size: clamp(1.85rem, 3.5vw, 2.75rem);
+  font-weight: 900;
+  color: #ffffff;
+  margin: 0 0 1rem;
+  line-height: 1.25;
 `;
 
 const Subtitle = styled.p`
-  font-size: ${props => props.theme.typography.fontSizes.lg};
-  color: ${props => props.theme.colors.neutral[500]};
-  margin-bottom: 2rem;
-  max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
+  font-size: 1rem;
+  color: rgba(250, 246, 240, 0.78);
+  line-height: 1.85;
+  margin: 0;
+`;
 
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    font-size: 0.85rem;
-    margin-bottom: 1.25rem;
+const StatsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+`;
+
+const StatBox = styled.div`
+  padding: 1.25rem;
+  border-radius: ${props => props.theme.borderRadius.xl};
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+
+  strong {
+    display: block;
+    font-size: 1.65rem;
+    font-weight: 900;
+    color: #FBBF24;
+    margin-bottom: 0.25rem;
+  }
+
+  span {
+    font-size: 0.82rem;
+    color: rgba(250, 246, 240, 0.72);
   }
 `;
 
 const Section = styled.section`
-  margin-bottom: 4rem;
-
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    margin-bottom: 2rem;
-  }
+  margin-bottom: 3.5rem;
 `;
 
-const SectionTitle = styled.h2`
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: ${props => props.theme.colors.neutral[900]};
-  margin-bottom: 1rem;
-  text-align: center;
-
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    font-size: 1.2rem;
-    margin-bottom: 0.5rem;
-  }
-`;
-
-const SectionDescription = styled.p`
-  font-size: 1.05rem;
-  color: ${props => props.theme.colors.neutral[600]};
-  text-align: center;
-  max-width: 800px;
-  margin: 0 auto 2.5rem;
-  line-height: 1.7;
-
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    font-size: 0.85rem;
-    margin-bottom: 1.25rem;
-  }
-`;
-
-const FeaturesContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-  gap: 2rem;
+const SectionHeader = styled.div`
   margin-bottom: 2rem;
-  
-  @media (max-width: 768px) {
-    flex-direction: column;
-    gap: 1rem;
+
+  h2 {
+    font-size: clamp(1.45rem, 2.5vw, 1.95rem);
+    font-weight: 900;
+    color: ${props => props.theme.colors.neutral[900]};
+    margin: 0 0 0.5rem;
+  }
+
+  p {
+    font-size: 0.98rem;
+    color: ${props => props.theme.colors.neutral[600]};
+    line-height: 1.8;
+    max-width: 780px;
+    margin: 0;
   }
 `;
 
-const FeatureCard = styled.div`
-  flex: 1;
-  background-color: white;
-  border-radius: ${props => props.theme.borderRadius.lg};
-  box-shadow: ${props => props.theme.boxShadow.md};
-  padding: 2rem;
-  text-align: center;
-  transition: transform 0.3s;
+const BentoPillars = styled.div`
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  gap: 1.35rem;
 
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    padding: 1.25rem 0.85rem;
+  @media (max-width: ${props => props.theme.breakpoints.md}) {
+    grid-template-columns: 1fr;
   }
-  
-  &:hover {
-    transform: translateY(-8px);
-  }
+`;
+
+const PillarCard = styled.div<{ $accent?: boolean }>`
+  background: ${props => (props.$accent ? '#FFF5F2' : '#ffffff')};
+  border: 1px solid ${props => (props.$accent ? '#FFD8CE' : props.theme.colors.neutral[200])};
+  border-radius: ${props => props.theme.borderRadius['2xl']};
+  padding: 1.85rem;
+  box-shadow: ${props => props.theme.shadows.xs};
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
 `;
 
 const IconContainer = styled.div`
-  width: 80px;
-  height: 80px;
-  background-color: ${props => props.theme.colors.primary[400] + '20'};
-  border-radius: 50%;
+  width: 52px;
+  height: 52px;
+  background-color: ${props => props.theme.colors.primary[50]};
+  border: 1px solid ${props => props.theme.colors.primary[100]};
+  color: ${props => props.theme.colors.primary[600]};
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 1.5rem;
-  font-size: 2.5rem;
-
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    width: 56px;
-    height: 56px;
-    font-size: 1.75rem;
-    margin-bottom: 0.85rem;
-  }
 `;
 
 const FeatureTitle = styled.h3`
   font-size: 1.15rem;
-  font-weight: 700;
+  font-weight: 800;
   color: ${props => props.theme.colors.neutral[900]};
-  margin-bottom: 0.75rem;
-
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    font-size: 1rem;
-    margin-bottom: 0.4rem;
-  }
+  margin: 0;
 `;
 
 const FeatureDescription = styled.p`
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   color: ${props => props.theme.colors.neutral[600]};
-  line-height: 1.7;
-
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    font-size: 0.8rem;
-    line-height: 1.5;
-  }
+  line-height: 1.75;
+  margin: 0;
 `;
 
-const TeamContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 3rem;
-  margin-top: 3rem;
-  
-  @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: center;
-    gap: 1.5rem;
-    margin-top: 1.5rem;
+const TeamGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+
+  @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    grid-template-columns: 1fr;
   }
 `;
 
 const TeamMemberCard = styled.div`
-  width: 280px;
-  background-color: white;
-  border-radius: ${props => props.theme.borderRadius.lg};
-  box-shadow: ${props => props.theme.boxShadow.md};
-  overflow: hidden;
-  transition: transform 0.3s;
-
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    width: 100%;
-    max-width: 280px;
-  }
-  
-  &:hover {
-    transform: translateY(-8px);
-  }
+  background-color: #ffffff;
+  border: 1px solid ${props => props.theme.colors.neutral[200]};
+  border-radius: ${props => props.theme.borderRadius['2xl']};
+  box-shadow: ${props => props.theme.shadows.xs};
+  padding: 1.75rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1.25rem;
 `;
 
-const TeamMemberImage = styled.div`
-  height: 280px;
-  background-color: ${props => props.theme.colors.neutral[300]};
+const AvatarBox = styled.div`
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #1F1814 0%, #3A2B22 100%);
+  color: #FBBF24;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 4rem;
-
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    height: 180px;
-  }
+  flex-shrink: 0;
 `;
 
 const TeamMemberInfo = styled.div`
-  padding: 1.5rem;
-  text-align: center;
+  flex: 1;
 `;
 
 const TeamMemberName = styled.h3`
-  font-size: ${props => props.theme.typography.fontSizes.md};
-  font-weight: ${props => props.theme.typography.fontWeights.semibold};
-  color: ${props => props.theme.colors.secondary[500]};
-  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: ${props => props.theme.colors.neutral[900]};
+  margin: 0 0 0.2rem;
 `;
 
 const TeamMemberRole = styled.p`
-  font-size: ${props => props.theme.typography.fontSizes.sm};
-  color: ${props => props.theme.colors.primary[500]};
-  margin-bottom: 1rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: ${props => props.theme.colors.primary[600]};
+  margin: 0 0 0.65rem;
 `;
 
 const TeamMemberDescription = styled.p`
-  font-size: ${props => props.theme.typography.fontSizes.sm};
-  color: ${props => props.theme.colors.neutral[500]};
-  line-height: 1.6;
+  font-size: 0.88rem;
+  color: ${props => props.theme.colors.neutral[600]};
+  line-height: 1.7;
+  margin: 0;
 `;
 
 const JoinSection = styled.div`
-  background-color: ${props => props.theme.colors.primary[500]};
-  border-radius: ${props => props.theme.borderRadius.lg};
-  padding: 3rem;
-  text-align: center;
+  background: linear-gradient(135deg, #D9381E 0%, #96200D 100%);
+  border-radius: ${props => props.theme.borderRadius['2xl']};
+  padding: 2.75rem 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
   color: white;
-  margin-top: 4rem;
+  flex-wrap: wrap;
 `;
 
-const JoinTitle = styled.h2`
-  font-size: ${props => props.theme.typography.fontSizes.lg};
-  font-weight: ${props => props.theme.typography.fontWeights.bold};
-  margin-bottom: 1rem;
+const JoinText = styled.div`
+  max-width: 620px;
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 900;
+    margin: 0 0 0.5rem;
+    color: #ffffff;
+  }
+
+  p {
+    font-size: 0.95rem;
+    margin: 0;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.75;
+  }
 `;
 
-const JoinDescription = styled.p`
-  font-size: ${props => props.theme.typography.fontSizes.md};
-  margin-bottom: 2rem;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
-  line-height: 1.6;
-`;
-
-const JoinButton = styled.a`
-  display: inline-block;
-  padding: 1rem 2rem;
-  background-color: white;
-  color: ${props => props.theme.colors.primary[500]};
-  border-radius: ${props => props.theme.borderRadius.md};
-  font-weight: ${props => props.theme.typography.fontWeights.medium};
+const JoinButton = styled(Link)`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.9rem 1.75rem;
+  background-color: #ffffff;
+  color: ${props => props.theme.colors.primary[700]};
+  border-radius: ${props => props.theme.borderRadius.xl};
+  font-weight: 800;
+  font-size: 0.95rem;
   text-decoration: none;
-  transition: all 0.2s;
-  
+  transition: transform 0.2s ease;
+
   &:hover {
-    background-color: ${props => props.theme.colors.neutral[100]};
-    transform: scale(1.05);
+    transform: translateY(-2px);
   }
 `;
 
 const AboutPage = () => {
   return (
     <AboutPageContainer>
-      <HeroSection>
-        <PageTitle>درباره فودینو</PageTitle>
-        <Subtitle>
-          داستان ما از یک ایده ساده شروع شد: ارائه غذای با کیفیت با سرویس‌دهی عالی به مشتریان
-        </Subtitle>
-      </HeroSection>
-      
+      <HeroBanner>
+        <div>
+          <Kicker>داستان شکل‌گیری فودینو</Kicker>
+          <PageTitle>درباره فودینو؛ پیوند هنر آشپزی و مهندسی لجستیک</PageTitle>
+          <Subtitle>
+            فودینو در سال ۱۴۰۰ با یک مأموریت روشن متولد شد: رساندن غذای داغ و اصیل از بهترین آشپزخانه‌های شهر به میز کاربران، با استاندارد بسته‌بندی حرفه‌ای و شفافیت کامل در زمان تحویل.
+          </Subtitle>
+        </div>
+        <StatsGrid>
+          <StatBox>
+            <strong>+۱۲۰</strong>
+            <span>آشپزخانه و رستوران منتخب</span>
+          </StatBox>
+          <StatBox>
+            <strong>۳۲ دقیقه</strong>
+            <span>میانگین تحویل سفارش در شهر</span>
+          </StatBox>
+          <StatBox>
+            <strong>۹۸.۴٪</strong>
+            <span>رضایت از دمای غذای تحویلی</span>
+          </StatBox>
+          <StatBox>
+            <strong>۲۴/۷</strong>
+            <span>پشتیبانی مستقیم سفارش‌ها</span>
+          </StatBox>
+        </StatsGrid>
+      </HeroBanner>
+
       <Section>
-        <SectionTitle>داستان ما</SectionTitle>
-        <SectionDescription>
-          فودینو در سال ۱۴۰۰ با هدف ایجاد پلتفرمی برای سفارش آنلاین غذا از رستوران‌های برتر تهران تاسیس شد. ما با تیمی کوچک اما پرانرژی شروع کردیم و امروز به یکی از بزرگترین سرویس‌های سفارش آنلاین غذا تبدیل شده‌ایم. هدف ما ساده است: فراهم کردن بهترین تجربه سفارش غذا برای مشتریان و کمک به رستوران‌ها برای رسیدن به مشتریان بیشتر.
-        </SectionDescription>
-        
-        <FeaturesContainer>
-          <FeatureCard>
-            <IconContainer>🍽️</IconContainer>
-            <FeatureTitle>کیفیت</FeatureTitle>
+        <SectionHeader>
+          <h2>فلسفه کاری ما</h2>
+          <p>
+            ما باور داریم سفارش آنلاین غذا نباید به معنای افت کیفیت یا سرد شدن غذا در مسیر باشد. تمام فرآیندهای فودینو بر پایه سه اصل کلیدی طراحی شده‌اند:
+          </p>
+        </SectionHeader>
+
+        <BentoPillars>
+          <PillarCard $accent>
+            <IconContainer>
+              <UtensilsIcon size={24} />
+            </IconContainer>
+            <FeatureTitle>انتخاب سخت‌گیرانه آشپزخانه‌ها</FeatureTitle>
             <FeatureDescription>
-              ما فقط با رستوران‌هایی همکاری می‌کنیم که استانداردهای بالای کیفیت غذا را رعایت می‌کنند و مواد اولیه تازه استفاده می‌کنند.
+              تنها رستوران‌هایی وارد فهرست فودینو می‌شوند که استانداردهای بهداشتی، تازگی مواد اولیه روزانه و بسته‌بندی استاندارد حرارتی را رعایت کنند.
             </FeatureDescription>
-          </FeatureCard>
-          
-          <FeatureCard>
-            <IconContainer>⚡</IconContainer>
-            <FeatureTitle>سرعت</FeatureTitle>
+          </PillarCard>
+
+          <PillarCard>
+            <IconContainer>
+              <CourierIcon size={24} />
+            </IconContainer>
+            <FeatureTitle>لجستیک هوشمند و سریع</FeatureTitle>
             <FeatureDescription>
-              سیستم هوشمند ما زمان تحویل سفارش را به حداقل می‌رساند و شما می‌توانید غذای خود را در کمترین زمان ممکن دریافت کنید.
+              تخصیص خودکار نزدیک‌ترین سفیر به آشپزخانه هم‌زمان با مرحله پخت، زمان انتظار غذا پس از آماده‌سازی را به صفر نزدیک می‌کند.
             </FeatureDescription>
-          </FeatureCard>
-          
-          <FeatureCard>
-            <IconContainer>🛡️</IconContainer>
-            <FeatureTitle>اعتماد</FeatureTitle>
+          </PillarCard>
+
+          <PillarCard>
+            <IconContainer>
+              <ShieldCheckIcon size={24} />
+            </IconContainer>
+            <FeatureTitle>شفافیت مالی و تضمین کیفیت</FeatureTitle>
             <FeatureDescription>
-              بیش از ۹۵٪ مشتریان ما تجربه خرید خود را عالی ارزیابی کرده‌اند و مجدداً از سرویس ما استفاده می‌کنند.
+              محاسبه قیمت‌ها مستقیماً روی سرور انجام می‌شود و بیش از ۹۵٪ مشتریان تجربه سفارش خود را عالی ارزیابی کرده‌اند.
             </FeatureDescription>
-          </FeatureCard>
-        </FeaturesContainer>
+          </PillarCard>
+        </BentoPillars>
       </Section>
-      
+
       <Section>
-        <SectionTitle>تیم ما</SectionTitle>
-        <SectionDescription>
-          فودینو توسط تیمی از متخصصان با تجربه در صنعت غذا و فناوری اداره می‌شود. همه اعضای تیم ما با هدف مشترک ارائه بهترین خدمات به مشتریان کار می‌کنند.
-        </SectionDescription>
-        
-        <TeamContainer>
+        <SectionHeader>
+          <h2>تیم راهبری فودینو</h2>
+          <p>
+            فودینو توسط جمعی از متخصصان صنعت غذا، عملیات لجستیک و مهندسی نرم‌افزار هدایت می‌شود.
+          </p>
+        </SectionHeader>
+
+        <TeamGrid>
           <TeamMemberCard>
-            <TeamMemberImage>👨‍💼</TeamMemberImage>
+            <AvatarBox>
+              <UserIcon size={28} />
+            </AvatarBox>
             <TeamMemberInfo>
               <TeamMemberName>محمد علیزاده</TeamMemberName>
-              <TeamMemberRole>مدیر عامل و بنیان‌گذار</TeamMemberRole>
+              <TeamMemberRole>مدیرعامل و هم‌بنیان‌گذار</TeamMemberRole>
               <TeamMemberDescription>
-                محمد با بیش از ۱۰ سال تجربه در صنعت رستوران‌داری و فناوری، فودینو را با هدف پر کردن شکاف بین رستوران‌های برتر و مشتریان تاسیس کرد.
+                با بیش از ۱۰ سال تجربه در صنعت رستوران‌داری و پلتفرم‌های دیجیتال، محمد معمار استانداردهای عملیاتی و تجربه کاربری فودینو است.
               </TeamMemberDescription>
             </TeamMemberInfo>
           </TeamMemberCard>
-          
+
           <TeamMemberCard>
-            <TeamMemberImage>👩‍💼</TeamMemberImage>
+            <AvatarBox>
+              <StoreIcon size={28} />
+            </AvatarBox>
             <TeamMemberInfo>
               <TeamMemberName>سارا رضایی</TeamMemberName>
-              <TeamMemberRole>مدیر ارتباط با رستوران‌ها</TeamMemberRole>
+              <TeamMemberRole>مدیر شبکه رستوران‌ها و کنترل کیفیت</TeamMemberRole>
               <TeamMemberDescription>
-                سارا مسئول برقراری و حفظ ارتباط با رستوران‌های همکار است و با استفاده از تجربه ۸ ساله خود، بهترین رستوران‌ها را برای همکاری انتخاب می‌کند.
+                سارا مسئول ارزیابی دوره‌ای منوها، کیفیت بسته‌بندی و توسعه همکاری با برترین سرآشپزها و رستوران‌های شهر است.
               </TeamMemberDescription>
             </TeamMemberInfo>
           </TeamMemberCard>
-        </TeamContainer>
+        </TeamGrid>
       </Section>
-      
+
       <JoinSection>
-        <JoinTitle>به فودینو بپیوندید</JoinTitle>
-        <JoinDescription>
-          اگر به صنعت غذا و فناوری علاقه دارید و می‌خواهید در یک محیط پویا و رو به رشد کار کنید، فودینو منتظر شماست. ما همیشه به دنبال استعدادهای جدید هستیم.
-        </JoinDescription>
-        <JoinButton href="/contact">تماس با ما</JoinButton>
+        <JoinText>
+          <h2>همکاری با فودینو</h2>
+          <p>
+            اگر صاحب رستوران هستید یا علاقه‌مند به فعالیت در تیم فنی و عملیاتی فودینو هستید، مشتاق شنیدن صدای شما هستیم.
+          </p>
+        </JoinText>
+        <JoinButton href="/contact">
+          <span>تماس با تیم ما</span>
+          <ArrowLeftIcon size={16} />
+        </JoinButton>
       </JoinSection>
     </AboutPageContainer>
   );
 };
 
-export default AboutPage; 
+export default AboutPage;

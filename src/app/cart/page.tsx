@@ -6,96 +6,164 @@ import Link from 'next/link';
 import { useCart } from '@/contexts/CartContext';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
+import {
+  DishArtwork,
+  resolveFoodKind,
+  BagIcon,
+  StoreIcon,
+  TrashIcon,
+  PlusIcon,
+  MinusIcon,
+  TagIcon,
+  CheckCircleIcon,
+  ArrowLeftIcon,
+  ShieldCheckIcon,
+} from '@/components/ui/FoodVisuals';
 
-// کامپوننت‌های استایل شده
 const PageContainer = styled.div`
-  max-width: 1200px;
+  max-width: 1240px;
   margin: 0 auto;
-  padding: 2rem 1.5rem 4rem;
+  padding: 2.5rem 1.5rem 5rem;
   direction: rtl;
 
   @media (max-width: ${props => props.theme.breakpoints.md}) {
-    padding: 1.25rem 0.85rem calc(6rem + env(safe-area-inset-bottom, 0px));
+    padding: 1.5rem 1rem calc(6.5rem + env(safe-area-inset-bottom, 0px));
   }
 `;
 
 const PageHeader = styled.div`
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
   margin-bottom: 2rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid ${props => props.theme.colors.neutral[200]};
 
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
+    flex-direction: column;
+    align-items: flex-start;
     margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
   }
+`;
+
+const HeaderTitleGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+`;
+
+const Kicker = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: ${props => props.theme.colors.primary[600]};
 `;
 
 const PageTitle = styled.h1`
-  font-size: 2.25rem;
-  font-weight: 800;
+  font-size: clamp(1.65rem, 3vw, 2.25rem);
+  font-weight: 900;
   color: ${props => props.theme.colors.neutral[900]};
-  margin-bottom: 0.5rem;
-
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    font-size: 1.45rem;
-    margin-bottom: 0.25rem;
-  }
+  letter-spacing: -0.02em;
+  margin: 0;
 `;
 
 const PageDescription = styled.p`
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: ${props => props.theme.colors.neutral[500]};
-  margin-bottom: 2rem;
+  margin: 0;
+`;
 
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    font-size: 0.85rem;
-    margin-bottom: 1.25rem;
+const BackLink = styled(Link)`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1px solid ${props => props.theme.colors.neutral[200]};
+  color: ${props => props.theme.colors.neutral[700]};
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: ${props => props.theme.colors.primary[400]};
+    color: ${props => props.theme.colors.primary[600]};
   }
 `;
 
 const EmptyCart = styled.div`
   text-align: center;
-  padding: 3rem;
-  background-color: ${props => props.theme.colors.neutral[50]};
-  border-radius: ${props => props.theme.borderRadius.lg};
-  margin-bottom: 2rem;
+  padding: 4rem 2rem;
+  background: linear-gradient(180deg, #ffffff 0%, #FAF6F0 100%);
+  border: 1px solid ${props => props.theme.colors.neutral[200]};
+  border-radius: ${props => props.theme.borderRadius['2xl']};
+  box-shadow: ${props => props.theme.shadows.sm};
+  max-width: 620px;
+  margin: 1rem auto 2rem;
+`;
+
+const EmptyVisualWrap = styled.div`
+  width: 96px;
+  height: 96px;
+  margin: 0 auto 1.25rem;
+  border-radius: 28px;
+  background: ${props => props.theme.colors.primary[50]};
+  border: 1px solid ${props => props.theme.colors.primary[100]};
+  color: ${props => props.theme.colors.primary[500]};
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 const EmptyCartTitle = styled.h2`
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: ${props => props.theme.colors.neutral[700]};
-  margin-bottom: 1rem;
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: ${props => props.theme.colors.neutral[900]};
+  margin-bottom: 0.5rem;
 `;
 
 const EmptyCartDescription = styled.p`
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: ${props => props.theme.colors.neutral[500]};
-  margin-bottom: 2rem;
+  margin-bottom: 1.75rem;
+  line-height: 1.7;
 `;
 
 const BackToRestaurantsButton = styled(Link)`
-  display: inline-block;
-  margin-top: 1.5rem;
-  padding: 0.75rem 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.75rem;
   background-color: ${props => props.theme.colors.primary[500]};
   color: white;
-  border-radius: ${props => props.theme.borderRadius.md};
-  font-weight: ${props => props.theme.typography.fontWeights.medium};
+  border-radius: ${props => props.theme.borderRadius.lg};
+  font-weight: 700;
+  font-size: 0.95rem;
   text-decoration: none;
-  
+  box-shadow: ${props => props.theme.shadows.brand};
+  transition: all 0.2s ease;
+
   &:hover {
-    background-color: ${props => props.theme.colors.primary[400]};
+    background-color: ${props => props.theme.colors.primary[600]};
+    transform: translateY(-2px);
   }
 `;
 
 const CartContent = styled.div`
   display: grid;
-  grid-template-columns: 1fr 350px;
+  grid-template-columns: 1fr 390px;
   gap: 2rem;
-  margin-top: 2rem;
-  
+  align-items: start;
+
   @media (max-width: ${props => props.theme.breakpoints.lg}) {
     grid-template-columns: 1fr;
-    gap: 1.25rem;
-    margin-top: 1.25rem;
+    gap: 1.5rem;
   }
 `;
 
@@ -103,65 +171,101 @@ const CartItems = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
+`;
 
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    gap: 0.65rem;
+const RestaurantBanner = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, #1F1814 0%, #2C221C 100%);
+  color: #FAF6F0;
+  border-radius: ${props => props.theme.borderRadius.xl};
+  box-shadow: ${props => props.theme.shadows.sm};
+`;
+
+const RestaurantBannerRight = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+`;
+
+const RestaurantIconBox = styled.div`
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #FBBF24;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const RestaurantMeta = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+
+  span {
+    font-size: 0.75rem;
+    color: rgba(250, 246, 240, 0.65);
   }
+
+  strong {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #ffffff;
+  }
+`;
+
+const ItemCountBadge = styled.span`
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(217, 56, 30, 0.25);
+  border: 1px solid rgba(217, 56, 30, 0.45);
+  color: #FCA5A5;
+  font-size: 0.78rem;
+  font-weight: 700;
 `;
 
 const CartItemCard = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem;
-  background-color: white;
-  border-radius: ${props => props.theme.borderRadius.lg};
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  gap: 1rem;
+  padding: 1.15rem 1.25rem;
+  background-color: #ffffff;
+  border: 1px solid ${props => props.theme.colors.neutral[200]};
+  border-radius: ${props => props.theme.borderRadius.xl};
+  box-shadow: ${props => props.theme.shadows.xs};
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    border-color: ${props => props.theme.colors.neutral[300]};
+    box-shadow: ${props => props.theme.shadows.sm};
+  }
 
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    padding: 0.75rem;
-    border-radius: 0.75rem;
-    gap: 0.5rem;
+    padding: 0.9rem;
+    gap: 0.75rem;
   }
 `;
 
-const RestaurantInfo = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 1rem;
-  background-color: ${props => props.theme.colors.neutral[50]};
-  border-radius: ${props => props.theme.borderRadius.md};
-  margin-bottom: 1rem;
-`;
-
-const RestaurantIcon = styled.span`
-  font-size: 1.5rem;
-`;
-
-const RestaurantName = styled.p`
-  font-size: 0.95rem;
-  color: ${props => props.theme.colors.primary[500]};
-  font-weight: ${props => props.theme.typography.fontWeights.medium};
-`;
-
-const ItemImage = styled.div`
-  width: 60px;
-  height: 60px;
-  border-radius: ${props => props.theme.borderRadius.md};
-  background-color: ${props => props.theme.colors.neutral[100]};
+const ItemVisualBox = styled.div`
+  width: 72px;
+  height: 72px;
+  border-radius: 16px;
+  background: ${props => props.theme.colors.neutral[50]};
+  border: 1px solid ${props => props.theme.colors.neutral[200]};
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
-  margin-left: 1rem;
+  flex-shrink: 0;
 
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    width: 46px;
-    height: 46px;
-    font-size: 1.25rem;
-    margin-left: 0.5rem;
-    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
   }
 `;
 
@@ -171,216 +275,215 @@ const ItemDetails = styled.div`
 `;
 
 const ItemName = styled.h3`
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: ${props => props.theme.colors.neutral[700]};
-  margin-bottom: 0.25rem;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: ${props => props.theme.colors.neutral[900]};
+  margin: 0 0 0.3rem;
 
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
     font-size: 0.95rem;
-    margin-bottom: 0.15rem;
   }
 `;
 
-const ItemPrice = styled.p`
-  font-size: 1rem;
-  font-weight: 500;
-  color: ${props => props.theme.colors.neutral[700]};
+const ItemPriceRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+`;
 
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    font-size: 0.85rem;
-  }
+const ItemPrice = styled.span`
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: ${props => props.theme.colors.primary[600]};
+`;
+
+const ItemSubtotalTag = styled.span`
+  font-size: 0.78rem;
+  color: ${props => props.theme.colors.neutral[500]};
+  background: ${props => props.theme.colors.neutral[100]};
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+`;
+
+const ItemNoteTag = styled.div`
+  margin-top: 0.45rem;
+  font-size: 0.78rem;
+  color: ${props => props.theme.colors.neutral[600]};
+  background: ${props => props.theme.colors.neutral[50]};
+  border: 1px solid ${props => props.theme.colors.neutral[200]};
+  padding: 0.25rem 0.6rem;
+  border-radius: 8px;
+  display: inline-block;
 `;
 
 const ItemControls = styled.div`
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
 
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    gap: 0.35rem;
+    gap: 0.4rem;
   }
 `;
 
 const QuantityControl = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    gap: 0.25rem;
-  }
+  gap: 0.35rem;
+  padding: 0.25rem;
+  background: ${props => props.theme.colors.neutral[50]};
+  border: 1px solid ${props => props.theme.colors.neutral[200]};
+  border-radius: 999px;
 `;
 
 const QuantityButton = styled.button`
-  width: 36px;
-  height: 36px;
-  min-width: 36px;
-  min-height: 36px;
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  min-height: 34px;
   border-radius: 50%;
-  border: 1px solid ${props => props.theme.colors.neutral[300]};
-  background-color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-size: 1.15rem;
-  font-weight: 600;
-  color: ${props => props.theme.colors.neutral[700]};
-  transition: transform 120ms cubic-bezier(0.2, 0, 0, 1),
-    background-color 140ms cubic-bezier(0.2, 0, 0, 1),
-    border-color 140ms cubic-bezier(0.2, 0, 0, 1);
-  user-select: none;
-  touch-action: manipulation;
-  
-  &:hover {
-    background-color: ${props => props.theme.colors.neutral[100]};
-    border-color: ${props => props.theme.colors.neutral[400]};
-  }
-
-  &:active {
-    transform: scale(0.94);
-  }
-
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    width: 32px;
-    height: 32px;
-    min-width: 32px;
-    min-height: 32px;
-    font-size: 1rem;
-  }
-`;
-
-const Quantity = styled.span`
-  min-width: 2rem;
-  text-align: center;
-  font-weight: 700;
-  font-size: 1rem;
-  color: ${props => props.theme.colors.neutral[900]};
-
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    font-size: 0.9rem;
-    min-width: 1.5rem;
-  }
-`;
-
-const RemoveButton = styled.button`
-  background: none;
   border: none;
-  color: ${props => props.theme.colors.error[500]};
-  cursor: pointer;
-  width: 44px;
-  height: 44px;
-  min-width: 44px;
-  min-height: 44px;
-  border-radius: 50%;
+  background-color: #ffffff;
+  box-shadow: ${props => props.theme.shadows.xs};
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 120ms cubic-bezier(0.2, 0, 0, 1),
-    background-color 140ms cubic-bezier(0.2, 0, 0, 1),
-    color 140ms cubic-bezier(0.2, 0, 0, 1);
+  cursor: pointer;
+  color: ${props => props.theme.colors.neutral[800]};
+  transition: all 0.15s ease;
   user-select: none;
   touch-action: manipulation;
-  
+
   &:hover {
-    background-color: ${props => props.theme.colors.error[50]};
-    color: ${props => props.theme.colors.error[600]};
+    background-color: ${props => props.theme.colors.primary[500]};
+    color: #ffffff;
   }
 
   &:active {
     transform: scale(0.92);
   }
-
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    width: 36px;
-    height: 36px;
-    min-width: 36px;
-    min-height: 36px;
-  }
 `;
 
-const MobileStickyBar = styled.div`
-  display: none;
-  @media (max-width: ${props => props.theme.breakpoints.md}) {
-    display: flex;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: white;
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
-    padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom, 0px));
-    z-index: 95;
-    align-items: center;
-    justify-content: space-between;
-    border-top: 1px solid ${props => props.theme.colors.neutral[200]};
-    direction: rtl;
-  }
+const Quantity = styled.span`
+  min-width: 1.85rem;
+  text-align: center;
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: ${props => props.theme.colors.neutral[900]};
 `;
 
-const MobileCheckoutBtn = styled.button`
-  background: ${props => props.theme.colors.primary[500]};
-  color: white;
-  border: none;
-  padding: 0.65rem 1.35rem;
-  border-radius: ${props => props.theme.borderRadius.md};
-  font-weight: 700;
-  font-size: 0.925rem;
-  min-height: 42px;
+const RemoveButton = styled.button`
+  background: none;
+  border: 1px solid transparent;
+  color: ${props => props.theme.colors.neutral[400]};
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(255, 90, 0, 0.25);
-  transition: transform 120ms cubic-bezier(0.2, 0, 0, 1),
-    background-color 140ms cubic-bezier(0.2, 0, 0, 1),
-    box-shadow 140ms cubic-bezier(0.2, 0, 0, 1);
-  user-select: none;
-  touch-action: manipulation;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  min-height: 38px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
 
-  &:active {
-    transform: scale(0.97);
+  &:hover {
+    background-color: ${props => props.theme.colors.error[50]};
+    border-color: ${props => props.theme.colors.error[100]};
+    color: ${props => props.theme.colors.error[600]};
+  }
+`;
+
+const OrderNoteContainer = styled.div`
+  margin-top: 0.5rem;
+  background: #ffffff;
+  padding: 1.25rem;
+  border-radius: ${props => props.theme.borderRadius.xl};
+  border: 1px solid ${props => props.theme.colors.neutral[200]};
+`;
+
+const OrderNoteLabel = styled.label`
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: ${props => props.theme.colors.neutral[800]};
+  margin-bottom: 0.6rem;
+`;
+
+const OrderNoteTextarea = styled.textarea`
+  width: 100%;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid ${props => props.theme.colors.neutral[200]};
+  background: ${props => props.theme.colors.neutral[50]};
+  border-radius: ${props => props.theme.borderRadius.lg};
+  font-size: 0.88rem;
+  font-family: inherit;
+  color: ${props => props.theme.colors.neutral[900]};
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+
+  &:focus {
+    background: #ffffff;
+    border-color: ${props => props.theme.colors.primary[500]};
   }
 `;
 
 const CartSummary = styled.div`
-  background-color: white;
-  border-radius: ${props => props.theme.borderRadius.lg};
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  padding: 1.5rem;
+  background-color: #ffffff;
+  border: 1px solid ${props => props.theme.colors.neutral[200]};
+  border-radius: ${props => props.theme.borderRadius['2xl']};
+  box-shadow: ${props => props.theme.shadows.md};
+  padding: 1.65rem;
   position: sticky;
-  top: 100px;
+  top: 96px;
 `;
 
 const SummaryTitle = styled.h2`
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: ${props => props.theme.colors.neutral[700]};
-  margin-bottom: 1.5rem;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: ${props => props.theme.colors.neutral[900]};
+  margin: 0 0 1.25rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid ${props => props.theme.colors.neutral[200]};
 `;
 
 const SummaryRow = styled.div<{ $isDiscount?: boolean }>`
   display: flex;
   justify-content: space-between;
-  padding: 0.75rem 0;
-  color: ${props => (props.$isDiscount ? '#16a34a' : 'inherit')};
-  
-  &:not(:last-child) {
-    border-bottom: 1px solid ${props => props.theme.colors.neutral[100]};
-  }
+  align-items: center;
+  padding: 0.65rem 0;
+  color: ${props => (props.$isDiscount ? props.theme.colors.success[600] : 'inherit')};
+`;
+
+const SummaryLabel = styled.span`
+  font-size: 0.9rem;
+  color: ${props => props.theme.colors.neutral[500]};
+`;
+
+const SummaryValue = styled.span`
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: ${props => props.theme.colors.neutral[800]};
 `;
 
 const CouponSection = styled.div`
-  margin: 1.25rem 0;
+  margin: 1.15rem 0;
   padding: 1rem;
-  background-color: #f8fafc;
-  border: 1px dashed #cbd5e1;
-  border-radius: ${props => props.theme.borderRadius.md};
+  background-color: ${props => props.theme.colors.neutral[50]};
+  border: 1px dashed ${props => props.theme.colors.neutral[300]};
+  border-radius: ${props => props.theme.borderRadius.xl};
 `;
 
 const CouponTitle = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
   font-size: 0.85rem;
-  font-weight: 600;
-  color: ${props => props.theme.colors.neutral[700]};
-  margin-bottom: 0.5rem;
+  font-weight: 700;
+  color: ${props => props.theme.colors.neutral[800]};
+  margin-bottom: 0.65rem;
 `;
 
 const CouponInputContainer = styled.div`
@@ -390,8 +493,9 @@ const CouponInputContainer = styled.div`
 
 const CouponInput = styled.input`
   flex: 1;
-  padding: 0.55rem 0.75rem;
-  border: 1px solid #cbd5e1;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid ${props => props.theme.colors.neutral[300]};
+  background: #ffffff;
   border-radius: ${props => props.theme.borderRadius.md};
   font-size: 0.85rem;
   outline: none;
@@ -404,218 +508,194 @@ const CouponInput = styled.input`
   }
 
   &:disabled {
-    background: #e2e8f0;
-    color: #64748b;
+    background: ${props => props.theme.colors.neutral[100]};
+    color: ${props => props.theme.colors.neutral[500]};
   }
 `;
 
 const CouponApplyBtn = styled.button`
-  background: ${props => props.theme.colors.primary[500]};
+  background: ${props => props.theme.colors.neutral[900]};
   color: white;
   border: none;
-  padding: 0.55rem 1rem;
+  padding: 0.6rem 1rem;
   border-radius: ${props => props.theme.borderRadius.md};
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
-  transition: all 0.2s;
+  transition: background 0.2s ease;
 
   &:hover {
-    background: ${props => props.theme.colors.primary[600]};
+    background: ${props => props.theme.colors.primary[500]};
   }
 `;
 
 const CouponRemoveBtn = styled.button`
-  background: #ef4444;
+  background: ${props => props.theme.colors.error[500]};
   color: white;
   border: none;
-  padding: 0.55rem 0.85rem;
+  padding: 0.6rem 0.9rem;
   border-radius: ${props => props.theme.borderRadius.md};
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
-  transition: all 0.2s;
+`;
+
+const QuickCouponsRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-top: 0.6rem;
+`;
+
+const QuickCouponPill = styled.button`
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+  border: 1px solid ${props => props.theme.colors.primary[200]};
+  background: #ffffff;
+  color: ${props => props.theme.colors.primary[600]};
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
 
   &:hover {
-    background: #dc2626;
+    background: ${props => props.theme.colors.primary[50]};
+    border-color: ${props => props.theme.colors.primary[400]};
   }
 `;
 
 const CouponActiveBadge = styled.div`
-  margin-top: 0.5rem;
+  margin-top: 0.65rem;
   font-size: 0.8rem;
-  color: #16a34a;
-  background: #dcfce7;
-  padding: 0.35rem 0.6rem;
-  border-radius: ${props => props.theme.borderRadius.sm};
+  color: ${props => props.theme.colors.success[600]};
+  background: ${props => props.theme.colors.success[50]};
+  border: 1px solid ${props => props.theme.colors.success[100]};
+  padding: 0.45rem 0.7rem;
+  border-radius: ${props => props.theme.borderRadius.md};
   display: flex;
   align-items: center;
+  gap: 0.4rem;
 `;
 
-const OrderNoteContainer = styled.div`
-  margin-top: 1.25rem;
-  background: white;
-  padding: 1rem 1.25rem;
-  border-radius: ${props => props.theme.borderRadius.lg};
-  border: 1px solid ${props => props.theme.colors.neutral[200]};
-`;
-
-const OrderNoteLabel = styled.label`
-  display: block;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: ${props => props.theme.colors.neutral[700]};
-  margin-bottom: 0.5rem;
-`;
-
-const OrderNoteTextarea = styled.textarea`
-  width: 100%;
-  padding: 0.6rem 0.75rem;
-  border: 1px solid #cbd5e1;
-  border-radius: ${props => props.theme.borderRadius.md};
-  font-size: 0.85rem;
-  font-family: inherit;
-  resize: vertical;
-  outline: none;
-
-  &:focus {
-    border-color: ${props => props.theme.colors.primary[500]};
-  }
-`;
-
-const ItemNoteTag = styled.div`
-  margin-top: 0.35rem;
-  font-size: 0.78rem;
-  color: #475569;
-  background: #f1f5f9;
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
-  display: inline-block;
-`;
-
-const SummaryLabel = styled.span`
-  font-size: 0.875rem;
-  color: ${props => props.theme.colors.neutral[500]};
-`;
-
-const SummaryValue = styled.span`
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: ${props => props.theme.colors.neutral[700]};
-`;
-
-const TotalRow = styled(SummaryRow)`
+const TotalRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid ${props => props.theme.colors.neutral[100]};
+  border-top: 2px solid ${props => props.theme.colors.neutral[100]};
 `;
 
-const TotalLabel = styled(SummaryLabel)`
+const TotalLabel = styled.span`
   font-size: 1rem;
-  font-weight: 600;
-  color: ${props => props.theme.colors.neutral[700]};
+  font-weight: 800;
+  color: ${props => props.theme.colors.neutral[900]};
 `;
 
-const TotalValue = styled(SummaryValue)`
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: ${props => props.theme.colors.primary[500]};
+const TotalValue = styled.span`
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: ${props => props.theme.colors.primary[600]};
 `;
 
 const CheckoutButton = styled.button`
   width: 100%;
-  padding: 1rem;
+  padding: 0.95rem 1.25rem;
   background-color: ${props => props.theme.colors.primary[500]};
   color: white;
-  font-weight: 600;
-  font-size: 1.1rem;
+  font-weight: 800;
+  font-size: 1rem;
   border: none;
-  border-radius: ${props => props.theme.borderRadius.lg};
-  margin-top: 1.5rem;
+  border-radius: ${props => props.theme.borderRadius.xl};
+  margin-top: 1.35rem;
   cursor: pointer;
-  box-shadow: 0 4px 6px rgba(255, 90, 0, 0.2);
-  transition: transform 120ms cubic-bezier(0.2, 0, 0, 1),
-    background-color 140ms cubic-bezier(0.2, 0, 0, 1),
-    box-shadow 140ms cubic-bezier(0.2, 0, 0, 1);
-  position: relative;
-  overflow: hidden;
-  user-select: none;
-  touch-action: manipulation;
-  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: ${props => props.theme.shadows.brand};
+  transition: all 0.2s ease;
+
   &:hover {
-    background-color: ${props => props.theme.colors.primary[400]};
+    background-color: ${props => props.theme.colors.primary[600]};
     transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(255, 90, 0, 0.3);
   }
-  
+
   &:active {
     transform: scale(0.98);
-    box-shadow: 0 3px 6px rgba(255, 90, 0, 0.2);
-  }
-  
-  &::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
-    transition: opacity 0.3s ease;
-  }
-  
-  &:hover::after {
-    opacity: 0.6;
-  }
-  
-  &:disabled {
-    background-color: ${props => props.theme.colors.neutral[300]};
-    cursor: not-allowed;
-    box-shadow: none;
-    transform: none;
-    
-    &:hover {
-      transform: none;
-      box-shadow: none;
-    }
-    
-    &::after {
-      display: none;
-    }
   }
 `;
 
 const ClearCartButton = styled.button`
   width: 100%;
-  padding: 0.75rem;
-  margin-top: 1rem;
+  padding: 0.7rem;
+  margin-top: 0.75rem;
   background-color: transparent;
-  border: 1px solid ${props => props.theme.colors.neutral[300]};
-  border-radius: ${props => props.theme.borderRadius.md};
-  color: ${props => props.theme.colors.neutral[700]};
-  font-weight: ${props => props.theme.typography.fontWeights.medium};
+  border: 1px solid ${props => props.theme.colors.neutral[200]};
+  border-radius: ${props => props.theme.borderRadius.lg};
+  color: ${props => props.theme.colors.neutral[600]};
+  font-size: 0.85rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  
+
   &:hover {
     border-color: ${props => props.theme.colors.error[500]};
-    color: ${props => props.theme.colors.error[500]};
+    color: ${props => props.theme.colors.error[600]};
+    background: ${props => props.theme.colors.error[50]};
   }
 `;
 
-const EmptyCartIcon = styled.div`
-  font-size: 3rem;
-  margin-bottom: 1rem;
+const TrustNote = styled.div`
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  font-size: 0.76rem;
+  color: ${props => props.theme.colors.neutral[500]};
 `;
 
-// فرمت‌کننده قیمت به تومان
+const MobileStickyBar = styled.div`
+  display: none;
+  @media (max-width: ${props => props.theme.breakpoints.md}) {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 -6px 24px rgba(22, 18, 15, 0.1);
+    padding: 0.85rem 1rem calc(0.85rem + env(safe-area-inset-bottom, 0px));
+    z-index: 95;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid ${props => props.theme.colors.neutral[200]};
+    direction: rtl;
+  }
+`;
+
+const MobileCheckoutBtn = styled.button`
+  background: ${props => props.theme.colors.primary[500]};
+  color: white;
+  border: none;
+  padding: 0.7rem 1.4rem;
+  border-radius: ${props => props.theme.borderRadius.lg};
+  font-weight: 800;
+  font-size: 0.925rem;
+  min-height: 44px;
+  cursor: pointer;
+  box-shadow: ${props => props.theme.shadows.brand};
+`;
+
 const formatPrice = (price: number): string => {
   return price.toLocaleString('fa-IR') + ' تومان';
 };
 
-// کامپوننت اصلی صفحه سبد خرید
 const CartPage = () => {
   const {
     state,
@@ -634,40 +714,48 @@ const CartPage = () => {
   } = useCart();
   const [couponInput, setCouponInput] = useState('');
   const router = useRouter();
-  
-  // هزینه ارسال ثابت
+
   const deliveryFee = 15000;
-  
-  // محاسبه مبلغ کل
   const subtotal = calculateSubtotal();
   const total = calculateTotal(deliveryFee);
-  
-  // انتقال به صفحه checkout
+
   const handleCheckout = () => {
     if (state.items.length > 0) {
-      // ذخیره اطلاعات سبد خرید در localStorage قبل از انتقال
       router.push('/checkout');
     } else {
       toast.error('سبد خرید شما خالی است');
     }
   };
-  
+
   return (
     <PageContainer>
       <PageHeader>
-        <PageTitle>سبد خرید</PageTitle>
-        <PageDescription>محصولات انتخابی خود را اینجا مشاهده کنید</PageDescription>
+        <HeaderTitleGroup>
+          <Kicker>
+            <BagIcon size={15} />
+            مدیریت سفارش و صورت‌حساب
+          </Kicker>
+          <PageTitle>سبد خرید</PageTitle>
+          <PageDescription>اقلام انتخابی، کد تخفیف و یادداشت سفارش خود را پیش از پرداخت بررسی کنید.</PageDescription>
+        </HeaderTitleGroup>
+        <BackLink href="/restaurants">
+          <span>افزودن آیتم جدید</span>
+          <ArrowLeftIcon size={15} />
+        </BackLink>
       </PageHeader>
-      
+
       {state.items.length === 0 ? (
         <EmptyCart>
-          <EmptyCartIcon>🛒</EmptyCartIcon>
+          <EmptyVisualWrap>
+            <BagIcon size={42} />
+          </EmptyVisualWrap>
           <EmptyCartTitle>سبد خرید شما خالی است</EmptyCartTitle>
           <EmptyCartDescription>
-            به نظر می‌رسد هنوز چیزی به سبد خرید خود اضافه نکرده‌اید.
+            هنوز غذایی به سبد خرید اضافه نکرده‌اید. از منوی رستوران‌های منتخب فودینو، غذای گرم و تازه خود را انتخاب کنید.
           </EmptyCartDescription>
           <BackToRestaurantsButton href="/restaurants">
-            مشاهده رستوران‌ها
+            <span>مشاهده رستوران‌ها</span>
+            <ArrowLeftIcon size={16} />
           </BackToRestaurantsButton>
         </EmptyCart>
       ) : (
@@ -675,43 +763,81 @@ const CartPage = () => {
           <CartContent>
             <CartItems>
               {state.restaurantName && (
-                <RestaurantInfo>
-                  <RestaurantIcon>🍽️</RestaurantIcon>
-                  <RestaurantName>{state.restaurantName}</RestaurantName>
-                </RestaurantInfo>
+                <RestaurantBanner>
+                  <RestaurantBannerRight>
+                    <RestaurantIconBox>
+                      <StoreIcon size={20} />
+                    </RestaurantIconBox>
+                    <RestaurantMeta>
+                      <span>سفارش فعال از آشپزخانه</span>
+                      <strong>{state.restaurantName}</strong>
+                    </RestaurantMeta>
+                  </RestaurantBannerRight>
+                  <ItemCountBadge>
+                    {state.items.reduce((sum, i) => sum + i.quantity, 0).toLocaleString('fa-IR')} قلم غذا
+                  </ItemCountBadge>
+                </RestaurantBanner>
               )}
-              
-              {state.items.map(item => (
-                <CartItemCard key={item.id}>
-                  {item.image && <ItemImage>{item.image}</ItemImage>}
-                  <ItemDetails>
-                    <ItemName>{item.name}</ItemName>
-                    <ItemPrice>{formatPrice(item.price)}</ItemPrice>
-                    {item.notes && (
-                      <ItemNoteTag>
-                        <span style={{ fontWeight: 600 }}>📝 یادداشت:</span> {item.notes}
-                      </ItemNoteTag>
-                    )}
-                  </ItemDetails>
-                  <ItemControls>
-                    <QuantityControl>
-                      <QuantityButton onClick={() => decreaseQuantity(item.id)} aria-label="کاهش تعداد">-</QuantityButton>
-                      <Quantity>{item.quantity}</Quantity>
-                      <QuantityButton onClick={() => increaseQuantity(item.id)} aria-label="افزایش تعداد">+</QuantityButton>
-                    </QuantityControl>
-                    <RemoveButton onClick={() => removeItem(item.id)} aria-label="حذف از سبد خرید">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                        <path d="M3 6H5H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </RemoveButton>
-                  </ItemControls>
-                </CartItemCard>
-              ))}
+
+              {state.items.map(item => {
+                const foodKind = resolveFoodKind(`${item.name} ${state.restaurantName ?? ''}`);
+                return (
+                  <CartItemCard key={item.id}>
+                    <ItemVisualBox>
+                      <DishArtwork kind={foodKind} size={54} />
+                    </ItemVisualBox>
+                    <ItemDetails>
+                      <ItemName>{item.name}</ItemName>
+                      <ItemPriceRow>
+                        <ItemPrice>{formatPrice(item.price)}</ItemPrice>
+                        {item.quantity > 1 && (
+                          <ItemSubtotalTag>
+                            جمع: {formatPrice(item.price * item.quantity)}
+                          </ItemSubtotalTag>
+                        )}
+                      </ItemPriceRow>
+                      {item.notes && (
+                        <ItemNoteTag>
+                          <strong>یادداشت:</strong> {item.notes}
+                        </ItemNoteTag>
+                      )}
+                    </ItemDetails>
+                    <ItemControls>
+                      <QuantityControl>
+                        <QuantityButton
+                          type="button"
+                          onClick={() => decreaseQuantity(item.id)}
+                          aria-label="کاهش تعداد"
+                        >
+                          <MinusIcon size={14} />
+                        </QuantityButton>
+                        <Quantity>{item.quantity.toLocaleString('fa-IR')}</Quantity>
+                        <QuantityButton
+                          type="button"
+                          onClick={() => increaseQuantity(item.id)}
+                          aria-label="افزایش تعداد"
+                        >
+                          <PlusIcon size={14} />
+                        </QuantityButton>
+                      </QuantityControl>
+                      <RemoveButton
+                        type="button"
+                        onClick={() => removeItem(item.id)}
+                        aria-label="حذف از سبد خرید"
+                      >
+                        <TrashIcon size={17} />
+                      </RemoveButton>
+                    </ItemControls>
+                  </CartItemCard>
+                );
+              })}
 
               <OrderNoteContainer>
-                <OrderNoteLabel>✍️ یادداشت سفارش برای رستوران و پیک (اختیاری):</OrderNoteLabel>
+                <OrderNoteLabel htmlFor="order-note-input">
+                  یادداشت سفارش برای سرآشپز یا سفیر (اختیاری)
+                </OrderNoteLabel>
                 <OrderNoteTextarea
+                  id="order-note-input"
                   placeholder="مثلاً: بدون پیاز، سس مخصوص بیشتر، زنگ طبقه سوم..."
                   value={orderNote}
                   onChange={(e) => setOrderNote(e.target.value)}
@@ -719,28 +845,28 @@ const CartPage = () => {
                 />
               </OrderNoteContainer>
             </CartItems>
-            
+
             <CartSummary>
-              <SummaryTitle>خلاصه سفارش</SummaryTitle>
+              <SummaryTitle>خلاصه صورت‌حساب</SummaryTitle>
               <SummaryRow>
-                <SummaryLabel>جمع سبد خرید:</SummaryLabel>
+                <SummaryLabel>جمع اقلام سفارش</SummaryLabel>
                 <SummaryValue>{formatPrice(subtotal)}</SummaryValue>
               </SummaryRow>
 
               {discountToman > 0 && (
                 <SummaryRow $isDiscount>
-                  <SummaryLabel>تخفیف ({appliedCoupon?.code}):</SummaryLabel>
-                  <SummaryValue style={{ color: '#16a34a', fontWeight: 700 }}>
+                  <SummaryLabel>تخفیف ({appliedCoupon?.code})</SummaryLabel>
+                  <SummaryValue style={{ color: '#15803D', fontWeight: 800 }}>
                     - {formatPrice(discountToman)}
                   </SummaryValue>
                 </SummaryRow>
               )}
 
               <SummaryRow>
-                <SummaryLabel>هزینه ارسال:</SummaryLabel>
+                <SummaryLabel>هزینه ارسال پیک</SummaryLabel>
                 <SummaryValue>
                   {appliedCoupon?.type === 'free_delivery' ? (
-                    <span style={{ color: '#16a34a', fontWeight: 700 }}>رایگان</span>
+                    <span style={{ color: '#15803D', fontWeight: 800 }}>رایگان</span>
                   ) : (
                     formatPrice(deliveryFee)
                   )}
@@ -748,7 +874,10 @@ const CartPage = () => {
               </SummaryRow>
 
               <CouponSection>
-                <CouponTitle>🎁 کد تخفیف</CouponTitle>
+                <CouponTitle>
+                  <TagIcon size={15} />
+                  <span>کد تخفیف فودینو</span>
+                </CouponTitle>
                 <CouponInputContainer>
                   <CouponInput
                     type="text"
@@ -784,39 +913,64 @@ const CartPage = () => {
                     </CouponApplyBtn>
                   )}
                 </CouponInputContainer>
+
+                {!appliedCoupon && (
+                  <QuickCouponsRow>
+                    {['FOODINO', 'WELCOME50', 'FREEDEL'].map(code => (
+                      <QuickCouponPill
+                        key={code}
+                        type="button"
+                        onClick={() => {
+                          setCouponInput(code);
+                          applyCouponCode(code, deliveryFee);
+                        }}
+                      >
+                        {code}
+                      </QuickCouponPill>
+                    ))}
+                  </QuickCouponsRow>
+                )}
+
                 {appliedCoupon && (
                   <CouponActiveBadge>
-                    <span>✓ کد <strong>{appliedCoupon.code}</strong> فعال شد: {appliedCoupon.description}</span>
+                    <CheckCircleIcon size={15} />
+                    <span>کد <strong>{appliedCoupon.code}</strong> فعال شد: {appliedCoupon.description}</span>
                   </CouponActiveBadge>
                 )}
               </CouponSection>
 
               <TotalRow>
-                <TotalLabel>مبلغ قابل پرداخت:</TotalLabel>
+                <TotalLabel>مبلغ قابل پرداخت</TotalLabel>
                 <TotalValue>{formatPrice(total)}</TotalValue>
               </TotalRow>
-              
-              <CheckoutButton onClick={handleCheckout}>
-                ادامه فرایند خرید
+
+              <CheckoutButton type="button" onClick={handleCheckout}>
+                <span>ادامه فرایند خرید</span>
+                <ArrowLeftIcon size={18} />
               </CheckoutButton>
-              
-              <ClearCartButton onClick={clearCart}>
+
+              <ClearCartButton type="button" onClick={clearCart}>
                 خالی کردن سبد خرید
               </ClearCartButton>
+
+              <TrustNote>
+                <ShieldCheckIcon size={15} />
+                <span>محاسبه دقیق سرور و تضمین کیفیت بسته‌بندی</span>
+              </TrustNote>
             </CartSummary>
           </CartContent>
 
           <MobileStickyBar>
             <div>
-              <div style={{ fontSize: '0.8rem', color: '#64748b' }}>مبلغ قابل پرداخت:</div>
-              <strong style={{ fontSize: '1.05rem', color: '#0f172a' }}>{formatPrice(total)}</strong>
+              <div style={{ fontSize: '0.78rem', color: '#6E6055' }}>مبلغ قابل پرداخت:</div>
+              <strong style={{ fontSize: '1.05rem', color: '#16120F' }}>{formatPrice(total)}</strong>
               {discountToman > 0 && (
-                <div style={{ fontSize: '0.72rem', color: '#16a34a' }}>
+                <div style={{ fontSize: '0.72rem', color: '#15803D', fontWeight: 700 }}>
                   با {formatPrice(discountToman)} تخفیف
                 </div>
               )}
             </div>
-            <MobileCheckoutBtn onClick={handleCheckout}>
+            <MobileCheckoutBtn type="button" onClick={handleCheckout}>
               ثبت و ادامه خرید
             </MobileCheckoutBtn>
           </MobileStickyBar>
@@ -826,4 +980,4 @@ const CartPage = () => {
   );
 };
 
-export default CartPage; 
+export default CartPage;

@@ -6,28 +6,45 @@ import type { ProductMenuItem } from "@/application/ports/catalog-repository";
 import { useCart } from "@/contexts/CartContext";
 import { irrToToman } from "@/domain/money/money";
 import { toast } from "react-hot-toast";
-import FoodDetailModal, { type DishDetails } from "@/components/common/FoodDetailModal";
-
-function getDishEmoji(name: string): string {
-  if (name.includes("پیتزا")) return "🍕";
-  if (name.includes("برگر") || name.includes("ساندویچ")) return "🍔";
-  if (name.includes("سوشی")) return "🍣";
-  if (name.includes("کباب") || name.includes("جوجه") || name.includes("چلو")) return "🍚";
-  if (name.includes("سالاد")) return "🥗";
-  if (name.includes("پاستا") || name.includes("اسپاگتی")) return "🍝";
-  if (name.includes("سوپ")) return "🍲";
-  if (name.includes("نوشابه") || name.includes("دوغ") || name.includes("آب")) return "🥤";
-  if (name.includes("دسر") || name.includes("کیک")) return "🍰";
-  return "🍽️";
-}
+import FoodDetailModal, {
+  type DishDetails,
+} from "@/components/common/FoodDetailModal";
+import {
+  DishArtwork,
+  resolveFoodKind,
+  FOOD_VISUAL_PALETTE,
+  SearchIcon,
+  CloseIcon,
+  InfoIcon,
+  CheckCircleIcon,
+} from "@/components/ui/FoodVisuals";
 
 function getDishCategory(name: string): string {
   if (name.includes("پیتزا")) return "پیتزا";
   if (name.includes("برگر") || name.includes("ساندویچ")) return "برگر و ساندویچ";
   if (name.includes("سوشی")) return "سوشی و غذاهای آسیایی";
-  if (name.includes("کباب") || name.includes("جوجه") || name.includes("چلو") || name.includes("خورشت")) return "غذای اصلی";
-  if (name.includes("سالاد") || name.includes("سوپ") || name.includes("سیب‌زمینی")) return "پیش‌غذا و سالاد";
-  if (name.includes("نوشابه") || name.includes("دوغ") || name.includes("آب") || name.includes("موهیتو")) return "نوشیدنی";
+  if (
+    name.includes("کباب") ||
+    name.includes("جوجه") ||
+    name.includes("چلو") ||
+    name.includes("خورشت")
+  )
+    return "غذای اصلی";
+  if (
+    name.includes("سالاد") ||
+    name.includes("سوپ") ||
+    name.includes("سیب‌زمینی") ||
+    name.includes("پیاز") ||
+    name.includes("نان سیر")
+  )
+    return "پیش‌غذا و سالاد";
+  if (
+    name.includes("نوشابه") ||
+    name.includes("دوغ") ||
+    name.includes("آب") ||
+    name.includes("موهیتو")
+  )
+    return "نوشیدنی";
   return "منوی اصلی";
 }
 
@@ -52,11 +69,18 @@ function getDishIngredients(description: string): string[] {
   if (!description) {
     return ["مواد اولیه تازه روز", "ادویه مخصوص سرآشپز", "روغن درجه یک"];
   }
-  // Split strictly by commas, semicolons, newlines, or isolated conjunctions like ' و ' or ' به همراه '
-  const parts = description.split(/[،,؛;\n\+]|\s+و\s+|\s+همراه\s+با\s+|\s+به\s+همراه\s+|\s+همراه\s+|\s+با\s+/);
+  const parts = description.split(
+    /[،,؛;\n\+]|\s+و\s+|\s+همراه\s+با\s+|\s+به\s+همراه\s+|\s+همراه\s+|\s+با\s+/
+  );
   const cleaned = parts
     .map((p) => p.trim())
-    .filter((p) => p.length >= 2 && p.length <= 40 && !p.includes("پیتزا") && !p.includes("مخصوص"));
+    .filter(
+      (p) =>
+        p.length >= 2 &&
+        p.length <= 40 &&
+        !p.includes("پیتزا") &&
+        !p.includes("مخصوص")
+    );
   if (cleaned.length > 0) return cleaned;
   return ["مواد اولیه تازه روز", "ادویه مخصوص سرآشپز", "روغن درجه یک"];
 }
@@ -70,17 +94,12 @@ const Container = styled.div`
 const ControlsBar = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  background: white;
-  padding: 1rem;
-  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  gap: 0.9rem;
+  background: #ffffff;
+  padding: 1.1rem;
+  border-radius: 1.15rem;
   border: 1px solid ${({ theme }) => theme.colors.neutral[200]};
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    padding: 0.75rem;
-    gap: 0.75rem;
-  }
+  box-shadow: 0 4px 14px -4px rgba(22, 18, 15, 0.04);
 `;
 
 const SearchBox = styled.div`
@@ -90,30 +109,31 @@ const SearchBox = styled.div`
 
 const SearchInput = styled.input`
   width: 100%;
-  padding: 0.65rem 2.5rem 0.65rem 1rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
+  padding: 0.7rem 2.65rem 0.7rem 1rem;
+  border: 1px solid ${({ theme }) => theme.colors.neutral[200]};
+  border-radius: 0.8rem;
+  font-size: 0.9rem;
   font-family: inherit;
   outline: none;
-  background: #f8fafc;
-  transition: all 0.2s;
+  background: ${({ theme }) => theme.colors.neutral[50]};
+  color: ${({ theme }) => theme.colors.neutral[900]};
+  transition: all 0.18s;
 
   &:focus {
-    background: white;
-    border-color: #ff5a00;
-    box-shadow: 0 0 0 3px rgba(255, 90, 0, 0.1);
+    background: #ffffff;
+    border-color: ${({ theme }) => theme.colors.primary[500]};
+    box-shadow: 0 0 0 3px ${({ theme }) => theme.colors.primary[100]};
   }
 `;
 
 const SearchIconWrapper = styled.div`
   position: absolute;
-  right: 0.85rem;
+  right: 0.9rem;
   top: 50%;
   transform: translateY(-50%);
-  color: #94a3b8;
+  color: ${({ theme }) => theme.colors.neutral[400]};
   pointer-events: none;
-  font-size: 0.95rem;
+  display: inline-flex;
 `;
 
 const ClearSearchBtn = styled.button`
@@ -123,13 +143,13 @@ const ClearSearchBtn = styled.button`
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: #94a3b8;
+  color: ${({ theme }) => theme.colors.neutral[400]};
   cursor: pointer;
-  padding: 0.2rem;
-  font-size: 0.85rem;
+  padding: 0.25rem;
+  display: inline-flex;
 
   &:hover {
-    color: #0f172a;
+    color: ${({ theme }) => theme.colors.neutral[900]};
   }
 `;
 
@@ -138,7 +158,7 @@ const TabsWrapper = styled.div`
   align-items: center;
   gap: 0.5rem;
   overflow-x: auto;
-  padding-bottom: 0.25rem;
+  padding-bottom: 0.2rem;
   scrollbar-width: none;
 
   &::-webkit-scrollbar {
@@ -147,91 +167,112 @@ const TabsWrapper = styled.div`
 `;
 
 const CategoryTab = styled.button<{ $active: boolean }>`
-  background: ${({ $active }) => ($active ? "#ff5a00" : "#f1f5f9")};
-  color: ${({ $active }) => ($active ? "white" : "#475569")};
-  border: none;
-  padding: 0.45rem 1rem;
+  background: ${({ $active, theme }) =>
+    $active ? theme.colors.primary[500] : theme.colors.neutral[100]};
+  color: ${({ $active, theme }) =>
+    $active ? "#ffffff" : theme.colors.neutral[700]};
+  border: 1px solid
+    ${({ $active, theme }) =>
+      $active ? theme.colors.primary[500] : theme.colors.neutral[200]};
+  padding: 0.45rem 0.95rem;
   border-radius: 9999px;
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: 0.84rem;
+  font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
-  transition: all 0.2s;
+  transition: all 0.18s;
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.4rem;
 
   &:hover {
-    background: ${({ $active }) => ($active ? "#e04e00" : "#e2e8f0")};
+    background: ${({ $active, theme }) =>
+      $active ? theme.colors.primary[600] : theme.colors.neutral[200]};
   }
 
   span.count {
-    background: ${({ $active }) => ($active ? "rgba(255, 255, 255, 0.25)" : "#cbd5e1")};
-    color: ${({ $active }) => ($active ? "white" : "#334155")};
-    padding: 0.1rem 0.4rem;
+    background: ${({ $active }) =>
+      $active ? "rgba(255, 255, 255, 0.22)" : "#ffffff"};
+    color: ${({ $active, theme }) =>
+      $active ? "#ffffff" : theme.colors.neutral[700]};
+    padding: 0.08rem 0.45rem;
     border-radius: 9999px;
-    font-size: 0.75rem;
-    font-weight: 700;
+    font-size: 0.74rem;
+    font-weight: 800;
   }
 `;
 
 const List = styled.ul`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
+  gap: 1.15rem;
   padding: 0;
   list-style: none;
   margin: 0;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     grid-template-columns: 1fr;
-    gap: 0.85rem;
+    gap: 0.9rem;
   }
 `;
 
 const Item = styled.li`
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 1rem;
   padding: 1.15rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 1rem;
-  background: white;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid ${({ theme }) => theme.colors.neutral[200]};
+  border-radius: 1.25rem;
+  background: #ffffff;
+  box-shadow: 0 4px 14px -4px rgba(22, 18, 15, 0.05);
+  transition: transform 240ms var(--ease-out),
+    box-shadow 240ms var(--ease-out),
+    border-color 240ms var(--ease-out);
   cursor: pointer;
   position: relative;
-  overflow: hidden;
+  animation: foodinoFadeUp 420ms var(--ease-out) both;
+
+  &:nth-child(1) { animation-delay: 20ms; }
+  &:nth-child(2) { animation-delay: 65ms; }
+  &:nth-child(3) { animation-delay: 110ms; }
+  &:nth-child(4) { animation-delay: 155ms; }
 
   &:hover {
-    border-color: #ff5a00;
-    box-shadow: 0 6px 18px rgba(255, 90, 0, 0.08);
-    transform: translateY(-2px);
+    border-color: ${({ theme }) => theme.colors.primary[300]};
+    box-shadow: 0 16px 32px -8px rgba(22, 18, 15, 0.12);
+    transform: translateY(-4px);
   }
 
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    padding: 0.85rem;
+    padding: 0.9rem;
     gap: 0.75rem;
-    border-radius: 0.85rem;
   }
 `;
 
-const DishIconBox = styled.div`
-  width: 54px;
-  height: 54px;
-  border-radius: 0.75rem;
-  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+const DishIconBox = styled.div<{ $bgStart: string; $bgEnd: string }>`
+  width: 78px;
+  height: 78px;
+  border-radius: 1rem;
+  background: linear-gradient(
+    145deg,
+    ${({ $bgStart }) => $bgStart} 0%,
+    ${({ $bgEnd }) => $bgEnd} 100%
+  );
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.85rem;
   flex-shrink: 0;
+  box-shadow: 0 6px 14px -4px rgba(22, 18, 15, 0.18);
+  transition: transform 260ms var(--ease-out);
+
+  ${Item}:hover & {
+    transform: scale(1.08) rotate(-3deg);
+  }
 
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    width: 44px;
-    height: 44px;
-    font-size: 1.5rem;
+    width: 64px;
+    height: 64px;
   }
 `;
 
@@ -241,31 +282,20 @@ const ItemDetails = styled.div`
 
   strong {
     display: block;
-    font-size: 1rem;
-    font-weight: 700;
+    font-size: 1.04rem;
+    font-weight: 800;
     color: ${({ theme }) => theme.colors.neutral[900]};
-    margin-bottom: 0.25rem;
-
-    @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-      font-size: 0.925rem;
-      margin-bottom: 0.2rem;
-    }
   }
 
   p {
-    font-size: 0.85rem;
+    font-size: 0.84rem;
     color: ${({ theme }) => theme.colors.neutral[600]};
-    margin: 0 0 0.4rem;
-    line-height: 1.5;
+    margin: 0.25rem 0 0.6rem;
+    line-height: 1.6;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-
-    @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-      font-size: 0.78rem;
-      margin-bottom: 0.35rem;
-    }
   }
 
   .meta-row {
@@ -277,19 +307,32 @@ const ItemDetails = styled.div`
 
   span.price {
     display: inline-block;
-    font-size: 0.95rem;
-    font-weight: 700;
+    font-size: 0.98rem;
+    font-weight: 800;
     color: ${({ theme }) => theme.colors.primary[600]};
-
-    @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-      font-size: 0.85rem;
-    }
   }
 
   span.details-hint {
-    font-size: 0.75rem;
-    color: #94a3b8;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.74rem;
+    color: ${({ theme }) => theme.colors.neutral[500]};
+    font-weight: 500;
   }
+`;
+
+const InCartBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: ${({ theme }) => theme.colors.success[700]};
+  background: ${({ theme }) => theme.colors.success[50]};
+  padding: 0.14rem 0.5rem;
+  border-radius: 9999px;
+  border: 1px solid ${({ theme }) => theme.colors.success[200]};
 `;
 
 const ActionBox = styled.div`
@@ -300,60 +343,54 @@ const ActionBox = styled.div`
 `;
 
 const AddButton = styled.button`
-  padding: 0.55rem 1rem;
+  padding: 0.6rem 1.05rem;
   border: 0;
-  border-radius: ${({ theme }) => theme.borderRadius.md};
+  border-radius: 0.8rem;
   background: ${({ theme }) => theme.colors.primary[500]};
-  color: white;
+  color: #ffffff;
   cursor: pointer;
-  font-weight: 600;
-  font-size: 0.875rem;
-  min-height: 40px;
-  min-width: 72px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  min-height: 42px;
+  min-width: 78px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 6px rgba(255, 90, 0, 0.2);
+  transition: all 0.18s ease;
+  box-shadow: 0 6px 14px -4px rgba(217, 56, 30, 0.35);
 
   &:hover {
     background: ${({ theme }) => theme.colors.primary[600]};
+    transform: translateY(-1px);
   }
 
   &:active {
     transform: scale(0.96);
-  }
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    padding: 0.45rem 0.85rem;
-    font-size: 0.825rem;
-    min-height: 36px;
-    min-width: 64px;
   }
 `;
 
 const EmptyState = styled.div`
   text-align: center;
   padding: 3rem 1.5rem;
-  background: white;
-  border-radius: 1rem;
-  border: 1px dashed #cbd5e1;
-  color: #64748b;
-
-  .emoji {
-    font-size: 2.5rem;
-    margin-bottom: 0.5rem;
-  }
+  background: #ffffff;
+  border-radius: 1.25rem;
+  border: 1px dashed ${({ theme }) => theme.colors.neutral[300]};
+  color: ${({ theme }) => theme.colors.neutral[600]};
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
 
   h4 {
-    margin: 0 0 0.35rem;
-    color: #0f172a;
+    margin: 0.25rem 0 0;
+    color: ${({ theme }) => theme.colors.neutral[900]};
     font-size: 1.1rem;
+    font-weight: 800;
   }
 
   p {
     margin: 0;
-    font-size: 0.875rem;
+    font-size: 0.88rem;
   }
 `;
 
@@ -378,7 +415,10 @@ export default function DatabaseMenu({
     return counts;
   }, [products]);
 
-  const categories = useMemo(() => Object.keys(categoriesWithCounts), [categoriesWithCounts]);
+  const categories = useMemo(
+    () => Object.keys(categoriesWithCounts),
+    [categoriesWithCounts]
+  );
 
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
@@ -401,7 +441,7 @@ export default function DatabaseMenu({
       name: product.name,
       description: product.description,
       price: priceToman,
-      image: getDishEmoji(product.name),
+      image: resolveFoodKind(product.name, product.description),
       restaurantId: restaurant.id,
       restaurantName: restaurant.name,
       category,
@@ -430,51 +470,59 @@ export default function DatabaseMenu({
     }
   };
 
+  const numberFormatter = new Intl.NumberFormat("fa-IR");
+
   return (
     <Container>
-      <ControlsBar>
-        <SearchBox>
-          <SearchInput
-            type="search"
-            placeholder="جستجو در منوی این رستوران…"
-            value={searchQuery}
-            autoComplete="off"
-            spellCheck={false}
-            aria-label="جستجو در منوی غذاها"
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <SearchIconWrapper aria-hidden="true">🔍</SearchIconWrapper>
-          {searchQuery && (
-            <ClearSearchBtn
-              type="button"
-              onClick={() => setSearchQuery("")}
-              aria-label="پاک کردن متن جستجو"
-            >
-              ✕
-            </ClearSearchBtn>
-          )}
-        </SearchBox>
+      {products.length > 1 && (
+        <ControlsBar>
+          <SearchBox>
+            <SearchInput
+              type="search"
+              placeholder="جستجو در منوی این رستوران…"
+              value={searchQuery}
+              autoComplete="off"
+              spellCheck={false}
+              aria-label="جستجو در منوی غذاها"
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <SearchIconWrapper aria-hidden="true">
+              <SearchIcon size={17} />
+            </SearchIconWrapper>
+            {searchQuery && (
+              <ClearSearchBtn
+                type="button"
+                onClick={() => setSearchQuery("")}
+                aria-label="پاک کردن متن جستجو"
+              >
+                <CloseIcon size={15} />
+              </ClearSearchBtn>
+            )}
+          </SearchBox>
 
-        <TabsWrapper role="tablist" aria-label="دسته‌بندی‌های غذا">
-          {categories.map((cat) => (
-            <CategoryTab
-              key={cat}
-              type="button"
-              role="tab"
-              aria-selected={activeCategory === cat}
-              $active={activeCategory === cat}
-              onClick={() => setActiveCategory(cat)}
-            >
-              <span>{cat}</span>
-              <span className="count">{categoriesWithCounts[cat]}</span>
-            </CategoryTab>
-          ))}
-        </TabsWrapper>
-      </ControlsBar>
+          <TabsWrapper role="tablist" aria-label="دسته‌بندی‌های غذا">
+            {categories.map((cat) => (
+              <CategoryTab
+                key={cat}
+                type="button"
+                role="tab"
+                aria-selected={activeCategory === cat}
+                $active={activeCategory === cat}
+                onClick={() => setActiveCategory(cat)}
+              >
+                <span>{cat}</span>
+                <span className="count">
+                  {numberFormatter.format(categoriesWithCounts[cat])}
+                </span>
+              </CategoryTab>
+            ))}
+          </TabsWrapper>
+        </ControlsBar>
+      )}
 
       {filteredProducts.length === 0 ? (
         <EmptyState>
-          <div className="emoji" aria-hidden="true">🍽️</div>
+          <DishArtwork kind="chef" size={76} variant="thumb" />
           <h4>غذایی یافت نشد</h4>
           <p>موردی با مشخصات جستجوی شما در منوی این رستوران پیدا نشد.</p>
         </EmptyState>
@@ -482,8 +530,10 @@ export default function DatabaseMenu({
         <List>
           {filteredProducts.map((product) => {
             const priceToman = irrToToman(product.price);
-            const emoji = getDishEmoji(product.name);
+            const kind = resolveFoodKind(product.name, product.description);
+            const palette = FOOD_VISUAL_PALETTE[kind];
             const inCart = cartItems.find((it) => it.id === product.id);
+
             return (
               <Item
                 key={product.id}
@@ -497,35 +547,48 @@ export default function DatabaseMenu({
                   }
                 }}
               >
-                <DishIconBox aria-hidden="true">{emoji}</DishIconBox>
+                <DishIconBox
+                  $bgStart={palette.bgStart}
+                  $bgEnd={palette.bgEnd}
+                  aria-hidden="true"
+                >
+                  <DishArtwork kind={kind} size={62} variant="thumb" />
+                </DishIconBox>
+
                 <ItemDetails>
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.25rem", flexWrap: "wrap" }}>
-                    <strong style={{ margin: 0, textWrap: "balance" }}>{product.name}</strong>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.5rem",
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    <strong>{product.name}</strong>
                     {inCart && (
-                      <span
-                        style={{
-                          fontSize: "0.725rem",
-                          fontWeight: 700,
-                          color: "#ea580c",
-                          background: "#ffedd5",
-                          padding: "0.15rem 0.5rem",
-                          borderRadius: "9999px",
-                          border: "1px solid #fed7aa",
-                          fontVariantNumeric: "tabular-nums",
-                        }}
-                      >
-                        ✓ {inCart.quantity} در سبد
-                      </span>
+                      <InCartBadge>
+                        <CheckCircleIcon size={12} />
+                        <span>
+                          {numberFormatter.format(inCart.quantity)} در سبد
+                        </span>
+                      </InCartBadge>
                     )}
                   </div>
                   <p>{product.description}</p>
                   <div className="meta-row">
-                    <span className="price" style={{ fontVariantNumeric: "tabular-nums" }}>
-                      {new Intl.NumberFormat("fa-IR").format(priceToman)} تومان
+                    <span
+                      className="price"
+                      style={{ fontVariantNumeric: "tabular-nums" }}
+                    >
+                      {numberFormatter.format(priceToman)} تومان
                     </span>
-                    <span className="details-hint">💡 ارزش غذایی و ترکیبات</span>
+                    <span className="details-hint">
+                      <InfoIcon size={13} />
+                      <span>ارزش غذایی و ترکیبات</span>
+                    </span>
                   </div>
                 </ItemDetails>
+
                 <ActionBox>
                   <AddButton
                     type="button"

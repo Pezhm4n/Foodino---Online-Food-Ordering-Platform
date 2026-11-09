@@ -4,6 +4,12 @@ import React from "react";
 import styled from "styled-components";
 import type { RestaurantSummary } from "@/application/ports/catalog-repository";
 import { irrToToman } from "@/domain/money/money";
+import {
+  ClockIcon,
+  MapPinIcon,
+  ShieldCheckIcon,
+  CourierIcon,
+} from "@/components/ui/FoodVisuals";
 
 const Container = styled.div`
   display: grid;
@@ -18,27 +24,27 @@ const Container = styled.div`
 `;
 
 const InfoCard = styled.div`
-  background: white;
-  border-radius: 1rem;
-  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  border-radius: 1.25rem;
+  border: 1px solid ${({ theme }) => theme.colors.neutral[200]};
   padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 14px -4px rgba(22, 18, 15, 0.05);
   display: flex;
   flex-direction: column;
   gap: 1rem;
 
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    padding: 1.15rem 1rem;
-  }
-
   h3 {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: #0f172a;
+    font-size: 1.08rem;
+    font-weight: 800;
+    color: ${({ theme }) => theme.colors.neutral[900]};
     margin: 0;
     display: flex;
     align-items: center;
     gap: 0.5rem;
+
+    svg {
+      color: ${({ theme }) => theme.colors.primary[500]};
+    }
   }
 `;
 
@@ -48,7 +54,7 @@ const Row = styled.div`
   align-items: center;
   font-size: 0.9rem;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.neutral[100]};
   gap: 0.75rem;
 
   &:last-child {
@@ -57,36 +63,24 @@ const Row = styled.div`
   }
 
   .label {
-    color: #64748b;
+    color: ${({ theme }) => theme.colors.neutral[600]};
     flex-shrink: 0;
   }
 
   .value {
-    color: #1e293b;
-    font-weight: 600;
+    color: ${({ theme }) => theme.colors.neutral[900]};
+    font-weight: 700;
     text-align: left;
-  }
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    font-size: 0.825rem;
-    padding-bottom: 0.6rem;
-    gap: 0.5rem;
-
-    .label {
-      font-size: 0.8rem;
-    }
-    .value {
-      font-size: 0.825rem;
-    }
   }
 `;
 
 const HoursPill = styled.span`
-  background: #dcfce7;
-  color: #15803d;
+  background: ${({ theme }) => theme.colors.success[50]};
+  color: ${({ theme }) => theme.colors.success[700]};
+  border: 1px solid ${({ theme }) => theme.colors.success[200]};
   padding: 0.25rem 0.65rem;
   border-radius: 9999px;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 700;
 `;
 
@@ -101,29 +95,31 @@ const FeatureGrid = styled.div`
 `;
 
 const FeatureBox = styled.div`
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.75rem;
-  padding: 0.85rem;
+  background: ${({ theme }) => theme.colors.neutral[50]};
+  border: 1px solid ${({ theme }) => theme.colors.neutral[200]};
+  border-radius: 0.85rem;
+  padding: 0.9rem;
   display: flex;
   align-items: flex-start;
   gap: 0.65rem;
 
   .icon {
-    font-size: 1.35rem;
+    color: ${({ theme }) => theme.colors.primary[600]};
+    flex-shrink: 0;
+    margin-top: 0.1rem;
   }
 
   .title {
     font-size: 0.85rem;
-    font-weight: 700;
-    color: #0f172a;
+    font-weight: 800;
+    color: ${({ theme }) => theme.colors.neutral[900]};
     margin-bottom: 0.15rem;
   }
 
   .desc {
-    font-size: 0.75rem;
-    color: #64748b;
-    line-height: 1.4;
+    font-size: 0.76rem;
+    color: ${({ theme }) => theme.colors.neutral[600]};
+    line-height: 1.5;
   }
 `;
 
@@ -138,7 +134,7 @@ export default function RestaurantInfoTab({
     <Container>
       <InfoCard>
         <h3>
-          <span>⏱️</span>
+          <ClockIcon size={19} />
           <span>ساعت کاری و زمان‌بندی سفارش</span>
         </h3>
 
@@ -159,19 +155,23 @@ export default function RestaurantInfoTab({
         </Row>
         <Row>
           <span className="label">حداقل مبلغ سفارش:</span>
-          <span className="value">{numberFormatter.format(minOrderToman)} تومان</span>
+          <span className="value">
+            {numberFormatter.format(minOrderToman)} تومان
+          </span>
         </Row>
         <Row>
           <span className="label">هزینه ارسال پیک:</span>
           <span className="value">
-            {feeToman === 0 ? "رایگان" : `${numberFormatter.format(feeToman)} تومان`}
+            {feeToman === 0
+              ? "رایگان"
+              : `${numberFormatter.format(feeToman)} تومان`}
           </span>
         </Row>
       </InfoCard>
 
       <InfoCard>
         <h3>
-          <span>📍</span>
+          <MapPinIcon size={19} />
           <span>موقعیت و محدوده سرویس‌دهی</span>
         </h3>
 
@@ -190,18 +190,26 @@ export default function RestaurantInfoTab({
 
         <FeatureGrid>
           <FeatureBox>
-            <span className="icon">🛡️</span>
+            <span className="icon">
+              <ShieldCheckIcon size={20} />
+            </span>
             <div>
               <div className="title">ضمانت سلامت غذا</div>
-              <div className="desc">تضمین پخت بهداشتی با مواد اولیه تازه و درجه یک روز</div>
+              <div className="desc">
+                تضمین پخت بهداشتی با مواد اولیه تازه و درجه یک روز
+              </div>
             </div>
           </FeatureBox>
 
           <FeatureBox>
-            <span className="icon">🛵</span>
+            <span className="icon">
+              <CourierIcon size={20} />
+            </span>
             <div>
               <div className="title">باکس گرم‌نگهدارنده</div>
-              <div className="desc">تحویل غذا با دمای مطبوع و بسته‌بندی حرارتی ضدعفونی</div>
+              <div className="desc">
+                تحویل غذا با دمای مطبوع و بسته‌بندی حرارتی ضدعفونی
+              </div>
             </div>
           </FeatureBox>
         </FeatureGrid>

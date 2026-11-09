@@ -2,6 +2,7 @@
 
 import { useSyncExternalStore } from 'react';
 import Link from 'next/link';
+import { TrackRadarIcon } from '@/components/ui/FoodVisuals';
 
 export default function TrackingLink({ orderId }: Readonly<{ orderId: string }>) {
   const token = useSyncExternalStore(
@@ -10,23 +11,24 @@ export default function TrackingLink({ orderId }: Readonly<{ orderId: string }>)
     () => null,
   );
   return token ? (
-    <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+    <div style={{ marginTop: '1rem', textAlign: 'center' }}>
       <Link
         href={`/track/${token}`}
         style={{
           display: 'inline-flex',
           alignItems: 'center',
           gap: '0.5rem',
-          padding: '0.75rem 1.5rem',
-          backgroundColor: '#ff5a00',
+          padding: '0.8rem 1.5rem',
+          backgroundColor: '#D9381E',
           color: 'white',
-          borderRadius: '0.5rem',
-          fontWeight: 700,
+          borderRadius: '0.85rem',
+          fontWeight: 800,
           textDecoration: 'none',
-          boxShadow: '0 4px 12px rgba(255, 90, 0, 0.25)',
+          boxShadow: '0 8px 20px rgba(217, 56, 30, 0.25)',
         }}
       >
-        <span>⚡ پیگیری زنده وضعیت این سفارش</span>
+        <TrackRadarIcon size={18} />
+        <span>پیگیری زنده وضعیت این سفارش</span>
       </Link>
     </div>
   ) : null;

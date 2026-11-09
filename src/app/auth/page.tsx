@@ -4,6 +4,14 @@ import React, { useState, Suspense } from 'react';
 import styled from 'styled-components';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { loginAction, registerAction } from './actions';
+import {
+  FoodinoEmblem,
+  EyeIcon,
+  EyeOffIcon,
+  AlertCircleIcon,
+  CheckCircleIcon,
+  ShieldCheckIcon,
+} from '@/components/ui/FoodVisuals';
 
 const AuthPageContainer = styled.div`
   display: flex;
@@ -20,78 +28,75 @@ const AuthPageContainer = styled.div`
 `;
 
 const AuthCard = styled.div`
-  background: white;
+  background: #ffffff;
   border-radius: ${props => props.theme.borderRadius['2xl']};
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  box-shadow: ${props => props.theme.shadows.lg};
   border: 1px solid ${props => props.theme.colors.neutral[200]};
   width: 100%;
-  max-width: 460px;
+  max-width: 480px;
   padding: 2.5rem;
-  
+
   @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    padding: 1.25rem 1rem;
-    border-radius: 1.25rem;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    background: white;
-    border: 1px solid ${props => props.theme.colors.neutral[200]};
+    padding: 1.5rem 1.15rem;
+    border-radius: ${props => props.theme.borderRadius.xl};
   }
 `;
 
-const PageTitle = styled.h1`
-  font-size: ${props => props.theme.typography.fontSizes['2xl']};
-  font-weight: 800;
-  color: ${props => props.theme.colors.neutral[900]};
-  margin-bottom: 2rem;
-  text-align: center;
+const BrandMarkWrap = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+`;
 
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    font-size: 1.35rem;
-    margin-bottom: 1.25rem;
-  }
+const PageTitle = styled.h1`
+  font-size: 1.65rem;
+  font-weight: 900;
+  color: ${props => props.theme.colors.neutral[900]};
+  margin: 0 0 0.35rem;
+  text-align: center;
+  letter-spacing: -0.02em;
+`;
+
+const PageSub = styled.p`
+  font-size: 0.88rem;
+  color: ${props => props.theme.colors.neutral[500]};
+  text-align: center;
+  margin: 0 0 1.65rem;
 `;
 
 const TabContainer = styled.div`
   display: flex;
   background: ${props => props.theme.colors.neutral[100]};
-  padding: 0.35rem;
+  padding: 0.3rem;
   border-radius: ${props => props.theme.borderRadius.xl};
-  margin-bottom: 2rem;
-
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    margin-bottom: 1.25rem;
-    padding: 0.25rem;
-  }
+  margin-bottom: 1.75rem;
+  border: 1px solid ${props => props.theme.colors.neutral[200]};
 `;
 
 const TabButton = styled.button<{ $active: boolean }>`
   flex: 1;
-  padding: 0.75rem;
+  padding: 0.7rem;
   text-align: center;
-  background: ${props => props.$active ? 'white' : 'transparent'};
-  color: ${props => props.$active ? props.theme.colors.neutral[900] : props.theme.colors.neutral[500]};
+  background: ${props => (props.$active ? '#ffffff' : 'transparent')};
+  color: ${props => (props.$active ? props.theme.colors.neutral[900] : props.theme.colors.neutral[500])};
   border: none;
   border-radius: ${props => props.theme.borderRadius.lg};
-  font-weight: ${props => props.$active ? 700 : 500};
-  font-size: ${props => props.theme.typography.fontSizes.md};
+  font-weight: ${props => (props.$active ? 800 : 600)};
+  font-size: 0.92rem;
   cursor: pointer;
-  box-shadow: ${props => props.$active ? '0 2px 8px rgba(0, 0, 0, 0.08)' : 'none'};
+  box-shadow: ${props => (props.$active ? props.theme.shadows.xs : 'none')};
   transition: all 0.2s ease;
   min-height: 40px;
-  
+
   &:hover {
     color: ${props => props.theme.colors.neutral[900]};
-  }
-
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    padding: 0.55rem 0.5rem;
-    font-size: 0.875rem;
   }
 `;
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.15rem;
 `;
 
 const FormGroup = styled.div`
@@ -107,8 +112,8 @@ const LabelRow = styled.div`
 `;
 
 const FormLabel = styled.label`
-  font-size: ${props => props.theme.typography.fontSizes.sm};
-  font-weight: ${props => props.theme.typography.fontWeights.semibold};
+  font-size: 0.86rem;
+  font-weight: 700;
   color: ${props => props.theme.colors.neutral[800]};
 `;
 
@@ -125,45 +130,45 @@ const InputWrapper = styled.div`
 
 const FormInput = styled.input<{ $hasError?: boolean; $hasToggle?: boolean }>`
   width: 100%;
-  padding: ${props => props.$hasToggle ? '0.8rem 1rem 0.8rem 3.25rem' : '0.8rem 1rem'};
-  border: 1.5px solid ${props => props.$hasError ? props.theme.colors.error[500] : props.theme.colors.neutral[300]};
+  padding: ${props => (props.$hasToggle ? '0.8rem 1rem 0.8rem 3.1rem' : '0.8rem 1rem')};
+  border: 1.5px solid ${props => (props.$hasError ? props.theme.colors.error[500] : props.theme.colors.neutral[300])};
   border-radius: ${props => props.theme.borderRadius.lg};
-  font-size: ${props => props.theme.typography.fontSizes.md};
-  background-color: ${props => props.$hasError ? '#fef2f2' : 'white'};
+  font-size: 0.95rem;
+  background-color: ${props => (props.$hasError ? '#FEF2F2' : props.theme.colors.neutral[50])};
   color: ${props => props.theme.colors.neutral[900]};
   outline: none;
   transition: all 0.2s ease;
-  
+
   &:focus {
-    border-color: ${props => props.$hasError ? props.theme.colors.error[500] : props.theme.colors.primary[500]};
-    box-shadow: 0 0 0 3px ${props => props.$hasError ? 'rgba(239, 68, 68, 0.15)' : 'rgba(255, 90, 0, 0.15)'};
+    background-color: #ffffff;
+    border-color: ${props => (props.$hasError ? props.theme.colors.error[500] : props.theme.colors.primary[500])};
+    box-shadow: 0 0 0 3px ${props => (props.$hasError ? 'rgba(220, 38, 38, 0.12)' : 'rgba(217, 56, 30, 0.14)')};
   }
 
   &::placeholder {
     color: ${props => props.theme.colors.neutral[400]};
-    font-size: 0.875rem;
+    font-size: 0.85rem;
   }
 `;
 
 const TogglePasswordButton = styled.button`
   position: absolute;
-  left: 0.75rem;
+  left: 0.65rem;
   top: 50%;
   transform: translateY(-50%);
   background: none;
   border: none;
   color: ${props => props.theme.colors.neutral[500]};
   cursor: pointer;
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem;
   z-index: 2;
   transition: all 0.15s ease;
-  
+
   &:hover {
     color: ${props => props.theme.colors.neutral[800]};
     background-color: ${props => props.theme.colors.neutral[100]};
@@ -175,33 +180,34 @@ const FieldErrorMessage = styled.div`
   align-items: center;
   gap: 0.35rem;
   color: ${props => props.theme.colors.error[600]};
-  font-size: 0.8rem;
-  font-weight: 500;
-  margin-top: 0.2rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin-top: 0.15rem;
 `;
 
 const AlertBanner = styled.div<{ $type: 'error' | 'success' }>`
-  padding: 0.9rem 1.1rem;
+  padding: 0.85rem 1rem;
   border-radius: ${props => props.theme.borderRadius.lg};
   margin-bottom: 1.25rem;
-  font-size: ${props => props.theme.typography.fontSizes.sm};
+  font-size: 0.85rem;
+  font-weight: 600;
   line-height: 1.5;
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  background-color: ${props => props.$type === 'error' ? '#fef2f2' : '#f0fdf4'};
-  border: 1px solid ${props => props.$type === 'error' ? '#fecaca' : '#bbf7d0'};
-  color: ${props => props.$type === 'error' ? '#991b1b' : '#166534'};
+  gap: 0.55rem;
+  background-color: ${props => (props.$type === 'error' ? '#FEF2F2' : '#ECFDF5')};
+  border: 1px solid ${props => (props.$type === 'error' ? '#FECACA' : '#A7F3D0')};
+  color: ${props => (props.$type === 'error' ? '#991B1B' : '#15803D')};
 `;
 
 const ForgotPasswordLink = styled.a`
-  font-size: ${props => props.theme.typography.fontSizes.sm};
+  font-size: 0.82rem;
+  font-weight: 600;
   color: ${props => props.theme.colors.primary[600]};
   text-align: left;
   display: inline-block;
   cursor: pointer;
-  margin-top: 0.25rem;
-  
+
   &:hover {
     text-decoration: underline;
   }
@@ -210,22 +216,21 @@ const ForgotPasswordLink = styled.a`
 const SubmitButton = styled.button`
   background-color: ${props => props.theme.colors.primary[500]};
   color: white;
-  font-weight: 600;
-  font-size: ${props => props.theme.typography.fontSizes.md};
-  padding: 0.85rem;
+  font-weight: 800;
+  font-size: 0.98rem;
+  padding: 0.9rem;
   border: none;
-  border-radius: ${props => props.theme.borderRadius.lg};
+  border-radius: ${props => props.theme.borderRadius.xl};
   cursor: pointer;
-  transition: all 0.2s;
-  margin-top: 0.75rem;
-  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.25);
-  
+  transition: all 0.2s ease;
+  margin-top: 0.5rem;
+  box-shadow: ${props => props.theme.shadows.brand};
+
   &:hover:not(:disabled) {
     background-color: ${props => props.theme.colors.primary[600]};
     transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(14, 165, 233, 0.35);
   }
-  
+
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
@@ -235,19 +240,29 @@ const SubmitButton = styled.button`
 `;
 
 const TermsText = styled.p`
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: ${props => props.theme.colors.neutral[500]};
   text-align: center;
   margin-top: 1.5rem;
-  line-height: 1.6;
+  line-height: 1.65;
 `;
 
 const TermsLink = styled.a`
   color: ${props => props.theme.colors.primary[600]};
-  font-weight: 500;
+  font-weight: 700;
   &:hover {
     text-decoration: underline;
   }
+`;
+
+const SecurityBadge = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-top: 0.85rem;
+  font-size: 0.75rem;
+  color: ${props => props.theme.colors.neutral[400]};
 `;
 
 function toAsciiDigits(str: string): string {
@@ -423,9 +438,18 @@ const AuthContent = () => {
   return (
     <AuthPageContainer>
       <AuthCard>
+        <BrandMarkWrap>
+          <FoodinoEmblem size={44} />
+        </BrandMarkWrap>
+
         <PageTitle>
           {activeTab === 'login' ? 'ورود به فودینو' : 'ثبت‌نام در فودینو'}
         </PageTitle>
+        <PageSub>
+          {activeTab === 'login'
+            ? 'برای سفارش سریع غذا و رهگیری لحظه‌ای وارد شوید'
+            : 'عضویت سریع در خانواده بزرگ مشتریان فودینو'}
+        </PageSub>
 
         <TabContainer>
           <TabButton
@@ -446,7 +470,7 @@ const AuthContent = () => {
 
         {banner && (
           <AlertBanner $type={banner.type} role="alert">
-            <span>{banner.type === 'error' ? '⚠️' : '✅'}</span>
+            {banner.type === 'error' ? <AlertCircleIcon size={18} /> : <CheckCircleIcon size={18} />}
             <span>{banner.text}</span>
           </AlertBanner>
         )}
@@ -472,7 +496,8 @@ const AuthContent = () => {
               </InputWrapper>
               {fieldErrors.email && (
                 <FieldErrorMessage role="alert">
-                  <span>•</span> {fieldErrors.email}
+                  <AlertCircleIcon size={14} />
+                  <span>{fieldErrors.email}</span>
                 </FieldErrorMessage>
               )}
             </FormGroup>
@@ -502,12 +527,13 @@ const AuthContent = () => {
                   title={showPassword ? 'مخفی کردن' : 'نمایش رمز'}
                   aria-label={showPassword ? 'مخفی کردن رمز عبور' : 'نمایش رمز عبور'}
                 >
-                  {showPassword ? '👁️‍🗨️' : '👁️'}
+                  {showPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
                 </TogglePasswordButton>
               </InputWrapper>
               {fieldErrors.password && (
                 <FieldErrorMessage role="alert">
-                  <span>•</span> {fieldErrors.password}
+                  <AlertCircleIcon size={14} />
+                  <span>{fieldErrors.password}</span>
                 </FieldErrorMessage>
               )}
             </FormGroup>
@@ -532,7 +558,8 @@ const AuthContent = () => {
                 />
                 {fieldErrors.firstName && (
                   <FieldErrorMessage role="alert">
-                    <span>•</span> {fieldErrors.firstName}
+                    <AlertCircleIcon size={14} />
+                    <span>{fieldErrors.firstName}</span>
                   </FieldErrorMessage>
                 )}
               </FormGroup>
@@ -550,7 +577,8 @@ const AuthContent = () => {
                 />
                 {fieldErrors.lastName && (
                   <FieldErrorMessage role="alert">
-                    <span>•</span> {fieldErrors.lastName}
+                    <AlertCircleIcon size={14} />
+                    <span>{fieldErrors.lastName}</span>
                   </FieldErrorMessage>
                 )}
               </FormGroup>
@@ -573,7 +601,8 @@ const AuthContent = () => {
               </InputWrapper>
               {fieldErrors.email && (
                 <FieldErrorMessage role="alert">
-                  <span>•</span> {fieldErrors.email}
+                  <AlertCircleIcon size={14} />
+                  <span>{fieldErrors.email}</span>
                 </FieldErrorMessage>
               )}
             </FormGroup>
@@ -599,7 +628,8 @@ const AuthContent = () => {
               </InputWrapper>
               {fieldErrors.phone && (
                 <FieldErrorMessage role="alert">
-                  <span>•</span> {fieldErrors.phone}
+                  <AlertCircleIcon size={14} />
+                  <span>{fieldErrors.phone}</span>
                 </FieldErrorMessage>
               )}
             </FormGroup>
@@ -628,12 +658,13 @@ const AuthContent = () => {
                   title={showPassword ? 'مخفی کردن' : 'نمایش رمز'}
                   aria-label={showPassword ? 'مخفی کردن رمز عبور' : 'نمایش رمز عبور'}
                 >
-                  {showPassword ? '👁️‍🗨️' : '👁️'}
+                  {showPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
                 </TogglePasswordButton>
               </InputWrapper>
               {fieldErrors.password && (
                 <FieldErrorMessage role="alert">
-                  <span>•</span> {fieldErrors.password}
+                  <AlertCircleIcon size={14} />
+                  <span>{fieldErrors.password}</span>
                 </FieldErrorMessage>
               )}
             </FormGroup>
@@ -659,12 +690,13 @@ const AuthContent = () => {
                   title={showPassword ? 'مخفی کردن' : 'نمایش رمز'}
                   aria-label={showPassword ? 'مخفی کردن رمز عبور' : 'نمایش رمز عبور'}
                 >
-                  {showPassword ? '👁️‍🗨️' : '👁️'}
+                  {showPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
                 </TogglePasswordButton>
               </InputWrapper>
               {fieldErrors.confirmPassword && (
                 <FieldErrorMessage role="alert">
-                  <span>•</span> {fieldErrors.confirmPassword}
+                  <AlertCircleIcon size={14} />
+                  <span>{fieldErrors.confirmPassword}</span>
                 </FieldErrorMessage>
               )}
             </FormGroup>
@@ -682,6 +714,11 @@ const AuthContent = () => {
           </TermsLink>{' '}
           سایت موافقت می‌کنید.
         </TermsText>
+
+        <SecurityBadge>
+          <ShieldCheckIcon size={14} />
+          <span>احراز هویت امن سرور با کوکی‌های محافظت‌شده</span>
+        </SecurityBadge>
       </AuthCard>
     </AuthPageContainer>
   );

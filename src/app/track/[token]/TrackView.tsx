@@ -3,6 +3,15 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import Link from 'next/link';
+import {
+  StoreIcon,
+  UtensilsIcon,
+  CourierIcon,
+  MapPinIcon,
+  ClockIcon,
+  CheckCircleIcon,
+  TrackRadarIcon,
+} from '@/components/ui/FoodVisuals';
 
 type Tracking = Readonly<{
   status: string;
@@ -49,9 +58,9 @@ function getProgressPercent(status: string): number {
 }
 
 const PageContainer = styled.div`
-  max-width: 720px;
+  max-width: 760px;
   margin: 0 auto;
-  padding: 1.25rem 0.85rem 3.5rem;
+  padding: 1.5rem 1rem 4rem;
   direction: rtl;
 
   @media (min-width: 768px) {
@@ -60,29 +69,28 @@ const PageContainer = styled.div`
 `;
 
 const Title = styled.h1`
-  font-size: 1.35rem;
-  font-weight: 800;
+  font-size: 1.5rem;
+  font-weight: 900;
   color: ${({ theme }) => theme.colors.neutral[900]};
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
   text-align: center;
 
   @media (min-width: 768px) {
-    font-size: 2rem;
+    font-size: 2.1rem;
     margin-bottom: 2rem;
   }
 `;
 
 const TrackingCard = styled.section`
-  background: white;
-  border-radius: ${({ theme }) => theme.borderRadius.xl};
-  box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.07);
+  background: #ffffff;
+  border-radius: ${({ theme }) => theme.borderRadius['2xl']};
+  box-shadow: ${({ theme }) => theme.shadows.md};
   border: 1px solid ${({ theme }) => theme.colors.neutral[200]};
-  padding: 1rem 0.85rem;
-  margin-bottom: 1.25rem;
+  padding: 1.35rem 1.1rem;
+  margin-bottom: 1.5rem;
 
   @media (min-width: 768px) {
     padding: 2.25rem;
-    margin-bottom: 1.5rem;
   }
 `;
 
@@ -91,80 +99,64 @@ const RestaurantHeader = styled.div`
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid ${({ theme }) => theme.colors.neutral[100]};
-  padding-bottom: 1rem;
+  padding-bottom: 1.25rem;
   margin-bottom: 1.5rem;
   flex-wrap: wrap;
   gap: 0.75rem;
 
-  @media (min-width: 768px) {
-    padding-bottom: 1.25rem;
-    margin-bottom: 2rem;
-  }
-
   h2 {
-    font-size: 1.2rem;
-    font-weight: 700;
+    font-size: 1.3rem;
+    font-weight: 800;
     color: ${({ theme }) => theme.colors.neutral[900]};
     margin: 0;
-
-    @media (min-width: 768px) {
-      font-size: 1.35rem;
-    }
   }
 
   span.tag {
     font-size: 0.8rem;
     color: ${({ theme }) => theme.colors.neutral[500]};
     display: block;
-    margin-top: 0.2rem;
+    margin-top: 0.25rem;
+    font-family: monospace;
   }
 `;
 
 const DeliveryWindowCard = styled.div`
-  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
-  border: 1px solid #fed7aa;
-  border-radius: 1rem;
-  padding: 1.15rem 1.25rem;
+  background: linear-gradient(135deg, #1F1814 0%, #31251E 100%);
+  color: #FAF6F0;
+  border-radius: ${({ theme }) => theme.borderRadius.xl};
+  padding: 1.25rem 1.5rem;
   margin-bottom: 1.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 0.75rem;
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    padding: 0.85rem 1rem;
-  }
 `;
 
 const DeliveryTimeText = styled.div`
   .label {
-    font-size: 0.825rem;
-    color: #9a3412;
-    margin-bottom: 0.2rem;
+    font-size: 0.82rem;
+    color: rgba(250, 246, 240, 0.75);
+    margin-bottom: 0.3rem;
     display: flex;
     align-items: center;
-    gap: 0.35rem;
+    gap: 0.4rem;
     font-weight: 600;
   }
   .window {
-    font-size: 1.35rem;
-    font-weight: 800;
-    color: #c2410c;
+    font-size: 1.45rem;
+    font-weight: 900;
+    color: #FBBF24;
     letter-spacing: -0.5px;
-
-    @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-      font-size: 1.15rem;
-    }
   }
 `;
 
 const CourierVisual = styled.div`
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.75rem;
-  padding: 1rem 1.25rem;
-  margin-bottom: 1.5rem;
+  background: ${({ theme }) => theme.colors.neutral[50]};
+  border: 1px solid ${({ theme }) => theme.colors.neutral[200]};
+  border-radius: ${({ theme }) => theme.borderRadius.xl};
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.75rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -174,47 +166,50 @@ const CourierVisual = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.35rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #475569;
+    gap: 0.45rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: ${({ theme }) => theme.colors.neutral[600]};
     z-index: 2;
 
     .icon-box {
-      width: 42px;
-      height: 42px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.25rem;
-      background: white;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-      border: 2px solid #e2e8f0;
-      transition: border-color 200ms cubic-bezier(0.2, 0, 0, 1),
-        background-color 200ms cubic-bezier(0.2, 0, 0, 1),
-        transform 200ms cubic-bezier(0.2, 0, 0, 1);
+      background: #ffffff;
+      color: ${({ theme }) => theme.colors.neutral[500]};
+      box-shadow: ${({ theme }) => theme.shadows.xs};
+      border: 2px solid ${({ theme }) => theme.colors.neutral[200]};
+      transition: all 200ms ease;
+    }
+
+    &.active {
+      color: ${({ theme }) => theme.colors.neutral[900]};
     }
 
     &.active .icon-box {
-      border-color: #ff5a00;
-      background: #fff7ed;
+      border-color: ${({ theme }) => theme.colors.primary[500]};
+      background: ${({ theme }) => theme.colors.primary[50]};
+      color: ${({ theme }) => theme.colors.primary[600]};
       transform: scale(1.06);
     }
   }
 
   .progress-line {
     position: absolute;
-    top: 30px;
-    right: 45px;
-    left: 45px;
+    top: 34px;
+    right: 52px;
+    left: 52px;
     height: 3px;
-    background: #e2e8f0;
+    background: ${({ theme }) => theme.colors.neutral[200]};
     z-index: 1;
 
     .fill {
       height: 100%;
-      background: #ff5a00;
+      background: ${({ theme }) => theme.colors.primary[500]};
       border-radius: 9999px;
       transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
     }
@@ -227,19 +222,14 @@ const StepperTrack = styled.div`
   position: relative;
   margin: 1.5rem 0;
   padding: 0 0.5rem;
-
-  @media (min-width: 768px) {
-    margin: 2rem 0;
-    padding: 0 1rem;
-  }
 `;
 
 const StepItem = styled.div<{ $state: 'completed' | 'current' | 'upcoming' }>`
   display: flex;
   align-items: flex-start;
-  gap: 1.25rem;
+  gap: 1.15rem;
   position: relative;
-  padding-bottom: 2rem;
+  padding-bottom: 1.85rem;
 
   &:last-child {
     padding-bottom: 0;
@@ -248,13 +238,12 @@ const StepItem = styled.div<{ $state: 'completed' | 'current' | 'upcoming' }>`
   &:not(:last-child)::after {
     content: '';
     position: absolute;
-    top: 32px;
+    top: 34px;
     bottom: 0;
     right: 15px;
     width: 2px;
     background-color: ${({ $state, theme }) =>
-      $state === 'completed' ? theme.colors.success[400] : theme.colors.neutral[200]};
-    transition: background-color 0.3s ease;
+      $state === 'completed' ? theme.colors.success[500] : theme.colors.neutral[200]};
   }
 
   .step-icon {
@@ -264,8 +253,6 @@ const StepItem = styled.div<{ $state: 'completed' | 'current' | 'upcoming' }>`
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.85rem;
-    font-weight: 700;
     background-color: ${({ $state, theme }) =>
       $state === 'completed'
         ? theme.colors.success[500]
@@ -276,14 +263,11 @@ const StepItem = styled.div<{ $state: 'completed' | 'current' | 'upcoming' }>`
     flex-shrink: 0;
     position: relative;
     z-index: 2;
-    transition: background-color 220ms cubic-bezier(0.2, 0, 0, 1),
-      box-shadow 220ms cubic-bezier(0.2, 0, 0, 1),
-      transform 220ms cubic-bezier(0.2, 0, 0, 1);
     box-shadow: ${({ $state }) =>
       $state === 'current'
-        ? '0 0 0 4px rgba(255, 90, 0, 0.2)'
+        ? '0 0 0 4px rgba(217, 56, 30, 0.18)'
         : $state === 'completed'
-        ? '0 0 0 3px rgba(34, 197, 94, 0.15)'
+        ? '0 0 0 3px rgba(21, 128, 61, 0.15)'
         : 'none'};
   }
 
@@ -292,26 +276,18 @@ const StepItem = styled.div<{ $state: 'completed' | 'current' | 'upcoming' }>`
     padding-top: 3px;
 
     h3 {
-      font-size: 0.95rem;
-      font-weight: 700;
+      font-size: 0.98rem;
+      font-weight: 800;
       color: ${({ $state, theme }) =>
         $state === 'upcoming' ? theme.colors.neutral[400] : theme.colors.neutral[900]};
-      margin: 0 0 0.3rem;
-
-      @media (min-width: 768px) {
-        font-size: 1rem;
-      }
+      margin: 0 0 0.25rem;
     }
 
     p {
-      font-size: 0.825rem;
+      font-size: 0.85rem;
       color: ${({ theme }) => theme.colors.neutral[500]};
       margin: 0;
-      line-height: 1.6;
-
-      @media (min-width: 768px) {
-        font-size: 0.85rem;
-      }
+      line-height: 1.65;
     }
   }
 `;
@@ -319,19 +295,21 @@ const StepItem = styled.div<{ $state: 'completed' | 'current' | 'upcoming' }>`
 const StatusPill = styled.div<{ $status: string }>`
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.6rem 1.2rem;
+  gap: 0.45rem;
+  padding: 0.5rem 1rem;
   border-radius: 9999px;
-  font-weight: 700;
-  font-size: 0.95rem;
-  margin-bottom: 1.5rem;
-  background-color: ${({ $status }) => ($status === 'delivered' ? '#dcfce7' : '#fff7ed')};
-  color: ${({ $status }) => ($status === 'delivered' ? '#15803d' : '#c2410c')};
-  border: 1px solid ${({ $status }) => ($status === 'delivered' ? '#bbf7d0' : '#fed7aa')};
+  font-weight: 800;
+  font-size: 0.88rem;
+  background-color: ${({ $status, theme }) =>
+    $status === 'delivered' ? theme.colors.success[50] : theme.colors.primary[50]};
+  color: ${({ $status, theme }) =>
+    $status === 'delivered' ? theme.colors.success[600] : theme.colors.primary[600]};
+  border: 1px solid ${({ $status, theme }) =>
+    $status === 'delivered' ? theme.colors.success[100] : theme.colors.primary[100]};
 `;
 
 const LastUpdated = styled.p`
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: ${({ theme }) => theme.colors.neutral[400]};
   margin: 1.5rem 0 0;
   text-align: center;
@@ -341,19 +319,15 @@ const BackLink = styled(Link)`
   display: block;
   text-align: center;
   color: ${({ theme }) => theme.colors.primary[600]};
-  font-weight: 600;
+  font-weight: 700;
   text-decoration: none;
   margin-top: 1.5rem;
-
-  &:hover {
-    text-decoration: underline;
-  }
 `;
 
 const stepsSequence = [
   { key: 'confirmed', title: 'سفارش تأیید شد', desc: 'رستوران سفارش شما را دریافت و تأیید کرد.' },
   { key: 'preparing', title: 'در حال آماده‌سازی', desc: 'غذا در آشپزخانه رستوران در حال پخت است.' },
-  { key: 'delivering', title: 'تحویل به پیک و ارسال', desc: 'پیک در مسیر تحویل غذای گرم به نشانی شماست.' },
+  { key: 'delivering', title: 'تحویل به پیک و ارسال', desc: 'سفیر فودینو با کیف گرم‌نگهدارنده در مسیر نشانی شماست.' },
   { key: 'delivered', title: 'تحویل سفارش', desc: 'سفارش با موفقیت تحویل داده شد. نوش جان!' },
 ];
 
@@ -410,16 +384,18 @@ export default function TrackView({ token }: Readonly<{ token: string }>) {
   return (
     <PageContainer>
       <Title>وضعیت لحظه‌ای سفارش</Title>
-      
+
       {!tracking && !unavailable && (
         <TrackingCard style={{ textAlign: 'center', padding: '3rem' }}>
-          <p aria-live="polite" style={{ color: '#64748b' }}>در حال دریافت اطلاعات آخرین وضعیت سفارش…</p>
+          <p aria-live="polite" style={{ color: '#6E6055', margin: 0 }}>
+            در حال دریافت اطلاعات آخرین وضعیت سفارش…
+          </p>
         </TrackingCard>
       )}
 
       {unavailable && (
-        <TrackingCard style={{ textAlign: 'center', borderColor: '#fecaca', background: '#fef2f2' }}>
-          <p role="alert" style={{ color: '#991b1b', margin: 0 }}>
+        <TrackingCard style={{ textAlign: 'center', borderColor: '#FECACA', background: '#FEF2F2' }}>
+          <p role="alert" style={{ color: '#991B1B', margin: 0 }}>
             اطلاعات سفارش در حال حاضر در دسترس نیست؛ سیستم به صورت خودکار مجدداً تلاش خواهد کرد.
           </p>
         </TrackingCard>
@@ -433,7 +409,7 @@ export default function TrackView({ token }: Readonly<{ token: string }>) {
               <span className="tag">کد رهگیری: {token.slice(0, 10)}…</span>
             </div>
             <StatusPill $status={tracking.status}>
-              <span>{tracking.status === 'delivered' ? '✓' : '⚡'}</span>
+              {tracking.status === 'delivered' ? <CheckCircleIcon size={16} /> : <TrackRadarIcon size={16} />}
               <span>{labels[tracking.status] ?? tracking.status}</span>
             </StatusPill>
           </RestaurantHeader>
@@ -447,11 +423,14 @@ export default function TrackView({ token }: Readonly<{ token: string }>) {
                   <>
                     <DeliveryWindowCard>
                       <DeliveryTimeText>
-                        <div className="label">⏱️ زمان تقریبی تحویل سفارش</div>
+                        <div className="label">
+                          <ClockIcon size={15} />
+                          <span>زمان تقریبی تحویل سفارش</span>
+                        </div>
                         <div className="window">{window.start} تا {window.end}</div>
                       </DeliveryTimeText>
-                      <div style={{ fontSize: '0.825rem', color: '#7c2d12', background: 'rgba(255,255,255,0.8)', padding: '0.35rem 0.75rem', borderRadius: '9999px', fontWeight: 700 }}>
-                        ارسال اکسپرس فودینو 🚀
+                      <div style={{ fontSize: '0.8rem', color: '#FAF6F0', background: 'rgba(255,255,255,0.12)', padding: '0.4rem 0.85rem', borderRadius: '9999px', fontWeight: 700 }}>
+                        ارسال اکسپرس فودینو
                       </div>
                     </DeliveryWindowCard>
 
@@ -460,19 +439,27 @@ export default function TrackView({ token }: Readonly<{ token: string }>) {
                         <div className="fill" style={{ width: `${progress}%` }} />
                       </div>
                       <div className={`node ${progress >= 25 ? 'active' : ''}`}>
-                        <div className="icon-box">🏪</div>
+                        <div className="icon-box">
+                          <StoreIcon size={19} />
+                        </div>
                         <span>رستوران</span>
                       </div>
                       <div className={`node ${progress >= 50 ? 'active' : ''}`}>
-                        <div className="icon-box">👨‍🍳</div>
+                        <div className="icon-box">
+                          <UtensilsIcon size={19} />
+                        </div>
                         <span>آماده‌سازی</span>
                       </div>
                       <div className={`node ${progress >= 85 ? 'active' : ''}`}>
-                        <div className="icon-box">🛵</div>
+                        <div className="icon-box">
+                          <CourierIcon size={19} />
+                        </div>
                         <span>پیک در مسیر</span>
                       </div>
                       <div className={`node ${progress >= 100 ? 'active' : ''}`}>
-                        <div className="icon-box">📍</div>
+                        <div className="icon-box">
+                          <MapPinIcon size={19} />
+                        </div>
                         <span>تحویل شما</span>
                       </div>
                     </CourierVisual>
@@ -483,7 +470,7 @@ export default function TrackView({ token }: Readonly<{ token: string }>) {
           )}
 
           {tracking.status === 'canceled' ? (
-            <div style={{ textAlign: 'center', padding: '2rem', color: '#dc2626' }}>
+            <div style={{ textAlign: 'center', padding: '2rem', color: '#DC2626' }}>
               <h3>این سفارش لغو شده است</h3>
               <p>در صورت کسر وجه، مبلغ ظرف حداکثر ۷۲ ساعت به حساب شما بازخواهد گشت.</p>
             </div>
@@ -494,7 +481,7 @@ export default function TrackView({ token }: Readonly<{ token: string }>) {
                 return (
                   <StepItem key={step.key} $state={state}>
                     <div className="step-icon">
-                      {state === 'completed' ? '✓' : ''}
+                      {state === 'completed' ? <CheckCircleIcon size={15} /> : null}
                     </div>
                     <div className="step-content">
                       <h3>{step.title}</h3>

@@ -8,6 +8,14 @@ import {
   removeFavoriteAction,
   updateProfileAction,
 } from '@/app/profile/actions';
+import {
+  UserIcon,
+  MapPinIcon,
+  BagIcon,
+  HeartIcon,
+  ArrowLeftIcon,
+  TrashIcon,
+} from '@/components/ui/FoodVisuals';
 
 type ProfileViewProps = Readonly<{
   profile: { firstName: string; lastName: string; email: string; phone: string };
@@ -19,65 +27,82 @@ type ProfileViewProps = Readonly<{
 }>;
 
 const Page = styled.div`
-  max-width: 960px;
+  max-width: 1020px;
   margin: 0 auto;
-  padding: 2.5rem 1rem 4rem;
+  padding: 2.5rem 1.25rem 4.5rem;
   direction: rtl;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    padding: 1.25rem 0.85rem 3rem;
+    padding: 1.5rem 1rem 3rem;
   }
 `;
 
-const Title = styled.h1`
-  margin: 0 0 2rem;
-  font-size: 2rem;
-  font-weight: 800;
-  color: ${({ theme }) => theme.colors.neutral[900]};
+const HeaderBanner = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.5rem 2rem;
+  margin-bottom: 2rem;
+  border-radius: ${({ theme }) => theme.borderRadius['2xl']};
+  background: linear-gradient(135deg, #1F1814 0%, #31251E 100%);
+  color: #FAF6F0;
+  box-shadow: ${({ theme }) => theme.shadows.md};
+  flex-wrap: wrap;
+`;
 
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    font-size: 1.4rem;
-    margin: 0 0 1.25rem;
-  }
+const Title = styled.h1`
+  margin: 0 0 0.25rem;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 900;
+  color: #ffffff;
+`;
+
+const Subtitle = styled.p`
+  margin: 0;
+  font-size: 0.9rem;
+  color: rgba(250, 246, 240, 0.75);
 `;
 
 const Grid = styled.div`
   display: grid;
-  gap: 2rem;
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    gap: 1.25rem;
-  }
+  gap: 1.75rem;
 `;
 
 const Card = styled.section`
   padding: 2rem;
-  border-radius: ${({ theme }) => theme.borderRadius.xl};
-  background: white;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border-radius: ${({ theme }) => theme.borderRadius['2xl']};
+  background: #ffffff;
+  box-shadow: ${({ theme }) => theme.shadows.sm};
   border: 1px solid ${({ theme }) => theme.colors.neutral[200]};
 
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    padding: 1.15rem 0.85rem;
-    border-radius: 0.85rem;
+    padding: 1.25rem 1rem;
+    border-radius: ${({ theme }) => theme.borderRadius.xl};
   }
 
   h2 {
-    font-size: 1.25rem;
-    font-weight: 700;
+    font-size: 1.2rem;
+    font-weight: 800;
     color: ${({ theme }) => theme.colors.neutral[900]};
     margin: 0 0 1.5rem;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.6rem;
     border-bottom: 1px solid ${({ theme }) => theme.colors.neutral[100]};
-    padding-bottom: 0.75rem;
-
-    @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-      font-size: 1.05rem;
-      margin: 0 0 1rem;
-    }
+    padding-bottom: 0.85rem;
   }
+`;
+
+const SectionIconWrap = styled.span`
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: ${({ theme }) => theme.colors.primary[50]};
+  color: ${({ theme }) => theme.colors.primary[600]};
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 const Form = styled.form`
@@ -88,22 +113,24 @@ const Form = styled.form`
 const FieldLabel = styled.label`
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: ${({ theme }) => theme.colors.neutral[700]};
+  gap: 0.45rem;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: ${({ theme }) => theme.colors.neutral[800]};
 `;
 
 const Input = styled.input`
   width: 100%;
   padding: 0.75rem 1rem;
   border: 1px solid ${({ theme }) => theme.colors.neutral[300]};
-  border-radius: ${({ theme }) => theme.borderRadius.md};
+  background: ${({ theme }) => theme.colors.neutral[50]};
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
   font-size: 0.95rem;
   transition: all 0.2s;
 
   &:focus {
     outline: none;
+    background: #ffffff;
     border-color: ${({ theme }) => theme.colors.primary[500]};
     box-shadow: 0 0 0 3px ${({ theme }) => theme.colors.primary[100]};
   }
@@ -120,13 +147,15 @@ const TextArea = styled.textarea`
   min-height: 5rem;
   padding: 0.75rem 1rem;
   border: 1px solid ${({ theme }) => theme.colors.neutral[300]};
-  border-radius: ${({ theme }) => theme.borderRadius.md};
+  background: ${({ theme }) => theme.colors.neutral[50]};
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
   font-size: 0.95rem;
   resize: vertical;
   transition: all 0.2s;
 
   &:focus {
     outline: none;
+    background: #ffffff;
     border-color: ${({ theme }) => theme.colors.primary[500]};
     box-shadow: 0 0 0 3px ${({ theme }) => theme.colors.primary[100]};
   }
@@ -142,15 +171,16 @@ const Fields = styled.div`
 
 const Button = styled.button`
   justify-self: start;
-  padding: 0.75rem 1.75rem;
+  padding: 0.8rem 1.75rem;
   border: 0;
-  border-radius: ${({ theme }) => theme.borderRadius.md};
+  border-radius: ${({ theme }) => theme.borderRadius.xl};
   cursor: pointer;
   background: ${({ theme }) => theme.colors.primary[500]};
   color: white;
-  font-weight: 600;
-  font-size: 0.95rem;
-  min-height: 42px;
+  font-weight: 800;
+  font-size: 0.92rem;
+  min-height: 44px;
+  box-shadow: ${({ theme }) => theme.shadows.brand};
   transition: all 0.2s;
 
   &:hover {
@@ -158,27 +188,26 @@ const Button = styled.button`
     transform: translateY(-1px);
   }
 
-  &:active {
-    transform: scale(0.97);
-  }
-
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
     width: 100%;
     justify-self: stretch;
-    padding: 0.65rem 1rem;
-    font-size: 0.9rem;
   }
 `;
 
-const DangerButton = styled(Button)`
+const DangerButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   padding: 0.45rem 0.9rem;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
+  font-weight: 700;
   min-height: 36px;
-  width: auto;
-  justify-self: start;
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  cursor: pointer;
   background: ${({ theme }) => theme.colors.error[50]};
   color: ${({ theme }) => theme.colors.error[600]};
-  border: 1px solid ${({ theme }) => theme.colors.error[200]};
+  border: 1px solid ${({ theme }) => theme.colors.error[100]};
+  transition: all 0.2s ease;
 
   &:hover {
     background: ${({ theme }) => theme.colors.error[500]};
@@ -190,7 +219,7 @@ const List = styled.ul`
   display: grid;
   gap: 0.75rem;
   padding: 0;
-  margin: 1rem 0 0;
+  margin: 1.25rem 0 0;
   list-style: none;
 `;
 
@@ -201,53 +230,37 @@ const Item = styled.li`
   gap: 1rem;
   padding: 1rem 1.25rem;
   border: 1px solid ${({ theme }) => theme.colors.neutral[200]};
-  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  border-radius: ${({ theme }) => theme.borderRadius.xl};
   background: ${({ theme }) => theme.colors.neutral[50]};
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    padding: 0.75rem;
-    gap: 0.5rem;
-    border-radius: 0.65rem;
-  }
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.xs}) {
-    flex-direction: column;
-    align-items: flex-start;
-  }
+  flex-wrap: wrap;
 `;
 
 const StatusBadge = styled.span<{ $status: string }>`
   padding: 0.3rem 0.75rem;
   border-radius: 9999px;
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-size: 0.78rem;
+  font-weight: 700;
   background-color: ${({ $status }) => {
     switch ($status) {
-      case 'delivered': return '#dcfce7';
-      case 'delivering': return '#ede9fe';
-      case 'preparing': return '#ffedd5';
-      case 'confirmed': return '#e0f2fe';
-      case 'canceled': return '#fee2e2';
-      default: return '#fef3c7';
+      case 'delivered': return '#ECFDF5';
+      case 'canceled': return '#FEF2F2';
+      default: return '#FFF5F2';
     }
   }};
   color: ${({ $status }) => {
     switch ($status) {
-      case 'delivered': return '#15803d';
-      case 'delivering': return '#6d28d9';
-      case 'preparing': return '#c2410c';
-      case 'confirmed': return '#0369a1';
-      case 'canceled': return '#b91c1c';
-      default: return '#b45309';
+      case 'delivered': return '#15803D';
+      case 'canceled': return '#DC2626';
+      default: return '#D9381E';
     }
   }};
 `;
 
 const EmptyNotice = styled.p`
   color: ${({ theme }) => theme.colors.neutral[500]};
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   margin: 0;
-  padding: 1rem 0;
+  padding: 1.25rem 0;
   text-align: center;
 `;
 
@@ -264,10 +277,21 @@ const statusLabels: Record<string, string> = {
 export default function ProfileView({ profile, addresses, favorites, orders }: ProfileViewProps) {
   return (
     <Page>
-      <Title>پروفایل کاربری</Title>
+      <HeaderBanner>
+        <div>
+          <Title>پروفایل کاربری</Title>
+          <Subtitle>مدیریت مشخصات فردی، نشانی‌های منتخب و تاریخچه سفارش‌ها در فودینو</Subtitle>
+        </div>
+      </HeaderBanner>
+
       <Grid>
         <Card>
-          <h2>👤 اطلاعات حساب کاربری</h2>
+          <h2>
+            <SectionIconWrap>
+              <UserIcon size={18} />
+            </SectionIconWrap>
+            <span>اطلاعات حساب کاربری</span>
+          </h2>
           <Form action={updateProfileAction}>
             <Fields>
               <FieldLabel>
@@ -292,7 +316,12 @@ export default function ProfileView({ profile, addresses, favorites, orders }: P
         </Card>
 
         <Card>
-          <h2>📍 نشانی‌های من</h2>
+          <h2>
+            <SectionIconWrap>
+              <MapPinIcon size={18} />
+            </SectionIconWrap>
+            <span>نشانی‌های من</span>
+          </h2>
           <Form action={createAddressAction}>
             <Fields>
               <FieldLabel>
@@ -334,14 +363,17 @@ export default function ProfileView({ profile, addresses, favorites, orders }: P
               {addresses.map((address) => (
                 <Item key={address.id}>
                   <div>
-                    <strong style={{ color: '#1e293b' }}>{address.title}</strong>
-                    <p style={{ margin: '0.25rem 0 0', color: '#64748b', fontSize: '0.9rem' }}>
+                    <strong style={{ color: '#16120F' }}>{address.title}</strong>
+                    <p style={{ margin: '0.25rem 0 0', color: '#6E6055', fontSize: '0.88rem' }}>
                       {address.recipientName} ({address.city}، {address.addressLine})
                     </p>
                   </div>
                   <form action={deleteAddressAction}>
                     <input type="hidden" name="addressId" value={address.id} />
-                    <DangerButton type="submit">حذف آدرس</DangerButton>
+                    <DangerButton type="submit">
+                      <TrashIcon size={14} />
+                      <span>حذف آدرس</span>
+                    </DangerButton>
                   </form>
                 </Item>
               ))}
@@ -350,7 +382,12 @@ export default function ProfileView({ profile, addresses, favorites, orders }: P
         </Card>
 
         <Card>
-          <h2>📦 تاریخچه سفارش‌ها</h2>
+          <h2>
+            <SectionIconWrap>
+              <BagIcon size={18} />
+            </SectionIconWrap>
+            <span>تاریخچه سفارش‌ها</span>
+          </h2>
           {orders.length === 0 ? (
             <EmptyNotice>هنوز سفارشی ثبت نکرده‌اید.</EmptyNotice>
           ) : (
@@ -358,7 +395,7 @@ export default function ProfileView({ profile, addresses, favorites, orders }: P
               {orders.map((order) => (
                 <Item key={order.id}>
                   <div>
-                    <strong style={{ color: '#1e293b' }}>{order.restaurantName}</strong>
+                    <strong style={{ color: '#16120F' }}>{order.restaurantName}</strong>
                     <div style={{ marginTop: '0.35rem' }}>
                       <StatusBadge $status={order.status}>
                         {statusLabels[order.status] ?? order.status}
@@ -366,7 +403,7 @@ export default function ProfileView({ profile, addresses, favorites, orders }: P
                     </div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flexWrap: 'wrap' }}>
-                    <strong style={{ color: '#ff5a00', fontSize: '0.95rem' }}>
+                    <strong style={{ color: '#D9381E', fontSize: '0.95rem' }}>
                       {(order.totalIrr / 10).toLocaleString('fa-IR')} تومان
                     </strong>
                     <Link
@@ -374,20 +411,19 @@ export default function ProfileView({ profile, addresses, favorites, orders }: P
                       style={{
                         display: 'inline-flex',
                         alignItems: 'center',
-                        gap: '0.25rem',
-                        padding: '0.4rem 0.75rem',
-                        borderRadius: '0.5rem',
-                        fontSize: '0.8rem',
+                        gap: '0.35rem',
+                        padding: '0.45rem 0.85rem',
+                        borderRadius: '0.65rem',
+                        fontSize: '0.82rem',
                         fontWeight: 700,
-                        color: '#ff5a00',
-                        background: '#fff7ed',
-                        border: '1px solid #fed7aa',
+                        color: '#B82B14',
+                        background: '#FFF5F2',
+                        border: '1px solid #FFD8CE',
                         textDecoration: 'none',
-                        transition: 'all 0.2s ease',
                       }}
                     >
                       <span>جزئیات و فاکتور</span>
-                      <span>←</span>
+                      <ArrowLeftIcon size={14} />
                     </Link>
                   </div>
                 </Item>
@@ -397,13 +433,19 @@ export default function ProfileView({ profile, addresses, favorites, orders }: P
         </Card>
 
         <Card>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-            <h2 style={{ margin: 0 }}>❤️ رستوران‌های مورد علاقه</h2>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', borderBottom: '1px solid #F3ECE2', paddingBottom: '0.85rem' }}>
+            <h2 style={{ margin: 0, border: 0, padding: 0 }}>
+              <SectionIconWrap>
+                <HeartIcon size={18} />
+              </SectionIconWrap>
+              <span>رستوران‌های مورد علاقه</span>
+            </h2>
             <Link
               href="/favorite-restaurants"
-              style={{ fontSize: '0.85rem', color: '#ff5a00', fontWeight: 700, textDecoration: 'none' }}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.85rem', color: '#D9381E', fontWeight: 700, textDecoration: 'none' }}
             >
-              مدیریت و مشاهده کامل ←
+              <span>مدیریت و مشاهده کامل</span>
+              <ArrowLeftIcon size={14} />
             </Link>
           </div>
           {favorites.length === 0 ? (
@@ -414,13 +456,16 @@ export default function ProfileView({ profile, addresses, favorites, orders }: P
                 <Item key={restaurant.id}>
                   <a
                     href={`/restaurants/${restaurant.slug}`}
-                    style={{ fontWeight: 600, color: '#ff5a00', textDecoration: 'none' }}
+                    style={{ fontWeight: 800, color: '#16120F', textDecoration: 'none' }}
                   >
                     {restaurant.name}
                   </a>
                   <form action={removeFavoriteAction}>
                     <input type="hidden" name="restaurantId" value={restaurant.id} />
-                    <DangerButton type="submit">حذف</DangerButton>
+                    <DangerButton type="submit">
+                      <TrashIcon size={14} />
+                      <span>حذف</span>
+                    </DangerButton>
                   </form>
                 </Item>
               ))}

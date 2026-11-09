@@ -3,15 +3,16 @@
 import React from 'react';
 import styled, { keyframes } from 'styled-components';
 import Link from 'next/link';
+import {
+  CheckCircleIcon,
+  ArrowLeftIcon,
+  ShieldCheckIcon,
+} from '@/components/ui/FoodVisuals';
 
 const popIn = keyframes`
   0% {
-    transform: scale(0.6);
+    transform: scale(0.85);
     opacity: 0;
-  }
-  70% {
-    transform: scale(1.08);
-    opacity: 1;
   }
   100% {
     transform: scale(1);
@@ -19,17 +20,8 @@ const popIn = keyframes`
   }
 `;
 
-const float = keyframes`
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-6px);
-  }
-`;
-
 const PageContainer = styled.main`
-  min-height: 80vh;
+  min-height: 78vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -38,58 +30,54 @@ const PageContainer = styled.main`
 `;
 
 const ConfirmationCard = styled.section`
-  background: white;
+  background: #ffffff;
   width: 100%;
   max-width: 520px;
-  border-radius: 1.5rem;
-  padding: 3rem 2rem 2.5rem;
-  box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.08);
-  border: 1px solid #f1f5f9;
+  border-radius: ${({ theme }) => theme.borderRadius['2xl']};
+  padding: 2.75rem 2.25rem 2.25rem;
+  box-shadow: ${({ theme }) => theme.shadows.lg};
+  border: 1px solid ${({ theme }) => theme.colors.neutral[200]};
   text-align: center;
-  animation: ${popIn} 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: ${popIn} 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 
   @media (max-width: 640px) {
-    padding: 2.25rem 1.25rem 2rem;
+    padding: 2rem 1.25rem;
   }
 `;
 
 const SuccessBadge = styled.div`
-  width: 88px;
-  height: 88px;
-  margin: 0 auto 1.75rem;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1.5rem;
+  border-radius: 24px;
+  background: ${({ theme }) => theme.colors.success[50]};
+  border: 1px solid ${({ theme }) => theme.colors.success[100]};
+  color: ${({ theme }) => theme.colors.success[600]};
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2.75rem;
-  box-shadow: 0 10px 25px rgba(34, 197, 94, 0.25);
-  animation: ${float} 3s ease-in-out infinite;
 `;
 
 const Title = styled.h1`
   font-size: 1.65rem;
-  font-weight: 800;
-  color: #0f172a;
+  font-weight: 900;
+  color: ${({ theme }) => theme.colors.neutral[900]};
   margin: 0 0 0.75rem;
-
-  @media (max-width: 640px) {
-    font-size: 1.4rem;
-  }
 `;
 
 const Description = styled.p`
   font-size: 0.95rem;
   line-height: 1.75;
-  color: #64748b;
-  margin: 0 0 2rem;
+  color: ${({ theme }) => theme.colors.neutral[600]};
+  margin: 0 0 1.75rem;
 `;
 
 const FeaturesList = styled.div`
-  background: #f8fafc;
-  border-radius: 1rem;
+  background: ${({ theme }) => theme.colors.neutral[50]};
+  border: 1px solid ${({ theme }) => theme.colors.neutral[200]};
+  border-radius: ${({ theme }) => theme.borderRadius.xl};
   padding: 1.25rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1.75rem;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -99,21 +87,20 @@ const FeaturesList = styled.div`
 const FeatureItem = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.65rem;
   font-size: 0.88rem;
-  font-weight: 600;
-  color: #334155;
+  font-weight: 700;
+  color: ${({ theme }) => theme.colors.neutral[800]};
 
   .icon {
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
     border-radius: 50%;
-    background: #ecfdf5;
-    color: #10b981;
+    background: ${({ theme }) => theme.colors.success[50]};
+    color: ${({ theme }) => theme.colors.success[600]};
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.8rem;
     flex-shrink: 0;
   }
 `;
@@ -130,33 +117,33 @@ const Actions = styled.div`
 
 const PrimaryButton = styled(Link)`
   flex: 1;
-  background: #ea580c;
+  background: ${({ theme }) => theme.colors.primary[500]};
   color: white;
   padding: 0.9rem 1.5rem;
-  border-radius: 0.75rem;
-  font-weight: 700;
+  border-radius: ${({ theme }) => theme.borderRadius.xl};
+  font-weight: 800;
   font-size: 0.95rem;
   text-decoration: none;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.3);
+  box-shadow: ${({ theme }) => theme.shadows.brand};
   transition: all 0.2s;
 
   &:hover {
-    background: #c2410c;
+    background: ${({ theme }) => theme.colors.primary[600]};
     transform: translateY(-1px);
   }
 `;
 
 const SecondaryButton = styled(Link)`
   flex: 1;
-  background: #f1f5f9;
-  color: #334155;
+  background: ${({ theme }) => theme.colors.neutral[100]};
+  color: ${({ theme }) => theme.colors.neutral[800]};
   padding: 0.9rem 1.5rem;
-  border-radius: 0.75rem;
-  font-weight: 600;
+  border-radius: ${({ theme }) => theme.borderRadius.xl};
+  font-weight: 700;
   font-size: 0.95rem;
   text-decoration: none;
   display: flex;
@@ -165,8 +152,7 @@ const SecondaryButton = styled(Link)`
   transition: all 0.2s;
 
   &:hover {
-    background: #e2e8f0;
-    color: #0f172a;
+    background: ${({ theme }) => theme.colors.neutral[200]};
   }
 `;
 
@@ -174,7 +160,9 @@ export default function EmailConfirmedPage() {
   return (
     <PageContainer>
       <ConfirmationCard>
-        <SuccessBadge aria-hidden="true">🎉</SuccessBadge>
+        <SuccessBadge aria-hidden="true">
+          <ShieldCheckIcon size={40} />
+        </SuccessBadge>
 
         <Title>ایمیل شما با موفقیت تأیید شد!</Title>
         <Description>
@@ -183,15 +171,21 @@ export default function EmailConfirmedPage() {
 
         <FeaturesList>
           <FeatureItem>
-            <span className="icon">✓</span>
-            <span>دسترسی به بهترین رستوران‌ها و فست‌فودهای برتر شهر</span>
+            <span className="icon">
+              <CheckCircleIcon size={15} />
+            </span>
+            <span>دسترسی به بهترین رستوران‌ها و آشپزخانه‌های برتر شهر</span>
           </FeatureItem>
           <FeatureItem>
-            <span className="icon">✓</span>
+            <span className="icon">
+              <CheckCircleIcon size={15} />
+            </span>
             <span>امکان استفاده از کدهای تخفیف و جشنواره‌های ویژه فودینو</span>
           </FeatureItem>
           <FeatureItem>
-            <span className="icon">✓</span>
+            <span className="icon">
+              <CheckCircleIcon size={15} />
+            </span>
             <span>رهگیری لحظه‌ای موقعیت پیک از آشپزخانه تا درب منزل</span>
           </FeatureItem>
         </FeaturesList>
@@ -199,7 +193,7 @@ export default function EmailConfirmedPage() {
         <Actions>
           <PrimaryButton href="/restaurants">
             <span>شروع سفارش غذا</span>
-            <span aria-hidden="true">←</span>
+            <ArrowLeftIcon size={16} />
           </PrimaryButton>
           <SecondaryButton href="/profile">
             <span>مشاهده حساب کاربری</span>

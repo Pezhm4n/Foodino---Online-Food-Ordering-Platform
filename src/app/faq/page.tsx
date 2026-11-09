@@ -2,211 +2,154 @@
 
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { ChevronDownIcon, SearchIcon } from '@/components/ui/FoodVisuals';
 
 const FAQPageContainer = styled.div`
-  max-width: 1200px;
+  max-width: 980px;
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: 2.5rem 1.25rem 4.5rem;
   direction: rtl;
-
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    padding: 1.25rem 0.85rem 3rem;
-  }
 `;
 
 const PageHeader = styled.div`
   text-align: center;
-  margin-bottom: 3rem;
-
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    margin-bottom: 1.5rem;
-  }
+  margin-bottom: 2.25rem;
 `;
 
 const PageTitle = styled.h1`
-  font-size: ${props => props.theme.typography.fontSizes.xl};
-  font-weight: ${props => props.theme.typography.fontWeights.bold};
-  color: ${props => props.theme.colors.secondary[500]};
-  margin-bottom: 1rem;
-
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    font-size: 1.35rem;
-    margin-bottom: 0.5rem;
-  }
+  font-size: clamp(1.65rem, 3vw, 2.25rem);
+  font-weight: 900;
+  color: ${props => props.theme.colors.neutral[900]};
+  margin: 0 0 0.5rem;
 `;
 
 const PageDescription = styled.p`
-  font-size: ${props => props.theme.typography.fontSizes.md};
+  font-size: 0.98rem;
   color: ${props => props.theme.colors.neutral[500]};
-  max-width: 800px;
+  max-width: 680px;
   margin: 0 auto;
+`;
 
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    font-size: 0.85rem;
+const SearchContainer = styled.div`
+  position: relative;
+  margin-bottom: 1.5rem;
+`;
+
+const SearchInput = styled.input`
+  width: 100%;
+  padding: 0.9rem 1.15rem 0.9rem 2.85rem;
+  font-size: 0.95rem;
+  border: 1.5px solid ${props => props.theme.colors.neutral[200]};
+  border-radius: ${props => props.theme.borderRadius.xl};
+  background-color: #ffffff;
+  color: ${props => props.theme.colors.neutral[900]};
+  box-shadow: ${props => props.theme.shadows.xs};
+
+  &:focus {
+    outline: none;
+    border-color: ${props => props.theme.colors.primary[500]};
+    box-shadow: 0 0 0 3px ${props => props.theme.colors.primary[100]};
   }
+`;
+
+const SearchIconWrap = styled.span`
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: ${props => props.theme.colors.neutral[400]};
+  display: inline-flex;
+  pointer-events: none;
 `;
 
 const CategoriesContainer = styled.div`
   display: flex;
   justify-content: center;
-  gap: 1rem;
-  margin-bottom: 2rem;
+  gap: 0.6rem;
+  margin-bottom: 2.25rem;
   flex-wrap: wrap;
-
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    gap: 0.5rem;
-    margin-bottom: 1.25rem;
-  }
 `;
 
 const CategoryButton = styled.button<{ $active: boolean }>`
-  padding: 0.75rem 1.5rem;
-  border-radius: ${props => props.theme.borderRadius.md};
-  border: none;
-  background-color: ${props => props.$active ? props.theme.colors.primary[500] : 'white'};
-  color: ${props => props.$active ? 'white' : props.theme.colors.neutral[700]};
-  font-size: ${props => props.theme.typography.fontSizes.md};
-  font-weight: ${props => props.$active ? props.theme.typography.fontWeights.medium : props.theme.typography.fontWeights.normal};
+  padding: 0.55rem 1.25rem;
+  border-radius: 999px;
+  border: 1px solid ${props => (props.$active ? props.theme.colors.primary[500] : props.theme.colors.neutral[200])};
+  background-color: ${props => (props.$active ? props.theme.colors.primary[500] : '#ffffff')};
+  color: ${props => (props.$active ? '#ffffff' : props.theme.colors.neutral[700])};
+  font-size: 0.88rem;
+  font-weight: 700;
   cursor: pointer;
-  box-shadow: ${props => props.theme.boxShadow.sm};
-  transition: all 0.2s;
-  min-height: 40px;
-  
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: ${props => props.theme.boxShadow.md};
-  }
-
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    padding: 0.45rem 0.85rem;
-    font-size: 0.85rem;
-    min-height: 36px;
-  }
-`;
-
-const FAQSectionsContainer = styled.div`
-  margin-top: 3rem;
-
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    margin-top: 1.5rem;
-  }
+  transition: all 0.2s ease;
 `;
 
 const FAQSection = styled.div`
-  margin-bottom: 3rem;
-
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    margin-bottom: 1.5rem;
-  }
+  margin-bottom: 2.25rem;
 `;
 
 const SectionTitle = styled.h2`
-  font-size: ${props => props.theme.typography.fontSizes.lg};
-  font-weight: 700;
+  font-size: 1.2rem;
+  font-weight: 800;
   color: ${props => props.theme.colors.neutral[900]};
-  margin-bottom: 1.5rem;
+  margin: 0 0 1rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid ${props => props.theme.colors.neutral[100]};
-
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    font-size: 1.1rem;
-    margin-bottom: 1rem;
-  }
+  border-bottom: 1px solid ${props => props.theme.colors.neutral[200]};
 `;
 
 const FAQList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    gap: 0.65rem;
-  }
+  gap: 0.75rem;
 `;
 
 const FAQItem = styled.div`
-  background-color: white;
-  border-radius: ${props => props.theme.borderRadius.lg};
+  background-color: #ffffff;
+  border-radius: ${props => props.theme.borderRadius.xl};
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: ${props => props.theme.shadows.xs};
   border: 1px solid ${props => props.theme.colors.neutral[200]};
 `;
 
 const FAQQuestion = styled.button<{ $isOpen: boolean }>`
   width: 100%;
-  padding: 1.25rem 1.5rem;
+  padding: 1.15rem 1.35rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 1rem;
   cursor: pointer;
-  background-color: ${props => props.$isOpen ? '#fff7ed' : 'white'};
+  background-color: ${props => (props.$isOpen ? props.theme.colors.primary[50] : '#ffffff')};
   border: none;
-  border-bottom: ${props => props.$isOpen 
-    ? `1px solid #fed7aa` 
-    : 'none'};
+  border-bottom: ${props => (props.$isOpen ? `1px solid ${props.theme.colors.primary[100]}` : 'none')};
   text-align: right;
   font-family: inherit;
   transition: all 0.2s;
-  
-  &:hover {
-    background-color: ${props => props.$isOpen ? '#ffedd5' : props.theme.colors.neutral[50]};
-  }
-
-  @media (max-width: ${props => props.theme.breakpoints.sm}) {
-    padding: 0.85rem 1rem;
-  }
 `;
 
 const QuestionText = styled.h3<{ $isOpen: boolean }>`
-  font-size: ${props => props.theme.typography.fontSizes.md};
-  font-weight: ${props => props.$isOpen 
-    ? props.theme.typography.fontWeights.bold 
-    : props.theme.typography.fontWeights.medium};
-  color: ${props => props.$isOpen 
-    ? props.theme.colors.primary[600] 
-    : props.theme.colors.neutral[900]};
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: ${props => (props.$isOpen ? props.theme.colors.primary[600] : props.theme.colors.neutral[900])};
   margin: 0;
 `;
 
 const ToggleIcon = styled.span<{ $isOpen: boolean }>`
-  font-size: 1.1rem;
-  transition: transform 0.3s;
-  transform: ${props => props.$isOpen ? 'rotate(180deg)' : 'rotate(0)'};
-  color: ${props => props.$isOpen ? props.theme.colors.primary[500] : props.theme.colors.neutral[400]};
+  display: inline-flex;
+  transition: transform 0.25s ease;
+  transform: ${props => (props.$isOpen ? 'rotate(180deg)' : 'rotate(0)')};
+  color: ${props => (props.$isOpen ? props.theme.colors.primary[500] : props.theme.colors.neutral[400])};
 `;
 
 const FAQAnswer = styled.div<{ $isOpen: boolean }>`
-  max-height: ${props => props.$isOpen ? '500px' : '0'};
+  max-height: ${props => (props.$isOpen ? '500px' : '0')};
   overflow: hidden;
-  padding: ${props => props.$isOpen ? '1.25rem 1.5rem' : '0 1.5rem'};
-  transition: all 0.3s ease-in-out;
-  opacity: ${props => props.$isOpen ? '1' : '0'};
-  font-size: ${props => props.theme.typography.fontSizes.md};
-  color: ${props => props.theme.colors.neutral[700]};
-  line-height: 1.7;
+  padding: ${props => (props.$isOpen ? '1.15rem 1.35rem' : '0 1.35rem')};
+  transition: all 0.25s ease-in-out;
+  opacity: ${props => (props.$isOpen ? '1' : '0')};
+  font-size: 0.92rem;
+  color: ${props => props.theme.colors.neutral[600]};
+  line-height: 1.8;
 `;
 
-const SearchContainer = styled.div`
-  margin-bottom: 3rem;
-`;
-
-const SearchInput = styled.input`
-  width: 100%;
-  padding: 1rem 1.5rem;
-  font-size: ${props => props.theme.typography.fontSizes.md};
-  border: 1px solid ${props => props.theme.colors.neutral[300]};
-  border-radius: ${props => props.theme.borderRadius.md};
-  background-color: white;
-  box-shadow: ${props => props.theme.boxShadow.sm};
-  
-  &:focus {
-    outline: none;
-    border-color: ${props => props.theme.colors.primary[500]};
-    box-shadow: 0 0 0 3px ${props => props.theme.colors.primary[400] + '30'};
-  }
-`;
-
-// تعریف انواع داده
 interface FAQItemType {
   id: string;
   question: string;
@@ -214,121 +157,95 @@ interface FAQItemType {
   category: string;
 }
 
-// داده‌های نمونه
 const faqData: FAQItemType[] = [
   {
     id: '1',
     question: 'چگونه سفارش غذا بدهم؟',
-    answer: 'برای سفارش غذا، ابتدا وارد سایت یا اپلیکیشن فودینو شوید. رستوران مورد نظر خود را جستجو کنید یا از میان رستوران‌های پیشنهادی انتخاب کنید. منوی رستوران را مشاهده کرده و غذای مورد نظر خود را به سبد خرید اضافه کنید. سپس آدرس خود را وارد کرده و روش پرداخت را انتخاب کنید. با تأیید نهایی، سفارش شما ثبت خواهد شد.',
+    answer: 'برای سفارش غذا، ابتدا وارد سایت فودینو شوید. رستوران مورد نظر خود را جستجو یا از میان دسته‌بندی‌ها انتخاب کنید. منوی رستوران را مشاهده کرده و غذای مورد نظر را به سبد خرید اضافه کنید. سپس آدرس خود را انتخاب کرده و سفارش را نهایی نمایید.',
     category: 'سفارش'
   },
   {
     id: '2',
     question: 'چقدر طول می‌کشد تا سفارش من برسد؟',
-    answer: 'زمان تحویل سفارش به عوامل مختلفی مانند فاصله شما از رستوران، ترافیک، شرایط آب و هوایی و حجم سفارشات رستوران بستگی دارد. معمولاً زمان تخمینی تحویل هنگام ثبت سفارش به شما نمایش داده می‌شود. میانگین زمان تحویل بین ۳۰ تا ۶۰ دقیقه است.',
+    answer: 'زمان تخمینی تحویل بر روی کارت هر رستوران درج شده است و میانگین زمان ارسال در فودینو بین ۲۵ تا ۴۵ دقیقه است.',
     category: 'تحویل'
   },
   {
     id: '3',
-    question: 'آیا می‌توانم سفارش خود را پیگیری کنم؟',
-    answer: 'بله، پس از ثبت سفارش، می‌توانید از طریق بخش "پیگیری سفارش" در حساب کاربری خود، وضعیت فعلی سفارش را مشاهده کنید. همچنین پیامک‌هایی برای اطلاع‌رسانی از مراحل مختلف سفارش برای شما ارسال می‌شود.',
+    question: 'آیا می‌توانم سفارش خود را لحظه‌ای پیگیری کنم؟',
+    answer: 'بله، پس از ثبت سفارش یک کد رهگیری ۴۳ حرفی امن دریافت می‌کنید که از بخش «پیگیری سفارش» وضعیت لحظه‌ای پخت و ارسال را نمایش می‌دهد.',
     category: 'سفارش'
   },
   {
     id: '4',
-    question: 'چگونه می‌توانم سفارش خود را لغو کنم؟',
-    answer: 'برای لغو سفارش، باید در اسرع وقت با پشتیبانی فودینو تماس بگیرید. توجه داشته باشید که امکان لغو سفارش فقط قبل از شروع آماده‌سازی غذا توسط رستوران وجود دارد. پس از شروع آماده‌سازی، امکان لغو سفارش وجود ندارد.',
-    category: 'سفارش'
+    question: 'چگونه می‌توانم از کد تخفیف استفاده کنم؟',
+    answer: 'در صفحه سبد خرید، کد تخفیف خود (مانند FOODINO) را در کادر مربوطه وارد کرده و دکمه اعمال را بزنید.',
+    category: 'پرداخت'
   },
   {
     id: '5',
-    question: 'آیا امکان پرداخت نقدی وجود دارد؟',
-    answer: 'بله، فودینو هر دو روش پرداخت آنلاین و پرداخت در محل (نقدی) را پشتیبانی می‌کند. هنگام ثبت سفارش می‌توانید روش پرداخت مورد نظر خود را انتخاب کنید.',
-    category: 'پرداخت'
-  },
-  {
-    id: '6',
     question: 'اگر با مشکلی در سفارش مواجه شدم، چه کنم؟',
-    answer: 'در صورت بروز هرگونه مشکل در سفارش مانند تأخیر طولانی، اشتباه در سفارش یا کیفیت پایین غذا، می‌توانید با پشتیبانی فودینو از طریق شماره ۰۲۱-۱۲۳۴۵۶۷۸ تماس بگیرید یا از طریق بخش "تماس با ما" در اپلیکیشن، مشکل خود را گزارش دهید.',
+    answer: 'پشتیبانی ۲۴ ساعته فودینو از طریق صفحه تماس با ما و شماره تلفن ۰۲۱-۸۸۸۸۱۱۱۱ آماده پیگیری فوری سفارش شماست.',
     category: 'پشتیبانی'
   },
   {
-    id: '7',
-    question: 'فودینو در چه شهرهایی فعال است؟',
-    answer: 'در حال حاضر، فودینو در شهرهای تهران، مشهد، اصفهان، شیراز، تبریز، کرج، اهواز، قم و کرمانشاه فعال است. ما به طور مداوم در حال گسترش خدمات خود به شهرهای بیشتری هستیم.',
-    category: 'عمومی'
-  },
-  {
-    id: '8',
-    question: 'آیا سفارش گروهی امکان‌پذیر است؟',
-    answer: 'بله، فودینو امکان ثبت سفارش گروهی را فراهم می‌کند. برای این کار، کافی است در هنگام ثبت سفارش، تمام غذاهای مورد نظر را به سبد خرید اضافه کنید. برای سفارش‌های گروهی بزرگ، توصیه می‌کنیم از قبل با رستوران هماهنگ کنید.',
-    category: 'سفارش'
-  },
-  {
-    id: '9',
+    id: '6',
     question: 'هزینه ارسال چگونه محاسبه می‌شود؟',
-    answer: 'هزینه ارسال بر اساس فاصله شما از رستوران و همچنین سیاست‌های قیمت‌گذاری هر رستوران محاسبه می‌شود. این هزینه پیش از تأیید نهایی سفارش به شما نمایش داده می‌شود. برخی از رستوران‌ها برای سفارش‌های بالای مبلغ مشخص، ارسال رایگان ارائه می‌دهند.',
+    answer: 'هزینه ارسال بر اساس تعرفه هر رستوران محاسبه و به صورت شفاف پیش از پرداخت نمایش داده می‌شود.',
     category: 'پرداخت'
   },
-  {
-    id: '10',
-    question: 'چگونه می‌توانم نظر خود را درباره یک رستوران ثبت کنم؟',
-    answer: 'پس از دریافت و تحویل سفارش، می‌توانید از طریق ایمیل یا اعلان درون برنامه‌ای که برای شما ارسال می‌شود، نظر خود را ثبت کنید. همچنین می‌توانید به صفحه رستوران مراجعه کرده و در بخش نظرات، تجربه خود را به اشتراک بگذارید.',
-    category: 'عمومی'
-  }
 ];
 
 const FAQPage = () => {
   const [activeCategory, setActiveCategory] = useState('همه');
-  const [openItemId, setOpenItemId] = useState<string | null>(null);
+  const [openItemId, setOpenItemId] = useState<string | null>('1');
   const [searchQuery, setSearchQuery] = useState('');
-  
-  const categories = ['همه', 'سفارش', 'تحویل', 'پرداخت', 'پشتیبانی', 'عمومی'];
-  
-  // فیلتر سوالات بر اساس دسته‌بندی و جستجو
+
+  const categories = ['همه', 'سفارش', 'تحویل', 'پرداخت', 'پشتیبانی'];
+
   const filteredFAQs = faqData.filter(item => {
     const matchesCategory = activeCategory === 'همه' || item.category === activeCategory;
-    const matchesSearch = searchQuery === '' || 
-      item.question.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    const matchesSearch = searchQuery === '' ||
+      item.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.answer.toLowerCase().includes(searchQuery.toLowerCase());
-    
     return matchesCategory && matchesSearch;
   });
-  
-  // گروه‌بندی سوالات بر اساس دسته‌بندی
+
   const groupedFAQs = filteredFAQs.reduce((acc, item) => {
-    if (!acc[item.category]) {
-      acc[item.category] = [];
-    }
+    if (!acc[item.category]) acc[item.category] = [];
     acc[item.category].push(item);
     return acc;
   }, {} as Record<string, FAQItemType[]>);
-  
+
   const toggleItem = (id: string) => {
     setOpenItemId(openItemId === id ? null : id);
   };
-  
+
   return (
     <FAQPageContainer>
       <PageHeader>
         <PageTitle>سوالات متداول</PageTitle>
         <PageDescription>
-          پاسخ سوالات رایج درباره خدمات فودینو، نحوه سفارش، پرداخت و تحویل غذا
+          پاسخ سوالات رایج درباره نحوه سفارش، کدهای تخفیف، پرداخت امن و رهگیری لحظه‌ای فودینو
         </PageDescription>
       </PageHeader>
-      
+
       <SearchContainer>
-        <SearchInput 
-          placeholder="جستجو در سوالات متداول..." 
+        <SearchInput
+          placeholder="جستجو در سوالات متداول..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
+        <SearchIconWrap>
+          <SearchIcon size={18} />
+        </SearchIconWrap>
       </SearchContainer>
-      
+
       <CategoriesContainer>
         {categories.map(category => (
-          <CategoryButton 
+          <CategoryButton
             key={category}
+            type="button"
             $active={activeCategory === category}
             onClick={() => setActiveCategory(category)}
             data-active={activeCategory === category}
@@ -337,15 +254,15 @@ const FAQPage = () => {
           </CategoryButton>
         ))}
       </CategoriesContainer>
-      
-      <FAQSectionsContainer>
+
+      <div>
         {Object.entries(groupedFAQs).map(([category, items]) => (
           <FAQSection key={category}>
             <SectionTitle>{category}</SectionTitle>
             <FAQList>
               {items.map(item => (
                 <FAQItem key={item.id}>
-                  <FAQQuestion 
+                  <FAQQuestion
                     type="button"
                     $isOpen={openItemId === item.id}
                     onClick={() => toggleItem(item.id)}
@@ -353,7 +270,9 @@ const FAQPage = () => {
                     data-open={openItemId === item.id}
                   >
                     <QuestionText $isOpen={openItemId === item.id}>{item.question}</QuestionText>
-                    <ToggleIcon $isOpen={openItemId === item.id}>▼</ToggleIcon>
+                    <ToggleIcon $isOpen={openItemId === item.id}>
+                      <ChevronDownIcon size={18} />
+                    </ToggleIcon>
                   </FAQQuestion>
                   <FAQAnswer $isOpen={openItemId === item.id} data-open={openItemId === item.id}>
                     {item.answer}
@@ -363,17 +282,17 @@ const FAQPage = () => {
             </FAQList>
           </FAQSection>
         ))}
-        
+
         {Object.keys(groupedFAQs).length === 0 && (
-          <div style={{ textAlign: 'center', margin: '4rem 0' }}>
-            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔍</div>
-            <h3>نتیجه‌ای یافت نشد</h3>
-            <p>لطفاً با معیارهای دیگری جستجو کنید یا با پشتیبانی ما تماس بگیرید.</p>
+          <div style={{ textAlign: 'center', margin: '3rem 0', color: '#6E6055' }}>
+            <SearchIcon size={36} />
+            <h3 style={{ color: '#16120F', marginTop: '0.75rem' }}>نتیجه‌ای یافت نشد</h3>
+            <p>لطفاً با عبارت دیگری جستجو کنید یا با پشتیبانی ما تماس بگیرید.</p>
           </div>
         )}
-      </FAQSectionsContainer>
+      </div>
     </FAQPageContainer>
   );
 };
 
-export default FAQPage; 
+export default FAQPage;

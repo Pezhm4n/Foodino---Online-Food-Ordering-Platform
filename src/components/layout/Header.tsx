@@ -3,24 +3,36 @@
 import React, { useState, useEffect, useSyncExternalStore } from "react";
 import styled, { keyframes } from "styled-components";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useCart } from "@/contexts/CartContext";
-import { logoutAction } from '@/app/auth/actions';
+import { logoutAction } from "@/app/auth/actions";
+import {
+  FoodinoEmblem,
+  SearchIcon as SearchVectorIcon,
+  HeartIcon,
+  BagIcon,
+  UserIcon,
+  MenuIcon,
+  CloseIcon,
+  SparkleIcon,
+  CopyIcon,
+  CheckCircleIcon,
+} from "@/components/ui/FoodVisuals";
 
 const headerCopy = {
-  home: 'خانه',
-  restaurants: 'رستوران‌ها',
-  categories: 'دسته‌بندی‌ها',
-  orderTracking: 'پیگیری سفارش',
-  about: 'درباره ما',
-  contact: 'تماس با ما',
-  profile: 'پروفایل کاربری',
-  login: 'ورود',
-  signup: 'ثبت‌نام',
-  logout: 'خروج از حساب کاربری',
-  search: 'جستجوی رستوران یا غذا...',
-  favorites: 'علاقه‌مندی‌ها',
-  cart: 'سبد خرید',
+  home: "خانه",
+  restaurants: "رستوران‌ها",
+  categories: "دسته‌بندی‌ها",
+  orderTracking: "پیگیری سفارش",
+  about: "درباره ما",
+  contact: "تماس با ما",
+  profile: "پروفایل کاربری",
+  login: "ورود",
+  signup: "ثبت‌نام",
+  logout: "خروج از حساب کاربری",
+  search: "جستجوی رستوران، پیتزا، کباب...",
+  favorites: "علاقه‌مندی‌ها",
+  cart: "سبد خرید",
 } as const;
 
 const t = (key: keyof typeof headerCopy) => headerCopy[key];
@@ -30,61 +42,87 @@ const TopPromoBarContainer = styled.div<{ $visible: boolean }>`
   align-items: center;
   justify-content: center;
   gap: 0.65rem;
-  background: linear-gradient(90deg, #ea580c 0%, #ff5a00 50%, #f97316 100%);
-  color: white;
-  padding: ${({ $visible }) => ($visible ? '0.45rem 1rem' : '0 1rem')};
-  max-height: ${({ $visible }) => ($visible ? '54px' : '0px')};
+  background: linear-gradient(90deg, #16120f 0%, #261b15 50%, #16120f 100%);
+  color: #faf6f0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: ${({ $visible }) => ($visible ? "0.5rem 2.5rem" : "0 2.5rem")};
+  max-height: ${({ $visible }) => ($visible ? "54px" : "0px")};
   opacity: ${({ $visible }) => ($visible ? 1 : 0)};
   overflow: hidden;
-  transition: max-height 280ms cubic-bezier(0.2, 0, 0, 1),
-    opacity 220ms cubic-bezier(0.2, 0, 0, 1),
-    padding 280ms cubic-bezier(0.2, 0, 0, 1);
-  pointer-events: ${({ $visible }) => ($visible ? 'auto' : 'none')};
+  transition: max-height 260ms cubic-bezier(0.2, 0, 0, 1),
+    opacity 200ms cubic-bezier(0.2, 0, 0, 1),
+    padding 260ms cubic-bezier(0.2, 0, 0, 1);
+  pointer-events: ${({ $visible }) => ($visible ? "auto" : "none")};
   position: relative;
   z-index: 101;
   direction: rtl;
   text-align: center;
+  font-size: 0.825rem;
+  font-weight: 500;
 
   @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
-    font-size: 0.72rem;
-    padding: ${({ $visible }) => ($visible ? '0.35rem 2rem 0.35rem 0.65rem' : '0 2rem 0 0.65rem')};
+    font-size: 0.74rem;
+    padding: ${({ $visible }) =>
+      $visible ? "0.4rem 2.25rem 0.4rem 0.75rem" : "0 2.25rem 0 0.75rem"};
     gap: 0.35rem;
-    max-height: ${({ $visible }) => ($visible ? '72px' : '0px')};
+    max-height: ${({ $visible }) => ($visible ? "68px" : "0px")};
   }
 `;
 
-const PromoCodeBadge = styled.span`
-  background: rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(4px);
-  padding: 0.15rem 0.5rem;
-  border-radius: 9999px;
+const PromoIndicator = styled.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fbbf24;
+  flex-shrink: 0;
+`;
+
+const PromoCodeButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(217, 56, 30, 0.22);
+  color: #fde68a;
+  padding: 0.16rem 0.6rem;
+  border-radius: 6px;
   font-weight: 700;
-  letter-spacing: 0.5px;
-  border: 1px dashed rgba(255, 255, 255, 0.7);
-  font-family: monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  border: 1px dashed rgba(251, 191, 36, 0.55);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  cursor: pointer;
+  transition: background-color 150ms ease, transform 120ms ease, border-color 150ms ease;
+
+  &:hover {
+    background: rgba(217, 56, 30, 0.36);
+    border-color: #fbbf24;
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
 `;
 
 const PromoCloseButton = styled.button`
   position: absolute;
-  left: 0.75rem;
-  background: none;
-  border: none;
-  color: rgba(255, 255, 255, 0.85);
+  left: 0.85rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(250, 246, 240, 0.78);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   transition: background-color 140ms ease, color 140ms ease, transform 120ms ease;
-  font-size: 0.9rem;
   user-select: none;
   touch-action: manipulation;
 
   &:hover {
-    color: white;
-    background: rgba(0, 0, 0, 0.15);
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.15);
   }
 
   &:active {
@@ -92,134 +130,122 @@ const PromoCloseButton = styled.button`
   }
 `;
 
-const HeaderContainer = styled.header<{ $isScrolled: boolean }>`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: ${({ $isScrolled }) => ($isScrolled ? '0.75rem 2.5rem' : '1.15rem 2.5rem')};
-  background-color: white;
-  box-shadow: ${({ $isScrolled }) =>
-    $isScrolled ? '0 4px 12px rgba(0, 0, 0, 0.08)' : '0 2px 8px rgba(0, 0, 0, 0.04)'};
+const HeaderWrapper = styled.header<{ $isScrolled: boolean }>`
   position: sticky;
   top: 0;
   z-index: 100;
   direction: rtl;
-  transition: box-shadow 0.3s ease, padding 0.3s ease;
-
-  @media (max-width: ${(props) => props.theme.breakpoints.md}) {
-    padding: ${({ $isScrolled }) => ($isScrolled ? '0.5rem 0.85rem' : '0.65rem 1rem')};
-  }
+  background-color: ${({ $isScrolled }) =>
+    $isScrolled ? "rgba(250, 246, 240, 0.92)" : "rgba(250, 246, 240, 0.98)"};
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid
+    ${({ $isScrolled, theme }) =>
+      $isScrolled ? theme.colors.neutral[200] : "rgba(230, 221, 208, 0.7)"};
+  box-shadow: ${({ $isScrolled }) =>
+    $isScrolled ? "0 10px 30px -10px rgba(22, 18, 15, 0.08)" : "none"};
+  transition: background-color 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
 `;
 
-const Logo = styled.div`
-  font-size: 1.75rem;
-  font-weight: 800;
-  color: ${(props) => props.theme.colors.primary[500]};
-  position: relative;
-  transition: all 0.3s ease;
+const HeaderInner = styled.div<{ $isScrolled: boolean }>`
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.25rem;
+  padding: ${({ $isScrolled }) =>
+    $isScrolled ? "0.65rem 1.75rem" : "0.95rem 1.75rem"};
+  transition: padding 220ms ease;
 
   @media (max-width: ${(props) => props.theme.breakpoints.md}) {
-    font-size: 1.25rem;
-  }
-
-  &:hover {
-    transform: translateY(-2px);
-  }
-
-  &:after {
-    content: "";
-    position: absolute;
-    bottom: -2px;
-    right: 0;
-    width: 0;
-    height: 2px;
-    background-color: ${(props) => props.theme.colors.primary[400]};
-    transition: width 0.3s ease;
-  }
-
-  &:hover:after {
-    width: 100%;
+    padding: ${({ $isScrolled }) =>
+      $isScrolled ? "0.55rem 1rem" : "0.7rem 1rem"};
+    gap: 0.65rem;
   }
 `;
 
 const LogoLink = styled(Link)`
   text-decoration: none;
   color: inherit;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.65rem;
+  flex-shrink: 0;
+  transition: transform 160ms cubic-bezier(0.2, 0, 0, 1);
+
+  &:hover {
+    transform: translateY(-1px);
+  }
 `;
 
-const LogoEmoji = styled.span`
-  font-size: 1.5rem;
+const BrandTextGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+`;
+
+const BrandTitle = styled.span`
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: ${(props) => props.theme.colors.neutral[900]};
+  letter-spacing: -0.03em;
 
   @media (max-width: ${(props) => props.theme.breakpoints.md}) {
-    font-size: 1.2rem;
+    font-size: 1.22rem;
+  }
+`;
+
+const BrandTagline = styled.span`
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: ${(props) => props.theme.colors.primary[600]};
+  margin-top: 0.12rem;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    display: none;
   }
 `;
 
 const Navigation = styled.nav`
   display: flex;
-  gap: 2rem;
-  margin: 0 2rem;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(243, 236, 226, 0.75);
+  border: 1px solid ${(props) => props.theme.colors.neutral[200]};
+  padding: 0.3rem;
+  border-radius: ${(props) => props.theme.borderRadius.full};
 
   @media (max-width: ${(props) => props.theme.breakpoints.lg}) {
     display: none;
   }
 `;
 
-const NavLink = styled(Link)`
-  color: ${(props) => props.theme.colors.neutral[700]};
+const NavLink = styled(Link)<{ $active?: boolean }>`
+  color: ${({ $active, theme }) =>
+    $active ? theme.colors.neutral[900] : theme.colors.neutral[600]};
+  background-color: ${({ $active }) => ($active ? "#FFFFFF" : "transparent")};
+  box-shadow: ${({ $active }) =>
+    $active ? "0 2px 8px rgba(22, 18, 15, 0.07)" : "none"};
   text-decoration: none;
-  font-weight: 500;
-  padding: 0.5rem 0;
-  position: relative;
-  transition: color 0.3s ease;
+  font-size: 0.88rem;
+  font-weight: ${({ $active }) => ($active ? 700 : 500)};
+  padding: 0.45rem 0.95rem;
+  border-radius: ${(props) => props.theme.borderRadius.full};
+  transition: color 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+  white-space: nowrap;
 
   &:hover {
-    color: ${(props) => props.theme.colors.primary[500]};
-  }
-
-  &::after {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 0;
-    height: 2px;
-    background-color: ${(props) => props.theme.colors.primary[500]};
-    transition: width 0.3s ease;
-  }
-
-  &:hover::after {
-    width: 100%;
-  }
-
-  &.active {
-    color: ${(props) => props.theme.colors.primary[500]};
-    font-weight: 600;
-
-    &::after {
-      width: 100%;
-    }
-  }
-`;
-
-const ActionButtons = styled.div`
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-  
-  @media (max-width: ${props => props.theme.breakpoints.md}) {
-    gap: 0.5rem;
+    color: ${(props) => props.theme.colors.neutral[900]};
+    background-color: ${({ $active }) =>
+      $active ? "#FFFFFF" : "rgba(255, 255, 255, 0.55)"};
   }
 `;
 
 const SearchContainer = styled.div`
   position: relative;
-  margin-left: 1rem;
   flex-grow: 1;
-  max-width: 400px;
+  max-width: 300px;
 
   @media (max-width: ${(props) => props.theme.breakpoints.md}) {
     display: none;
@@ -229,14 +255,14 @@ const SearchContainer = styled.div`
 const SearchInputContainer = styled.div`
   display: flex;
   align-items: center;
-  background-color: ${(props) => props.theme.colors.neutral[50]};
+  background-color: #ffffff;
   border: 1px solid ${(props) => props.theme.colors.neutral[200]};
   border-radius: ${(props) => props.theme.borderRadius.full};
-  padding: 0.5rem 1rem;
-  transition: all 0.3s ease;
+  padding: 0.48rem 0.95rem;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
 
   &:focus-within {
-    border-color: ${(props) => props.theme.colors.primary[300]};
+    border-color: ${(props) => props.theme.colors.primary[500]};
     box-shadow: 0 0 0 3px ${(props) => props.theme.colors.primary[100]};
   }
 `;
@@ -246,7 +272,7 @@ const SearchInput = styled.input`
   background: transparent;
   border: none;
   outline: none;
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   color: ${(props) => props.theme.colors.neutral[900]};
 
   &::placeholder {
@@ -254,72 +280,85 @@ const SearchInput = styled.input`
   }
 `;
 
-const SearchIcon = styled.div`
-  display: flex;
+const SearchIconWrap = styled.span`
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   margin-left: 0.5rem;
-  color: ${(props) => props.theme.colors.neutral[500]};
+  color: ${(props) => props.theme.colors.neutral[400]};
+`;
+
+const ActionButtons = styled.div`
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  flex-shrink: 0;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.md}) {
+    gap: 0.45rem;
+  }
 `;
 
 const LoginButton = styled(Link)`
-  padding: 0.5rem 1.25rem;
-  border-radius: ${(props) => props.theme.borderRadius.md};
-  font-weight: 500;
+  padding: 0.55rem 1.05rem;
+  border-radius: ${(props) => props.theme.borderRadius.full};
+  font-size: 0.875rem;
+  font-weight: 600;
   cursor: pointer;
   transition: transform 120ms cubic-bezier(0.2, 0, 0, 1),
-    border-color 140ms cubic-bezier(0.2, 0, 0, 1),
-    color 140ms cubic-bezier(0.2, 0, 0, 1),
-    box-shadow 140ms cubic-bezier(0.2, 0, 0, 1);
+    border-color 140ms ease,
+    background-color 140ms ease,
+    color 140ms ease;
   text-decoration: none;
-  background: transparent;
-  border: 1px solid ${(props) => props.theme.colors.neutral[300]};
-  color: ${(props) => props.theme.colors.neutral[700]};
+  background: #ffffff;
+  border: 1px solid ${(props) => props.theme.colors.neutral[200]};
+  color: ${(props) => props.theme.colors.neutral[800]};
   user-select: none;
   touch-action: manipulation;
 
   &:hover {
-    border-color: ${(props) => props.theme.colors.primary[500]};
-    color: ${(props) => props.theme.colors.primary[500]};
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    border-color: ${(props) => props.theme.colors.neutral[400]};
+    background: ${(props) => props.theme.colors.neutral[100]};
+    transform: translateY(-1px);
   }
 
   &:active {
     transform: scale(0.97);
   }
-  
-  @media (max-width: ${props => props.theme.breakpoints.md}) {
+
+  @media (max-width: ${(props) => props.theme.breakpoints.md}) {
     display: none;
   }
 `;
 
 const SignupButton = styled(Link)`
-  padding: 0.5rem 1.25rem;
-  border-radius: ${(props) => props.theme.borderRadius.md};
-  font-weight: 500;
+  padding: 0.55rem 1.15rem;
+  border-radius: ${(props) => props.theme.borderRadius.full};
+  font-size: 0.875rem;
+  font-weight: 700;
   cursor: pointer;
   transition: transform 120ms cubic-bezier(0.2, 0, 0, 1),
-    background-color 140ms cubic-bezier(0.2, 0, 0, 1),
-    box-shadow 140ms cubic-bezier(0.2, 0, 0, 1);
+    background-color 140ms ease,
+    box-shadow 140ms ease;
   text-decoration: none;
   background-color: ${(props) => props.theme.colors.primary[500]};
-  border: none;
-  color: white;
+  border: 1px solid transparent;
+  color: #ffffff;
   user-select: none;
   touch-action: manipulation;
+  box-shadow: 0 4px 12px rgba(217, 56, 30, 0.24);
 
   &:hover {
-    background-color: ${(props) => props.theme.colors.primary[400]};
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 90, 0, 0.25);
+    background-color: ${(props) => props.theme.colors.primary[600]};
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(217, 56, 30, 0.32);
   }
 
   &:active {
     transform: scale(0.97);
   }
-  
-  @media (max-width: ${props => props.theme.breakpoints.md}) {
+
+  @media (max-width: ${(props) => props.theme.breakpoints.md}) {
     display: none;
   }
 `;
@@ -333,73 +372,69 @@ const IconButton = styled(Link)`
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background-color: ${(props) => props.theme.colors.neutral[50]};
+  background-color: #ffffff;
   border: 1px solid ${(props) => props.theme.colors.neutral[200]};
   transition: transform 120ms cubic-bezier(0.2, 0, 0, 1),
-    background-color 140ms cubic-bezier(0.2, 0, 0, 1),
-    border-color 140ms cubic-bezier(0.2, 0, 0, 1),
-    color 140ms cubic-bezier(0.2, 0, 0, 1),
-    box-shadow 140ms cubic-bezier(0.2, 0, 0, 1);
-  color: ${(props) => props.theme.colors.neutral[700]};
+    background-color 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease,
+    box-shadow 140ms ease;
+  color: ${(props) => props.theme.colors.neutral[800]};
   user-select: none;
   touch-action: manipulation;
 
   &:hover {
-    background-color: ${(props) => props.theme.colors.neutral[100]};
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-    color: ${(props) => props.theme.colors.primary[500]};
+    background-color: ${(props) => props.theme.colors.primary[50]};
+    border-color: ${(props) => props.theme.colors.primary[200]};
+    transform: translateY(-1px);
+    color: ${(props) => props.theme.colors.primary[600]};
   }
 
   &:active {
     transform: scale(0.94);
   }
-  
-  @media (max-width: ${props => props.theme.breakpoints.md}) {
+
+  @media (max-width: ${(props) => props.theme.breakpoints.md}) {
     display: none;
   }
 `;
 
 const badgePopKeyframe = keyframes`
-  0% {
-    transform: scale(0.85);
-  }
-  50% {
-    transform: scale(1.22);
-  }
-  100% {
-    transform: scale(1);
-  }
+  0% { transform: scale(0.85); }
+  50% { transform: scale(1.22); }
+  100% { transform: scale(1); }
 `;
 
 const CartBadge = styled.span`
   position: absolute;
-  top: -5px;
-  right: -5px;
+  top: -4px;
+  right: -4px;
   background-color: ${(props) => props.theme.colors.primary[500]};
-  color: white;
-  font-size: 0.75rem;
-  width: 20px;
+  color: #ffffff;
+  font-size: 0.72rem;
+  min-width: 20px;
   height: 20px;
-  border-radius: 50%;
+  padding: 0 4px;
+  border-radius: 999px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid white;
-  font-weight: 600;
+  border: 2px solid #faf6f0;
+  font-weight: 700;
   animation: ${badgePopKeyframe} 200ms cubic-bezier(0.16, 1, 0.3, 1);
 `;
 
 const MobileMenuButton = styled.button`
   display: none;
-  background: none;
-  border: none;
+  background: #ffffff;
+  border: 1px solid ${(props) => props.theme.colors.neutral[200]};
   cursor: pointer;
-  color: ${(props) => props.theme.colors.neutral[700]};
-  transition: color 0.2s ease, transform 0.2s ease;
+  color: ${(props) => props.theme.colors.neutral[800]};
+  transition: color 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
 
   &:hover {
     color: ${(props) => props.theme.colors.primary[500]};
+    border-color: ${(props) => props.theme.colors.primary[200]};
   }
 
   &:active {
@@ -410,12 +445,37 @@ const MobileMenuButton = styled.button`
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 42px;
-    height: 42px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
-    background-color: ${(props) => props.theme.colors.neutral[50]};
-    border: 1px solid ${(props) => props.theme.colors.neutral[200]};
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  }
+`;
+
+const MobileCartButton = styled(Link)`
+  position: relative;
+  text-decoration: none;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  border: 1px solid ${(props) => props.theme.colors.neutral[200]};
+  transition: all 0.2s ease;
+  color: ${(props) => props.theme.colors.neutral[800]};
+
+  &:hover {
+    background-color: ${(props) => props.theme.colors.primary[50]};
+    color: ${(props) => props.theme.colors.primary[500]};
+  }
+
+  &:active {
+    transform: scale(0.94);
+  }
+
+  @media (max-width: ${(props) => props.theme.breakpoints.md}) {
+    display: flex;
   }
 `;
 
@@ -423,12 +483,13 @@ const MobileNavigation = styled.div`
   position: fixed;
   top: 0;
   right: 0;
-  width: min(300px, 86vw);
+  width: min(320px, 88vw);
   height: 100vh;
   height: 100dvh;
-  background-color: white;
-  box-shadow: -5px 0 25px rgba(0, 0, 0, 0.15);
-  padding: 1.25rem 1rem;
+  background-color: #faf6f0;
+  border-left: 1px solid ${(props) => props.theme.colors.neutral[200]};
+  box-shadow: -12px 0 36px rgba(22, 18, 15, 0.18);
+  padding: 1.25rem 1.15rem;
   padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
   transition: transform 260ms cubic-bezier(0.16, 1, 0.3, 1);
   z-index: 200;
@@ -436,9 +497,14 @@ const MobileNavigation = styled.div`
   display: flex;
   flex-direction: column;
   transform: translateX(100%);
+  visibility: hidden;
+  pointer-events: none;
+  direction: rtl;
 
   &[data-open="true"] {
     transform: translateX(0);
+    visibility: visible;
+    pointer-events: auto;
   }
 `;
 
@@ -446,28 +512,23 @@ const MobileNavHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.25rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid ${(props) => props.theme.colors.neutral[100]};
+  margin-bottom: 1.1rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid ${(props) => props.theme.colors.neutral[200]};
 `;
 
 const MobileNavCloseButton = styled.button`
-  background: none;
-  border: none;
-  color: ${(props) => props.theme.colors.neutral[500]};
-  font-size: 1.5rem;
+  background: #ffffff;
+  border: 1px solid ${(props) => props.theme.colors.neutral[200]};
+  color: ${(props) => props.theme.colors.neutral[700]};
   cursor: pointer;
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  transition: transform 120ms cubic-bezier(0.2, 0, 0, 1),
-    background-color 140ms cubic-bezier(0.2, 0, 0, 1),
-    color 140ms cubic-bezier(0.2, 0, 0, 1);
-  user-select: none;
-  touch-action: manipulation;
+  transition: transform 120ms ease, background-color 140ms ease;
 
   &:hover {
     background-color: ${(props) => props.theme.colors.neutral[100]};
@@ -479,22 +540,60 @@ const MobileNavCloseButton = styled.button`
   }
 `;
 
+const MobileIconContainer = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  background: #ffffff;
+  border: 1px solid ${(props) => props.theme.colors.neutral[200]};
+  border-radius: ${(props) => props.theme.borderRadius.xl};
+`;
+
+const MobileIconButton = styled(Link)`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: ${(props) => props.theme.colors.neutral[800]};
+  gap: 0.4rem;
+  padding: 0.45rem 0.25rem;
+  border-radius: ${(props) => props.theme.borderRadius.lg};
+  transition: background-color 150ms ease, color 150ms ease;
+
+  &:hover {
+    background-color: ${(props) => props.theme.colors.primary[50]};
+    color: ${(props) => props.theme.colors.primary[600]};
+  }
+`;
+
+const MobileIconLabel = styled.span`
+  font-size: 0.74rem;
+  font-weight: 600;
+`;
+
 const MobileNavLinks = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.25rem;
 `;
 
-const MobileNavLink = styled(Link)`
-  color: ${(props) => props.theme.colors.neutral[800]};
+const MobileNavLink = styled(Link)<{ $active?: boolean }>`
+  color: ${({ $active, theme }) =>
+    $active ? theme.colors.primary[600] : theme.colors.neutral[800]};
+  background: ${({ $active, theme }) =>
+    $active ? theme.colors.primary[50] : "transparent"};
   text-decoration: none;
-  font-weight: 500;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid ${(props) => props.theme.colors.neutral[100]};
-  transition: color 0.2s ease;
+  font-weight: ${({ $active }) => ($active ? 700 : 600)};
+  padding: 0.75rem 0.85rem;
+  border-radius: ${(props) => props.theme.borderRadius.lg};
+  transition: background-color 150ms ease, color 150ms ease;
 
   &:hover {
-    color: ${(props) => props.theme.colors.primary[500]};
+    background: ${(props) => props.theme.colors.neutral[100]};
+    color: ${(props) => props.theme.colors.primary[600]};
   }
 `;
 
@@ -502,18 +601,16 @@ const MobileNavActions = styled.div`
   margin-top: auto;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  padding-top: 2rem;
+  gap: 0.65rem;
+  padding-top: 1.5rem;
 `;
 
 const Overlay = styled.div`
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+  inset: 0;
+  background-color: rgba(22, 18, 15, 0.52);
+  backdrop-filter: blur(2px);
+  transition: opacity 0.25s ease, visibility 0.25s ease;
   z-index: 150;
   opacity: 0;
   visibility: hidden;
@@ -525,84 +622,30 @@ const Overlay = styled.div`
 `;
 
 const LogoutIconButton = styled.button`
-  background: none;
-  border: none;
-  width: 40px;
-  height: 40px;
+  background: #ffffff;
+  border: 1px solid ${(props) => props.theme.colors.neutral[200]};
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   color: ${(props) => props.theme.colors.neutral[700]};
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 120ms cubic-bezier(0.2, 0, 0, 1),
-    background-color 140ms cubic-bezier(0.2, 0, 0, 1),
-    color 140ms cubic-bezier(0.2, 0, 0, 1);
-  user-select: none;
-  touch-action: manipulation;
+  transition: transform 120ms ease, background-color 140ms ease, color 140ms ease;
 
   &:hover {
-    background-color: ${(props) => props.theme.colors.neutral[100]};
-    color: ${(props) => props.theme.colors.primary[500]};
+    background-color: ${(props) => props.theme.colors.error[50]};
+    border-color: ${(props) => props.theme.colors.error[200]};
+    color: ${(props) => props.theme.colors.error[600]};
   }
 
   &:active {
     transform: scale(0.92);
   }
-`;
-
-const MobileIconContainer = styled.div`
-  display: flex;
-  justify-content: space-around;
-  padding: 1rem 0;
-  margin-bottom: 1rem;
-  border-bottom: 1px solid ${(props) => props.theme.colors.neutral[100]};
-`;
-
-const MobileIconButton = styled(Link)`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-decoration: none;
-  color: ${(props) => props.theme.colors.neutral[700]};
-  gap: 0.5rem;
-
-  &:hover {
-    color: ${(props) => props.theme.colors.primary[500]};
-  }
-`;
-
-const MobileIconLabel = styled.span`
-  font-size: 0.75rem;
-  font-weight: 500;
-`;
-
-const MobileCartButton = styled(Link)`
-  position: relative;
-  text-decoration: none;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  background-color: ${(props) => props.theme.colors.neutral[50]};
-  border: 1px solid ${(props) => props.theme.colors.neutral[200]};
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-  transition: all 0.2s ease;
-  color: ${(props) => props.theme.colors.neutral[700]};
-
-  &:hover {
-    background-color: ${(props) => props.theme.colors.neutral[100]};
-    color: ${(props) => props.theme.colors.primary[500]};
-  }
-
-  &:active {
-    transform: scale(0.94);
-  }
 
   @media (max-width: ${(props) => props.theme.breakpoints.md}) {
-    display: flex;
+    display: none;
   }
 `;
 
@@ -630,6 +673,7 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
+  const [copiedPromo, setCopiedPromo] = useState(false);
   const isStoredPromoVisible = useSyncExternalStore(
     subscribeToStorage,
     getPromoSnapshot,
@@ -637,6 +681,7 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
   );
   const isPromoVisible = isStoredPromoVisible && !isDismissed;
   const router = useRouter();
+  const pathname = usePathname();
   const { getTotalItems } = useCart();
 
   const handleDismissPromo = () => {
@@ -650,28 +695,37 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
     }
   };
 
+  const handleCopyPromo = async () => {
+    try {
+      if (navigator.clipboard) {
+        await navigator.clipboard.writeText("FOODINO");
+        setCopiedPromo(true);
+        setTimeout(() => setCopiedPromo(false), 2000);
+      }
+    } catch {
+      // Ignore clipboard errors
+    }
+  };
+
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 50) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
+      setIsScrolled(window.scrollY > 36);
     };
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchTerm.trim()) {
+      closeMobileMenu();
       router.push(`/restaurants?q=${encodeURIComponent(searchTerm.trim())}`);
     }
   };
 
   const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
+    setIsMobileMenuOpen((prev) => !prev);
   };
 
   const closeMobileMenu = () => {
@@ -683,266 +737,179 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
     void logoutAction();
   };
 
+  const totalItems = getTotalItems();
+
   return (
     <>
       <TopPromoBarContainer $visible={isPromoVisible}>
-        <span>🎉 تخفیف اولین سفارش با کد:</span>
-        <PromoCodeBadge>FOODINO</PromoCodeBadge>
-        <span>(۲۰٪ تا ۵۰ هزار تومان)</span>
-        <PromoCloseButton onClick={handleDismissPromo} aria-label="بستن اعلان">✕</PromoCloseButton>
+        <PromoIndicator>
+          <SparkleIcon size={14} />
+        </PromoIndicator>
+        <span>پیشنهاد ویژه اولین سفارش در فودینو با کد:</span>
+        <PromoCodeButton
+          type="button"
+          onClick={handleCopyPromo}
+          title="کپی کد تخفیف FOODINO"
+        >
+          {copiedPromo ? <CheckCircleIcon size={13} /> : <CopyIcon size={13} />}
+          <span>FOODINO</span>
+        </PromoCodeButton>
+        <span>(۲۰٪ تخفیف تا سقف ۵۰ هزار تومان)</span>
+        <PromoCloseButton onClick={handleDismissPromo} aria-label="بستن اعلان">
+          <CloseIcon size={14} />
+        </PromoCloseButton>
       </TopPromoBarContainer>
-      <HeaderContainer $isScrolled={isScrolled}>
-        <Logo>
+
+      <HeaderWrapper $isScrolled={isScrolled}>
+        <HeaderInner $isScrolled={isScrolled}>
           <LogoLink href="/">
-            <LogoEmoji>🍔</LogoEmoji>
-            <span>فودینو</span>
+            <FoodinoEmblem size={40} />
+            <BrandTextGroup>
+              <BrandTitle>فودینو</BrandTitle>
+              <BrandTagline>سفارش آنلاین غذا</BrandTagline>
+            </BrandTextGroup>
           </LogoLink>
-        </Logo>
 
-        <Navigation>
-          <NavLink href="/" prefetch={true}>{t("home")}</NavLink>
-          <NavLink href="/restaurants" prefetch={true}>{t("restaurants")}</NavLink>
-          <NavLink href="/categories" prefetch={true}>{t("categories")}</NavLink>
-          <NavLink href="/order-tracking" prefetch={true}>{t("orderTracking")}</NavLink>
-          <NavLink href="/about" prefetch={true}>{t("about")}</NavLink>
-          <NavLink href="/contact" prefetch={true}>{t("contact")}</NavLink>
-        </Navigation>
+          <Navigation aria-label="ناوبری اصلی">
+            <NavLink href="/" prefetch={true} $active={pathname === "/"}>
+              {t("home")}
+            </NavLink>
+            <NavLink
+              href="/restaurants"
+              prefetch={true}
+              $active={pathname?.startsWith("/restaurants")}
+            >
+              {t("restaurants")}
+            </NavLink>
+            <NavLink
+              href="/categories"
+              prefetch={true}
+              $active={pathname?.startsWith("/categories")}
+            >
+              {t("categories")}
+            </NavLink>
+            <NavLink
+              href="/order-tracking"
+              prefetch={true}
+              $active={
+                pathname?.startsWith("/order-tracking") ||
+                pathname?.startsWith("/track")
+              }
+            >
+              {t("orderTracking")}
+            </NavLink>
+            <NavLink
+              href="/about"
+              prefetch={true}
+              $active={pathname === "/about"}
+            >
+              {t("about")}
+            </NavLink>
+            <NavLink
+              href="/contact"
+              prefetch={true}
+              $active={pathname === "/contact"}
+            >
+              {t("contact")}
+            </NavLink>
+          </Navigation>
 
-        <SearchContainer>
-          <form onSubmit={handleSearch}>
-            <SearchInputContainer>
-              <SearchIcon>
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
+          <SearchContainer>
+            <form onSubmit={handleSearch}>
+              <SearchInputContainer>
+                <SearchIconWrap>
+                  <SearchVectorIcon size={16} />
+                </SearchIconWrap>
+                <SearchInput
+                  type="text"
+                  placeholder={t("search")}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  aria-label={t("search")}
+                />
+              </SearchInputContainer>
+            </form>
+          </SearchContainer>
+
+          <ActionButtons>
+            <IconButton
+              href="/favorite-restaurants"
+              prefetch={true}
+              aria-label="علاقه‌مندی‌ها"
+              title="رستوران‌های محبوب من"
+            >
+              <HeartIcon size={18} />
+            </IconButton>
+
+            <IconButton href="/cart" aria-label="سبد خرید" title="سبد خرید">
+              <BagIcon size={18} />
+              {totalItems > 0 && (
+                <CartBadge key={totalItems}>
+                  {totalItems.toLocaleString("fa-IR")}
+                </CartBadge>
+              )}
+            </IconButton>
+
+            {isAuthenticated ? (
+              <>
+                <IconButton
+                  href="/profile"
+                  onClick={closeMobileMenu}
+                  aria-label="حساب کاربری"
+                  title="پروفایل کاربری"
                 >
-                  <path
-                    d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z"
+                  <UserIcon size={18} />
+                </IconButton>
+                <LogoutIconButton onClick={handleLogout} aria-label="خروج" title="خروج از حساب">
+                  <svg
+                    width="17"
+                    height="17"
+                    viewBox="0 0 24 24"
+                    fill="none"
                     stroke="currentColor"
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                  />
-                  <path
-                    d="M21 21L16.65 16.65"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </SearchIcon>
-              <SearchInput
-                type="text"
-                placeholder={t("search")}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </SearchInputContainer>
-          </form>
-        </SearchContainer>
-
-        <ActionButtons>
-          <IconButton
-            href="/favorite-restaurants"
-            prefetch={true}
-            aria-label="علاقه‌مندی‌ها"
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </IconButton>
-
-          <IconButton href="/cart" aria-label="سبد خرید">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M9 22C9.55228 22 10 21.5523 10 21C10 20.4477 9.55228 20 9 20C8.44772 20 8 20.4477 8 21C8 21.5523 8.44772 22 9 22Z"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M20 22C20.5523 22 21 21.5523 21 21C21 20.4477 20.5523 20 20 20C19.4477 20 19 20.4477 19 21C19 21.5523 19.4477 22 20 22Z"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M1 1H5L7.68 14.39C7.77144 14.8504 8.02191 15.264 8.38755 15.5583C8.75318 15.8526 9.2107 16.009 9.68 16H19.4C19.8693 16.009 20.3268 15.8526 20.6925 15.5583C21.0581 15.264 21.3086 14.8504 21.4 14.39L23 6H6"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            {getTotalItems() > 0 && <CartBadge key={getTotalItems()}>{getTotalItems()}</CartBadge>}
-          </IconButton>
-
-          {isAuthenticated ? (
-            <>
-              <IconButton
-                href="/profile"
-                onClick={closeMobileMenu}
-                aria-label="حساب کاربری"
-              >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden="true"
+                  >
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                  </svg>
+                </LogoutIconButton>
+              </>
+            ) : (
+              <>
+                <LoginButton href="/auth" onClick={closeMobileMenu}>
+                  {t("login")}
+                </LoginButton>
+                <SignupButton
+                  href="/auth?tab=register"
+                  onClick={closeMobileMenu}
                 >
-                  <path
-                    d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </IconButton>
-              <LogoutIconButton onClick={handleLogout} aria-label="خروج">
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M16 17L21 12L16 7"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M21 12H9"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </LogoutIconButton>
-            </>
-          ) : (
-            <>
-              <LoginButton href="/auth" onClick={closeMobileMenu}>
-                {t("login")}
-              </LoginButton>
-              <SignupButton
-                href="/auth?tab=register"
-                onClick={closeMobileMenu}
-              >
-                {t("signup")}
-              </SignupButton>
-            </>
-          )}
-          
-          <MobileCartButton href="/cart" aria-label="سبد خرید">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M9 22C9.55228 22 10 21.5523 10 21C10 20.4477 9.55228 20 9 20C8.44772 20 8 20.4477 8 21C8 21.5523 8.44772 22 9 22Z"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M20 22C20.5523 22 21 21.5523 21 21C21 20.4477 20.5523 20 20 20C19.4477 20 19 20.4477 19 21C19 21.5523 19.4477 22 20 22Z"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M1 1H5L7.68 14.39C7.77144 14.8504 8.02191 15.264 8.38755 15.5583C8.75318 15.8526 9.2107 16.009 9.68 16H19.4C19.8693 16.009 20.3268 15.8526 20.6925 15.5583C21.0581 15.264 21.3086 14.8504 21.4 14.39L23 6H6"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            {getTotalItems() > 0 && <CartBadge key={getTotalItems()}>{getTotalItems()}</CartBadge>}
-          </MobileCartButton>
+                  {t("signup")}
+                </SignupButton>
+              </>
+            )}
 
-          <MobileMenuButton onClick={toggleMobileMenu} aria-label="منوی موبایل">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
+            <MobileCartButton href="/cart" aria-label="سبد خرید">
+              <BagIcon size={18} />
+              {totalItems > 0 && (
+                <CartBadge key={totalItems}>
+                  {totalItems.toLocaleString("fa-IR")}
+                </CartBadge>
+              )}
+            </MobileCartButton>
+
+            <MobileMenuButton
+              onClick={toggleMobileMenu}
+              aria-label="منوی موبایل"
             >
-              <path
-                d="M3 12H21"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M3 6H21"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M3 18H21"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </MobileMenuButton>
-        </ActionButtons>
-      </HeaderContainer>
+              <MenuIcon size={20} />
+            </MobileMenuButton>
+          </ActionButtons>
+        </HeaderInner>
+      </HeaderWrapper>
 
       <Overlay
         data-visible={isMobileMenuOpen ? "true" : "false"}
@@ -951,43 +918,20 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
 
       <MobileNavigation data-open={isMobileMenuOpen ? "true" : "false"}>
         <MobileNavHeader>
-          <Logo style={{ fontSize: "1.25rem" }}>
-            <LogoLink href="/">
-              <LogoEmoji>🍔</LogoEmoji>
-              <span>فودینو</span>
-            </LogoLink>
-          </Logo>
+          <LogoLink href="/" onClick={closeMobileMenu}>
+            <FoodinoEmblem size={34} />
+            <BrandTitle style={{ fontSize: "1.2rem" }}>فودینو</BrandTitle>
+          </LogoLink>
           <MobileNavCloseButton onClick={closeMobileMenu} aria-label="بستن منو">
-            &times;
+            <CloseIcon size={18} />
           </MobileNavCloseButton>
         </MobileNavHeader>
 
-        <form onSubmit={handleSearch} style={{ marginBottom: "1.5rem" }}>
+        <form onSubmit={handleSearch} style={{ marginBottom: "1rem" }}>
           <SearchInputContainer>
-            <SearchIcon>
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M21 21L16.65 16.65"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </SearchIcon>
+            <SearchIconWrap>
+              <SearchVectorIcon size={16} />
+            </SearchIconWrap>
             <SearchInput
               type="text"
               placeholder={t("search")}
@@ -1003,139 +947,84 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
             prefetch={true}
             onClick={closeMobileMenu}
           >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <HeartIcon size={18} />
             <MobileIconLabel>{t("favorites")}</MobileIconLabel>
           </MobileIconButton>
 
           <MobileIconButton href="/cart" onClick={closeMobileMenu}>
-            <div style={{ position: "relative" }}>
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M9 22C9.55228 22 10 21.5523 10 21C10 20.4477 9.55228 20 9 20C8.44772 20 8 20.4477 8 21C8 21.5523 8.44772 22 9 22Z"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M20 22C20.5523 22 21 21.5523 21 21C21 20.4477 20.5523 20 20 20C19.4477 20 19 20.4477 19 21C19 21.5523 19.4477 22 20 22Z"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M1 1H5L7.68 14.39C7.77144 14.8504 8.02191 15.264 8.38755 15.5583C8.75318 15.8526 9.2107 16.009 9.68 16H19.4C19.8693 16.009 20.3268 15.8526 20.6925 15.5583C21.0581 15.264 21.3086 14.8504 21.4 14.39L23 6H6"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              {getTotalItems() > 0 && <CartBadge key={getTotalItems()}>{getTotalItems()}</CartBadge>}
+            <div style={{ position: "relative", display: "inline-flex" }}>
+              <BagIcon size={18} />
+              {totalItems > 0 && (
+                <CartBadge key={totalItems}>
+                  {totalItems.toLocaleString("fa-IR")}
+                </CartBadge>
+              )}
             </div>
             <MobileIconLabel>{t("cart")}</MobileIconLabel>
           </MobileIconButton>
 
           {isAuthenticated ? (
             <MobileIconButton href="/profile" onClick={closeMobileMenu}>
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              <UserIcon size={18} />
               <MobileIconLabel>{t("profile")}</MobileIconLabel>
             </MobileIconButton>
           ) : (
             <MobileIconButton href="/auth" onClick={closeMobileMenu}>
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M15 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H15"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M10 17L15 12L10 7"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M15 12H3"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              <MobileIconLabel>{t("login")}/{t("signup")}</MobileIconLabel>
+              <UserIcon size={18} />
+              <MobileIconLabel>
+                {t("login")} / {t("signup")}
+              </MobileIconLabel>
             </MobileIconButton>
           )}
         </MobileIconContainer>
 
         <MobileNavLinks>
-          <MobileNavLink href="/" prefetch={true} onClick={closeMobileMenu}>
+          <MobileNavLink
+            href="/"
+            prefetch={true}
+            $active={pathname === "/"}
+            onClick={closeMobileMenu}
+          >
             {t("home")}
           </MobileNavLink>
-          <MobileNavLink href="/restaurants" prefetch={true} onClick={closeMobileMenu}>
+          <MobileNavLink
+            href="/restaurants"
+            prefetch={true}
+            $active={pathname?.startsWith("/restaurants")}
+            onClick={closeMobileMenu}
+          >
             {t("restaurants")}
           </MobileNavLink>
-          <MobileNavLink href="/categories" prefetch={true} onClick={closeMobileMenu}>
+          <MobileNavLink
+            href="/categories"
+            prefetch={true}
+            $active={pathname?.startsWith("/categories")}
+            onClick={closeMobileMenu}
+          >
             {t("categories")}
           </MobileNavLink>
-          <MobileNavLink href="/order-tracking" prefetch={true} onClick={closeMobileMenu}>
+          <MobileNavLink
+            href="/order-tracking"
+            prefetch={true}
+            $active={pathname?.startsWith("/order-tracking")}
+            onClick={closeMobileMenu}
+          >
             {t("orderTracking")}
           </MobileNavLink>
-          <MobileNavLink href="/about" prefetch={true} onClick={closeMobileMenu}>
+          <MobileNavLink
+            href="/about"
+            prefetch={true}
+            $active={pathname === "/about"}
+            onClick={closeMobileMenu}
+          >
             {t("about")}
           </MobileNavLink>
-          <MobileNavLink href="/contact" prefetch={true} onClick={closeMobileMenu}>
+          <MobileNavLink
+            href="/contact"
+            prefetch={true}
+            $active={pathname === "/contact"}
+            onClick={closeMobileMenu}
+          >
             {t("contact")}
           </MobileNavLink>
         </MobileNavLinks>
@@ -1151,26 +1040,42 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
                 style={{
                   width: "100%",
                   padding: "0.75rem",
-                  backgroundColor: "#EF4444",
+                  backgroundColor: "#DC2626",
                   color: "white",
                   border: "none",
-                  borderRadius: "0.5rem",
+                  borderRadius: "0.75rem",
                   cursor: "pointer",
-                  fontWeight: "500",
+                  fontWeight: 700,
                 }}
               >
                 {t("logout")}
               </button>
             </>
           ) : (
-            <>
-              <MobileNavLink href="/auth" onClick={closeMobileMenu}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem" }}>
+              <MobileNavLink
+                href="/auth"
+                onClick={closeMobileMenu}
+                style={{
+                  textAlign: "center",
+                  background: "#ffffff",
+                  border: "1px solid #E6DDD0",
+                }}
+              >
                 {t("login")}
               </MobileNavLink>
-              <MobileNavLink href="/auth?tab=register" onClick={closeMobileMenu}>
+              <MobileNavLink
+                href="/auth?tab=register"
+                onClick={closeMobileMenu}
+                style={{
+                  textAlign: "center",
+                  background: "#D9381E",
+                  color: "#ffffff",
+                }}
+              >
                 {t("signup")}
               </MobileNavLink>
-            </>
+            </div>
           )}
         </MobileNavActions>
       </MobileNavigation>

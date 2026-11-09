@@ -2,6 +2,7 @@
 
 import React from "react";
 import styled from "styled-components";
+import { UtensilsIcon, InfoIcon, StarIcon } from "@/components/ui/FoodVisuals";
 
 export type RestaurantTabType = "menu" | "info" | "reviews";
 
@@ -14,19 +15,19 @@ interface RestaurantNavTabsProps {
 const TabsBar = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  border-bottom: 2px solid #e2e8f0;
+  gap: 0.45rem;
+  background: #ffffff;
+  border: 1px solid ${({ theme }) => theme.colors.neutral[200]};
+  padding: 0.4rem;
+  border-radius: 1rem;
   margin-bottom: 1.5rem;
   direction: rtl;
   overflow-x: auto;
   scrollbar-width: none;
+  box-shadow: 0 2px 8px rgba(22, 18, 15, 0.03);
+
   &::-webkit-scrollbar {
     display: none;
-  }
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    gap: 0.25rem;
-    margin-bottom: 1rem;
   }
 `;
 
@@ -34,49 +35,42 @@ const TabButton = styled.button<{ $active: boolean }>`
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.85rem 1.25rem;
+  padding: 0.7rem 1.2rem;
   border: none;
-  background: transparent;
-  font-size: 0.95rem;
+  border-radius: 0.75rem;
+  background: ${({ $active, theme }) =>
+    $active ? theme.colors.neutral[900] : "transparent"};
+  font-size: 0.9rem;
   font-weight: ${({ $active }) => ($active ? 800 : 600)};
-  color: ${({ $active }) => ($active ? "#ff5a00" : "#64748b")};
-  position: relative;
+  color: ${({ $active, theme }) =>
+    $active ? "#FAF6F0" : theme.colors.neutral[600]};
   cursor: pointer;
   white-space: nowrap;
-  transition: all 0.2s ease;
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    padding: 0.65rem 0.75rem;
-    font-size: 0.825rem;
-    gap: 0.35rem;
-  }
+  transition: all 160ms ease;
 
   &:hover {
-    color: ${({ $active }) => ($active ? "#ff5a00" : "#0f172a")};
+    color: ${({ $active, theme }) =>
+      $active ? "#FAF6F0" : theme.colors.neutral[900]};
+    background: ${({ $active, theme }) =>
+      $active ? theme.colors.neutral[900] : theme.colors.neutral[100]};
   }
 
-  &::after {
-    content: "";
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: #ff5a00;
-    border-radius: 9999px;
-    opacity: ${({ $active }) => ($active ? 1 : 0)};
-    transform: scaleX(${({ $active }) => ($active ? 1 : 0.8)});
-    transition: all 0.2s ease;
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    padding: 0.6rem 0.85rem;
+    font-size: 0.82rem;
+    gap: 0.35rem;
   }
 `;
 
 const CountBadge = styled.span<{ $active: boolean }>`
-  font-size: 0.75rem;
+  font-size: 0.74rem;
   font-weight: 700;
-  padding: 0.15rem 0.5rem;
+  padding: 0.12rem 0.5rem;
   border-radius: 9999px;
-  background: ${({ $active }) => ($active ? "#ffefe5" : "#f1f5f9")};
-  color: ${({ $active }) => ($active ? "#ff5a00" : "#64748b")};
+  background: ${({ $active, theme }) =>
+    $active ? "rgba(255, 255, 255, 0.18)" : theme.colors.neutral[100]};
+  color: ${({ $active, theme }) =>
+    $active ? "#FAF6F0" : theme.colors.neutral[700]};
 `;
 
 export default function RestaurantNavTabs({
@@ -94,7 +88,7 @@ export default function RestaurantNavTabs({
         $active={activeTab === "menu"}
         onClick={() => onChangeTab("menu")}
       >
-        <span>🍽️</span>
+        <UtensilsIcon size={16} />
         <span>منوی غذا</span>
         <CountBadge $active={activeTab === "menu"}>
           {numberFormatter.format(menuItemCount)}
@@ -107,7 +101,7 @@ export default function RestaurantNavTabs({
         $active={activeTab === "info"}
         onClick={() => onChangeTab("info")}
       >
-        <span>ℹ️</span>
+        <InfoIcon size={16} />
         <span>اطلاعات و ساعت کاری</span>
       </TabButton>
 
@@ -117,7 +111,7 @@ export default function RestaurantNavTabs({
         $active={activeTab === "reviews"}
         onClick={() => onChangeTab("reviews")}
       >
-        <span>⭐</span>
+        <StarIcon size={16} />
         <span>نظرات کاربران</span>
         <CountBadge $active={activeTab === "reviews"}>۲۴۵</CountBadge>
       </TabButton>

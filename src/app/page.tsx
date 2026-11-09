@@ -38,7 +38,7 @@ export default async function HomePage() {
           id: cat.id,
           name: cat.name,
           slug: cat.slug,
-          icon: cat.icon || '🍽️',
+          icon: cat.icon || 'chef',
           count: activeCount,
         };
       });
