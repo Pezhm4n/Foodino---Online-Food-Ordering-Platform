@@ -12,5 +12,5 @@ export const metadata: Metadata = {
 export default async function TrackingPage({ params }: { params: Promise<{ token: string }> }) {
   const parsed = trackingTokenParamsSchema.safeParse(await params);
   if (!parsed.success) notFound();
-  return <TrackView token={parsed.data.token} />;
+  return <TrackView key={parsed.data.token} token={parsed.data.token} />;
 }

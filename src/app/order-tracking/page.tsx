@@ -5,7 +5,7 @@ import OrderTrackingForm from './OrderTrackingForm';
 
 export const metadata: Metadata = {
   title: 'پیگیری سفارش | فودینو',
-  description: 'پیگیری آنلاین وضعیت سفارش با شناسه رهگیری در فودینو',
+  description: 'وضعیت آماده‌سازی و ارسال غذای خود را با کد رهگیری در فودینو ببینید.',
 };
 
 export default async function OrderTrackingPage({

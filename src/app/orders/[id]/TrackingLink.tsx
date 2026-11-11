@@ -2,12 +2,20 @@
 
 import { useSyncExternalStore } from 'react';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 import { TrackRadarIcon } from '@/components/ui/FoodVisuals';
+import { trackingTokenSchema } from '@/lib/validation/common';
 
 export default function TrackingLink({ orderId }: Readonly<{ orderId: string }>) {
   const token = useSyncExternalStore(
     () => () => undefined,
-    () => sessionStorage.getItem(`foodino:tracking:${orderId}`),
+    () => {
+      try {
+        return trackingTokenSchema.safeParse(sessionStorage.getItem(`foodino:tracking:${orderId}`)).data ?? null;
+      } catch {
+        return null;
+      }
+    },
     () => null,
   );
   return token ? (
@@ -28,8 +36,22 @@ export default function TrackingLink({ orderId }: Readonly<{ orderId: string }>)
         }}
       >
         <TrackRadarIcon size={18} />
-        <span>پیگیری زنده وضعیت این سفارش</span>
+        <span>پیگیری این سفارش</span>
       </Link>
+      <details style={{ marginBlockStart: '0.75rem' }}>
+        <summary style={{ cursor: 'pointer', paddingBlock: '0.65rem' }}>نمایش کد رهگیری</summary>
+        <p dir="ltr" style={{ overflowWrap: 'anywhere' }}><code>{token}</code></p>
+        <button type="button" style={{ minHeight: 44 }} onClick={async () => {
+          try {
+            await navigator.clipboard.writeText(token);
+            toast.success('کد رهگیری کپی شد');
+          } catch {
+            toast.error('کپی انجام نشد. کد را دستی انتخاب کنید.');
+          }
+        }}>
+          کپی کد رهگیری
+        </button>
+      </details>
     </div>
   ) : null;
 }

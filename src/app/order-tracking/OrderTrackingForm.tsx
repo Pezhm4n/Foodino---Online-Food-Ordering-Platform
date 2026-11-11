@@ -3,7 +3,9 @@
 import { useState, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
+import SectionReveal from '@/components/home/LandingReveal';
+import { actionFeedback, actionFeedbackAttrs, cardIconFeedback, fieldFeedback, motionTokens } from '@/styles/motion';
 import {
   TrackRadarIcon,
   CourierIcon,
@@ -12,7 +14,7 @@ import {
   AlertCircleIcon,
 } from '@/components/ui/FoodVisuals';
 
-const Container = styled.div`
+const Container = styled(SectionReveal)`
   max-width: 720px;
   margin: 3rem auto;
   padding: 2rem 1.5rem;
@@ -92,6 +94,8 @@ const FormGroup = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.55rem;
+
+  &:focus-within label { color: ${({ theme }) => theme.colors.primary[700]}; }
 `;
 
 const Label = styled.label`
@@ -111,14 +115,26 @@ const Input = styled.input`
   text-align: left;
   font-family: monospace;
   color: ${({ theme }) => theme.colors.neutral[900]};
-  transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
+  ${fieldFeedback}
 
-  &:focus {
-    outline: none;
-    background: #ffffff;
-    border-color: ${({ theme }) => theme.colors.primary[500]};
-    box-shadow: 0 0 0 3px ${({ theme }) => theme.colors.primary[100]};
+  &:placeholder-shown {
+    direction: rtl;
+    text-align: right;
   }
+
+  &::placeholder {
+    font-family: var(--font-vazirmatn), sans-serif;
+  }
+
+  &[aria-invalid='true'] {
+    border-color: ${({ theme }) => theme.colors.error[600]};
+    &:focus { box-shadow: 0 0 0 3px ${({ theme }) => theme.colors.error[100]}; }
+  }
+`;
+
+const errorArrival = keyframes`
+  from { translate: 0 6px; }
+  to { translate: 0 0; }
 `;
 
 const ErrorText = styled.p`
@@ -133,9 +149,14 @@ const ErrorText = styled.p`
   font-size: 0.85rem;
   font-weight: 600;
   margin: 0;
+
+  > svg { flex-shrink: 0; }
+  @media (prefers-reduced-motion: no-preference) {
+    animation: ${errorArrival} ${motionTokens.duration.normal} ${motionTokens.easing.enter};
+  }
 `;
 
-const SubmitButton = styled.button`
+const SubmitButton = styled.button.attrs<typeof actionFeedbackAttrs>(actionFeedbackAttrs)`
   padding: 0.95rem 1.5rem;
   background: ${({ theme }) => theme.colors.primary[500]};
   color: white;
@@ -150,18 +171,11 @@ const SubmitButton = styled.button`
   justify-content: center;
   gap: 0.5rem;
   box-shadow: ${({ theme }) => theme.shadows.brand};
-  transition: background 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
-
-  @media (hover: hover) {
-    &:hover {
-      background: ${({ theme }) => theme.colors.primary[600]};
-      transform: translateY(-2px);
-    }
-  }
-
-  &:active {
-    transform: scale(0.98);
-  }
+  --action-hover-bg: ${({ theme }) => theme.colors.primary[600]};
+  --action-hover-ink: #ffffff;
+  --action-press-bg: ${({ theme }) => theme.colors.primary[700]};
+  --action-hover-shadow: ${({ theme }) => theme.shadows.brand};
+  ${actionFeedback}
 `;
 
 const TelemetryHighlights = styled.div`
@@ -188,6 +202,8 @@ const HighlightPill = styled.div`
   font-size: 0.82rem;
   color: ${({ theme }) => theme.colors.neutral[700]};
   font-weight: 600;
+  [data-feedback-icon] { color: ${({ theme }) => theme.colors.primary[600]}; flex-shrink: 0; }
+  ${cardIconFeedback}
 `;
 
 const RecentBox = styled.div`
@@ -209,7 +225,7 @@ const RecentText = styled.span`
   color: ${({ theme }) => theme.colors.neutral[800]};
 `;
 
-const RecentLink = styled(Link)`
+const RecentLink = styled(Link).attrs<typeof actionFeedbackAttrs>(actionFeedbackAttrs)`
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
@@ -217,7 +233,10 @@ const RecentLink = styled(Link)`
   font-weight: 800;
   color: ${({ theme }) => theme.colors.primary[600]};
   text-decoration: none;
-  min-height: 34px;
+  min-height: 44px;
+  padding-inline: 0.45rem;
+  border-radius: ${({ theme }) => theme.borderRadius.md};
+  ${actionFeedback}
 `;
 
 const LinksFooter = styled.div`
@@ -229,17 +248,16 @@ const LinksFooter = styled.div`
   gap: 0.5rem;
 `;
 
-const FooterLink = styled(Link)`
+const FooterLink = styled(Link).attrs<typeof actionFeedbackAttrs>(actionFeedbackAttrs)`
   color: ${({ theme }) => theme.colors.neutral[600]};
   font-weight: 600;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
-  min-height: 34px;
-
-  &:hover {
-    color: ${({ theme }) => theme.colors.primary[600]};
-  }
+  min-height: 44px;
+  padding-inline: 0.45rem;
+  border-radius: ${({ theme }) => theme.borderRadius.md};
+  ${actionFeedback}
 `;
 
 function subscribe(callback: () => void) {
@@ -284,7 +302,7 @@ export default function OrderTrackingForm() {
       return;
     }
     if (!/^[A-Za-z0-9_-]{43}$/.test(trimmed)) {
-      setError('کد رهگیری باید یک رشته ۴۳ حرفی معتبر باشد.');
+      setError('کد رهگیری درست نیست. آن را از جزئیات سفارش کپی کنید.');
       return;
     }
     router.push(`/track/${trimmed}`);
@@ -292,19 +310,19 @@ export default function OrderTrackingForm() {
 
   return (
     <Container>
-      <Card>
+      <Card data-landing-reveal>
         <HeaderTop>
           <RadarIconBox>
             <TrackRadarIcon size={28} />
           </RadarIconBox>
           <div>
-            <SubKicker>تلِمتری زنده فودینو</SubKicker>
+            <SubKicker>سفارش شما در چه مرحله‌ای است؟</SubKicker>
             <Title>پیگیری سفارش</Title>
           </div>
         </HeaderTop>
 
         <Description>
-          برای مشاهده وضعیت لحظه‌ای پخت در آشپزخانه و موقعیت سفیر، کد رهگیری ۴۳ حرفی اختصاصی سفارش خود را وارد نمایید.
+          کد رهگیری را از جزئیات سفارش کپی کنید و اینجا وارد کنید تا وضعیت آماده‌سازی و ارسال غذایتان را ببینید.
         </Description>
 
         <Form onSubmit={handleSubmit}>
@@ -313,8 +331,10 @@ export default function OrderTrackingForm() {
             <Input
               id="tracking-token"
               type="text"
-              placeholder="abc123def456_..."
+              placeholder="کد رهگیری را اینجا وارد کنید"
               aria-label="کد رهگیری سفارش"
+              aria-invalid={!!error}
+              aria-describedby={error ? 'tracking-token-error' : undefined}
               value={tokenInput}
               onChange={(e) => {
                 setTokenInput(e.target.value);
@@ -324,7 +344,7 @@ export default function OrderTrackingForm() {
               spellCheck={false}
             />
             {error && (
-              <ErrorText role="alert">
+              <ErrorText id="tracking-token-error" role="alert">
                 <AlertCircleIcon size={16} />
                 <span>{error}</span>
               </ErrorText>
@@ -339,7 +359,7 @@ export default function OrderTrackingForm() {
 
         {recentToken && (
           <RecentBox>
-            <RecentText>آخرین سفارش ثبت‌شده در این مرورگر:</RecentText>
+            <RecentText>پیگیری سفارش ثبت‌شده:</RecentText>
             <RecentLink href={`/track/${recentToken}`}>
               <span>مشاهده وضعیت سفارش</span>
               <ArrowLeftIcon size={15} />
@@ -348,13 +368,13 @@ export default function OrderTrackingForm() {
         )}
 
         <TelemetryHighlights>
-          <HighlightPill>
-            <CourierIcon size={18} />
-            <span>به‌روزرسانی خودکار هر ۱۰ ثانیه</span>
+          <HighlightPill data-landing-card>
+            <span data-feedback-icon aria-hidden="true"><CourierIcon size={18} /></span>
+            <span>مشاهده مراحل سفارش</span>
           </HighlightPill>
-          <HighlightPill>
-            <ShieldCheckIcon size={18} />
-            <span>توکن رمزنگاری‌شده ۲۵۶ بیتی</span>
+          <HighlightPill data-landing-card>
+            <span data-feedback-icon aria-hidden="true"><ShieldCheckIcon size={18} /></span>
+            <span>پیگیری با کد رهگیری</span>
           </HighlightPill>
         </TelemetryHighlights>
 

@@ -3,59 +3,19 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import Link from 'next/link';
-import {
-  StoreIcon,
-  UtensilsIcon,
-  CourierIcon,
-  MapPinIcon,
-  ClockIcon,
-  CheckCircleIcon,
-  TrackRadarIcon,
-} from '@/components/ui/FoodVisuals';
+import type { PublicTracking } from '@/application/ports/order-repository';
+import type { OrderStatus } from '@/domain/order/order-status';
+import { CheckCircleIcon, ClockIcon, CourierIcon, MapPinIcon, StoreIcon, TrackRadarIcon, UtensilsIcon } from '@/components/ui/FoodVisuals';
 
-type Tracking = Readonly<{
-  status: string;
-  restaurantName: string;
-  createdAt: string;
-  updatedAt: string;
-}>;
-
-const labels: Record<string, string> = {
+const labels: Record<OrderStatus, string> = {
   pending_payment: 'در انتظار پرداخت',
   confirmed: 'سفارش تأیید شد',
   preparing: 'در حال آماده‌سازی',
   ready: 'آماده ارسال',
-  delivering: 'در حال ارسال',
+  delivering: 'پیک در مسیر است',
   delivered: 'تحویل داده شد',
-  canceled: 'لغو شد',
+  canceled: 'سفارش لغو شد',
 };
-
-function getEstimatedDeliveryWindow(createdAt: string): { start: string; end: string } {
-  try {
-    const created = new Date(createdAt);
-    const start = new Date(created.getTime() + 30 * 60 * 1000);
-    const end = new Date(created.getTime() + 50 * 60 * 1000);
-    const timeOpts: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit' };
-    return {
-      start: start.toLocaleTimeString('fa-IR', timeOpts),
-      end: end.toLocaleTimeString('fa-IR', timeOpts),
-    };
-  } catch {
-    return { start: '۳۵', end: '۵۰ دقیقه' };
-  }
-}
-
-function getProgressPercent(status: string): number {
-  switch (status) {
-    case 'pending_payment': return 10;
-    case 'confirmed': return 30;
-    case 'preparing': return 55;
-    case 'ready': return 75;
-    case 'delivering': return 90;
-    case 'delivered': return 100;
-    default: return 0;
-  }
-}
 
 const PageContainer = styled.div`
   max-width: 760px;
@@ -110,17 +70,9 @@ const RestaurantHeader = styled.div`
     color: ${({ theme }) => theme.colors.neutral[900]};
     margin: 0;
   }
-
-  span.tag {
-    font-size: 0.8rem;
-    color: ${({ theme }) => theme.colors.neutral[500]};
-    display: block;
-    margin-top: 0.25rem;
-    font-family: monospace;
-  }
 `;
 
-const DeliveryWindowCard = styled.div`
+const TrackingSummary = styled.div`
   background: linear-gradient(135deg, #1F1814 0%, #31251E 100%);
   color: #FAF6F0;
   border-radius: ${({ theme }) => theme.borderRadius.xl};
@@ -133,7 +85,7 @@ const DeliveryWindowCard = styled.div`
   gap: 0.75rem;
 `;
 
-const DeliveryTimeText = styled.div`
+const SummaryTime = styled.div`
   .label {
     font-size: 0.82rem;
     color: rgba(250, 246, 240, 0.75);
@@ -158,11 +110,22 @@ const CourierVisual = styled.div`
   padding: 1.25rem 1.5rem;
   margin-bottom: 1.75rem;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   position: relative;
 
+  @media (max-width: 420px) {
+    padding-inline: 0.5rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .node .icon-box, .progress-line .fill { transition: none; }
+  }
+
   .node {
+    flex: 1;
+    min-width: 0;
+    text-align: center;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -183,7 +146,7 @@ const CourierVisual = styled.div`
       color: ${({ theme }) => theme.colors.neutral[500]};
       box-shadow: ${({ theme }) => theme.shadows.xs};
       border: 2px solid ${({ theme }) => theme.colors.neutral[200]};
-      transition: all 200ms ease;
+      transition: border-color 200ms ease, background-color 200ms ease, color 200ms ease;
     }
 
     &.active {
@@ -200,9 +163,11 @@ const CourierVisual = styled.div`
 
   .progress-line {
     position: absolute;
-    top: 34px;
-    right: 52px;
-    left: 52px;
+    top: calc(1.25rem + 20.5px);
+    inset-inline: calc(12.5% + 1.125rem);
+    @media (max-width: 420px) {
+      inset-inline: calc(12.5% + 0.375rem);
+    }
     height: 3px;
     background: ${({ theme }) => theme.colors.neutral[200]};
     z-index: 1;
@@ -216,15 +181,16 @@ const CourierVisual = styled.div`
   }
 `;
 
-const StepperTrack = styled.div`
+const StepperTrack = styled.ol`
   display: flex;
   flex-direction: column;
   position: relative;
   margin: 1.5rem 0;
   padding: 0 0.5rem;
+  list-style: none;
 `;
 
-const StepItem = styled.div<{ $state: 'completed' | 'current' | 'upcoming' }>`
+const StepItem = styled.li<{ $state: 'completed' | 'current' | 'upcoming' }>`
   display: flex;
   align-items: flex-start;
   gap: 1.15rem;
@@ -279,7 +245,7 @@ const StepItem = styled.div<{ $state: 'completed' | 'current' | 'upcoming' }>`
       font-size: 0.98rem;
       font-weight: 800;
       color: ${({ $state, theme }) =>
-        $state === 'upcoming' ? theme.colors.neutral[400] : theme.colors.neutral[900]};
+        $state === 'upcoming' ? theme.colors.neutral[600] : theme.colors.neutral[900]};
       margin: 0 0 0.25rem;
     }
 
@@ -308,206 +274,168 @@ const StatusPill = styled.div<{ $status: string }>`
     $status === 'delivered' ? theme.colors.success[100] : theme.colors.primary[100]};
 `;
 
-const LastUpdated = styled.p`
-  font-size: 0.82rem;
-  color: ${({ theme }) => theme.colors.neutral[400]};
-  margin: 1.5rem 0 0;
-  text-align: center;
-`;
-
 const BackLink = styled(Link)`
-  display: block;
-  text-align: center;
-  color: ${({ theme }) => theme.colors.primary[600]};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  color: ${({ theme }) => theme.colors.primary[700]};
   font-weight: 700;
-  text-decoration: none;
-  margin-top: 1.5rem;
 `;
 
-const stepsSequence = [
-  { key: 'confirmed', title: 'سفارش تأیید شد', desc: 'رستوران سفارش شما را دریافت و تأیید کرد.' },
-  { key: 'preparing', title: 'در حال آماده‌سازی', desc: 'غذا در آشپزخانه رستوران در حال پخت است.' },
-  { key: 'delivering', title: 'تحویل به پیک و ارسال', desc: 'سفیر فودینو با کیف گرم‌نگهدارنده در مسیر نشانی شماست.' },
-  { key: 'delivered', title: 'تحویل سفارش', desc: 'سفارش با موفقیت تحویل داده شد. نوش جان!' },
+const TrackingNotice = styled.p<{ $tone: 'error' | 'warning' }>`
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  padding: 0.85rem 1rem;
+  background: ${({ theme, $tone }) => theme.colors[$tone][50]};
+  color: ${({ theme, $tone }) => theme.colors[$tone][800]};
+  margin: 0 0 0.85rem;
+
+  &:last-child { margin-bottom: 0; }
+`;
+
+const steps = [
+  { key: 'confirmed', description: 'پرداخت تأیید شد و سفارش ثبت شد.' },
+  { key: 'preparing', description: 'آماده‌سازی غذا در آشپزخانهٔ رستوران.' },
+  { key: 'ready', description: 'غذا آمادهٔ ارسال شد.' },
+  { key: 'delivering', description: 'سفارش به پیک سپرده شده است.' },
+  { key: 'delivered', description: 'سفارش به مقصد رسیده است. نوش جان!' },
+] as const;
+
+const progressNodes = [
+  { step: 0, title: 'رستوران', icon: StoreIcon },
+  { step: 1, title: 'آماده‌سازی', icon: UtensilsIcon },
+  { step: 3, title: 'در مسیر', icon: CourierIcon },
+  { step: 4, title: 'تحویل', icon: MapPinIcon },
 ];
 
-function getStepState(stepKey: string, currentStatus: string): 'completed' | 'current' | 'upcoming' {
-  const order = ['confirmed', 'preparing', 'delivering', 'delivered'];
-  const currentIndex = order.indexOf(currentStatus);
-  const stepIndex = order.indexOf(stepKey);
-
-  if (currentStatus === 'delivered') return 'completed';
-  if (currentIndex === -1) return 'upcoming';
-  if (stepIndex < currentIndex) return 'completed';
-  if (stepIndex === currentIndex) return 'current';
-  return 'upcoming';
-}
-
+const refreshInterval = 10_000;
 export default function TrackView({ token }: Readonly<{ token: string }>) {
-  const [tracking, setTracking] = useState<Tracking | null>(null);
-  const [unavailable, setUnavailable] = useState(false);
+  const [tracking, setTracking] = useState<PublicTracking | null>(null);
+  const [problem, setProblem] = useState<'missing' | 'offline' | null>(null);
 
   useEffect(() => {
-    let active = true;
+    let terminal = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
+    let request: AbortController | undefined;
+    let delay = refreshInterval;
+
+    function pause() {
+      clearTimeout(timer);
+      request?.abort();
+      request = undefined;
+    }
+
     async function poll() {
-      if (!active || document.hidden) return;
+      if (terminal || document.hidden || request) return;
+      const controller = new AbortController();
+      request = controller;
       try {
-        const response = await fetch(`/api/track/${encodeURIComponent(token)}`, { cache: 'no-store' });
-        if (!response.ok) throw new Error('TRACKING_UNAVAILABLE');
-        const result = await response.json() as Tracking;
-        if (!active) return;
-        setTracking(result);
-        setUnavailable(false);
-        if (result.status !== 'delivered' && result.status !== 'canceled') {
-          timer = setTimeout(poll, 10_000);
+        const response = await fetch('/api/track/' + encodeURIComponent(token), {
+          cache: 'no-store',
+          signal: controller.signal,
+        });
+        if (controller.signal.aborted) return;
+        if (response.status === 404) {
+          terminal = true;
+          setProblem('missing');
+          return;
         }
+        if (!response.ok) throw new Error('Tracking request failed');
+        const result = await response.json() as PublicTracking;
+        if (controller.signal.aborted) return;
+        setTracking(result);
+        setProblem(null);
+        terminal = result.status === 'delivered' || result.status === 'canceled';
+        delay = refreshInterval;
       } catch {
-        if (!active) return;
-        setUnavailable(true);
-        timer = setTimeout(poll, 10_000);
+        if (controller.signal.aborted) return;
+        setProblem('offline');
+        delay = Math.min(delay * 2, 60_000);
+      } finally {
+        if (!controller.signal.aborted) {
+          request = undefined;
+          if (!terminal && !document.hidden) timer = setTimeout(poll, delay);
+        }
       }
     }
+
     function visibilityChanged() {
-      if (!document.hidden) void poll();
-      else if (timer) clearTimeout(timer);
+      if (document.hidden) pause();
+      else void poll();
     }
+
     document.addEventListener('visibilitychange', visibilityChanged);
     void poll();
     return () => {
-      active = false;
-      if (timer) clearTimeout(timer);
+      pause();
       document.removeEventListener('visibilitychange', visibilityChanged);
     };
   }, [token]);
 
+  const currentStep = steps.findIndex((step) => step.key === tracking?.status);
+  const reachedNodes = progressNodes.filter((node) => node.step <= currentStep).length;
+  const progress = Math.max(0, reachedNodes - 1) / (progressNodes.length - 1);
+
   return (
     <PageContainer>
-      <Title>وضعیت لحظه‌ای سفارش</Title>
-
-      {!tracking && !unavailable && (
-        <TrackingCard style={{ textAlign: 'center', padding: '3rem' }}>
-          <p aria-live="polite" style={{ color: '#6E6055', margin: 0 }}>
-            در حال دریافت اطلاعات آخرین وضعیت سفارش…
-          </p>
-        </TrackingCard>
-      )}
-
-      {unavailable && (
-        <TrackingCard style={{ textAlign: 'center', borderColor: '#FECACA', background: '#FEF2F2' }}>
-          <p role="alert" style={{ color: '#991B1B', margin: 0 }}>
-            اطلاعات سفارش در حال حاضر در دسترس نیست؛ سیستم به صورت خودکار مجدداً تلاش خواهد کرد.
-          </p>
-        </TrackingCard>
-      )}
-
-      {tracking && (
-        <TrackingCard aria-live="polite">
-          <RestaurantHeader>
-            <div>
-              <h2>{tracking.restaurantName}</h2>
-              <span className="tag">کد رهگیری: {token.slice(0, 10)}…</span>
-            </div>
-            <StatusPill $status={tracking.status}>
-              {tracking.status === 'delivered' ? <CheckCircleIcon size={16} /> : <TrackRadarIcon size={16} />}
-              <span>{labels[tracking.status] ?? tracking.status}</span>
-            </StatusPill>
-          </RestaurantHeader>
-
-          {tracking.status !== 'canceled' && (
-            <>
-              {(() => {
-                const window = getEstimatedDeliveryWindow(tracking.createdAt);
-                const progress = getProgressPercent(tracking.status);
-                return (
+      <Title>پیگیری سفارش</Title>
+      <TrackingCard aria-label="وضعیت سفارش">
+        {problem === 'missing' ? (
+          <TrackingNotice $tone="error" role="alert">این سفارش پیدا نشد. کد رهگیری را بررسی کنید.</TrackingNotice>
+        ) : (
+          <>
+            {problem === 'offline' && (
+              <TrackingNotice $tone="warning" role="status">فعلاً نمی‌توانیم وضعیت سفارش را بررسی کنیم. تا کمی دیگر دوباره تلاش می‌کنیم.</TrackingNotice>
+            )}
+            {!tracking && !problem && <p role="status">در حال بررسی وضعیت سفارش…</p>}
+            {tracking && (
+              <>
+                <RestaurantHeader>
+                  <h2>{tracking.restaurantName}</h2>
+                  <StatusPill role="status" $status={tracking.status}><TrackRadarIcon size={16} />{labels[tracking.status]}</StatusPill>
+                </RestaurantHeader>
+                <TrackingSummary>
+                  <SummaryTime>
+                    <div className="label"><ClockIcon size={16} /> آخرین تغییر سفارش</div>
+                    <time className="window" dateTime={tracking.updatedAt}>
+                      {new Date(tracking.updatedAt).toLocaleString('fa-IR', { dateStyle: 'medium', timeStyle: 'short' })}
+                    </time>
+                  </SummaryTime>
+                </TrackingSummary>
+                {tracking.status !== 'canceled' && (
                   <>
-                    <DeliveryWindowCard>
-                      <DeliveryTimeText>
-                        <div className="label">
-                          <ClockIcon size={15} />
-                          <span>زمان تقریبی تحویل سفارش</span>
+                    <CourierVisual aria-hidden="true">
+                      <div className="progress-line"><div className="fill" style={{ width: progress * 100 + '%' }} /></div>
+                      {progressNodes.map(({ step, title, icon: Icon }) => (
+                        <div key={step} className={'node' + (step <= currentStep ? ' active' : '')}>
+                          <span className="icon-box"><Icon size={19} /></span>
+                          <span>{title}</span>
                         </div>
-                        <div className="window">{window.start} تا {window.end}</div>
-                      </DeliveryTimeText>
-                      <div style={{ fontSize: '0.8rem', color: '#FAF6F0', background: 'rgba(255,255,255,0.12)', padding: '0.4rem 0.85rem', borderRadius: '9999px', fontWeight: 700 }}>
-                        ارسال اکسپرس فودینو
-                      </div>
-                    </DeliveryWindowCard>
-
-                    <CourierVisual>
-                      <div className="progress-line">
-                        <div className="fill" style={{ width: `${progress}%` }} />
-                      </div>
-                      <div className={`node ${progress >= 25 ? 'active' : ''}`}>
-                        <div className="icon-box">
-                          <StoreIcon size={19} />
-                        </div>
-                        <span>رستوران</span>
-                      </div>
-                      <div className={`node ${progress >= 50 ? 'active' : ''}`}>
-                        <div className="icon-box">
-                          <UtensilsIcon size={19} />
-                        </div>
-                        <span>آماده‌سازی</span>
-                      </div>
-                      <div className={`node ${progress >= 85 ? 'active' : ''}`}>
-                        <div className="icon-box">
-                          <CourierIcon size={19} />
-                        </div>
-                        <span>پیک در مسیر</span>
-                      </div>
-                      <div className={`node ${progress >= 100 ? 'active' : ''}`}>
-                        <div className="icon-box">
-                          <MapPinIcon size={19} />
-                        </div>
-                        <span>تحویل شما</span>
-                      </div>
+                      ))}
                     </CourierVisual>
+                    <StepperTrack aria-label="مراحل سفارش">
+                      {steps.map((step, index) => {
+                        const state = index < currentStep || tracking.status === 'delivered'
+                          ? 'completed' : index === currentStep ? 'current' : 'upcoming';
+                        return (
+                          <StepItem key={step.key} $state={state} aria-current={index === currentStep ? 'step' : undefined}>
+                            <span className="step-icon" aria-hidden="true">{state === 'completed' ? <CheckCircleIcon size={16} /> : null}</span>
+                            <div className="step-content">
+                              <h3>{step.key === 'preparing' ? 'آماده‌سازی غذا' : labels[step.key]}</h3>
+                              {state !== 'upcoming' && <p>{step.description}</p>}
+                            </div>
+                          </StepItem>
+                        );
+                      })}
+                    </StepperTrack>
                   </>
-                );
-              })()}
-            </>
-          )}
-
-          {tracking.status === 'canceled' ? (
-            <div style={{ textAlign: 'center', padding: '2rem', color: '#DC2626' }}>
-              <h3>این سفارش لغو شده است</h3>
-              <p>در صورت کسر وجه، مبلغ ظرف حداکثر ۷۲ ساعت به حساب شما بازخواهد گشت.</p>
-            </div>
-          ) : (
-            <StepperTrack>
-              {stepsSequence.map((step) => {
-                const state = getStepState(step.key, tracking.status);
-                return (
-                  <StepItem key={step.key} $state={state}>
-                    <div className="step-icon">
-                      {state === 'completed' ? <CheckCircleIcon size={15} /> : null}
-                    </div>
-                    <div className="step-content">
-                      <h3>{step.title}</h3>
-                      <p>{step.desc}</p>
-                    </div>
-                  </StepItem>
-                );
-              })}
-            </StepperTrack>
-          )}
-
-          <LastUpdated>
-            آخرین به‌روزرسانی:{' '}
-            {(() => {
-              try {
-                const d = new Date(tracking.updatedAt);
-                return `${d.toLocaleTimeString('fa-IR')} — ${d.toLocaleDateString('fa-IR')}`;
-              } catch {
-                return tracking.updatedAt;
-              }
-            })()}
-          </LastUpdated>
-        </TrackingCard>
-      )}
-
-      <BackLink href="/">بازگشت به صفحه اصلی</BackLink>
+                )}
+              </>
+            )}
+          </>
+        )}
+      </TrackingCard>
+      <BackLink href="/order-tracking">پیگیری سفارش دیگر</BackLink>
     </PageContainer>
   );
 }
