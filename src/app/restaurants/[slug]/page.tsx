@@ -48,42 +48,23 @@ export default async function RestaurantDetailPage({ params }: RestaurantDetailP
     comment: string;
     created_at: string;
   }> = [];
+  let reviewCount: number | undefined;
 
   if (process.env.DEMO_MODE !== 'true') {
     try {
-      const { data } = await client
+      const { data, count } = await client
         .from('reviews')
-        .select('id,user_name,rating,food_name,comment,created_at')
+        .select('id,user_name,rating,food_name,comment,created_at', { count: 'exact' })
         .eq('restaurant_id', restaurant.id)
         .order('created_at', { ascending: false })
         .limit(30);
+      reviewCount = count ?? undefined;
       if (data && data.length > 0) {
         rawReviews = data;
       }
     } catch {
-      // Handled below with fallback
+      // Leave reviews empty when they cannot be loaded
     }
-  }
-
-  if (rawReviews.length === 0) {
-    rawReviews = [
-      {
-        id: 'mock-rev-1',
-        user_name: 'امیر رضایی',
-        rating: 5,
-        food_name: products[0]?.name ?? 'غذای اصلی',
-        comment: 'کیفیت و طعم واقعاً عالی بود، کاملاً داغ و به موقع رسید.',
-        created_at: '2026-08-30T12:00:00.000Z',
-      },
-      {
-        id: 'mock-rev-2',
-        user_name: 'سارا احمدی',
-        rating: 4.8,
-        food_name: products[1]?.name ?? 'پیش‌غذا',
-        comment: 'بسته‌بندی تمیز و شیک، طعم غذا بسیار لذیذ و تازه بود.',
-        created_at: '2026-08-27T10:00:00.000Z',
-      },
-    ];
   }
 
   if (claims?.sub && process.env.DEMO_MODE !== 'true') {
@@ -124,6 +105,7 @@ export default async function RestaurantDetailPage({ params }: RestaurantDetailP
         products={products}
         isFavorite={isFavorite}
         reviews={reviews}
+        reviewCount={reviewCount}
         canReview={canReview}
         isLoggedIn={isLoggedIn}
       />

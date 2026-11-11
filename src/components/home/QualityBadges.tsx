@@ -3,6 +3,15 @@
 import React from "react";
 import styled from "styled-components";
 import Link from "next/link";
+export interface LandingReview {
+  id: string;
+  userName: string;
+  rating: number;
+  comment: string;
+  foodName: string;
+  restaurantName: string;
+  restaurantSlug: string;
+}
 import {
   StarIcon,
   ShieldCheckIcon,
@@ -100,7 +109,7 @@ const StepsRow = styled.div`
   }
 `;
 
-const StepCard = styled.div`
+const StepCard = styled.div.attrs<{ 'data-landing-card'?: string }>({ 'data-landing-card': '' })`
   background: #ffffff;
   border: 1px solid ${(props) => props.theme.colors.neutral[200]};
   border-radius: 1.35rem;
@@ -110,13 +119,11 @@ const StepCard = styled.div`
   flex-direction: column;
   gap: 0.75rem;
   box-shadow: 0 6px 18px -6px rgba(22, 18, 15, 0.05);
-  transition: transform 240ms var(--ease-out),
-    box-shadow 240ms var(--ease-out),
+  transition: box-shadow 240ms var(--ease-out),
     border-color 240ms var(--ease-out);
 
   @media (hover: hover) and (pointer: fine) {
     &:hover {
-      transform: translateY(-5px);
       box-shadow: 0 20px 34px -10px rgba(22, 18, 15, 0.12);
       border-color: ${(props) => props.theme.colors.primary[300]};
     }
@@ -157,12 +164,10 @@ const StepIconCircle = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 240ms var(--ease-out),
-    background-color 240ms var(--ease-out);
+  transition: background-color 240ms var(--ease-out);
 
   @media (hover: hover) and (pointer: fine) {
     ${StepCard}:hover & {
-      transform: scale(1.08) rotate(-4deg);
       background: ${(props) => props.theme.colors.primary[500]};
     }
   }
@@ -205,7 +210,7 @@ const BentoGrid = styled.div`
   }
 `;
 
-const DarkFeatureBento = styled.div`
+const DarkFeatureBento = styled.div.attrs<{ 'data-landing-card'?: string }>({ 'data-landing-card': '' })`
   background: linear-gradient(145deg, #16120f 0%, #2b1d16 100%);
   color: #faf6f0;
   border-radius: 1.5rem;
@@ -303,7 +308,7 @@ const BentoSideStack = styled.div`
   }
 `;
 
-const LightBentoCard = styled.div`
+const LightBentoCard = styled.div.attrs<{ 'data-landing-card'?: string }>({ 'data-landing-card': '' })`
   background: #ffffff;
   border: 1px solid ${(props) => props.theme.colors.neutral[200]};
   border-radius: 1.5rem;
@@ -313,13 +318,11 @@ const LightBentoCard = styled.div`
   justify-content: space-between;
   gap: 0.75rem;
   box-shadow: 0 6px 18px -6px rgba(22, 18, 15, 0.05);
-  transition: transform 240ms var(--ease-out),
-    box-shadow 240ms var(--ease-out),
+  transition: box-shadow 240ms var(--ease-out),
     border-color 240ms var(--ease-out);
 
   @media (hover: hover) and (pointer: fine) {
     &:hover {
-      transform: translateY(-4px);
       box-shadow: 0 18px 32px -10px rgba(22, 18, 15, 0.1);
       border-color: ${(props) => props.theme.colors.primary[300]};
     }
@@ -369,7 +372,7 @@ const ReviewsGrid = styled.div`
   }
 `;
 
-const ReviewCard = styled.article`
+const ReviewCard = styled.article.attrs<{ 'data-landing-card'?: string }>({ 'data-landing-card': '' })`
   background: #ffffff;
   border: 1px solid ${(props) => props.theme.colors.neutral[200]};
   border-radius: 1.35rem;
@@ -378,13 +381,11 @@ const ReviewCard = styled.article`
   flex-direction: column;
   gap: 1rem;
   box-shadow: 0 6px 18px -6px rgba(22, 18, 15, 0.05);
-  transition: transform 240ms var(--ease-out),
-    box-shadow 240ms var(--ease-out),
+  transition: box-shadow 240ms var(--ease-out),
     border-color 240ms var(--ease-out);
 
   @media (hover: hover) and (pointer: fine) {
     &:hover {
-      transform: translateY(-5px);
       box-shadow: 0 20px 36px -12px rgba(22, 18, 15, 0.12);
       border-color: ${(props) => props.theme.colors.primary[200]};
     }
@@ -486,47 +487,26 @@ const OrderedDishTag = styled(Link)`
   }
 `;
 
-const REVIEWS = [
-  {
-    id: "rev-1",
-    initial: "س",
-    name: "سارا محمدی",
-    quote:
-      "پیتزا مخصوص از پیتزا برتر واقعاً داغ به دستم رسید. خمیرش کاملاً ترد بود و زمان ارسال دقیقاً مطابق چیزی بود که در رهگیری سفارش نشون می‌داد.",
-    dishOrder: "پیتزا مخصوص • پیتزا برتر",
-    href: "/restaurants/best-pizza",
-  },
-  {
-    id: "rev-2",
-    initial: "ک",
-    name: "کیوان رضایی",
-    quote:
-      "دبل چیزبرگر دودی برگرلند فوق‌العاده آبدار و خوش‌طعم بود. بسته‌بندی مقوایی باعث شده بود سیب‌زمینی‌ها اصلاً خمیر نشن.",
-    dishOrder: "دبل چیزبرگر دودی • برگرلند",
-    href: "/restaurants/burger-land",
-  },
-  {
-    id: "rev-3",
-    initial: "ن",
-    name: "نگار جاوید",
-    quote:
-      "سوشی سالمون نروژی از سوشی تاکو با پک خنک‌کننده اختصاصی ارسال شد. تازگی مواد اولیه و شفافیت قیمت‌ها بدون هزینه پنهان عالیه.",
-    dishOrder: "سالمون رول • سوشی تاکو",
-    href: "/restaurants/sushi-tako",
-  },
-];
-
-const QualityBadges = () => {
+const QualityBadges = ({ reviews, demo = false }: { reviews: readonly LandingReview[]; demo?: boolean }) => {
+  const displayedReviews = reviews.map((review) => ({
+    id: review.id,
+    initial: review.userName.trim().slice(0, 1),
+    name: review.userName,
+    quote: review.comment,
+    dishOrder: [review.foodName, review.restaurantName].filter(Boolean).join(" • "),
+    href: `/restaurants/${review.restaurantSlug}`,
+    rating: review.rating,
+  }));
   return (
     <OuterSection>
       <Container>
         {/* بخش ۱: مراحل سفارش */}
-        <div>
+        <div data-landing-reveal>
           <BlockHeader>
             <Eyebrow>مسیر ساده و شفاف</Eyebrow>
             <BlockTitle>چطور در فودینو سفارش دهیم؟</BlockTitle>
             <BlockSubtitle>
-              بدون پیچیدگی و در سه گام کوتاه، غذای شما از تنور رستوران حرکت می‌کند
+              از انتخاب غذا تا پیگیری سفارش، همه‌چیز همین‌جاست
             </BlockSubtitle>
           </BlockHeader>
 
@@ -538,10 +518,10 @@ const QualityBadges = () => {
                   <SparkleIcon size={20} />
                 </StepIconCircle>
               </StepTopRow>
-              <StepTitle>انتخاب رستوران و منوی زنده</StepTitle>
+              <StepTitle>غذای دلخواهتان را انتخاب کنید</StepTitle>
               <StepDesc>
-                از میان رستوران‌های منتخب، منوی به‌روز، ترکیبات دقیق و ارزش غذایی
-                هر بشقاب را بررسی و انتخاب کنید.
+                منوی رستوران‌ها را ببینید و توضیحات و قیمت غذاها را مقایسه کنید
+                تا انتخاب برایتان راحت‌تر شود.
               </StepDesc>
             </StepCard>
 
@@ -552,10 +532,10 @@ const QualityBadges = () => {
                   <ShieldCheckIcon size={20} />
                 </StepIconCircle>
               </StepTopRow>
-              <StepTitle>شخصی‌سازی و ثبت آنی سفارش</StepTitle>
+              <StepTitle>سفارشتان را کامل کنید</StepTitle>
               <StepDesc>
-                سایز، افزودنی‌های دلخواه و کد تخفیف خود را وارد کنید؛ تمامی
-                محاسبات قیمت با دقت در سرور انجام می‌شود.
+                غذاها را به سبد اضافه کنید، یادداشت و کد تخفیف را وارد کنید
+                و مبلغ نهایی را پیش از پرداخت ببینید.
               </StepDesc>
             </StepCard>
 
@@ -566,20 +546,20 @@ const QualityBadges = () => {
                   <CourierIcon size={20} />
                 </StepIconCircle>
               </StepTopRow>
-              <StepTitle>پخت تازه و رهگیری لحظه‌ای پیک</StepTitle>
+              <StepTitle>مراحل سفارش را دنبال کنید</StepTitle>
               <StepDesc>
-                از لحظه تایید آشپزخانه تا تحویل پیک، وضعیت سفارش را با کد رهگیری
-                اختصاصی به‌صورت زنده دنبال کنید.
+                با کد رهگیری ببینید رستوران سفارشتان را پذیرفته، غذا در حال
+                آماده‌شدن است یا برایتان ارسال شده است.
               </StepDesc>
             </StepCard>
           </StepsRow>
         </div>
 
         {/* بخش ۲: استانداردهای طلایی فودینو (Bento) */}
-        <div>
+        <div data-landing-reveal>
           <BlockHeader>
-            <Eyebrow>تعهد کیفیت فودینو</Eyebrow>
-            <BlockTitle>چرا حرفه‌ای‌ها فودینو را انتخاب می‌کنند؟</BlockTitle>
+            <Eyebrow>انتخاب راحت‌تر، سفارش روشن‌تر</Eyebrow>
+            <BlockTitle>هرچه برای سفارش غذا لازم دارید</BlockTitle>
           </BlockHeader>
 
           <BentoGrid>
@@ -587,15 +567,15 @@ const QualityBadges = () => {
               <div>
                 <BentoTag>
                   <FlameIcon size={14} />
-                  <span>فناوری حفظ دمای سرو</span>
+                  <span>از انتخاب تا رسیدن غذا</span>
                 </BentoTag>
                 <BentoHeading>
-                  تحویل غذا دقیقاً با همان کیفیت و دمای داخل رستوران
+                  بدانید غذایتان در چه مرحله‌ای است
                 </BentoHeading>
                 <BentoText>
-                  تمامی سفیران فودینو مجهز به کیف‌های حرارتی نسل جدید هستند تا
-                  پیتزا و کباب با دمای بالای ۶۵ درجه و سالاد و سوشی در محفظه خنک
-                  ایزوله به دست شما برسند.
+                  بعد از ثبت سفارش، کد رهگیری همراه شماست. هر وقت خواستید
+                  به صفحه سفارش سر بزنید و وضعیت آماده‌سازی و ارسال غذا را
+                  ببینید.
                 </BentoText>
               </div>
 
@@ -604,7 +584,7 @@ const QualityBadges = () => {
                   <span className="pulse" />
                   <div>
                     <div style={{ fontWeight: 700, fontSize: "0.88rem" }}>
-                      پایش زنده کیفیت ارسال
+                      پیگیری سفارش شما
                     </div>
                     <div
                       style={{
@@ -612,7 +592,7 @@ const QualityBadges = () => {
                         color: "rgba(250,246,240,0.7)",
                       }}
                     >
-                      میانگین زمان تحویل امروز: ۲۹ دقیقه
+                      کد رهگیری را از جزئیات سفارش بردارید
                     </div>
                   </div>
                 </TelemetryLeft>
@@ -650,12 +630,12 @@ const QualityBadges = () => {
                   }}
                 >
                   <CheckCircleIcon size={18} />
-                  <span>شفافیت ۱۰۰٪ مالی</span>
+                  <span>قیمت روشن پیش از پرداخت</span>
                 </div>
-                <h4>قیمت‌گذاری رسمی منو بدون کارمزد پنهان</h4>
+                <h4>مبلغ سفارشتان را کامل ببینید</h4>
                 <p>
-                  مبلغ نهایی سبد خرید شما مستقیماً در سرور فودینو و بر اساس نرخ
-                  مصوب رستوران محاسبه می‌شود.
+                  قیمت غذا، هزینه ارسال و تخفیف را پیش از پرداخت ببینید
+                  تا بدانید بابت چه چیزهایی پرداخت می‌کنید.
                 </p>
               </LightBentoCard>
 
@@ -671,12 +651,12 @@ const QualityBadges = () => {
                   }}
                 >
                   <ClockIcon size={18} />
-                  <span>مواد اولیه تازه روز</span>
+                  <span>نظر مشتریان را بخوانید</span>
                 </div>
-                <h4>ممیزی بهداشتی و کیفی آشپزخانه‌ها</h4>
+                <h4>با شناخت بیشتری انتخاب کنید</h4>
                 <p>
-                  تنها رستوران‌هایی که امتیاز رضایت بالای ۴.۵ از ۵ را حفظ کنند در
-                  فهرست برترین‌های فودینو باقی می‌مانند.
+                  امتیاز و نظرهای هر رستوران را کنار منوی آن ببینید
+                  و غذایی را انتخاب کنید که به سلیقه شما نزدیک‌تر است.
                 </p>
               </LightBentoCard>
             </BentoSideStack>
@@ -684,17 +664,18 @@ const QualityBadges = () => {
         </div>
 
         {/* بخش ۳: تجربه مشتریان */}
-        <div>
+        <div data-landing-reveal>
           <BlockHeader>
             <Eyebrow>صدای مشتریان</Eyebrow>
-            <BlockTitle>تجربه واقعی سفارش‌دهندگان</BlockTitle>
+            <BlockTitle>{demo ? "نمونه تجربه سفارش‌دهندگان" : "تجربه سفارش‌دهندگان"}</BlockTitle>
             <BlockSubtitle>
-              نظرات ثبت‌شده توسط کاربرانی که سفارش خود را از طریق فودینو دریافت کرده‌اند
+              {demo ? "این نظرها برای نمایش تجربه سفارش در نسخه نمایشی هستند." : "نظرات ثبت‌شده درباره رستوران‌های فودینو"}
             </BlockSubtitle>
           </BlockHeader>
 
           <ReviewsGrid>
-            {REVIEWS.map((review) => (
+            {displayedReviews.length === 0 && <ReviewCard><ReviewQuote>هنوز نظری برای نمایش ثبت نشده است.</ReviewQuote></ReviewCard>}
+            {displayedReviews.map((review) => (
               <ReviewCard key={review.id}>
                 <ReviewHeader>
                   <ReviewerProfile>
@@ -703,16 +684,12 @@ const QualityBadges = () => {
                       <strong>{review.name}</strong>
                       <span>
                         <CheckCircleIcon size={12} />
-                        <span>خریدار تأییدشده</span>
+                        <span>{demo ? "نظر نمایشی" : "نظر ثبت‌شده"}</span>
                       </span>
                     </ReviewerMeta>
                   </ReviewerProfile>
-                  <StarsRow aria-label="امتیاز ۵ از ۵">
-                    <StarIcon size={14} />
-                    <StarIcon size={14} />
-                    <StarIcon size={14} />
-                    <StarIcon size={14} />
-                    <StarIcon size={14} />
+                  <StarsRow aria-label={`امتیاز ${review.rating.toLocaleString("fa-IR")} از ۵`}>
+                    {Array.from({ length: Math.max(0, Math.min(5, Math.round(review.rating))) }, (_, index) => <StarIcon key={index} size={14} />)}
                   </StarsRow>
                 </ReviewHeader>
 

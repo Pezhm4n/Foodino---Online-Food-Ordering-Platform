@@ -12,32 +12,11 @@ import {
   StarIcon,
   ClockIcon,
   CourierIcon,
-  FlameIcon,
   ArrowLeftIcon,
-  SparkleIcon,
 } from "@/components/ui/FoodVisuals";
 import styles from "./PublicCatalog.module.css";
 
 const numberFormatter = new Intl.NumberFormat("fa-IR");
-
-function getCuisineLabel(name: string): string {
-  if (name.includes("پیتزا")) return "پیتزا ناپولیتن و ایتالیایی";
-  if (name.includes("برگر")) return "برگر ذغالی و سوخاری";
-  if (name.includes("سوشی")) return "سوشی و آشپزی آسیایی";
-  if (
-    name.includes("ایرانی") ||
-    name.includes("سنتی") ||
-    name.includes("کباب")
-  )
-    return "کباب و مطبخ اصیل ایرانی";
-  if (
-    name.includes("سالاد") ||
-    name.includes("سبز") ||
-    name.includes("سالم")
-  )
-    return "غذای سالم و ارگانیک";
-  return "آشپزخانه منتخب فودینو";
-}
 
 export function RestaurantGrid({
   restaurants,
@@ -50,7 +29,7 @@ export function RestaurantGrid({
     return (
       <div className={styles.empty}>
         <DishArtwork kind="chef" size={88} variant="thumb" />
-        <h3>رستورانی با این مشخصات یافت نشد</h3>
+        <h3>رستورانی پیدا نشد</h3>
         <p>عبارت جست‌وجو یا فیلتر دسته‌بندی را تغییر دهید تا گزینه‌های بیشتری ببینید.</p>
         <Link href="/restaurants" className={styles.back} style={{ marginTop: "0.5rem" }}>
           <span>نمایش همه رستوران‌ها</span>
@@ -69,11 +48,8 @@ export function RestaurantGrid({
           restaurant.description
         );
         const palette = FOOD_VISUAL_PALETTE[kind];
-        const cuisineLabel = getCuisineLabel(restaurant.name);
         const feeToman = irrToToman(restaurant.deliveryFee);
         const minOrderToman = irrToToman(restaurant.minimumOrder);
-        const isFastDelivery = restaurant.deliveryMinutes.max <= 40;
-        const isLowDelivery = feeToman <= 15000;
 
         return (
           <article className={styles.card} key={restaurant.id}>
@@ -104,16 +80,6 @@ export function RestaurantGrid({
               </div>
 
               <div className={styles.coverBottomBar}>
-                <span
-                  className={styles.cuisineBadge}
-                  style={{
-                    backgroundColor: palette.tagBg,
-                    color: palette.tagColor,
-                  }}
-                >
-                  <SparkleIcon size={12} />
-                  <span>{cuisineLabel}</span>
-                </span>
 
                 <span className={styles.ratingBadge}>
                   <StarIcon size={13} style={{ color: "#E59A11" }} />
@@ -147,28 +113,12 @@ export function RestaurantGrid({
                   <span className={styles.metaItem}>
                     <CourierIcon size={14} />
                     <span>
-                      پیک:{" "}
+                      ارسال{" "}
                       {feeToman === 0
                         ? "رایگان"
                         : `${numberFormatter.format(feeToman)} تومان`}
                     </span>
                   </span>
-                  {isFastDelivery && (
-                    <span className={styles.metaHighlight}>
-                      <FlameIcon size={13} />
-                      <span>ارسال سریع</span>
-                    </span>
-                  )}
-                  {isLowDelivery && feeToman > 0 && (
-                    <span className={styles.metaHighlightGreen}>
-                      <span>ارسال اقتصادی</span>
-                    </span>
-                  )}
-                  {!isFastDelivery && !(isLowDelivery && feeToman > 0) && (
-                    <span className={styles.metaHighlightGreen}>
-                      <span>تضمین کیفیت پخت</span>
-                    </span>
-                  )}
                 </div>
               </div>
 
@@ -224,17 +174,8 @@ export function CategoryGrid({
                 background: `linear-gradient(135deg, ${palette.bgStart} 0%, ${palette.bgEnd} 100%)`,
               }}
             >
-              <span
-                className={styles.categoryTag}
-                style={{
-                  backgroundColor: palette.tagBg,
-                  color: palette.tagColor,
-                }}
-              >
-                {palette.label}
-              </span>
               <div className={styles.categoryArtWrap}>
-                <DishArtwork kind={kind} size={118} variant="card" />
+                <DishArtwork kind={kind} size={118} variant="thumb" />
               </div>
             </div>
 

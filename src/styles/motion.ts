@@ -122,6 +122,103 @@ export const slideDownFade = keyframes`
   }
 `;
 
+export const sectionArrival = keyframes`
+  from { opacity: 0.88; translate: 0 10px; }
+  to { opacity: 1; translate: 0 0; }
+`;
+
+export const actionFeedbackAttrs: { 'data-action-feedback'?: string } = { 'data-action-feedback': '' };
+
+export const actionFeedback = css`
+  -webkit-tap-highlight-color: rgba(184, 43, 20, 0.18);
+  transition: background-color ${motionTokens.duration.fast}, color ${motionTokens.duration.fast},
+    border-color ${motionTokens.duration.fast}, box-shadow ${motionTokens.duration.fast};
+
+  &:focus-visible {
+    outline: 2px solid var(--action-focus-color, ${({ theme }) => theme.colors.primary[600]});
+    outline-offset: 3px;
+  }
+
+  &:not(:disabled) {
+    &:focus-visible {
+      background-color: var(--action-hover-bg, ${({ theme }) => theme.colors.primary[50]});
+      color: var(--action-hover-ink, ${({ theme }) => theme.colors.primary[700]});
+      border-color: ${({ theme }) => theme.colors.primary[300]};
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        background-color: var(--action-hover-bg, ${({ theme }) => theme.colors.primary[50]});
+        color: var(--action-hover-ink, ${({ theme }) => theme.colors.primary[700]});
+        border-color: ${({ theme }) => theme.colors.primary[300]};
+        box-shadow: var(--action-hover-shadow, 0 2px 8px rgba(132, 45, 27, 0.13));
+      }
+    }
+
+    &:is(:active, [data-touch-pressed]) {
+      background-color: var(--action-press-bg, ${({ theme }) => theme.colors.primary[100]});
+      color: var(--action-hover-ink, ${({ theme }) => theme.colors.primary[700]});
+      box-shadow: inset 0 2px 4px rgba(85, 25, 10, 0.18);
+    }
+  }
+
+  > svg { pointer-events: none; flex-shrink: 0; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    > svg { transition: translate ${motionTokens.duration.normal} ${motionTokens.easing.subtleSpring}; }
+    &:focus-visible > svg { translate: var(--action-icon-shift, -4px 0); }
+
+    @media (hover: hover) and (pointer: fine) {
+      &:hover:not(:disabled) > svg { translate: var(--action-icon-shift, -4px 0); }
+    }
+
+    &:is(:active, [data-touch-pressed]):not(:disabled) > svg { translate: 0 1px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) { transition: none; }
+`;
+
+export const cardIconFeedback = css`
+  [data-feedback-icon] {
+    transition: color ${motionTokens.duration.fast};
+  }
+
+  &:focus-within [data-feedback-icon] { color: var(--feedback-icon-ink, ${({ theme }) => theme.colors.primary[700]}); }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover [data-feedback-icon] { color: var(--feedback-icon-ink, ${({ theme }) => theme.colors.primary[700]}); }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    [data-feedback-icon] { transition: color ${motionTokens.duration.fast}, translate ${motionTokens.duration.normal} ${motionTokens.easing.subtleSpring}; }
+    &:focus-within [data-feedback-icon] { translate: 0 -3px; }
+
+    @media (hover: hover) and (pointer: fine) {
+      &:hover [data-feedback-icon] { translate: 0 -3px; }
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) { [data-feedback-icon] { transition: none; } }
+`;
+
+export const fieldFeedback = css`
+  transition: ${motionTokens.transition.input};
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:not(:focus):not([aria-invalid='true']) {
+      border-color: ${({ theme }) => theme.colors.neutral[500]};
+    }
+  }
+
+  &:focus {
+    outline: none;
+    background-color: #ffffff;
+    border-color: ${({ theme }) => theme.colors.primary[600]};
+    box-shadow: 0 0 0 3px ${({ theme }) => theme.colors.primary[100]};
+  }
+
+  @media (prefers-reduced-motion: reduce) { transition: none; }
+`;
+
 // هلپر برای پشتیبانی همه‌جانبه از reduced-motion
 export const reducedMotionSupport = css`
   @media (prefers-reduced-motion: reduce) {

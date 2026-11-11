@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import Link from "next/link";
 import { useCart } from "@/contexts/CartContext";
@@ -18,6 +18,12 @@ import {
   StoreIcon,
   CheckCircleIcon,
 } from "@/components/ui/FoodVisuals";
+
+export interface FeaturedDish extends DishDetails {
+  slug: string;
+  restaurantRating: number;
+  deliveryMinutes: { min: number; max: number };
+}
 
 const FEATURED_ITEMS: readonly DishDetails[] = [
   {
@@ -232,30 +238,43 @@ const Grid = styled.div`
   }
 `;
 
-const DishCard = styled.article`
+const DishCard = styled.article.attrs<{ 'data-landing-card'?: string }>({ "data-landing-card": "" })`
+  display: flex;
+  min-width: 0;
+  cursor: pointer;
+`;
+
+const DishSurface = styled.div`
   background: #ffffff;
   border-radius: 1.35rem;
   border: 1px solid ${(props) => props.theme.colors.neutral[200]};
   overflow: hidden;
   box-shadow: 0 6px 18px -6px rgba(22, 18, 15, 0.06);
-  transition: transform 240ms var(--ease-out),
+  transition: transform 300ms var(--ease-out),
     box-shadow 240ms var(--ease-out),
     border-color 240ms var(--ease-out);
   display: flex;
   flex-direction: column;
   position: relative;
-  cursor: pointer;
+  flex: 1;
+  min-width: 0;
 
   @media (hover: hover) and (pointer: fine) {
-    &:hover {
-      transform: translateY(-6px);
+    ${DishCard}:hover & {
+      transform: translateY(-9px);
       box-shadow: 0 24px 40px -12px rgba(22, 18, 15, 0.16);
       border-color: ${(props) => props.theme.colors.primary[300]};
     }
   }
 
-  &:active {
+  ${DishCard}:active & {
     transform: scale(0.98);
+    border-color: ${({ theme }) => theme.colors.primary[400]};
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: box-shadow 180ms ease-out, border-color 180ms ease-out;
+    ${DishCard}:hover &, ${DishCard}:active & { transform: none; }
   }
 `;
 
@@ -292,12 +311,17 @@ const CardBanner = styled.div<{ $bgStart: string; $bgEnd: string }>`
 const ArtworkMotionWrap = styled.div`
   position: relative;
   z-index: 2;
-  transition: transform 280ms var(--ease-out);
+  transition: transform 340ms var(--ease-out);
 
   @media (hover: hover) and (pointer: fine) {
     ${DishCard}:hover & {
-      transform: scale(1.09) translateY(-3px) rotate(-2deg);
+      transform: translateY(-6px) rotate(-5deg) scale(1.15);
     }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+    ${DishCard}:hover & { transform: none; }
   }
 
   @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
@@ -383,6 +407,16 @@ const CardTitle = styled.h3`
   margin: 0;
   transition: color 180ms var(--ease-out);
 
+  button {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: inherit;
+    cursor: pointer;
+  }
+
   @media (hover: hover) and (pointer: fine) {
     ${DishCard}:hover & {
       color: ${(props) => props.theme.colors.primary[600]};
@@ -467,16 +501,22 @@ const QuickAddBtn = styled.button<{ $justAdded?: boolean }>`
   }
 `;
 
-export default function FeaturedDishes() {
+export default function FeaturedDishes({ dishes, demo = false }: { dishes: readonly FeaturedDish[]; demo?: boolean }) {
+  const items = dishes.map((dish) => {
+    const visual = FEATURED_ITEMS.find((item) => resolveFoodKind(item.image) === resolveFoodKind(dish.slug, dish.name));
+    return { ...(demo ? visual : {}), ...dish, image: visual?.image, category: visual?.category };
+  });
   const [selectedDish, setSelectedDish] = useState<DishDetails | null>(null);
   const [addedDishId, setAddedDishId] = useState<string | null>(null);
+  const addTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => { if (addTimer.current) clearTimeout(addTimer.current); }, []);
   const { addItem } = useCart();
 
   const formatPrice = (p: number) => p.toLocaleString("fa-IR") + " تومان";
 
   const handleQuickAdd = (e: React.MouseEvent, dish: DishDetails) => {
     e.stopPropagation();
-    addItem({
+    const accepted = addItem({
       id: `${dish.id}:default`,
       productId: dish.id,
       restaurantId: dish.restaurantId,
@@ -486,14 +526,16 @@ export default function FeaturedDishes() {
       quantity: 1,
       addonIds: [],
     });
+    if (!accepted) return;
     setAddedDishId(dish.id);
-    setTimeout(() => {
+    if (addTimer.current) clearTimeout(addTimer.current);
+    addTimer.current = setTimeout(() => {
       setAddedDishId((prev) => (prev === dish.id ? null : prev));
     }, 900);
   };
 
   return (
-    <Section>
+    <Section aria-label="پیشنهادات ویژه روز">
       <Container>
         <HeaderRow>
           <TitleBox>
@@ -505,6 +547,7 @@ export default function FeaturedDishes() {
             <SectionSubtitle>
               محبوب‌ترین بشقاب‌های فودینو با مواد اولیه تازه و تخفیف اختصاصی؛
               برای مشاهده ارزش غذایی روی هر کارت کلیک کنید
+              {demo && " (تخفیف و اطلاعات تغذیه نمایشی)"}
             </SectionSubtitle>
           </TitleBox>
           <ViewAllLink href="/restaurants">
@@ -514,7 +557,7 @@ export default function FeaturedDishes() {
         </HeaderRow>
 
         <Grid>
-          {FEATURED_ITEMS.map((dish) => {
+          {items.map((dish) => {
             const kind = resolveFoodKind(dish.category, dish.name, dish.image);
             const palette = FOOD_VISUAL_PALETTE[kind];
             const isJustAdded = addedDishId === dish.id;
@@ -524,68 +567,72 @@ export default function FeaturedDishes() {
                 key={dish.id}
                 onClick={() => setSelectedDish(dish)}
               >
-                <CardBanner
-                  $bgStart={palette.bgStart}
-                  $bgEnd={palette.bgEnd}
-                >
-                  <ArtworkMotionWrap>
-                    <DishArtwork kind={kind} size={126} variant="card" />
-                  </ArtworkMotionWrap>
-                  {dish.discountPercent && (
-                    <DiscountBadge>
-                      ٪{dish.discountPercent.toLocaleString("fa-IR")} تخفیف
-                    </DiscountBadge>
-                  )}
-                  {dish.nutrition && (
-                    <CaloriePill>
-                      {dish.nutrition.calories.toLocaleString("fa-IR")} کالری
-                    </CaloriePill>
-                  )}
-                </CardBanner>
+                <DishSurface>
+                  <CardBanner
+                    $bgStart={palette.bgStart}
+                    $bgEnd={palette.bgEnd}
+                  >
+                    <ArtworkMotionWrap>
+                      <DishArtwork kind={kind} size={126} variant="card" />
+                    </ArtworkMotionWrap>
+                    {dish.discountPercent && (
+                      <DiscountBadge>
+                        ٪{dish.discountPercent.toLocaleString("fa-IR")} تخفیف
+                      </DiscountBadge>
+                    )}
+                    {dish.nutrition && (
+                      <CaloriePill>
+                        {dish.nutrition.calories.toLocaleString("fa-IR")} کالری
+                      </CaloriePill>
+                    )}
+                  </CardBanner>
 
-                <CardBody>
-                  <RestoRow>
-                    <RestoName>
-                      <StoreIcon size={13} />
-                      <span>{dish.restaurantName}</span>
-                    </RestoName>
-                    <RatingPill>
-                      <StarIcon size={12} />
-                      <span>۴.۸</span>
-                    </RatingPill>
-                  </RestoRow>
-                  <CardTitle>{dish.name}</CardTitle>
-                  <CardDesc>{dish.description}</CardDesc>
+                  <CardBody>
+                    <RestoRow>
+                      <RestoName>
+                        <StoreIcon size={13} />
+                        <span>{dish.restaurantName}</span>
+                      </RestoName>
+                      <RatingPill>
+                        <StarIcon size={12} />
+                        <span>{dish.restaurantRating.toLocaleString("fa-IR")}</span>
+                      </RatingPill>
+                    </RestoRow>
+                    <CardTitle>
+                      <button type="button" aria-label={`جزئیات ${dish.name}`} onClick={() => setSelectedDish(dish)}>{dish.name}</button>
+                    </CardTitle>
+                    <CardDesc>{dish.description}</CardDesc>
 
-                  <CardFooter>
-                    <PriceBox>
-                      <span className="current">{formatPrice(dish.price)}</span>
-                      {dish.originalPrice && (
-                        <span className="original">
-                          {formatPrice(dish.originalPrice)}
-                        </span>
-                      )}
-                    </PriceBox>
-                    <QuickAddBtn
-                      type="button"
-                      $justAdded={isJustAdded}
-                      onClick={(e) => handleQuickAdd(e, dish)}
-                      aria-label={`افزودن ${dish.name} به سبد خرید`}
-                    >
-                      {isJustAdded ? (
-                        <>
-                          <CheckCircleIcon size={14} />
-                          <span>افزوده شد</span>
-                        </>
-                      ) : (
-                        <>
-                          <PlusIcon size={14} />
-                          <span>افزودن</span>
-                        </>
-                      )}
-                    </QuickAddBtn>
-                  </CardFooter>
-                </CardBody>
+                    <CardFooter>
+                      <PriceBox>
+                        <span className="current">{formatPrice(dish.price)}</span>
+                        {dish.originalPrice && (
+                          <span className="original">
+                            {formatPrice(dish.originalPrice)}
+                          </span>
+                        )}
+                      </PriceBox>
+                      <QuickAddBtn
+                        type="button"
+                        $justAdded={isJustAdded}
+                        onClick={(e) => handleQuickAdd(e, dish)}
+                        aria-label={`افزودن ${dish.name} به سبد خرید`}
+                      >
+                        {isJustAdded ? (
+                          <>
+                            <CheckCircleIcon size={14} />
+                            <span>افزوده شد</span>
+                          </>
+                        ) : (
+                          <>
+                            <PlusIcon size={14} />
+                            <span>افزودن</span>
+                          </>
+                        )}
+                      </QuickAddBtn>
+                    </CardFooter>
+                  </CardBody>
+                </DishSurface>
               </DishCard>
             );
           })}

@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useRef, useSyncExternalStore } from "react";
 import styled, { keyframes } from "styled-components";
 import Link from "next/link";
+import toast from "react-hot-toast";
+import { MAX_CATALOG_QUERY_LENGTH } from "@/lib/validation/search";
 import { useRouter, usePathname } from "next/navigation";
 import { useCart } from "@/contexts/CartContext";
 import { logoutAction } from "@/app/auth/actions";
@@ -23,10 +25,12 @@ import {
   ArrowLeftIcon,
   FlameIcon,
 } from "@/components/ui/FoodVisuals";
-import {
-  MOCK_RESTAURANTS,
-  MOCK_PRODUCTS,
-} from "@/infrastructure/mock/mock-catalog-data";
+
+
+type Suggestions = {
+  restaurants: { id: string; slug: string; name: string; description: string; rating: number }[];
+  products: { id: string; slug: string; name: string; description: string; priceIrr: number; restaurantName: string }[];
+};
 
 const headerCopy = {
   home: "خانه",
@@ -47,103 +51,97 @@ const headerCopy = {
 const t = (key: keyof typeof headerCopy) => headerCopy[key];
 
 const TopPromoBarContainer = styled.div`
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-wrap: wrap;
-  gap: 0.55rem;
-  background: linear-gradient(90deg, #16120f 0%, #261b15 50%, #16120f 100%);
-  color: #faf6f0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 0.4rem 3.25rem;
-  position: relative;
-  z-index: 101;
-  direction: rtl;
-  text-align: center;
-  font-size: 0.81rem;
-  font-weight: 500;
+  gap: clamp(0.25rem, 1.5vw, 0.75rem);
+  min-height: 44px;
+  padding-inline: 0.5rem;
+  background: linear-gradient(110deg, #18120f, #211610 55%, #18120f);
+  color: ${({ theme }) => theme.colors.neutral[50]};
+  font-size: 0.8rem;
+  white-space: nowrap;
 
-  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
-    font-size: 0.71rem;
-    padding: 0.35rem 0.65rem 0.35rem 2.75rem;
-    gap: 0.3rem;
-    line-height: 1.45;
+  .conditions { color: ${({ theme }) => theme.colors.secondary[200]}; }
+  .promo-leading { display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 700; }
+  .promo-leading svg { color: ${({ theme }) => theme.colors.warning[400]}; }
+  details { display: none; }
+
+  @media (max-width: 640px) {
+    .conditions { display: none; }
+    details { display: block; }
+    summary {
+      display: grid;
+      place-items: center;
+      min-width: 44px;
+      min-height: 44px;
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 0.2em;
+    }
+    summary::-webkit-details-marker { display: none; }
+    details p {
+      position: absolute;
+      z-index: 101;
+      inset-block-start: 100%;
+      inset-inline: 0;
+      width: min(calc(100% - 2rem), 21rem);
+      margin: 0.25rem auto 0;
+      padding: 0.75rem 1rem;
+      border-radius: 0.6rem;
+      background: ${({ theme }) => theme.colors.secondary[900]};
+      box-shadow: ${({ theme }) => theme.shadows.md};
+      white-space: normal;
+    }
   }
-`;
-
-const PromoIndicator = styled.span`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: #fbbf24;
-  flex-shrink: 0;
 `;
 
 const PromoCodeButton = styled.button`
   display: inline-flex;
   align-items: center;
-  justify-content: center;
   gap: 0.35rem;
-  background: rgba(217, 56, 30, 0.22);
-  color: #fde68a;
-  min-height: 34px;
-  padding: 0.2rem 0.65rem;
-  border-radius: 6px;
-  font-weight: 700;
-  font-size: 0.76rem;
-  letter-spacing: 0.06em;
-  border: 1px dashed rgba(251, 191, 36, 0.55);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  min-height: 44px;
+  padding: 0 0.45rem;
+  border: 1px dashed rgba(251, 191, 36, 0.48);
+  border-radius: 0.5rem;
+  background: rgba(184, 43, 20, 0.24);
+  color: ${({ theme }) => theme.colors.warning[200]};
+  font: inherit;
+  font-weight: 800;
   cursor: pointer;
-  transition: background-color 150ms ease, transform 120ms ease, border-color 150ms ease;
 
-  @media (hover: hover) and (pointer: fine) {
-    &:hover {
-      background: rgba(217, 56, 30, 0.36);
-      border-color: #fbbf24;
-    }
+  @media (min-width: 641px) {
+    min-height: 34px;
+    padding-inline: 0.65rem;
   }
 
-  &:active {
-    transform: scale(0.96);
+  @media (max-width: 640px) {
+    border-block: 0;
   }
 `;
 
 const PromoCloseButton = styled.button`
-  position: absolute;
-  left: 0.65rem;
-  top: 50%;
-  transform: translateY(-50%);
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(250, 246, 240, 0.78);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  background: transparent;
+  color: inherit;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  transition: background-color 140ms ease, color 140ms ease, transform 120ms ease;
-  user-select: none;
-  touch-action: manipulation;
 
-  @media (hover: hover) and (pointer: fine) {
-    &:hover {
-      color: #ffffff;
-      background: rgba(255, 255, 255, 0.15);
-    }
-  }
-
-  &:active {
-    transform: translateY(-50%) scale(0.92);
-  }
-
-  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
-    left: 0.4rem;
+  @media (min-width: 641px) {
+    position: absolute;
+    inset-inline-end: 0.65rem;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.05);
   }
 `;
-
 const HeaderWrapper = styled.header<{ $isScrolled: boolean }>`
   position: sticky;
   top: 0;
@@ -1005,13 +1003,15 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      const input = searchInputRef.current;
       if (
         (e.key === "/" || (e.key === "k" && (e.metaKey || e.ctrlKey))) &&
-        document.activeElement !== searchInputRef.current &&
-        document.activeElement !== mobileSearchInputRef.current
+        !e.defaultPrevented && !e.isComposing &&
+        !(e.target instanceof Element && e.target.closest("input, textarea, select, [contenteditable]")) &&
+        input?.getClientRects().length
       ) {
         e.preventDefault();
-        searchInputRef.current?.focus();
+        input.focus();
         setIsSearchFocused(true);
       }
       if (e.key === "Escape") {
@@ -1049,18 +1049,21 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
     }
   };
 
+  useEffect(() => {
+    if (!copiedPromo) return;
+    const timer = setTimeout(() => setCopiedPromo(false), 2000);
+    return () => clearTimeout(timer);
+  }, [copiedPromo]);
+
   const handleCopyPromo = async () => {
     try {
-      if (navigator.clipboard) {
-        await navigator.clipboard.writeText("FOODINO");
-        setCopiedPromo(true);
-        setTimeout(() => setCopiedPromo(false), 2000);
-      }
+      await navigator.clipboard.writeText("FOODINO");
+      setCopiedPromo(true);
+      toast.success("کد تخفیف کپی شد");
     } catch {
-      // Ignore clipboard errors
+      toast.error("کد را دستی وارد کنید: FOODINO");
     }
   };
-
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 36);
@@ -1090,24 +1093,31 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
 
   const normalizedQuery = searchTerm.trim().toLowerCase();
 
-  const matchingRestaurants = normalizedQuery
-    ? MOCK_RESTAURANTS.filter(
-        (r) =>
-          r.name.toLowerCase().includes(normalizedQuery) ||
-          r.description.toLowerCase().includes(normalizedQuery) ||
-          r.slug.toLowerCase().includes(normalizedQuery)
-      ).slice(0, 3)
-    : [];
+  const [suggestions, setSuggestions] = useState<{ query: string; results: Suggestions | null }>();
+  const currentResults = suggestions?.query === normalizedQuery ? suggestions.results : undefined;
+  const matchingRestaurants = currentResults?.restaurants ?? [];
+  const matchingProducts = currentResults?.products ?? [];
 
-  const matchingProducts = normalizedQuery
-    ? MOCK_PRODUCTS.filter(
-        (p) =>
-          p.name.toLowerCase().includes(normalizedQuery) ||
-          p.description.toLowerCase().includes(normalizedQuery) ||
-          p.slug.toLowerCase().includes(normalizedQuery)
-      ).slice(0, 3)
-    : [];
-
+  useEffect(() => {
+    if (!isSearchFocused || normalizedQuery.length < 2) return;
+    const controller = new AbortController();
+    const timer = setTimeout(async () => {
+      try {
+        const response = await fetch('/api/catalog/suggestions?q=' + encodeURIComponent(normalizedQuery), {
+          signal: controller.signal,
+        });
+        if (!response.ok) throw new Error('Suggestions unavailable');
+        const results = await response.json() as Suggestions;
+        if (!controller.signal.aborted) setSuggestions({ query: normalizedQuery, results });
+      } catch {
+        if (!controller.signal.aborted) setSuggestions({ query: normalizedQuery, results: null });
+      }
+    }, 280);
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [isSearchFocused, normalizedQuery]);
   const formatPrice = (irr: number) =>
     (irr / 10).toLocaleString("fa-IR") + " تومان";
 
@@ -1130,20 +1140,23 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
     <>
       {isPromoVisible && (
         <TopPromoBarContainer>
-          <PromoIndicator>
-            <SparkleIcon size={14} />
-          </PromoIndicator>
-          <span>پیشنهاد ویژه اولین سفارش در فودینو با کد:</span>
+          <span className="promo-leading"><SparkleIcon size={14} />۲۰٪ تخفیف</span>
           <PromoCodeButton
             type="button"
             onClick={handleCopyPromo}
-            title="کپی کد تخفیف FOODINO"
+            aria-label="کپی کد تخفیف FOODINO"
+            aria-description="تا ۵۰ هزار تومان برای خرید از ۱۰۰ هزار تومان"
+            title="تا ۵۰ هزار تومان برای خرید از ۱۰۰ هزار تومان"
           >
             {copiedPromo ? <CheckCircleIcon size={13} /> : <CopyIcon size={13} />}
             <span>FOODINO</span>
           </PromoCodeButton>
-          <span>(۲۰٪ تخفیف تا سقف ۵۰ هزار تومان)</span>
-          <PromoCloseButton onClick={handleDismissPromo} aria-label="بستن اعلان">
+          <span className="conditions">تا ۵۰ هزار تومان برای خرید از ۱۰۰ هزار تومان</span>
+          <details>
+            <summary>شرایط</summary>
+            <p>۲۰٪ تخفیف تا ۵۰ هزار تومان برای خرید از ۱۰۰ هزار تومان.</p>
+          </details>
+          <PromoCloseButton type="button" onClick={handleDismissPromo} aria-label="بستن اعلان">
             <CloseIcon size={14} />
           </PromoCloseButton>
         </TopPromoBarContainer>
@@ -1210,6 +1223,7 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
                   <SearchVectorIcon size={16} />
                 </SearchIconWrap>
                 <SearchInput
+                  maxLength={MAX_CATALOG_QUERY_LENGTH}
                   ref={searchInputRef}
                   type="text"
                   placeholder={t("search")}
@@ -1244,7 +1258,7 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
                   <>
                     <DropdownSectionTitle>
                       <FlameIcon size={14} style={{ color: "#D9381E" }} />
-                      <span>جستجوهای پرطرفدار</span>
+                      <span>پیشنهادهای جست‌وجو</span>
                     </DropdownSectionTitle>
                     <TrendingTagsRow>
                       {TRENDING_SEARCHES.map((tag) => (
@@ -1298,7 +1312,7 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
                               </ResultThumbWrap>
                               <ResultInfo>
                                 <h4>{res.name}</h4>
-                                <p>{res.description || "سفارش آنلاین با ارسال اکسپرس"}</p>
+                                <p>{res.description}</p>
                               </ResultInfo>
                               <ResultPriceOrRating>
                                 <StarIcon size={12} style={{ color: "#E59A11" }} />
@@ -1313,15 +1327,15 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
                     {matchingProducts.length > 0 && (
                       <SearchResultsGroup>
                         <DropdownSectionTitle>
-                          <span>غذاهای منطبق</span>
+                          <span>غذاها</span>
                         </DropdownSectionTitle>
                         {matchingProducts.map((p) => {
                           const kind = resolveFoodKind(p.name, p.description);
-                          const res = MOCK_RESTAURANTS.find((r) => r.id === p.restaurantId);
+
                           return (
                             <ResultItemLink
                               key={p.id}
-                              href={res ? `/restaurants/${res.slug}` : "/restaurants"}
+                              href={`/products/${p.slug}`}
                               onClick={() => {
                                 setIsSearchFocused(false);
                                 setSearchTerm("");
@@ -1332,10 +1346,10 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
                               </ResultThumbWrap>
                               <ResultInfo>
                                 <h4>{p.name}</h4>
-                                <p>{res ? res.name : "منوی آنلاین فودینو"}</p>
+                                <p>{p.restaurantName}</p>
                               </ResultInfo>
                               <ResultPriceOrRating>
-                                <span>{formatPrice(p.price.amountIrr)}</span>
+                                <span>{formatPrice(p.priceIrr)}</span>
                               </ResultPriceOrRating>
                             </ResultItemLink>
                           );
@@ -1343,7 +1357,7 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
                       </SearchResultsGroup>
                     )}
 
-                    {matchingRestaurants.length === 0 && matchingProducts.length === 0 && (
+                    {currentResults && matchingRestaurants.length === 0 && matchingProducts.length === 0 && (
                       <div style={{ textAlign: "center", padding: "1.25rem 0.5rem", color: "#6E6055" }}>
                         <p style={{ fontSize: "0.88rem", fontWeight: 700, margin: "0 0 0.35rem" }}>
                           موردی با عنوان «{searchTerm}» یافت نشد
@@ -1462,6 +1476,7 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
                   <SearchVectorIcon size={16} />
                 </SearchIconWrap>
                 <SearchInput
+                  maxLength={MAX_CATALOG_QUERY_LENGTH}
                   ref={mobileSearchInputRef}
                   type="text"
                   placeholder="جستجوی رستوران یا غذا..."
@@ -1488,7 +1503,7 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
             <div style={{ marginTop: "0.65rem" }}>
               <DropdownSectionTitle>
                 <FlameIcon size={13} style={{ color: "#D9381E" }} />
-                <span>پرطرفدارها:</span>
+                <span>پیشنهادهای جست‌وجو</span>
               </DropdownSectionTitle>
               <TrendingTagsRow style={{ marginBottom: "0.35rem" }}>
                 {TRENDING_SEARCHES.map((tag) => (
@@ -1528,6 +1543,7 @@ const Header = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
               <SearchVectorIcon size={16} />
             </SearchIconWrap>
             <SearchInput
+              maxLength={MAX_CATALOG_QUERY_LENGTH}
               type="text"
               placeholder="جستجوی رستوران یا غذا..."
               value={searchTerm}

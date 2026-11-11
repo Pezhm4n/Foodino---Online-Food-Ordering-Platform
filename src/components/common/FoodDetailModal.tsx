@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useId } from "react";
+import React, { useState, useEffect, useCallback, useId, useRef } from "react";
+import { createPortal } from "react-dom";
 import styled from "styled-components";
 import { useCart } from "@/contexts/CartContext";
 import { ORDER_NOTE_MAX_LENGTH } from "@/lib/validation/cart";
@@ -84,6 +85,10 @@ const Overlay = styled.div<{ $isOpen: boolean; $isClosing?: boolean }>`
     align-items: flex-end;
     padding: 0;
   }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
 `;
 
 const ModalCard = styled.div<{ $isClosing?: boolean }>`
@@ -127,11 +132,15 @@ const ModalCard = styled.div<{ $isClosing?: boolean }>`
   }
 
   @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
-    max-height: 88vh;
+    max-height: 88dvh;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
     border-top-left-radius: 1.5rem;
     border-top-right-radius: 1.5rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
   }
 `;
 
@@ -177,8 +186,8 @@ const CloseButton = styled.button`
   position: absolute;
   top: 1rem;
   left: 1rem;
-  width: 38px;
-  height: 38px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   border: 1px solid rgba(255, 255, 255, 0.2);
   background: rgba(22, 18, 15, 0.65);
@@ -427,8 +436,8 @@ const QuantityBox = styled.div`
 `;
 
 const QtyBtn = styled.button`
-  width: 34px;
-  height: 34px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -498,37 +507,71 @@ export default function FoodDetailModal({
   const noteId = useId();
   const [isClosing, setIsClosing] = useState(false);
   const { addItem } = useCart();
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   const handleClose = useCallback(() => {
-    if (isClosing) return;
+    if (closeTimer.current !== null) return;
     setIsClosing(true);
-    setTimeout(() => {
+    closeTimer.current = setTimeout(() => {
+      closeTimer.current = null;
       onClose();
       setIsClosing(false);
       setQuantity(1);
       setNotes("");
-    }, 190);
-  }, [isClosing, onClose]);
+    }, window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 190);
+  }, [onClose]);
+
+  useEffect(() => () => {
+    if (closeTimer.current !== null) clearTimeout(closeTimer.current);
+  }, []);
 
   useEffect(() => {
     if (!isOpen) return;
 
     const prevOverflow = document.body.style.overflow;
+    const prevRootOverflow = document.documentElement.style.overflow;
+    const previousFocus = document.activeElement;
     document.body.style.overflow = "hidden";
     document.documentElement.style.overflow = "hidden";
+    closeButtonRef.current?.focus({ preventScroll: true });
+
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      document.documentElement.style.overflow = prevRootOverflow;
+      if (previousFocus instanceof HTMLElement && previousFocus.isConnected) {
+        previousFocus.focus({ preventScroll: true });
+      }
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
+        e.preventDefault();
         handleClose();
+      }
+      if (e.key === "Tab") {
+        const controls = Array.from(dialogRef.current?.querySelectorAll<HTMLElement>(
+          'button:not(:disabled), textarea:not(:disabled), a[href]',
+        ) ?? []).filter((control) => control.getClientRects().length > 0);
+        const first = controls[0];
+        const last = controls.at(-1);
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last?.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first?.focus();
+        }
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.body.style.overflow = prevOverflow;
-      document.documentElement.style.overflow = "";
-      window.removeEventListener("keydown", handleKeyDown);
-    };
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, handleClose]);
 
   if (!isOpen || !dish) return null;
@@ -544,7 +587,8 @@ export default function FoodDetailModal({
   const lineTotal = activeDish.price * quantity;
 
   const handleAddToCart = () => {
-    addItem({
+    if (closeTimer.current !== null) return;
+    const accepted = addItem({
       id: `${dish.id}:item`,
       productId: dish.id,
       restaurantId: dish.restaurantId,
@@ -555,10 +599,10 @@ export default function FoodDetailModal({
       addonIds: [],
       notes: notes.trim() || undefined,
     });
-    handleClose();
+    if (accepted) handleClose();
   };
 
-  return (
+  return createPortal(
     <Overlay
       $isOpen={isOpen}
       $isClosing={isClosing}
@@ -566,6 +610,7 @@ export default function FoodDetailModal({
       role="presentation"
     >
       <ModalCard
+        ref={dialogRef}
         $isClosing={isClosing}
         role="dialog"
         aria-modal="true"
@@ -575,7 +620,7 @@ export default function FoodDetailModal({
         <DragHandle aria-hidden="true" />
         <ModalHeader $bgStart={palette.bgStart} $bgEnd={palette.bgEnd}>
           <DishArtwork kind={kind} size={146} variant="hero" />
-          <CloseButton onClick={handleClose} aria-label="بستن جزئیات غذا">
+          <CloseButton ref={closeButtonRef} type="button" onClick={handleClose} aria-label="بستن جزئیات غذا">
             <CloseIcon size={16} />
           </CloseButton>
           <BadgeContainer>
@@ -700,7 +745,7 @@ export default function FoodDetailModal({
           </MobileFooterRow>
 
           <MobileOnlyBtnWrapper>
-            <AddToCartBtn type="button" onClick={handleAddToCart}>
+            <AddToCartBtn type="button" disabled={isClosing} onClick={handleAddToCart}>
               <span>افزودن به سبد خرید</span>
               <span style={{ opacity: 0.85 }}>•</span>
               <span style={{ fontVariantNumeric: "tabular-nums" }}>
@@ -743,13 +788,14 @@ export default function FoodDetailModal({
                   <PlusIcon size={14} />
                 </QtyBtn>
               </QuantityBox>
-              <AddToCartBtn type="button" onClick={handleAddToCart}>
+              <AddToCartBtn type="button" disabled={isClosing} onClick={handleAddToCart}>
                 افزودن به سبد خرید
               </AddToCartBtn>
             </ControlsGroup>
           </DesktopFooterControls>
         </ModalFooter>
       </ModalCard>
-    </Overlay>
+    </Overlay>,
+    document.body,
   );
 }

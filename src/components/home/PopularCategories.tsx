@@ -124,11 +124,14 @@ const CategoriesGrid = styled.div`
   }
 `;
 
-const CategoryCardMotion = styled.div`
+const CategoryLink = styled(Link).attrs<{ 'data-landing-card'?: string }>({ "data-landing-card": "" })`
   display: flex;
+  min-width: 0;
+  border-radius: 1.35rem;
+  text-decoration: none;
 `;
 
-const CategoryCard = styled(Link)`
+const CategoryCard = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
@@ -139,22 +142,28 @@ const CategoryCard = styled(Link)`
   background: #ffffff;
   border: 1px solid ${(props) => props.theme.colors.neutral[200]};
   box-shadow: 0 4px 14px -4px rgba(22, 18, 15, 0.05);
-  transition: transform 240ms var(--ease-out),
+  transition: transform 300ms var(--ease-out),
     box-shadow 240ms var(--ease-out),
     border-color 240ms var(--ease-out);
   text-decoration: none;
   overflow: hidden;
 
   @media (hover: hover) and (pointer: fine) {
-    &:hover {
-      transform: translateY(-6px);
+    ${CategoryLink}:hover & {
+      transform: translateY(-8px);
       box-shadow: 0 22px 36px -12px rgba(22, 18, 15, 0.14);
       border-color: ${(props) => props.theme.colors.primary[300]};
     }
   }
 
-  &:active {
+  ${CategoryLink}:active & {
     transform: scale(0.97);
+    border-color: ${({ theme }) => theme.colors.primary[400]};
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: box-shadow 180ms ease-out, border-color 180ms ease-out;
+    ${CategoryLink}:hover &, ${CategoryLink}:active & { transform: none; }
   }
 
   @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
@@ -177,14 +186,19 @@ const ArtworkStage = styled.div<{ $bgStart: string; $bgEnd: string }>`
   justify-content: center;
   margin-bottom: 1rem;
   box-shadow: 0 10px 20px -6px rgba(22, 18, 15, 0.22);
-  transition: transform 280ms var(--ease-out),
+  transition: transform 340ms var(--ease-out),
     box-shadow 280ms var(--ease-out);
 
   @media (hover: hover) and (pointer: fine) {
-    ${CategoryCard}:hover & {
-      transform: scale(1.09) rotate(-4deg) translateY(-2px);
+    ${CategoryLink}:hover & {
+      transform: translateY(-5px) rotate(-6deg) scale(1.15);
       box-shadow: 0 16px 26px -6px rgba(22, 18, 15, 0.28);
     }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: box-shadow 180ms ease-out;
+    ${CategoryLink}:hover & { transform: none; }
   }
 
   @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
@@ -224,7 +238,7 @@ const CategoryName = styled.h3`
   transition: color 180ms var(--ease-out);
 
   @media (hover: hover) and (pointer: fine) {
-    ${CategoryCard}:hover & {
+    ${CategoryLink}:hover & {
       color: ${(props) => props.theme.colors.primary[600]};
     }
   }
@@ -332,8 +346,8 @@ const PopularCategories = ({ initialCategories }: PopularCategoriesProps) => {
           const palette = FOOD_VISUAL_PALETTE[kind];
 
           return (
-            <CategoryCardMotion key={category.id}>
-              <CategoryCard href={`/categories/${category.slug}`}>
+            <CategoryLink key={category.id} href={`/categories/${category.slug}`}>
+              <CategoryCard>
                 <ArtworkStage
                   $bgStart={palette.bgStart}
                   $bgEnd={palette.bgEnd}
@@ -346,7 +360,7 @@ const PopularCategories = ({ initialCategories }: PopularCategoriesProps) => {
                 <CategoryName>{category.name}</CategoryName>
                 <ItemCount>{formatCount(category.count)}</ItemCount>
               </CategoryCard>
-            </CategoryCardMotion>
+            </CategoryLink>
           );
         })}
       </CategoriesGrid>

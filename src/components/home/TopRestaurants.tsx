@@ -4,6 +4,9 @@ import React from "react";
 import styled from "styled-components";
 import Link from "next/link";
 import FavoriteButton from "@/components/common/FavoriteButton";
+import type { RestaurantSummary } from "@/application/ports/catalog-repository";
+import type { FeaturedDish } from "./FeaturedDishes";
+import { irrToToman } from "@/domain/money/money";
 import {
   DishArtwork,
   resolveFoodKind,
@@ -129,7 +132,28 @@ const RestaurantsGrid = styled.div`
   }
 `;
 
-const RestaurantCard = styled.article`
+const RestaurantCard = styled.article.attrs<{ 'data-landing-card'?: string }>({ "data-landing-card": "" })`
+  display: flex;
+  min-width: 0;
+  position: relative;
+
+  @media (prefers-reduced-motion: no-preference) {
+    @media (hover: hover) and (pointer: fine) {
+      &:hover { --restaurant-lift: -8px; }
+    }
+  }
+`;
+
+const CardLink = styled(Link)`
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  border-radius: 1.35rem;
+`;
+
+const RestaurantSurface = styled.div`
   background-color: #ffffff;
   border-radius: 1.35rem;
   overflow: hidden;
@@ -138,40 +162,59 @@ const RestaurantCard = styled.article`
   display: flex;
   flex-direction: column;
   position: relative;
-  transition: transform 240ms var(--ease-out),
+  flex: 1;
+  min-width: 0;
+  transform: translateY(var(--restaurant-lift, 0px));
+  transition: transform 300ms var(--ease-out),
     box-shadow 240ms var(--ease-out),
     border-color 240ms var(--ease-out);
 
   @media (hover: hover) and (pointer: fine) {
-    &:hover {
-      transform: translateY(-6px);
+    ${RestaurantCard}:hover & {
       box-shadow: 0 24px 40px -12px rgba(22, 18, 15, 0.15);
       border-color: ${(props) => props.theme.colors.primary[300]};
     }
   }
 
-  &:active {
-    transform: scale(0.98);
+  ${CardLink}:active & {
+    border-color: ${({ theme }) => theme.colors.primary[400]};
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    ${CardLink}:active & { transform: translateY(var(--restaurant-lift, 0px)) scale(0.98); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: box-shadow 180ms ease-out, border-color 180ms ease-out;
   }
 `;
 
-const CardLink = styled(Link)`
-  text-decoration: none;
-  color: inherit;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
+const FavoriteSpot = styled.div`
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 3;
+
+  @media (prefers-reduced-motion: no-preference) {
+    transform: translateY(var(--restaurant-lift, 0px));
+    transition: transform 300ms var(--ease-out);
+  }
 `;
 
 const CoverArtworkMotion = styled.div`
   position: relative;
   z-index: 2;
-  transition: transform 280ms var(--ease-out);
+  transition: transform 340ms var(--ease-out);
 
   @media (hover: hover) and (pointer: fine) {
     ${RestaurantCard}:hover & {
-      transform: scale(1.09) translateY(-3px) rotate(-2deg);
+      transform: translateY(-5px) rotate(-4deg) scale(1.13);
     }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+    ${RestaurantCard}:hover & { transform: none; }
   }
 
   @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
@@ -336,7 +379,7 @@ const MetaChip = styled.span`
   gap: 0.3rem;
 `;
 
-const restaurants = [
+const restaurantVisuals = [
   {
     id: "20000000-0000-4000-8000-000000000001",
     name: "پیتزا برتر",
@@ -383,7 +426,20 @@ const restaurants = [
   },
 ];
 
-const TopRestaurants = () => {
+const TopRestaurants = ({ restaurants: catalog, menuHighlights = [], demo = false }: { restaurants: readonly RestaurantSummary[]; menuHighlights?: readonly FeaturedDish[]; demo?: boolean }) => {
+  const restaurants = catalog.map((restaurant) => {
+    const visual = restaurantVisuals.find((item) => item.slug === restaurant.slug);
+    const highlights = menuHighlights.filter((dish) => dish.restaurantId === restaurant.id);
+    return {
+      ...restaurant,
+      cuisineClue: visual?.cuisineClue ?? restaurant.slug,
+      type: restaurant.description,
+      tags: demo && visual ? visual.tags : highlights.map((dish) => dish.name),
+      rating: restaurant.rating.toLocaleString("fa-IR"),
+      deliveryTime: `${restaurant.deliveryMinutes.min.toLocaleString("fa-IR")} تا ${restaurant.deliveryMinutes.max.toLocaleString("fa-IR")} دقیقه`,
+      deliveryFee: `${irrToToman(restaurant.deliveryFee).toLocaleString("fa-IR")} تومان`,
+    };
+  });
   return (
     <SectionContainer>
       <SectionHeader>
@@ -407,58 +463,53 @@ const TopRestaurants = () => {
 
           return (
             <RestaurantCard key={restaurant.id}>
-              <div
-                style={{
-                  position: "absolute",
-                  top: "10px",
-                  left: "10px",
-                  zIndex: 10,
-                }}
-              >
+              <CardLink href={`/restaurants/${restaurant.slug}`}>
+                <RestaurantSurface>
+                  <CoverStage
+                    $bgStart={palette.bgStart}
+                    $bgEnd={palette.bgEnd}
+                  >
+                    <StatusPill>
+                      <span className="dot" />
+                      <span>سفارش می‌پذیرد</span>
+                    </StatusPill>
+                    <CoverArtworkMotion>
+                      <DishArtwork kind={kind} size={112} variant="thumb" />
+                    </CoverArtworkMotion>
+                    <RatingFloatingBadge>
+                      <StarIcon size={13} style={{ color: "#E59A11" }} />
+                      <span>{restaurant.rating}</span>
+                    </RatingFloatingBadge>
+                  </CoverStage>
+
+                  <RestaurantInfo>
+                    <RestaurantName>{restaurant.name}</RestaurantName>
+                    <RestaurantType>{restaurant.type}</RestaurantType>
+                    <TagsContainer>
+                      {restaurant.tags.map((tag, idx) => (
+                        <Tag key={idx}>{tag}</Tag>
+                      ))}
+                    </TagsContainer>
+                    <CardFooter>
+                      <MetaChip>
+                        <ClockIcon size={14} />
+                        <span>{restaurant.deliveryTime}</span>
+                      </MetaChip>
+                      <MetaChip>
+                        <CourierIcon size={14} />
+                        <span>{restaurant.deliveryFee}</span>
+                      </MetaChip>
+                    </CardFooter>
+                  </RestaurantInfo>
+                </RestaurantSurface>
+              </CardLink>
+              <FavoriteSpot>
                 <FavoriteButton
                   restaurantId={restaurant.id}
                   restaurantName={restaurant.name}
                   size="sm"
                 />
-              </div>
-              <CardLink href={`/restaurants/${restaurant.slug}`}>
-                <CoverStage
-                  $bgStart={palette.bgStart}
-                  $bgEnd={palette.bgEnd}
-                >
-                  <StatusPill>
-                    <span className="dot" />
-                    <span>سفارش می‌پذیرد</span>
-                  </StatusPill>
-                  <CoverArtworkMotion>
-                    <DishArtwork kind={kind} size={112} variant="thumb" />
-                  </CoverArtworkMotion>
-                  <RatingFloatingBadge>
-                    <StarIcon size={13} style={{ color: "#E59A11" }} />
-                    <span>{restaurant.rating}</span>
-                  </RatingFloatingBadge>
-                </CoverStage>
-
-                <RestaurantInfo>
-                  <RestaurantName>{restaurant.name}</RestaurantName>
-                  <RestaurantType>{restaurant.type}</RestaurantType>
-                  <TagsContainer>
-                    {restaurant.tags.map((tag, idx) => (
-                      <Tag key={idx}>{tag}</Tag>
-                    ))}
-                  </TagsContainer>
-                  <CardFooter>
-                    <MetaChip>
-                      <ClockIcon size={14} />
-                      <span>{restaurant.deliveryTime}</span>
-                    </MetaChip>
-                    <MetaChip>
-                      <CourierIcon size={14} />
-                      <span>{restaurant.deliveryFee}</span>
-                    </MetaChip>
-                  </CardFooter>
-                </RestaurantInfo>
-              </CardLink>
+              </FavoriteSpot>
             </RestaurantCard>
           );
         })}

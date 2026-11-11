@@ -10,6 +10,7 @@ interface RestaurantNavTabsProps {
   activeTab: RestaurantTabType;
   onChangeTab: (tab: RestaurantTabType) => void;
   menuItemCount: number;
+  reviewCount?: number;
 }
 
 const TabsBar = styled.div`
@@ -96,6 +97,7 @@ export default function RestaurantNavTabs({
   activeTab,
   onChangeTab,
   menuItemCount,
+  reviewCount,
 }: Readonly<RestaurantNavTabsProps>) {
   const numberFormatter = new Intl.NumberFormat("fa-IR");
 
@@ -132,7 +134,9 @@ export default function RestaurantNavTabs({
       >
         <StarIcon size={16} />
         <span>نظرات کاربران</span>
-        <CountBadge $active={activeTab === "reviews"}>۲۴۵</CountBadge>
+        {reviewCount !== undefined && (
+          <CountBadge $active={activeTab === "reviews"}>{numberFormatter.format(reviewCount)}</CountBadge>
+        )}
       </TabButton>
     </TabsBar>
   );

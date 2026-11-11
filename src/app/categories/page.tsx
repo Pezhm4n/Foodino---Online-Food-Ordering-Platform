@@ -23,12 +23,11 @@ export default async function CategoriesPage() {
       <header className={styles.header}>
         <span className={styles.eyebrow}>
           <SparkleIcon size={13} />
-          <span>کالکشن سبک‌های آشپزی</span>
+          <span>انتخاب غذا</span>
         </span>
         <h1>دسته‌بندی‌های غذایی</h1>
         <p>
-          غذای دلخواهتان را بر اساس سبک پخت و ذائقه انتخاب کنید تا فهرست
-          تخصصی‌ترین رستوران‌های آن حوزه نمایش داده شود.
+          نوع غذا را انتخاب کنید تا رستوران‌های آن را ببینید.
         </p>
       </header>
       <CategoryGrid categories={categories} />

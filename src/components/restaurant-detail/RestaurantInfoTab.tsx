@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import styled from "styled-components";
 import type { RestaurantSummary } from "@/application/ports/catalog-repository";
 import { irrToToman } from "@/domain/money/money";
@@ -72,12 +73,19 @@ const Row = styled.div`
     font-weight: 700;
     text-align: left;
   }
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: ${({ theme }) => theme.colors.primary[700]};
+  }
 `;
 
 const HoursPill = styled.span`
-  background: ${({ theme }) => theme.colors.success[50]};
-  color: ${({ theme }) => theme.colors.success[700]};
-  border: 1px solid ${({ theme }) => theme.colors.success[200]};
+  background: ${({ theme }) => theme.colors.neutral[50]};
+  color: ${({ theme }) => theme.colors.neutral[700]};
+  border: 1px solid ${({ theme }) => theme.colors.neutral[200]};
   padding: 0.25rem 0.65rem;
   border-radius: 9999px;
   font-size: 0.78rem;
@@ -135,19 +143,15 @@ export default function RestaurantInfoTab({
       <InfoCard>
         <h3>
           <ClockIcon size={19} />
-          <span>ساعت کاری و زمان‌بندی سفارش</span>
+          <span>زمان‌بندی و هزینهٔ سفارش</span>
         </h3>
 
         <Row>
-          <span className="label">وضعیت سرویس‌دهی:</span>
-          <HoursPill>هم‌اکنون فعال و باز است</HoursPill>
+          <span className="label">ساعت کاری:</span>
+          <HoursPill>اعلام نشده</HoursPill>
         </Row>
         <Row>
-          <span className="label">ساعت کاری ناهار و شام:</span>
-          <span className="value">همه‌روزه از ۱۱:۳۰ الی ۲۳:۴۵</span>
-        </Row>
-        <Row>
-          <span className="label">میانگین زمان آماده‌سازی و ارسال:</span>
+          <span className="label">زمان تقریبی ارسال:</span>
           <span className="value">
             {numberFormatter.format(restaurant.deliveryMinutes.min)} تا{" "}
             {numberFormatter.format(restaurant.deliveryMinutes.max)} دقیقه
@@ -172,20 +176,20 @@ export default function RestaurantInfoTab({
       <InfoCard>
         <h3>
           <MapPinIcon size={19} />
-          <span>موقعیت و محدوده سرویس‌دهی</span>
+          <span>اطلاعات رستوران و ارسال</span>
         </h3>
 
         <Row>
-          <span className="label">آدرس شعبه مرکزی:</span>
-          <span className="value">تهران، محدوده سرویس‌دهی اکسپرس فودینو</span>
+          <span className="label">نشانی رستوران:</span>
+          <span className="value">اعلام نشده</span>
         </Row>
         <Row>
-          <span className="label">شیوه‌های پرداخت مورد پذیرش:</span>
-          <span className="value">درگاه پرداخت شتاب، کارت بانکی، کیف‌پول</span>
+          <span className="label">هزینهٔ نهایی:</span>
+          <span className="value">در مرحلهٔ پرداخت</span>
         </Row>
         <Row>
-          <span className="label">پشتیبانی سفارش:</span>
-          <span className="value">پشتیبانی تلفنی و آنلاین ۲۴ ساعته</span>
+          <span className="label">پیگیری سفارش:</span>
+          <span className="value"><Link href="/order-tracking">پیگیری با کد سفارش</Link></span>
         </Row>
 
         <FeatureGrid>
@@ -194,9 +198,9 @@ export default function RestaurantInfoTab({
               <ShieldCheckIcon size={20} />
             </span>
             <div>
-              <div className="title">ضمانت سلامت غذا</div>
+              <div className="title">جزئیات غذا در منو</div>
               <div className="desc">
-                تضمین پخت بهداشتی با مواد اولیه تازه و درجه یک روز
+                قیمت و توضیح هر غذا را در منوی رستوران ببینید.
               </div>
             </div>
           </FeatureBox>
@@ -206,9 +210,9 @@ export default function RestaurantInfoTab({
               <CourierIcon size={20} />
             </span>
             <div>
-              <div className="title">باکس گرم‌نگهدارنده</div>
+              <div className="title">پیگیری تا تحویل</div>
               <div className="desc">
-                تحویل غذا با دمای مطبوع و بسته‌بندی حرارتی ضدعفونی
+                وضعیت آماده‌سازی و ارسال را بعد از ثبت سفارش ببینید.
               </div>
             </div>
           </FeatureBox>

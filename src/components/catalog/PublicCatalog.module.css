@@ -1,11 +1,11 @@
 @keyframes catalogCardRise {
   from {
-    opacity: 0;
-    transform: translateY(18px) scale(0.98);
+    opacity: 0.88;
+    translate: 0 10px;
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    translate: 0 0;
   }
 }
 
@@ -182,6 +182,7 @@
 }
 
 .card {
+  --catalog-cover-height: 158px;
   display: flex;
   flex-direction: column;
   color: inherit;
@@ -191,11 +192,9 @@
   border-radius: 1.35rem;
   overflow: hidden;
   box-shadow: 0 6px 18px -6px rgba(22, 18, 15, 0.06);
-  transition: transform 240ms cubic-bezier(0.23, 1, 0.32, 1),
-    border-color 240ms cubic-bezier(0.23, 1, 0.32, 1),
-    box-shadow 240ms cubic-bezier(0.23, 1, 0.32, 1);
+  transition: border-color 200ms var(--ease-out), box-shadow 200ms var(--ease-out);
   position: relative;
-  animation: catalogCardRise 460ms cubic-bezier(0.23, 1, 0.32, 1) both;
+  animation: catalogCardRise 280ms var(--ease-out) backwards;
 }
 
 .card:nth-child(1) { animation-delay: 40ms; }
@@ -206,21 +205,20 @@
 .card:nth-child(6) { animation-delay: 315ms; }
 
 @media (hover: hover) and (pointer: fine) {
-  .card:hover,
-  .card:focus-within {
-    transform: translateY(-6px);
+  .card:hover {
     border-color: #F49F83;
     box-shadow: 0 24px 40px -12px rgba(22, 18, 15, 0.15);
   }
 }
 
-.card:active {
-  transform: scale(0.985);
+.card:has(.cardContent:focus-visible) {
+  outline: 2px solid var(--brand-vermilion-dark);
+  outline-offset: 3px;
 }
 
 .cardCover {
   position: relative;
-  height: 158px;
+  height: var(--catalog-cover-height);
   padding: 0.85rem 1rem;
   display: flex;
   flex-direction: column;
@@ -244,6 +242,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  pointer-events: none;
+}
+
+.coverTopBar > button {
+  pointer-events: auto;
 }
 
 .openStatusBadge {
@@ -278,12 +281,6 @@
   transition: transform 280ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-@media (hover: hover) and (pointer: fine) {
-  .card:hover .coverArtworkLink {
-    transform: scale(1.09) translateY(-3px) rotate(-2deg);
-  }
-}
-
 .coverBottomBar {
   position: relative;
   z-index: 3;
@@ -291,6 +288,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
+  pointer-events: none;
 }
 
 .cuisineBadge {
@@ -323,7 +321,20 @@
   flex-direction: column;
   gap: 0.65rem;
   flex: 1;
+  transition: background-color 140ms;
+  -webkit-tap-highlight-color: rgba(184, 43, 20, 0.18);
 }
+
+.cardContent::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: var(--catalog-cover-height);
+  z-index: 2;
+}
+
+.cardContent:focus-visible { outline: none; }
+.cardContent:active { background-color: #FEF4F0; }
 
 .cardHeader {
   display: flex;
@@ -338,8 +349,8 @@
   flex: 1;
 }
 
-.titleLink:hover h2 {
-  color: #D9381E;
+.cardContent:focus-visible h2 {
+  color: var(--brand-vermilion-dark);
 }
 
 .card h2,
@@ -438,13 +449,13 @@
   align-items: center;
   gap: 0.35rem;
   text-decoration: none;
-  transition: transform 150ms ease, color 150ms ease;
+  transition: color 150ms ease;
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .viewMenuBtn:hover {
-    color: #B82B14;
-    transform: translateX(-3px);
+  .cardContent:hover h2,
+  .cardContent:hover .viewMenuBtn {
+    color: var(--brand-vermilion-dark);
   }
 }
 
@@ -465,10 +476,9 @@
   text-decoration: none;
   color: inherit;
   box-shadow: 0 6px 18px -6px rgba(22, 18, 15, 0.06);
-  transition: transform 240ms cubic-bezier(0.23, 1, 0.32, 1),
-    box-shadow 240ms cubic-bezier(0.23, 1, 0.32, 1),
-    border-color 240ms cubic-bezier(0.23, 1, 0.32, 1);
-  animation: catalogCardRise 460ms cubic-bezier(0.23, 1, 0.32, 1) both;
+  transition: box-shadow 200ms var(--ease-out), border-color 200ms var(--ease-out), background-color 140ms;
+  animation: catalogCardRise 280ms var(--ease-out) backwards;
+  -webkit-tap-highlight-color: rgba(184, 43, 20, 0.18);
 }
 
 .categoryCard:nth-child(1) { animation-delay: 40ms; }
@@ -479,14 +489,13 @@
 
 @media (hover: hover) and (pointer: fine) {
   .categoryCard:hover {
-    transform: translateY(-6px);
     border-color: #F49F83;
     box-shadow: 0 24px 40px -12px rgba(22, 18, 15, 0.15);
   }
 }
 
 .categoryCard:active {
-  transform: scale(0.98);
+  background-color: #FEF4F0;
 }
 
 .categoryBanner {
@@ -511,12 +520,6 @@
 
 .categoryArtWrap {
   transition: transform 240ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .categoryCard:hover .categoryArtWrap {
-    transform: scale(1.07) rotate(-2deg);
-  }
 }
 
 .categoryBody {
@@ -552,6 +555,29 @@
   font-size: 0.84rem;
   font-weight: 800;
   color: #D9381E;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .viewMenuBtn > svg,
+  .categoryFooter > svg { transition: translate 200ms var(--ease-out); }
+
+  .card:has(.cardContent:focus-visible) .coverArtworkLink,
+  .categoryCard:focus-visible .categoryArtWrap {
+    transform: translateY(-4px) rotate(-3deg) scale(1.1);
+  }
+
+  .cardContent:focus-visible .viewMenuBtn > svg,
+  .categoryCard:focus-visible .categoryFooter > svg { translate: -4px 0; }
+
+  @media (hover: hover) and (pointer: fine) {
+    .card:hover .coverArtworkLink,
+    .categoryCard:hover .categoryArtWrap {
+      transform: translateY(-4px) rotate(-3deg) scale(1.1);
+    }
+
+    .cardContent:hover .viewMenuBtn > svg,
+    .categoryCard:hover .categoryFooter > svg { translate: -4px 0; }
+  }
 }
 
 /* Empty, More, Back */
@@ -639,6 +665,8 @@
   .statusDot {
     animation: none !important;
   }
+  .card, .cardContent, .categoryCard, .card h2, .viewMenuBtn,
+  .coverArtworkLink, .categoryArtWrap { transition: none; }
 }
 
 @media (max-width: 52rem) {
@@ -688,8 +716,8 @@
     font-size: 0.76rem;
     min-height: 34px;
   }
+  .card { --catalog-cover-height: 132px; }
   .cardCover {
-    height: 132px;
     padding: 0.7rem 0.85rem;
   }
   .coverArtworkLink svg {

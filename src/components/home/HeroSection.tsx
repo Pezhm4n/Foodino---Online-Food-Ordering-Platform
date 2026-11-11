@@ -1,39 +1,30 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
-import styled, { keyframes } from "styled-components";
+import React, { useState, useRef, useEffect, useSyncExternalStore } from "react";
+import styled from "styled-components";
+import { motionTokens, sectionArrival } from "@/styles/motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import type { FeaturedDish } from "./FeaturedDishes";
+import { motion, AnimatePresence, MotionConfig, useMotionValue, useSpring } from "framer-motion";
+import { FiPause, FiPlay } from "react-icons/fi";
 import {
   DishArtwork,
+  resolveFoodKind,
   type FoodVisualKind,
   SearchIcon as SearchVectorIcon,
   StarIcon,
   ClockIcon,
-  FlameIcon,
   ShieldCheckIcon,
   ArrowLeftIcon,
   SparkleIcon,
 } from "@/components/ui/FoodVisuals";
 
-const eyebrowPulse = keyframes`
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(217, 56, 30, 0.45);
-  }
-  70% {
-    box-shadow: 0 0 0 7px rgba(217, 56, 30, 0);
-  }
-`;
-
-const ambientOrbDrift = keyframes`
-  0%, 100% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  50% {
-    transform: translate3d(-18px, 12px, 0) scale(1.06);
-  }
-`;
+const subscribeToMotion = (notify: () => void) => {
+  const query = window.matchMedia("(prefers-reduced-motion: reduce)");
+  query.addEventListener("change", notify);
+  return () => query.removeEventListener("change", notify);
+};
 
 const HeroSectionOuter = styled.section`
   position: relative;
@@ -67,11 +58,6 @@ const HeroSectionOuter = styled.section`
       rgba(217, 56, 30, 0) 70%
     );
     pointer-events: none;
-    animation: ${ambientOrbDrift} 9s ease-in-out infinite;
-
-    @media (prefers-reduced-motion: reduce) {
-      animation: none;
-    }
   }
 
   @media (max-width: ${(props) => props.theme.breakpoints.md}) {
@@ -94,7 +80,7 @@ const HeroGrid = styled.div`
   z-index: 1;
 
   @media (max-width: ${(props) => props.theme.breakpoints.lg}) {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 2rem;
   }
 
@@ -104,9 +90,14 @@ const HeroGrid = styled.div`
 `;
 
 const ContentColumn = styled.div`
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+
+  @media (prefers-reduced-motion: no-preference) {
+    animation: ${sectionArrival} ${motionTokens.duration.slow} ${motionTokens.easing.subtleSpring};
+  }
 
   @media (max-width: ${(props) => props.theme.breakpoints.lg}) {
     align-items: center;
@@ -133,11 +124,6 @@ const EditorialEyebrow = styled.div`
     height: 8px;
     border-radius: 50%;
     background: ${(props) => props.theme.colors.primary[500]};
-    animation: ${eyebrowPulse} 2.2s infinite;
-
-    @media (prefers-reduced-motion: reduce) {
-      animation: none;
-    }
   }
 
   @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
@@ -430,6 +416,7 @@ const MetricsStrip = styled.div`
   border-top: 1px solid ${(props) => props.theme.colors.neutral[200]};
 
   @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.9rem;
     margin-top: 1.35rem;
     padding-top: 1.1rem;
@@ -550,7 +537,7 @@ const SHOWCASE_DISHES: readonly ShowcaseDish[] = [
     price: "۲۹۰,۰۰۰ تومان",
     restaurant: "سوشی تاکو",
     calories: "۴۸۰ کیلوکالری",
-    tempTag: "بسته‌بندی ایزوله سرد",
+    tempTag: "بسته‌بندی خنک",
     stageBg: "linear-gradient(145deg, #131F2B 0%, #243E54 100%)",
     accentColor: "#15803D",
     link: "/restaurants/sushi-tako",
@@ -563,13 +550,21 @@ const VisualStageColumn = styled.div`
   justify-content: center;
   align-items: center;
   perspective: 1200px;
+  width: 100%;
+  max-width: 470px;
+  justify-self: center;
+
+  @media (prefers-reduced-motion: no-preference) {
+    animation: ${sectionArrival} ${motionTokens.duration.slow} ${motionTokens.easing.subtleSpring} 50ms backwards;
+  }
+
+  &[data-motion-paused="true"] .foodino-dish-hero,
+  &[data-motion-paused="true"] .foodino-dish-hero * {
+    animation-play-state: paused !important;
+  }
 `;
 
-const StageBentoCard = styled.div<{
-  $rx: number;
-  $ry: number;
-  $isInteractive: boolean;
-}>`
+const StageBentoCard = styled(motion.div)`
   width: 100%;
   max-width: 470px;
   background: #ffffff;
@@ -579,13 +574,21 @@ const StageBentoCard = styled.div<{
   box-shadow: 0 28px 60px -15px rgba(22, 18, 15, 0.16),
     0 6px 16px -4px rgba(22, 18, 15, 0.06);
   transform-style: preserve-3d;
-  transform: perspective(1000px) rotateX(${(props) => props.$rx}deg)
-    rotateY(${(props) => props.$ry}deg);
-  transition: ${(props) =>
-    props.$isInteractive
-      ? "transform 90ms ease-out"
-      : "transform 480ms var(--ease-out)"};
   position: relative;
+  transition: translate 300ms var(--ease-out), box-shadow 260ms ease-out,
+    border-color 200ms ease-out;
+
+  @media (hover: hover) and (pointer: fine) {
+    ${VisualStageColumn}:hover & {
+      box-shadow: 0 36px 66px -18px rgba(22, 18, 15, 0.28),
+        0 10px 24px -8px rgba(22, 18, 15, 0.12);
+      border-color: ${({ theme }) => theme.colors.primary[300]};
+    }
+  }
+
+  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    ${VisualStageColumn}:hover & { translate: 0 -6px; }
+  }
 
   @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
     padding: 0.9rem;
@@ -662,6 +665,17 @@ const ArtworkPlateTrigger = styled(motion.button)`
   display: flex;
   align-items: center;
   justify-content: center;
+
+  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    transition: translate 340ms var(--ease-out), scale 340ms var(--ease-out),
+      rotate 340ms var(--ease-out);
+
+    ${VisualStageColumn}:hover & {
+      translate: 0 -7px;
+      scale: 1.12;
+      rotate: -4deg;
+    }
+  }
 
   @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
     min-height: 132px;
@@ -846,45 +860,73 @@ const OrderRestaurantLink = styled(Link)`
   }
 `;
 
-const HeroSection = () => {
+const HeroSection = ({ dishes, demo = false }: { dishes: readonly FeaturedDish[]; demo?: boolean }) => {
+  const showcaseDishes = dishes.map((dish) => {
+    const visual = SHOWCASE_DISHES.find((item) => item.id === resolveFoodKind(dish.slug, dish.name)) ?? SHOWCASE_DISHES[0];
+    return {
+      ...visual,
+      title: dish.name,
+      subtitle: dish.description,
+      rating: dish.restaurantRating.toLocaleString("fa-IR"),
+      prepTime: `${dish.deliveryMinutes.min.toLocaleString("fa-IR")} تا ${dish.deliveryMinutes.max.toLocaleString("fa-IR")} دقیقه`,
+      price: `${dish.price.toLocaleString("fa-IR")} تومان`,
+      restaurant: dish.restaurantName,
+      link: `/products/${dish.slug}`,
+      tempTag: demo ? visual.tempTag : "پیشنهاد فودینو",
+      calories: demo ? visual.calories : "مشاهده جزئیات غذا",
+    };
+  });
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDishIndex, setSelectedDishIndex] = useState(0);
-  const [rotate, setRotate] = useState({ x: 0, y: 0 });
+  const tiltX = useMotionValue(0);
+  const tiltY = useMotionValue(0);
+  const rotateX = useSpring(tiltX, { stiffness: 220, damping: 26 });
+  const rotateY = useSpring(tiltY, { stiffness: 220, damping: 26 });
   const [isInteractive, setIsInteractive] = useState(false);
+  const [paused, setPaused] = useState(false);
+  const [inView, setInView] = useState(false);
+  const reducedMotion = useSyncExternalStore(subscribeToMotion, () => window.matchMedia("(prefers-reduced-motion: reduce)").matches, () => false);
   const showcaseRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
-  const activeDish = SHOWCASE_DISHES[selectedDishIndex];
+  const activeDish = showcaseDishes[selectedDishIndex % showcaseDishes.length];
 
   useEffect(() => {
-    if (isInteractive) return;
+    const element = showcaseRef.current;
+    if (!element) return;
+    const observer = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting));
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [dishes.length]);
+
+  useEffect(() => {
+    if (isInteractive || paused || reducedMotion || !inView || showcaseDishes.length < 2) return;
     const timer = setInterval(() => {
-      setSelectedDishIndex((prev) => (prev + 1) % SHOWCASE_DISHES.length);
+      setSelectedDishIndex((prev) => (prev + 1) % showcaseDishes.length);
     }, 5200);
     return () => clearInterval(timer);
-  }, [isInteractive]);
+  }, [isInteractive, paused, reducedMotion, inView, showcaseDishes.length]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!showcaseRef.current) return;
+    if (!showcaseRef.current || reducedMotion || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
     const rect = showcaseRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
 
-    const rotateX = ((y - centerY) / centerY) * -5.5;
-    const rotateY = ((x - centerX) / centerX) * 5.5;
+    const rotateX = ((y - centerY) / centerY) * -7.5;
+    const rotateY = ((x - centerX) / centerX) * 7.5;
 
     setIsInteractive(true);
-    setRotate({
-      x: Number(rotateX.toFixed(2)),
-      y: Number(rotateY.toFixed(2)),
-    });
+    tiltX.set(rotateX);
+    tiltY.set(rotateY);
   };
 
   const handleMouseLeave = () => {
     setIsInteractive(false);
-    setRotate({ x: 0, y: 0 });
+    tiltX.set(0);
+    tiltY.set(0);
   };
 
   const switchDish = (index: number) => {
@@ -893,7 +935,7 @@ const HeroSection = () => {
   };
 
   const cycleNextDish = () => {
-    setSelectedDishIndex((prev) => (prev + 1) % SHOWCASE_DISHES.length);
+    setSelectedDishIndex((prev) => (prev + 1) % showcaseDishes.length);
   };
 
   const handleSearch = (e: React.FormEvent) => {
@@ -906,36 +948,36 @@ const HeroSection = () => {
   };
 
   return (
+    <MotionConfig reducedMotion="user">
     <HeroSectionOuter>
       <HeroGrid>
         <ContentColumn>
           <EditorialEyebrow>
             <span className="dot" />
-            <span>آشپزخانه‌های منتخب شهر • ارسال گرم زیر ۳۵ دقیقه</span>
+            <span>از منوی رستوران‌ها انتخاب کنید</span>
           </EditorialEyebrow>
 
           <HeroHeadline>
-            طعمِ داغِ تنور و گریل، مستقیماً از{" "}
-            <span className="highlight">بهترین رستوران‌ها</span> تا میز شما
+            امروز <span className="highlight">چی می‌چسبه؟</span>
           </HeroHeadline>
 
           <HeroLead>
-            در فودینو، منوی زنده‌ی برترین رستوران‌ها و آشپزخانه‌های تخصصی شهر را
-            مرور کنید، جزئیات و ترکیبات هر غذا را ببینید و سفارشتان را داغ و
-            تازه تحویل بگیرید.
+            غذا یا رستوران دلخواهتان را پیدا کنید و سفارش بدهید.
           </HeroLead>
 
           <SearchBoxWrapper>
-            <SearchFormCard onSubmit={handleSearch} role="search">
+            <SearchFormCard action="/restaurants" method="get" onSubmit={handleSearch} role="search">
               <SearchIconSlot>
                 <SearchVectorIcon size={20} />
               </SearchIconSlot>
               <SearchInput
-                type="text"
-                placeholder="جستجوی نام رستوران، پیتزا ناپولیتن، کباب، سوشی..."
+                type="search"
+                name="q"
+                maxLength={120}
+                placeholder="غذا یا رستوران"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                aria-label="جستجوی نام رستوران یا غذا"
+                aria-label="جست‌وجوی غذا یا رستوران"
               />
               <SearchSubmitButton type="submit">
                 <span>جستجو</span>
@@ -965,34 +1007,34 @@ const HeroSection = () => {
 
           <MetricsStrip>
             <MetricItem>
-              <strong>+۱۲۰</strong>
-              <span>رستوران و آشپزخانه منتخب</span>
+              <strong>{dishes.length.toLocaleString("fa-IR")} غذا</strong>
+              <span>در ویترین امروز</span>
             </MetricItem>
             <MetricItem>
-              <strong>۳۲ دقیقه</strong>
-              <span>میانگین زمان تحویل گرم</span>
+              <strong>{activeDish?.prepTime ?? "در منوی رستوران"}</strong>
+              <span>زمان تقریبی ارسال</span>
             </MetricItem>
             <MetricItem>
-              <strong>۴.۸ از ۵</strong>
-              <span>رضایت مشتریان تأییدشده</span>
+              <strong>{activeDish ? `${activeDish.rating} از ۵` : "منوی رستوران‌ها"}</strong>
+              <span>{activeDish ? "امتیاز رستوران این غذا" : "برای انتخاب غذا"}</span>
             </MetricItem>
           </MetricsStrip>
         </ContentColumn>
 
-        <VisualStageColumn
+        {activeDish && <VisualStageColumn
           ref={showcaseRef}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
+          data-motion-paused={paused || reducedMotion || !inView}
         >
           <StageBentoCard
-            $rx={rotate.x}
-            $ry={rotate.y}
-            $isInteractive={isInteractive}
+            style={{ transformPerspective: 1000, rotateX: reducedMotion ? 0 : rotateX, rotateY: reducedMotion ? 0 : rotateY }}
+            whileTap={reducedMotion ? undefined : { scale: 0.99 }}
           >
             <StageArtworkBox $bg={activeDish.stageBg}>
               <StageTopBadges>
-                <TelemetryPill>
-                  <FlameIcon size={14} style={{ color: "#FBBF24" }} />
+                <TelemetryPill as="button" type="button" onClick={() => setPaused((value) => !value)} aria-label={paused ? "شروع نمایش خودکار" : "توقف نمایش خودکار"} aria-pressed={paused} style={{ cursor: "pointer", fontFamily: "inherit" }}>
+                  {paused ? <FiPlay size={14} aria-hidden="true" /> : <FiPause size={14} aria-hidden="true" />}
                   <span>{activeDish.tempTag}</span>
                 </TelemetryPill>
                 <TelemetryPill>
@@ -1001,23 +1043,22 @@ const HeroSection = () => {
                 </TelemetryPill>
               </StageTopBadges>
 
-              <AnimatePresence mode="wait">
+              <AnimatePresence mode="wait" initial={false}>
                 <ArtworkPlateTrigger
                   key={activeDish.id}
                   type="button"
                   onClick={cycleNextDish}
                   aria-label="نمایش غذای بعدی در ویترین"
                   title="کلیک برای مشاهده غذای بعدی"
-                  initial={{ opacity: 0, scale: 0.88, rotate: -7, y: 12 }}
+                  initial={reducedMotion ? false : { opacity: 1, scale: 0.88, rotate: -7, y: 12 }}
                   animate={{ opacity: 1, scale: 1, rotate: 0, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.92, rotate: 6, y: -10 }}
+                  exit={{ opacity: 0, scale: 0.92, rotate: 6, y: -10, transition: { duration: 0.16 } }}
                   transition={{
                     type: "spring",
-                    duration: 0.46,
+                    duration: 0.38,
                     bounce: 0.22,
                   }}
-                  whileHover={{ scale: 1.05, rotate: -2 }}
-                  whileTap={{ scale: 0.95 }}
+                  whileTap={reducedMotion ? undefined : { scale: 0.95 }}
                 >
                   <DishArtwork
                     kind={activeDish.id}
@@ -1052,7 +1093,7 @@ const HeroSection = () => {
             </StageArtworkBox>
 
             <SwitcherTabs role="tablist" aria-label="انتخاب غذای نمونه">
-              {SHOWCASE_DISHES.map((dish, index) => {
+              {showcaseDishes.map((dish, index) => {
                 const isActive = index === selectedDishIndex;
                 return (
                   <SwitcherTab
@@ -1079,10 +1120,10 @@ const HeroSection = () => {
               })}
             </SwitcherTabs>
 
-            <AnimatePresence mode="wait">
+            <AnimatePresence mode="wait" initial={false}>
               <DishInfoArea
                 key={activeDish.id}
-                initial={{ opacity: 0, y: 8 }}
+                initial={{ opacity: 1, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -6 }}
                 transition={{ duration: 0.22, ease: [0.23, 1, 0.32, 1] }}
@@ -1111,9 +1152,10 @@ const HeroSection = () => {
               </DishInfoArea>
             </AnimatePresence>
           </StageBentoCard>
-        </VisualStageColumn>
+        </VisualStageColumn>}
       </HeroGrid>
     </HeroSectionOuter>
+    </MotionConfig>
   );
 };
 

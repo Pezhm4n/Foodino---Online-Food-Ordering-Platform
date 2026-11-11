@@ -15,6 +15,7 @@ interface RestaurantViewProps {
   products: readonly ProductMenuItem[];
   isFavorite: boolean;
   reviews?: ReviewItem[];
+  reviewCount?: number;
   canReview?: boolean;
   isLoggedIn?: boolean;
 }
@@ -35,6 +36,7 @@ export default function RestaurantView({
   products,
   isFavorite,
   reviews = [],
+  reviewCount,
   canReview = false,
   isLoggedIn = false,
 }: Readonly<RestaurantViewProps>) {
@@ -48,6 +50,7 @@ export default function RestaurantView({
         activeTab={activeTab}
         onChangeTab={setActiveTab}
         menuItemCount={products.length}
+        reviewCount={reviewCount}
       />
 
       <ContentArea>

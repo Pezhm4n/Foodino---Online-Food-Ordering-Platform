@@ -153,7 +153,7 @@ export const FOOD_VISUAL_PALETTE: Record<
     accent: '#F59E0B',
     tagBg: '#FFF7E6',
     tagColor: '#9E5F08',
-    label: 'گریل زغالی',
+    label: 'کباب زغالی',
   },
   iranian: {
     bgStart: '#2D1A0B',

@@ -10,6 +10,7 @@ import { validateAndApplyCoupon, type Coupon } from '@/domain/pricing/coupons';
 import { money } from '@/domain/money/money';
 
 export const CART_ESTIMATED_DELIVERY_TOMAN = 15_000;
+const QUANTITY_LIMIT_MESSAGE = 'به حداکثر تعداد مجاز این غذا در سبد خرید رسیده‌اید.';
 
 export interface CartItem extends CartSelection {
   id: string;
@@ -36,7 +37,7 @@ interface CartContextType {
   appliedCoupon: Coupon | null;
   discountToman: number;
   orderNote: string;
-  addItem: (item: CartItem) => void;
+  addItem: (item: CartItem) => boolean;
   removeItem: (id: string) => void;
   updateItem: (id: string, quantity: number) => void;
   setOrderNote: (note: string) => void;
@@ -108,6 +109,10 @@ function reduceCartState(state: CartState, action: CartAction): CartState {
       } catch (err) {
         if (err instanceof DomainError && err.code === 'CART_RESTAURANT_CONFLICT') {
           toast.error('شما تنها می‌توانید از یک رستوران در هر لحظه سفارش دهید');
+          return state;
+        }
+        if (err instanceof DomainError && err.code === 'INVALID_QUANTITY') {
+          toast.error(QUANTITY_LIMIT_MESSAGE, { id: 'cart-quantity-limit' });
           return state;
         }
         throw err;
@@ -315,10 +320,20 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             `سبد خرید شما شامل غذا از ${state.restaurantName || 'رستوران دیگری'} است. برای سفارش جدید، ابتدا سبد خرید را خالی کنید.`,
             { duration: 4500 }
           );
-          return;
+          return false;
+        }
+        const existing = state.items.find((candidate) => candidate.id === cartSelectionKey(item));
+        try {
+          assertCartQuantity(item.quantity);
+          assertCartQuantity((existing?.quantity ?? 0) + item.quantity);
+        } catch (err) {
+          if (!(err instanceof DomainError) || err.code !== 'INVALID_QUANTITY') throw err;
+          toast.error(QUANTITY_LIMIT_MESSAGE, { id: 'cart-quantity-limit' });
+          return false;
         }
         dispatch({ type: 'ADD_ITEM', payload: item });
         toast.success(`${item.name} به سبد خرید اضافه شد`);
+        return true;
       },
       removeItem,
       updateItem,

@@ -11,7 +11,7 @@ import {
   CourierIcon,
   SparkleIcon,
 } from "@/components/ui/FoodVisuals";
-import { searchSchema } from "@/lib/validation/search";
+import { MAX_CATALOG_QUERY_LENGTH, searchSchema } from "@/lib/validation/search";
 import {
   createSupabaseServerClient,
   requireClaims,
@@ -68,12 +68,11 @@ export default async function RestaurantsPage({ searchParams }: Props) {
       <header className={styles.header}>
         <span className={styles.eyebrow}>
           <SparkleIcon size={13} />
-          <span>کاتالوگ زنده آشپزخانه‌های منتخب</span>
+          <span>پیدا کردن غذا</span>
         </span>
         <h1>رستوران‌ها</h1>
         <p>
-          نتیجه‌ها مستقیماً از فهرست فعال فودینو خوانده می‌شوند؛ بر اساس دسته‌بندی،
-          امتیاز یا هزینه ارسال فیلتر کنید.
+          نام غذا یا رستوران را جست‌وجو کنید و منوها را ببینید.
         </p>
       </header>
 
@@ -87,6 +86,7 @@ export default async function RestaurantsPage({ searchParams }: Props) {
           aria-label="عبارت جست‌وجو"
           defaultValue={parsed.data.q ?? ""}
           name="q"
+          maxLength={MAX_CATALOG_QUERY_LENGTH}
           placeholder="نام رستوران یا نوع غذا..."
         />
         <select
@@ -106,7 +106,7 @@ export default async function RestaurantsPage({ searchParams }: Props) {
           defaultValue={parsed.data.sort}
           name="sort"
         >
-          <option value="relevance">مرتبط‌ترین</option>
+          <option value="relevance">ترتیب پیش‌فرض</option>
           <option value="rating_desc">بالاترین امتیاز</option>
           <option value="delivery_fee_asc">کمترین هزینه ارسال</option>
         </select>
