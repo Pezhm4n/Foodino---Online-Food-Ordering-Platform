@@ -1,4 +1,5 @@
 const checkoutFailures = {
+  address_not_found: { code: 'ADDRESS_UNAVAILABLE', status: 422 },
   invalid_coupon: { code: 'INVALID_COUPON', status: 422 },
   coupon_minimum_not_met: { code: 'COUPON_MINIMUM_NOT_MET', status: 422 },
   coupon_first_order_only: { code: 'COUPON_FIRST_ORDER_ONLY', status: 422 },

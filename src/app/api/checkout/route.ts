@@ -11,6 +11,7 @@ import { PaymentProviderUnavailableError } from '@/application/payments/payment-
 import { getServerEnv } from '@/infrastructure/config/server-env';
 import { createSupabaseAdminClient } from '@/infrastructure/supabase/admin';
 import { SupabasePaymentRepository } from '@/infrastructure/supabase/repositories/supabase-payment-repository';
+import { logger } from '@/infrastructure/logging/logger';
 
 export async function POST(request: Request) {
   const requestId = randomUUID();
@@ -90,6 +91,12 @@ export async function POST(request: Request) {
     }
     const failure = checkoutFailure(error);
     if (failure) return errorResponse(failure.code, failure.status, requestId);
-    return errorResponse('CHECKOUT_FAILED', 409, requestId);
+    logger.error('Checkout unavailable', {
+      requestId,
+      route: '/api/checkout',
+      errorCode: error && typeof error === 'object' && 'code' in error && typeof error.code === 'string'
+        ? error.code : 'CHECKOUT_FAILED',
+    });
+    return errorResponse('CHECKOUT_FAILED', 503, requestId);
   }
 }

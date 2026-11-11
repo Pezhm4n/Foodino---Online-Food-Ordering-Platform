@@ -6,6 +6,7 @@ import { checkoutFailure } from '@/infrastructure/http/checkout-error';
 import { assertRequestSameOrigin, InvalidOriginError } from '@/infrastructure/http/same-origin';
 import { createSupabaseServerClient, requireClaims } from '@/infrastructure/supabase/server';
 import { SupabaseOrderRepository } from '@/infrastructure/supabase/repositories/supabase-order-repository';
+import { logger } from '@/infrastructure/logging/logger';
 
 export async function POST(request: Request) {
   const requestId = randomUUID();
@@ -26,8 +27,13 @@ export async function POST(request: Request) {
   } catch (error) {
     if (error instanceof InvalidOriginError) return errorResponse('INVALID_ORIGIN', 403, requestId);
     const failure = checkoutFailure(error);
-    return failure
-      ? errorResponse(failure.code, failure.status, requestId)
-      : errorResponse('CHECKOUT_QUOTE_FAILED', 409, requestId);
+    if (failure) return errorResponse(failure.code, failure.status, requestId);
+    logger.error('Checkout quote unavailable', {
+      requestId,
+      route: '/api/checkout/quote',
+      errorCode: error && typeof error === 'object' && 'code' in error && typeof error.code === 'string'
+        ? error.code : 'CHECKOUT_QUOTE_FAILED',
+    });
+    return errorResponse('CHECKOUT_QUOTE_FAILED', 503, requestId);
   }
 }
