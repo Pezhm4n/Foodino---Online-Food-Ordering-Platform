@@ -25,6 +25,26 @@ if (nextCommand.length === 0) {
   process.stderr.write('Usage: node scripts/run-with-local-supabase.mjs <command> [...args]\n');
   process.exit(2);
 }
+if (nextCommand.includes('dev') && process.env.DEMO_MODE !== 'true') {
+  try {
+    const url = new URL('/rest/v1/restaurants?select=id&limit=1', values.API_URL);
+    const response = await fetch(url, {
+      headers: { apikey: values.PUBLISHABLE_KEY, 'Accept-Profile': 'public' },
+      signal: AbortSignal.timeout(5000),
+    });
+    await response.arrayBuffer();
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : 'unknown error';
+    process.stderr.write(
+      `Local Supabase Data API is unavailable (${reason}).\n` +
+      'Start Docker Desktop and run npm run db:start.\n' +
+      'If the stack is already running, use npx supabase stop --project-id foodino and then npm run db:start.\n',
+    );
+    process.exit(1);
+  }
+}
+
 const portFlag = nextCommand.findIndex((argument) => argument === '--port' || argument === '-p');
 const localPort = portFlag >= 0 ? nextCommand[portFlag + 1] : '3000';
 
@@ -53,5 +73,5 @@ const child = spawn(command, nextCommand.slice(1), {
 });
 child.on('exit', (code, signal) => {
   if (signal) process.kill(process.pid, signal);
-  else process.exit(code ?? 1);
+  else process.exitCode = code ?? 1;
 });
