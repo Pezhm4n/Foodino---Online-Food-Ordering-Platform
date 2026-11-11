@@ -41,7 +41,7 @@ export default function ErrorBoundary({ error, reset }: { error: Error & { diges
         مشکلی در بارگذاری رخ داد
       </h1>
       <p style={{ color: '#6E6055', fontSize: '0.95rem', lineHeight: 1.7, marginBottom: '2rem' }}>
-        ارتباط با سرور یا دریافت اطلاعات کامل نشد. لطفاً دکمه زیر را برای تلاش مجدد فشار دهید.
+        صفحه باز نشد. دوباره تلاش کنید.
       </p>
       <button
         onClick={reset}

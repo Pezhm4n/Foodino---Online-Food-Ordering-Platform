@@ -334,19 +334,18 @@ export default function FavoriteRestaurantsView({
 }: Readonly<{ initialFavorites: FavoriteRestaurant[] }>) {
   const [favorites, setFavorites] = useState<FavoriteRestaurant[]>(initialFavorites);
   const [searchQuery, setSearchQuery] = useState('');
-  const [, startTransition] = useTransition();
+  const [isPending, startTransition] = useTransition();
 
   const handleRemove = (restaurantId: string, restaurantName: string) => {
-    setFavorites(prev => prev.filter(r => r.id !== restaurantId));
-    toast.success(`${restaurantName} از علاقه‌مندی‌ها حذف شد.`);
-
     startTransition(async () => {
       const fd = new FormData();
       fd.append('restaurantId', restaurantId);
       try {
         await removeFavoriteAction(fd);
+        setFavorites(prev => prev.filter(r => r.id !== restaurantId));
+        toast.success(`${restaurantName} از علاقه‌مندی‌ها حذف شد.`);
       } catch {
-        toast.error('خطا در همگام‌سازی با سرور');
+        toast.error('تغییر علاقه‌مندی ذخیره نشد. دوباره تلاش کنید.');
       }
     });
   };
@@ -422,6 +421,7 @@ export default function FavoriteRestaurantsView({
                   <RemoveButton
                     type="button"
                     onClick={() => handleRemove(restaurant.id, restaurant.name)}
+                    disabled={isPending}
                     title="حذف از علاقه‌مندی‌ها"
                     aria-label="حذف از علاقه‌مندی‌ها"
                   >

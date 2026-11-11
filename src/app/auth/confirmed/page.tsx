@@ -186,7 +186,7 @@ export default function EmailConfirmedPage() {
             <span className="icon">
               <CheckCircleIcon size={15} />
             </span>
-            <span>رهگیری لحظه‌ای موقعیت پیک از آشپزخانه تا درب منزل</span>
+            <span>رهگیری لحظه‌ای وضعیت ارسال از آشپزخانه تا درب منزل</span>
           </FeatureItem>
         </FeaturesList>
 

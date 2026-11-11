@@ -221,7 +221,7 @@ export async function resetPasswordAction(input: unknown): Promise<AuthActionRes
       ok: false,
       code: 'INVALID_INPUT',
       fieldErrors: formatZodErrors(parsed.error.issues),
-      message: 'رمز عبور باید حداقل ۸ کاراکتر باشد.',
+      message: 'رمز عبور باید حداقل ۶ نویسه داشته باشد.',
     };
   }
   const client = await createSupabaseServerClient();

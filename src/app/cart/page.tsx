@@ -879,7 +879,7 @@ const CartPage = () => {
           </EmptyVisualWrap>
           <EmptyCartTitle>سبد خرید شما خالی است</EmptyCartTitle>
           <EmptyCartDescription>
-            هنوز غذایی به سبد خرید اضافه نکرده‌اید. از منوی رستوران‌های منتخب فودینو، غذای گرم و تازه خود را انتخاب کنید.
+            از منوی رستوران‌ها غذا انتخاب کنید تا به سبد اضافه شود.
           </EmptyCartDescription>
           <BackToRestaurantsButton href="/restaurants">
             <span>مشاهده رستوران‌ها</span>
@@ -963,7 +963,7 @@ const CartPage = () => {
 
               <OrderNoteContainer>
                 <OrderNoteLabel htmlFor="order-note-input">
-                  یادداشت سفارش برای سرآشپز یا سفیر (اختیاری)
+                  یادداشت سفارش برای رستوران یا پیک (اختیاری)
                 </OrderNoteLabel>
                 <OrderNoteTextarea
                   id="order-note-input"
@@ -1097,7 +1097,7 @@ const CartPage = () => {
 
               <TrustNote>
                 <ShieldCheckIcon size={15} />
-                <span>محاسبه دقیق سرور و تضمین کیفیت بسته‌بندی</span>
+                <span>مبلغ نهایی را پیش از پرداخت بررسی کنید.</span>
               </TrustNote>
             </CartSummary>
           </CartContent>

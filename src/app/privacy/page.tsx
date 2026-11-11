@@ -148,7 +148,7 @@ const PrivacyPage = () => {
           <List>
             <ListItem>اطلاعات حساب کاربری: نام، آدرس ایمیل، شماره تلفن و رمز عبور شما</ListItem>
             <ListItem>اطلاعات پروفایل: آدرس‌ها، تصویر پروفایل و ترجیحات غذایی</ListItem>
-            <ListItem>اطلاعات مالی: جزئیات کارت بانکی و سوابق تراکنش‌ها</ListItem>
+            <ListItem>اطلاعات پرداخت مانند مبلغ، وضعیت و شماره پیگیری تراکنش</ListItem>
           </List>
           
           <ListTitle>اطلاعات سفارش</ListTitle>
@@ -263,12 +263,7 @@ const PrivacyPage = () => {
         <SectionTitle>تماس با ما</SectionTitle>
         <SectionContent>
           <Paragraph>
-            اگر سوال یا نگرانی در مورد این سیاست حریم خصوصی یا شیوه‌های حریم خصوصی ما دارید، لطفاً با ما تماس بگیرید:
-          </Paragraph>
-          <Paragraph>
-            آدرس ایمیل: privacy@foodino.com<br />
-            شماره تلفن: 021-12345678<br />
-            آدرس پستی: تهران، خیابان ولیعصر، پلاک 123
+            برای پرسش‌های مربوط به حریم خصوصی، به <Link href="/contact">صفحهٔ تماس</Link> بروید.
           </Paragraph>
           <BackButton href="/">بازگشت به صفحه اصلی</BackButton>
         </SectionContent>

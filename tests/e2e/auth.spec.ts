@@ -22,7 +22,7 @@ test.describe('Authentication Flow and Pages', () => {
   test('renders forgot password page', async ({ page }) => {
     await page.goto('/auth/forgot-password');
     await expect(page.locator('h1, h2')).toContainText(/بازیابی|فراموشی/);
-    const emailInput = page.locator('input[type="email"]');
+    const emailInput = page.getByRole('textbox', { name: 'ایمیل', exact: true });
     await expect(emailInput).toBeVisible();
   });
 });

@@ -802,7 +802,7 @@ export default function CheckoutPage() {
               <InfoIcon size={17} />
               <span>{currentQuote && 'error' in currentQuote
                 ? currentQuote.error
-                : selection ? 'در حال دریافت مبلغ سفارش از سرور…' : 'سبد خرید شما خالی است.'}</span>
+                : selection ? 'در حال محاسبهٔ مبلغ سفارش…' : 'سبد خرید شما خالی است.'}</span>
             </NoticeBox>
           )}
           {currentQuote && 'error' in currentQuote && (

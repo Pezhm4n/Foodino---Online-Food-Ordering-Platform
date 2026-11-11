@@ -1,17 +1,19 @@
 "use client";
 
-import React, { useState } from 'react';
+import { useSyncExternalStore, type FormEvent } from 'react';
 import styled from 'styled-components';
-import { toast } from 'react-hot-toast';
+import Link from 'next/link';
+import SectionReveal from '@/components/home/LandingReveal';
+import { actionFeedback, actionFeedbackAttrs, cardIconFeedback, fieldFeedback, motionTokens } from '@/styles/motion';
 import {
-  MapPinIcon,
-  PhoneIcon,
-  ClockIcon,
+  TrackRadarIcon,
+  BagIcon,
   MailIcon,
+  MapPinIcon,
   ArrowLeftIcon,
 } from '@/components/ui/FoodVisuals';
 
-const ContactPageContainer = styled.div`
+const ContactPageContainer = styled(SectionReveal)`
   max-width: 1140px;
   margin: 0 auto;
   padding: 2rem 1.25rem 4.5rem;
@@ -56,6 +58,14 @@ const ContactInfoCard = styled.div`
   padding: 1.5rem;
   box-shadow: ${props => props.theme.shadows.xs};
   border: 1px solid ${props => props.theme.colors.neutral[200]};
+  transition: border-color ${motionTokens.duration.fast};
+
+  &:focus-within { border-color: ${({ theme }) => theme.colors.primary[400]}; }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover { border-color: ${({ theme }) => theme.colors.primary[400]}; }
+  }
+  @media (prefers-reduced-motion: reduce) { transition: none; }
+  ${cardIconFeedback}
 `;
 
 const CardTitle = styled.h3`
@@ -124,6 +134,8 @@ const FormRow = styled.div`
 
 const FormGroup = styled.div`
   margin-bottom: 1.15rem;
+
+  &:focus-within label { color: ${({ theme }) => theme.colors.primary[700]}; }
 `;
 
 const FormLabel = styled.label`
@@ -143,14 +155,7 @@ const FormInput = styled.input`
   border-radius: ${props => props.theme.borderRadius.lg};
   background-color: ${props => props.theme.colors.neutral[50]};
   color: ${props => props.theme.colors.neutral[900]};
-  outline: none;
-  transition: border-color 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
-
-  &:focus {
-    background-color: #ffffff;
-    border-color: ${props => props.theme.colors.primary[500]};
-    box-shadow: 0 0 0 3px ${props => props.theme.colors.primary[100]};
-  }
+  ${fieldFeedback}
 `;
 
 const FormTextarea = styled.textarea`
@@ -163,17 +168,10 @@ const FormTextarea = styled.textarea`
   color: ${props => props.theme.colors.neutral[900]};
   min-height: 130px;
   resize: vertical;
-  outline: none;
-  transition: border-color 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
-
-  &:focus {
-    background-color: #ffffff;
-    border-color: ${props => props.theme.colors.primary[500]};
-    box-shadow: 0 0 0 3px ${props => props.theme.colors.primary[100]};
-  }
+  ${fieldFeedback}
 `;
 
-const SubmitButton = styled.button`
+const SubmitButton = styled.button.attrs<typeof actionFeedbackAttrs>(actionFeedbackAttrs)`
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -188,18 +186,11 @@ const SubmitButton = styled.button`
   border-radius: ${props => props.theme.borderRadius.xl};
   cursor: pointer;
   box-shadow: ${props => props.theme.shadows.brand};
-  transition: background-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
-
-  @media (hover: hover) {
-    &:hover:not(:disabled) {
-      background-color: ${props => props.theme.colors.primary[600]};
-      transform: translateY(-1px);
-    }
-  }
-
-  &:active:not(:disabled) {
-    transform: scale(0.98);
-  }
+  --action-hover-bg: ${({ theme }) => theme.colors.primary[600]};
+  --action-hover-ink: #ffffff;
+  --action-press-bg: ${({ theme }) => theme.colors.primary[700]};
+  --action-hover-shadow: ${({ theme }) => theme.shadows.brand};
+  ${actionFeedback}
 
   &:disabled {
     background-color: ${props => props.theme.colors.neutral[300]};
@@ -228,7 +219,7 @@ const MapHeader = styled.div`
 `;
 
 const MapTitleGroup = styled.div`
-  h3 {
+  h2 {
     font-size: 1.1rem;
     font-weight: 800;
     color: ${props => props.theme.colors.neutral[900]};
@@ -249,8 +240,8 @@ const NavigationButtonGroup = styled.div`
   flex-wrap: wrap;
 `;
 
-const NavigationButton = styled.a`
-  min-height: 38px;
+const NavigationButton = styled(Link).attrs<typeof actionFeedbackAttrs>(actionFeedbackAttrs)`
+  min-height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -263,231 +254,128 @@ const NavigationButton = styled.a`
   background-color: ${props => props.theme.colors.neutral[50]};
   color: ${props => props.theme.colors.neutral[800]};
   border: 1px solid ${props => props.theme.colors.neutral[200]};
-  transition: border-color 0.15s ease, color 0.15s ease;
-
-  &:hover {
-    border-color: ${props => props.theme.colors.primary[400]};
-    color: ${props => props.theme.colors.primary[600]};
-  }
+  &[data-map-link] { --action-icon-shift: 0 -3px; }
+  ${actionFeedback}
 `;
 
-const MapFrameContainer = styled.div`
-  position: relative;
+const MapFrame = styled.iframe`
+  display: block;
   width: 100%;
-  height: 320px;
+  height: clamp(16rem, 42vw, 23rem);
+  border: 0;
   background: ${props => props.theme.colors.neutral[100]};
-
-  iframe {
-    width: 100%;
-    height: 100%;
-    border: 0;
-  }
 `;
 
-const ContactPage = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    subject: '',
-    message: ''
-  });
+const sampleLocation = { latitude: 35.699397, longitude: 51.067617 };
+const coordinates = sampleLocation.latitude + ',' + sampleLocation.longitude;
+const mapLinks = [
+  { label: 'نمایش در نشان', href: 'https://neshan.org/maps/share/' + coordinates },
+  {
+    label: 'نمایش در بلد',
+    href: 'https://balad.ir/location?latitude=' + sampleLocation.latitude + '&longitude=' + sampleLocation.longitude + '&zoom=15',
+  },
+  { label: 'نمایش در گوگل‌مپ', href: 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(coordinates) },
+];
+const email = 'pksarmadi@gmail.com';
+const subscribe = () => () => undefined;
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
+export default function ContactPage() {
+  const canCompose = useSyncExternalStore(subscribe, () => true, () => false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    setTimeout(() => {
-      setIsSubmitting(false);
-      toast.success('پیام شما با موفقیت دریافت شد. کارشناسان ما به زودی با شما تماس خواهند گرفت.', {
-        duration: 4000,
-      });
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        subject: '',
-        message: ''
-      });
-    }, 600);
-  };
+  function openEmail(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const subject = String(data.get('subject') ?? '').trim();
+    const message = String(data.get('message') ?? '').trim();
+    const name = String(data.get('name') ?? '').trim();
+    const reply = String(data.get('email') ?? '').trim();
+    const body = [message, name && 'نام ' + name, reply && 'ایمیل پاسخ ' + reply].filter(Boolean).join('\r\n\r\n');
+    window.location.href = 'mailto:' + email + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  }
 
   return (
     <ContactPageContainer>
-      <HeaderBlock>
-        <h1>تماس با پشتیبانی فودینو</h1>
-        <p>تیم پشتیبانی سفارش‌ها و امور رستوران‌ها در تمام ساعات شبانه‌روز آماده پاسخگویی به شماست.</p>
+      <HeaderBlock data-landing-reveal>
+        <h1>تماس با فودینو</h1>
+        <p>برای پیشنهاد یا گزارش مشکل سایت، به توسعه‌دهنده ایمیل بزنید. وضعیت و جزئیات خرید را هم می‌توانید از مسیرهای زیر ببینید.</p>
       </HeaderBlock>
 
       <ContactInfoSection>
-        <ContactInfoCard>
-          <CardTitle>
-            <IconBox>
-              <MapPinIcon size={18} />
-            </IconBox>
-            <span>دفتر مرکزی</span>
-          </CardTitle>
-          <InfoItem>تهران، خیابان ولیعصر، تقاطع خیابان بهشتی، پلاک ۴۵</InfoItem>
+        <ContactInfoCard data-landing-card>
+          <CardTitle as="h2"><IconBox data-feedback-icon><MailIcon size={18} /></IconBox>تماس با توسعه‌دهنده</CardTitle>
+          <InfoItem>برای پیشنهاد یا گزارش مشکلی در سایت.</InfoItem>
+          <NavigationButton href={'mailto:' + email}>نوشتن ایمیل <ArrowLeftIcon size={14} /></NavigationButton>
         </ContactInfoCard>
-
-        <ContactInfoCard>
-          <CardTitle>
-            <IconBox>
-              <PhoneIcon size={18} />
-            </IconBox>
-            <span>تلفن تماس</span>
-          </CardTitle>
-          <InfoItem>پشتیبانی ۲۴ ساعته: ۰۲۱ - ۸۸۴۵ ۹۲۰۰</InfoItem>
-          <InfoItem>صدای مشتریان: ۰۲۱ - ۸۸۴۵ ۹۲۰۱</InfoItem>
+        <ContactInfoCard data-landing-card>
+          <CardTitle as="h2"><IconBox data-feedback-icon><BagIcon size={18} /></IconBox>جزئیات خرید</CardTitle>
+          <InfoItem>غذاها، نشانی و مبلغ سفارش را در حساب خود ببینید.</InfoItem>
+          <NavigationButton href="/profile">دیدن سفارش‌ها <ArrowLeftIcon size={14} /></NavigationButton>
         </ContactInfoCard>
-
-        <ContactInfoCard>
-          <CardTitle>
-            <IconBox>
-              <ClockIcon size={18} />
-            </IconBox>
-            <span>ساعات پاسخگویی</span>
-          </CardTitle>
-          <InfoItem>پشتیبانی آنلاین: همه‌روزه، ۲۴ ساعته و بدون تعطیلی</InfoItem>
-          <InfoItem>امور اداری: شنبه تا چهارشنبه ۹:۰۰ الی ۱۷:۰۰</InfoItem>
+        <ContactInfoCard data-landing-card>
+          <CardTitle as="h2"><IconBox data-feedback-icon><TrackRadarIcon size={18} /></IconBox>پیگیری سفارش</CardTitle>
+          <InfoItem>اگر کد رهگیری دارید، وضعیت سفارش را ببینید.</InfoItem>
+          <NavigationButton href="/order-tracking">پیگیری سفارش <ArrowLeftIcon size={14} /></NavigationButton>
         </ContactInfoCard>
       </ContactInfoSection>
 
-      <FormContainer>
-        <FormTitle>
-          <IconBox>
-            <MailIcon size={18} />
-          </IconBox>
-          <span>ارسال پیام مستقیم</span>
-        </FormTitle>
-        <form onSubmit={handleSubmit}>
+      <FormContainer data-landing-reveal>
+        <FormTitle><IconBox><MailIcon size={18} /></IconBox>نوشتن پیام</FormTitle>
+        <InfoItem id="email-instructions">این فرم متن را در برنامهٔ ایمیل باز می‌کند. برای فرستادن پیام، در همان برنامه دکمهٔ ارسال را بزنید.</InfoItem>
+        <form method="post" onSubmit={openEmail} aria-describedby="email-instructions">
           <FormRow>
             <FormGroup>
-              <FormLabel htmlFor="name">نام و نام خانوادگی</FormLabel>
-              <FormInput
-                id="name"
-                name="name"
-                placeholder="مثال: سارا محمدی"
-                value={formData.name}
-                onChange={handleChange}
-                required
-              />
+              <FormLabel htmlFor="name">نام (اختیاری)</FormLabel>
+              <FormInput id="name" name="name" autoComplete="name" maxLength={80} />
             </FormGroup>
-
             <FormGroup>
-              <FormLabel htmlFor="email">ایمیل</FormLabel>
-              <FormInput
-                id="email"
-                name="email"
-                type="email"
-                placeholder="name@example.com"
-                value={formData.email}
-                onChange={handleChange}
-                required
-              />
+              <FormLabel htmlFor="email">ایمیل برای پاسخ (اختیاری)</FormLabel>
+              <FormInput id="email" name="email" type="email" autoComplete="email" maxLength={254} />
             </FormGroup>
           </FormRow>
-
-          <FormRow>
-            <FormGroup>
-              <FormLabel htmlFor="phone">شماره تماس (اختیاری)</FormLabel>
-              <FormInput
-                id="phone"
-                name="phone"
-                placeholder="۰۹۱۲۳۴۵۶۷۸۹"
-                value={formData.phone}
-                onChange={handleChange}
-              />
-            </FormGroup>
-
-            <FormGroup>
-              <FormLabel htmlFor="subject">موضوع</FormLabel>
-              <FormInput
-                id="subject"
-                name="subject"
-                placeholder="مثال: پیگیری سفارش / پیشنهاد رستوران جدید"
-                value={formData.subject}
-                onChange={handleChange}
-                required
-              />
-            </FormGroup>
-          </FormRow>
-
+          <FormGroup>
+            <FormLabel htmlFor="subject">موضوع</FormLabel>
+            <FormInput id="subject" name="subject" required maxLength={120} />
+          </FormGroup>
           <FormGroup>
             <FormLabel htmlFor="message">پیام</FormLabel>
-            <FormTextarea
-              id="message"
-              name="message"
-              placeholder="لطفاً پیام یا نظر خود را اینجا بنویسید..."
-              value={formData.message}
-              onChange={handleChange}
-              required
-            />
+            <FormTextarea id="message" name="message" required maxLength={1500} />
           </FormGroup>
-
           <div style={{ textAlign: 'left' }}>
-            <SubmitButton type="submit" disabled={isSubmitting}>
-              <span>{isSubmitting ? 'در حال ارسال...' : 'ارسال پیام'}</span>
-              <ArrowLeftIcon size={16} />
-            </SubmitButton>
+            <SubmitButton type="submit" disabled={!canCompose}>باز کردن برنامهٔ ایمیل <ArrowLeftIcon size={16} /></SubmitButton>
           </div>
         </form>
       </FormContainer>
 
-      <MapCard>
+      <MapCard data-landing-reveal>
         <MapHeader>
-          <MapTitleGroup>
-            <h3>موقعیت مکانی فودینو روی نقشه</h3>
-            <p>تهران، خیابان ولیعصر، تقاطع خیابان بهشتی، پلاک ۴۵</p>
-          </MapTitleGroup>
+          <MapTitleGroup><h2>راهنمای سفارش</h2><p>روش ثبت سفارش، استفاده از کد تخفیف و پیگیری را ببینید.</p></MapTitleGroup>
           <NavigationButtonGroup>
-            <NavigationButton
-              href="https://nshn.ir"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="مسیریابی در نشان"
-            >
-              <MapPinIcon size={14} />
-              <span>مسیریابی در نشان</span>
-            </NavigationButton>
-            <NavigationButton
-              href="https://balad.ir"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="مسیریابی در بلد"
-            >
-              <MapPinIcon size={14} />
-              <span>مسیریابی در بلد</span>
-            </NavigationButton>
-            <NavigationButton
-              href="https://maps.google.com/?q=35.699397,51.067617"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="باز کردن در گوگل مپ"
-            >
-              <MapPinIcon size={14} />
-              <span>Google Maps</span>
-            </NavigationButton>
+            <NavigationButton href="/faq">پرسش‌های متداول <ArrowLeftIcon size={14} /></NavigationButton>
           </NavigationButtonGroup>
         </MapHeader>
-        <MapFrameContainer>
-          <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d207371.97156121524!2d51.0676170642672!3d35.69939796943041!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3f8e00491ff3dcd9%3A0xf0b3697c567024bc!2sTehran%2C%20Tehran%20Province%2C%20Iran!5e0!3m2!1sen!2s!4v1647819744882!5m2!1sen!2s"
-            title="موقعیت مکانی فودینو"
-            loading="lazy"
-            allowFullScreen
-          />
-        </MapFrameContainer>
+      </MapCard>
+
+      <MapCard as="section" aria-labelledby="contact-map-title" data-landing-reveal>
+        <MapHeader>
+          <MapTitleGroup>
+            <h2 id="contact-map-title">موقعیت نمونه روی نقشه</h2>
+            <p>این پین برای نمایش نمونه در تهران است.</p>
+          </MapTitleGroup>
+          <NavigationButtonGroup>
+            {mapLinks.map(({ label, href }) => (
+              <NavigationButton key={href} href={href} target="_blank" rel="noopener noreferrer" data-map-link>
+                <MapPinIcon size={15} /> {label}
+              </NavigationButton>
+            ))}
+          </NavigationButtonGroup>
+        </MapHeader>
+        <MapFrame
+          src={'https://maps.google.com/maps?q=' + encodeURIComponent(coordinates) + '&z=15&output=embed'}
+          title="نقشهٔ موقعیت نمونه در تهران"
+          loading="lazy"
+          referrerPolicy="no-referrer"
+        />
       </MapCard>
     </ContactPageContainer>
   );
-};
-
-export default ContactPage;
+}

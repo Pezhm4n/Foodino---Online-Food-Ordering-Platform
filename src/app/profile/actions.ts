@@ -109,11 +109,13 @@ export async function deleteAddressAction(formData: FormData): Promise<void> {
 
 export async function removeFavoriteAction(formData: FormData): Promise<void> {
   await assertSameOrigin();
-  await requireUserId();
+  const userId = await requireUserId();
   const parsed = favoriteSchema.safeParse({ restaurantId: formData.get('restaurantId') });
   if (!parsed.success) throw new Error('INVALID_INPUT');
   const client = await createSupabaseServerClient();
-  const { error } = await client.from('favorites').delete().eq('restaurant_id', parsed.data.restaurantId);
+  const { error } = await client.from('favorites').delete()
+    .eq('user_id', userId)
+    .eq('restaurant_id', parsed.data.restaurantId);
   if (error) throw new Error('FAVORITE_DELETE_FAILED');
   revalidatePath('/profile');
   revalidatePath('/favorite-restaurants');

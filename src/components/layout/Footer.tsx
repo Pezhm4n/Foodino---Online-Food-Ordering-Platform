@@ -301,8 +301,8 @@ const Footer = () => {
               <ClockIcon size={20} />
             </TrustIconBox>
             <TrustText>
-              <strong>ارسال گرم و زمان‌بندی‌شده</strong>
-              <span>تحویل سریع با کیف‌های عایق حرارتی استاندارد</span>
+              <strong>زمان ارسال را ببینید</strong>
+              <span>زمان تقریبی رسیدن غذا در صفحه هر رستوران</span>
             </TrustText>
           </TrustPill>
 
@@ -311,8 +311,8 @@ const Footer = () => {
               <SparkleIcon size={20} />
             </TrustIconBox>
             <TrustText>
-              <strong>آشپزخانه‌های منتخب شهر</strong>
-              <span>مواد اولیه تازه روز و نظارت مستمر بر کیفیت پخت</span>
+              <strong>غذای دلخواهتان را پیدا کنید</strong>
+              <span>منو، قیمت و نظرهای مشتریان در کنار هم</span>
             </TrustText>
           </TrustPill>
 
@@ -321,8 +321,8 @@ const Footer = () => {
               <ShieldCheckIcon size={20} />
             </TrustIconBox>
             <TrustText>
-              <strong>تضمین رضایت و رهگیری زنده</strong>
-              <span>محاسبه شفاف قیمت در سرور و پشتیبانی تمام‌وقت</span>
+              <strong>سفارش با خیال آسوده</strong>
+              <span>دیدن مبلغ نهایی پیش از پرداخت و پیگیری سفارش</span>
             </TrustText>
           </TrustPill>
         </TopTrustStrip>
@@ -334,9 +334,8 @@ const Footer = () => {
               <span className="brand-name">فودینو</span>
             </BrandHeader>
             <BrandDescription>
-              فودینو تجربه‌ای نو از سفارش آنلاین غذاست؛ جایی که اصالت طعم،
-              آشپزخانه‌های منتخب شهر و ارسال دقیق در یک پلتفرم یکپارچه به هم
-              می‌رسند.
+              غذای دلخواهتان را در فودینو پیدا کنید، منوی رستوران‌ها را ببینید
+              و با مقایسه قیمت‌ها و نظرهای مشتریان سفارش بدهید.
             </BrandDescription>
           </FooterSection>
 

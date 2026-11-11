@@ -743,7 +743,7 @@ const AuthContent = () => {
 
         <SecurityBadge>
           <ShieldCheckIcon size={14} />
-          <span>احراز هویت امن سرور با کوکی‌های محافظت‌شده</span>
+          <span>سفارش‌هایتان را در حساب خود ببینید.</span>
         </SecurityBadge>
       </AuthCard>
     </AuthPageContainer>

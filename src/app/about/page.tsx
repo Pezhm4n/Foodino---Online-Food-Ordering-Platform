@@ -3,6 +3,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import Link from 'next/link';
+import SectionReveal from '@/components/home/LandingReveal';
+import { actionFeedback, actionFeedbackAttrs, cardIconFeedback } from '@/styles/motion';
 import {
   UtensilsIcon,
   CourierIcon,
@@ -12,7 +14,7 @@ import {
   ArrowLeftIcon,
 } from '@/components/ui/FoodVisuals';
 
-const AboutPageContainer = styled.div`
+const AboutPageContainer = styled(SectionReveal)`
   max-width: 1180px;
   margin: 0 auto;
   padding: 2.5rem 1.5rem 5rem;
@@ -139,6 +141,7 @@ const PillarCard = styled.div<{ $accent?: boolean }>`
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
+  ${cardIconFeedback}
 `;
 
 const IconContainer = styled.div`
@@ -186,6 +189,7 @@ const TeamMemberCard = styled.div`
   display: flex;
   align-items: flex-start;
   gap: 1.25rem;
+  ${cardIconFeedback}
 `;
 
 const AvatarBox = styled.div`
@@ -198,6 +202,7 @@ const AvatarBox = styled.div`
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  --feedback-icon-ink: #FDE68A;
 `;
 
 const TeamMemberInfo = styled.div`
@@ -223,6 +228,19 @@ const TeamMemberDescription = styled.p`
   color: ${props => props.theme.colors.neutral[600]};
   line-height: 1.7;
   margin: 0;
+`;
+
+const TeamLink = styled(Link).attrs<typeof actionFeedbackAttrs>(actionFeedbackAttrs)`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 44px;
+  padding-inline: 0.5rem;
+  border-radius: ${({ theme }) => theme.borderRadius.md};
+  color: ${({ theme }) => theme.colors.primary[700]};
+  font-weight: 700;
+  text-underline-offset: 0.25em;
+  ${actionFeedback}
 `;
 
 const JoinSection = styled.div`
@@ -255,7 +273,7 @@ const JoinText = styled.div`
   }
 `;
 
-const JoinButton = styled(Link)`
+const JoinButton = styled(Link).attrs<typeof actionFeedbackAttrs>(actionFeedbackAttrs)`
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -266,136 +284,81 @@ const JoinButton = styled(Link)`
   font-weight: 800;
   font-size: 0.95rem;
   text-decoration: none;
-  transition: transform 0.2s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-  }
+  --action-focus-color: #ffffff;
+  ${actionFeedback}
 `;
 
-const AboutPage = () => {
-  return (
-    <AboutPageContainer>
-      <HeroBanner>
-        <div>
-          <Kicker>داستان شکل‌گیری فودینو</Kicker>
-          <PageTitle>درباره فودینو؛ پیوند هنر آشپزی و مهندسی لجستیک</PageTitle>
-          <Subtitle>
-            فودینو در سال ۱۴۰۰ با یک مأموریت روشن متولد شد: رساندن غذای داغ و اصیل از بهترین آشپزخانه‌های شهر به میز کاربران، با استاندارد بسته‌بندی حرفه‌ای و شفافیت کامل در زمان تحویل.
-          </Subtitle>
-        </div>
-        <StatsGrid>
-          <StatBox>
-            <strong>+۱۲۰</strong>
-            <span>آشپزخانه و رستوران منتخب</span>
-          </StatBox>
-          <StatBox>
-            <strong>۳۲ دقیقه</strong>
-            <span>میانگین تحویل سفارش در شهر</span>
-          </StatBox>
-          <StatBox>
-            <strong>۹۸.۴٪</strong>
-            <span>رضایت از دمای غذای تحویلی</span>
-          </StatBox>
-          <StatBox>
-            <strong>۲۴/۷</strong>
-            <span>پشتیبانی مستقیم سفارش‌ها</span>
-          </StatBox>
-        </StatsGrid>
-      </HeroBanner>
+const AboutPage = () => (
+  <AboutPageContainer>
+    <HeroBanner data-landing-reveal>
+      <div>
+        <Kicker>سفارش آنلاین غذا</Kicker>
+        <PageTitle>درباره فودینو</PageTitle>
+        <Subtitle>
+          در فودینو می‌توانید منوی رستوران‌ها را کنار هم ببینید، غذای دلخواهتان را سفارش بدهید و تا زمان تحویل از وضعیت سفارش باخبر باشید.
+        </Subtitle>
+      </div>
+      <StatsGrid>
+        <StatBox data-landing-card><strong>منو</strong><span>غذاها و قیمت هر رستوران</span></StatBox>
+        <StatBox data-landing-card><strong>سبد</strong><span>تعداد و یادداشت هر غذا</span></StatBox>
+        <StatBox data-landing-card><strong>ارسال</strong><span>هزینه و زمان تقریبی</span></StatBox>
+        <StatBox data-landing-card><strong>پیگیری</strong><span>وضعیت سفارش تا تحویل</span></StatBox>
+      </StatsGrid>
+    </HeroBanner>
 
-      <Section>
-        <SectionHeader>
-          <h2>فلسفه کاری ما</h2>
-          <p>
-            ما باور داریم سفارش آنلاین غذا نباید به معنای افت کیفیت یا سرد شدن غذا در مسیر باشد. تمام فرآیندهای فودینو بر پایه سه اصل کلیدی طراحی شده‌اند:
-          </p>
-        </SectionHeader>
+    <Section>
+      <SectionHeader data-landing-reveal>
+        <h2>از انتخاب غذا تا تحویل</h2>
+        <p>رستوران‌ها را بر اساس نوع غذا، امتیاز یا هزینهٔ ارسال پیدا کنید.</p>
+      </SectionHeader>
+      <BentoPillars>
+        <PillarCard $accent data-landing-card>
+          <IconContainer data-feedback-icon><UtensilsIcon size={24} /></IconContainer>
+          <FeatureTitle>انتخاب از منو</FeatureTitle>
+          <FeatureDescription>توضیح، قیمت و گزینه‌های هر غذا را پیش از افزودن به سبد ببینید.</FeatureDescription>
+        </PillarCard>
+        <PillarCard data-landing-card>
+          <IconContainer data-feedback-icon><ShieldCheckIcon size={24} /></IconContainer>
+          <FeatureTitle>بررسی مبلغ سفارش</FeatureTitle>
+          <FeatureDescription>هزینهٔ ارسال و تخفیف را همراه با مبلغ نهایی پیش از پرداخت ببینید.</FeatureDescription>
+        </PillarCard>
+        <PillarCard data-landing-card>
+          <IconContainer data-feedback-icon><CourierIcon size={24} /></IconContainer>
+          <FeatureTitle>پیگیری تا تحویل</FeatureTitle>
+          <FeatureDescription>سفارش را از حساب کاربری‌تان باز کنید تا ببینید در چه مرحله‌ای است.</FeatureDescription>
+        </PillarCard>
+      </BentoPillars>
+    </Section>
 
-        <BentoPillars>
-          <PillarCard $accent>
-            <IconContainer>
-              <UtensilsIcon size={24} />
-            </IconContainer>
-            <FeatureTitle>انتخاب سخت‌گیرانه آشپزخانه‌ها</FeatureTitle>
-            <FeatureDescription>
-              تنها رستوران‌هایی وارد فهرست فودینو می‌شوند که استانداردهای بهداشتی، تازگی مواد اولیه روزانه و بسته‌بندی استاندارد حرارتی را رعایت کنند.
-            </FeatureDescription>
-          </PillarCard>
+    <Section>
+      <SectionHeader data-landing-reveal>
+        <h2>برای شروع</h2>
+      </SectionHeader>
+      <TeamGrid>
+        <TeamMemberCard data-landing-card>
+          <AvatarBox data-feedback-icon><StoreIcon size={28} /></AvatarBox>
+          <TeamMemberInfo>
+            <TeamMemberName>منوی رستوران‌ها</TeamMemberName>
+            <TeamMemberRole>برای سفارش تازه</TeamMemberRole>
+            <TeamMemberDescription><TeamLink href="/restaurants">دیدن رستوران‌ها <ArrowLeftIcon size={15} /></TeamLink></TeamMemberDescription>
+          </TeamMemberInfo>
+        </TeamMemberCard>
+        <TeamMemberCard data-landing-card>
+          <AvatarBox data-feedback-icon><UserIcon size={28} /></AvatarBox>
+          <TeamMemberInfo>
+            <TeamMemberName>سفارش‌های من</TeamMemberName>
+            <TeamMemberRole>برای خریدهای قبلی</TeamMemberRole>
+            <TeamMemberDescription><TeamLink href="/profile">رفتن به حساب کاربری <ArrowLeftIcon size={15} /></TeamLink></TeamMemberDescription>
+          </TeamMemberInfo>
+        </TeamMemberCard>
+      </TeamGrid>
+    </Section>
 
-          <PillarCard>
-            <IconContainer>
-              <CourierIcon size={24} />
-            </IconContainer>
-            <FeatureTitle>لجستیک هوشمند و سریع</FeatureTitle>
-            <FeatureDescription>
-              تخصیص خودکار نزدیک‌ترین سفیر به آشپزخانه هم‌زمان با مرحله پخت، زمان انتظار غذا پس از آماده‌سازی را به صفر نزدیک می‌کند.
-            </FeatureDescription>
-          </PillarCard>
-
-          <PillarCard>
-            <IconContainer>
-              <ShieldCheckIcon size={24} />
-            </IconContainer>
-            <FeatureTitle>شفافیت مالی و تضمین کیفیت</FeatureTitle>
-            <FeatureDescription>
-              محاسبه قیمت‌ها مستقیماً روی سرور انجام می‌شود و بیش از ۹۵٪ مشتریان تجربه سفارش خود را عالی ارزیابی کرده‌اند.
-            </FeatureDescription>
-          </PillarCard>
-        </BentoPillars>
-      </Section>
-
-      <Section>
-        <SectionHeader>
-          <h2>تیم راهبری فودینو</h2>
-          <p>
-            فودینو توسط جمعی از متخصصان صنعت غذا، عملیات لجستیک و مهندسی نرم‌افزار هدایت می‌شود.
-          </p>
-        </SectionHeader>
-
-        <TeamGrid>
-          <TeamMemberCard>
-            <AvatarBox>
-              <UserIcon size={28} />
-            </AvatarBox>
-            <TeamMemberInfo>
-              <TeamMemberName>محمد علیزاده</TeamMemberName>
-              <TeamMemberRole>مدیرعامل و هم‌بنیان‌گذار</TeamMemberRole>
-              <TeamMemberDescription>
-                با بیش از ۱۰ سال تجربه در صنعت رستوران‌داری و پلتفرم‌های دیجیتال، محمد معمار استانداردهای عملیاتی و تجربه کاربری فودینو است.
-              </TeamMemberDescription>
-            </TeamMemberInfo>
-          </TeamMemberCard>
-
-          <TeamMemberCard>
-            <AvatarBox>
-              <StoreIcon size={28} />
-            </AvatarBox>
-            <TeamMemberInfo>
-              <TeamMemberName>سارا رضایی</TeamMemberName>
-              <TeamMemberRole>مدیر شبکه رستوران‌ها و کنترل کیفیت</TeamMemberRole>
-              <TeamMemberDescription>
-                سارا مسئول ارزیابی دوره‌ای منوها، کیفیت بسته‌بندی و توسعه همکاری با برترین سرآشپزها و رستوران‌های شهر است.
-              </TeamMemberDescription>
-            </TeamMemberInfo>
-          </TeamMemberCard>
-        </TeamGrid>
-      </Section>
-
-      <JoinSection>
-        <JoinText>
-          <h2>همکاری با فودینو</h2>
-          <p>
-            اگر صاحب رستوران هستید یا علاقه‌مند به فعالیت در تیم فنی و عملیاتی فودینو هستید، مشتاق شنیدن صدای شما هستیم.
-          </p>
-        </JoinText>
-        <JoinButton href="/contact">
-          <span>تماس با تیم ما</span>
-          <ArrowLeftIcon size={16} />
-        </JoinButton>
-      </JoinSection>
-    </AboutPageContainer>
-  );
-};
+    <JoinSection data-landing-reveal>
+      <JoinText><h2>پیشنهادی برای فودینو دارید؟</h2><p>برای پیشنهاد همکاری یا گزارش مشکلی در سایت با ما تماس بگیرید.</p></JoinText>
+      <JoinButton href="/contact">تماس با فودینو <ArrowLeftIcon size={16} /></JoinButton>
+    </JoinSection>
+  </AboutPageContainer>
+);
 
 export default AboutPage;

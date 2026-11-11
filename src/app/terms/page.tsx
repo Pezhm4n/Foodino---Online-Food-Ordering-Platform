@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import Link from 'next/link';
 import styled from 'styled-components';
 
 const TermsPageContainer = styled.div`
@@ -134,9 +135,8 @@ const TermsPage = () => {
               با ثبت سفارش در فودینو، شما قرارداد خرید محصول از رستوران منتخب را منعقد می‌کنید. فودینو صرفاً واسطه بین شما و رستوران است و مسئولیت کیفیت غذا بر عهده رستوران می‌باشد.
             </Paragraph>
             <List>
-              <ListItem>قیمت محصولات شامل مالیات بر ارزش افزوده است، اما هزینه ارسال به صورت جداگانه محاسبه می‌شود.</ListItem>
+              <ListItem>هزینه ارسال و مالیات، در صورت اعمال، جداگانه پیش از پرداخت نمایش داده می‌شوند.</ListItem>
               <ListItem>تمامی پرداخت‌ها از طریق درگاه‌های مجاز بانکی انجام می‌شود و فودینو هیچ‌گونه دسترسی به اطلاعات کارت بانکی کاربران ندارد.</ListItem>
-              <ListItem>در صورت انصراف از سفارش، باید با پشتیبانی فودینو تماس بگیرید. بازگشت وجه طبق سیاست‌های هر رستوران و زمان اعلام انصراف متفاوت است.</ListItem>
             </List>
           </SectionContent>
         </Section>
@@ -187,7 +187,7 @@ const TermsPage = () => {
           <SectionTitle>تماس با ما</SectionTitle>
           <SectionContent>
             <Paragraph>
-              در صورت داشتن هرگونه سوال یا ابهام درباره قوانین و مقررات فودینو، می‌توانید از طریق ایمیل info@foodino.ir یا شماره تلفن ۰۲۱-۱۲۳۴۵۶۷۸ با ما تماس بگیرید.
+              برای پرسش دربارهٔ قوانین فودینو، به <Link href="/contact">صفحهٔ تماس</Link> بروید.
             </Paragraph>
           </SectionContent>
         </Section>
@@ -196,4 +196,4 @@ const TermsPage = () => {
   );
 };
 
-export default TermsPage; 
+export default TermsPage;

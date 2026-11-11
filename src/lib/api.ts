@@ -162,7 +162,7 @@ export const restaurantsData: Restaurant[] = [
     slug: 'kabab-khan',
     name: 'کباب خان',
     description: 'بهترین کباب‌های شهر با گوشت تازه و باکیفیت',
-    categories: ['کباب', 'ایرانی', 'گریل'],
+    categories: ['کباب', 'ایرانی', 'کبابی'],
     priceRange: 'بالا',
     rating: 4.9,
     reviewCount: 278,
@@ -354,7 +354,7 @@ export const productsData: Product[] = [
   {
     id: '4',
     name: 'سالاد سزار با مرغ',
-    description: 'سالاد تازه با کاهو، مرغ گریل شده، نان تست، پنیر پارمزان و سس مخصوص سزار',
+    description: 'سالاد تازه با کاهو، مرغ کبابی، نان تست، پنیر پارمزان و سس مخصوص سزار',
     price: 120000,
     image: '/images/products/caesar-salad.jpg',
     category: '4',
