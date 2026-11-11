@@ -1,15 +1,11 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { getServerEnv } from '@/infrastructure/config/server-env';
-
-function safeNext(value: string | null): string {
-  if (!value || !value.startsWith('/') || value.startsWith('//')) return '/';
-  return value;
-}
+import { safeInternalPath } from '@/lib/validation/internal-path';
 
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get('code');
-  const next = safeNext(request.nextUrl.searchParams.get('next'));
+  const next = safeInternalPath(request.nextUrl.searchParams.get('next'));
   const origin = request.nextUrl.origin;
 
   if (!code) {

@@ -37,9 +37,6 @@ export async function createSupabaseServerClient() {
 }
 
 export async function requireClaims() {
-  if (process.env.DEMO_MODE === 'true') {
-    return null;
-  }
   try {
     const client = await createSupabaseServerClient();
     const { data, error } = await client.auth.getClaims();

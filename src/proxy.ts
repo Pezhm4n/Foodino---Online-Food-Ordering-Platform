@@ -1,18 +1,24 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { refreshSupabaseSession } from '@/infrastructure/supabase/proxy';
+import { logger } from '@/infrastructure/logging/logger';
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const requestId = request.headers.get('x-request-id') || crypto.randomUUID();
 
   // Forward x-request-id to downstream request handlers
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set('x-request-id', requestId);
+  request.headers.set('x-request-id', requestId);
 
-  const response = NextResponse.next({
-    request: {
-      headers: requestHeaders,
-    },
-  });
+  let response = NextResponse.next({ request });
+  const hasSession = request.cookies.getAll().some(({ name }) => /^sb-.+-auth-token(?:\.\d+)?$/.test(name));
+  if (hasSession) {
+    try {
+      response = await refreshSupabaseSession(request);
+    } catch {
+      logger.error('Session refresh unavailable', { requestId, errorCode: 'AUTH_REFRESH_UNAVAILABLE' });
+      response.headers.set('Cache-Control', 'private, no-store');
+    }
+  }
 
   // Attach x-request-id to response
   response.headers.set('x-request-id', requestId);

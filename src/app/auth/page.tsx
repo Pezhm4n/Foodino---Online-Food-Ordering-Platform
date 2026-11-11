@@ -3,7 +3,8 @@
 import React, { useState, Suspense } from 'react';
 import styled from 'styled-components';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { loginAction, registerAction } from './actions';
+import { loginAction, registerAction, type AuthActionResult } from './actions';
+import { safeInternalPath } from '@/lib/validation/internal-path';
 import {
   FoodinoEmblem,
   EyeIcon,
@@ -384,14 +385,19 @@ const AuthContent = () => {
     }
 
     setIsSubmitting(true);
-    const result = await loginAction(loginForm);
-    setIsSubmitting(false);
+    let result: AuthActionResult;
+    try {
+      result = await loginAction(loginForm);
+    } catch {
+      setBanner({ text: 'ارتباط با فودینو برقرار نشد. لطفاً دوباره تلاش کنید.', type: 'error' });
+      return;
+    } finally {
+      setIsSubmitting(false);
+    }
 
     if (result.ok) {
       router.refresh();
-      const nextParam = searchParams.get('next');
-      const target = nextParam && nextParam.startsWith('/') && !nextParam.startsWith('//') ? nextParam : '/';
-      router.push(target);
+      router.push(safeInternalPath(searchParams.get('next')));
       return;
     }
 
@@ -418,16 +424,28 @@ const AuthContent = () => {
 
     setIsSubmitting(true);
     const cleanPhone = toAsciiDigits(registerForm.phone.trim());
-    const result = await registerAction({
-      email: registerForm.email.trim(),
-      password: registerForm.password,
-      firstName: registerForm.firstName.trim(),
-      lastName: registerForm.lastName.trim(),
-      phone: cleanPhone,
-    });
-    setIsSubmitting(false);
+    let result: AuthActionResult;
+    try {
+      result = await registerAction({
+        email: registerForm.email.trim(),
+        password: registerForm.password,
+        firstName: registerForm.firstName.trim(),
+        lastName: registerForm.lastName.trim(),
+        phone: cleanPhone,
+      });
+    } catch {
+      setBanner({ text: 'ارتباط با فودینو برقرار نشد. لطفاً دوباره تلاش کنید.', type: 'error' });
+      return;
+    } finally {
+      setIsSubmitting(false);
+    }
 
     if (result.ok) {
+      if (result.code !== 'EMAIL_CONFIRMATION_REQUIRED') {
+        router.refresh();
+        router.push(safeInternalPath(searchParams.get('next')));
+        return;
+      }
       setBanner({
         text: result.message || (result.code === 'EMAIL_CONFIRMATION_REQUIRED'
           ? 'لینک فعال‌سازی به ایمیل ارسال شد. لطفاً صندوق ورودی خود را بررسی کنید.'

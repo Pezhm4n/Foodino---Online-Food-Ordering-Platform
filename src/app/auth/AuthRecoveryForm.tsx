@@ -146,7 +146,7 @@ export default function AuthRecoveryForm({ mode }: Readonly<{ mode: 'forgot' | '
         ? await forgotPasswordAction({ email })
         : await resetPasswordAction({ password });
       if (!result.ok) {
-        setMessage({ text: 'درخواست انجام نشد. اطلاعات را بررسی کنید.', error: true });
+        setMessage({ text: result.message || 'درخواست انجام نشد. اطلاعات را بررسی کنید.', error: true });
         return;
       }
       if (mode === 'forgot') {

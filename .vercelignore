@@ -1,0 +1,14 @@
+.git
+.agents
+AGENTS.md
+.perfection
+.env*
+.next
+node_modules
+coverage
+test-results
+playwright-report
+*.log
+*.tsbuildinfo
+food-order-AI.svg
+food-order-AI.png
