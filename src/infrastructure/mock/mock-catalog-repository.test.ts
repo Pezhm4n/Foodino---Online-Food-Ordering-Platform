@@ -48,6 +48,11 @@ describe('MockCatalogRepository', () => {
     }
   });
 
+  it('finds a restaurant when only a dish on its menu matches', async () => {
+    const result = await repository.listRestaurants({ query: 'پپرونی', sort: 'relevance', limit: 10 });
+    expect(result.items.map((restaurant) => restaurant.slug)).toEqual(['best-pizza']);
+  });
+
   it('finds restaurant by slug and lists its full menu', async () => {
     const restaurant = await repository.findRestaurantBySlug('burger-land');
     expect(restaurant).not.toBeNull();
@@ -61,7 +66,7 @@ describe('MockCatalogRepository', () => {
   it('finds product by slug with variants and addons', async () => {
     const product = await repository.findProductBySlug('best-pizza-special');
     expect(product).not.toBeNull();
-    expect(product?.name).toBe('پیتزا مخصوص اسپشیال');
+    expect(product?.name).toBe('پیتزا مخصوص');
     expect(product?.variants.length).toBeGreaterThan(0);
     expect(product?.addons.length).toBeGreaterThan(0);
   });

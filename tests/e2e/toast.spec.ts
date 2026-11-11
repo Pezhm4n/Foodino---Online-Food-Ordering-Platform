@@ -5,7 +5,7 @@ test.use({ viewport: { width: 375, height: 667 }, isMobile: true, hasTouch: true
 test('keeps one compact announcement and dismisses it in either direction or with Close', async ({ page }) => {
   await page.goto('/restaurants/green-salad');
   const add = page.getByRole('button', {
-    name: 'افزودن سالاد سزار فیله مرغ گریل به سبد خرید',
+    name: 'افزودن سالاد سزار با مرغ کبابی به سبد خرید',
     exact: true,
   });
   const notification = page.getByRole('group', { name: 'پیام موقت', exact: true });

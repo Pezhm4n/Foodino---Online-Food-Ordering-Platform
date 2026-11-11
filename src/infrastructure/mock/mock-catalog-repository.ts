@@ -66,12 +66,14 @@ export class MockCatalogRepository implements CatalogRepository {
     }
 
     if (input.query && input.query.trim()) {
-      const q = input.query.trim().toLowerCase();
+      const q = input.query.replaceAll('*', ' ').trim().toLowerCase();
+      const matches = (value: string) => value.toLowerCase().includes(q);
+      const matchingMenus = new Set(MOCK_PRODUCTS.filter(
+        (product) => matches(product.name) || matches(product.description),
+      ).map((product) => product.restaurantId));
       filtered = filtered.filter(
         (r) =>
-          r.name.toLowerCase().includes(q) ||
-          r.description.toLowerCase().includes(q) ||
-          r.slug.toLowerCase().includes(q),
+          matches(r.name) || matches(r.description) || matches(r.slug) || matchingMenus.has(r.id),
       );
     }
 

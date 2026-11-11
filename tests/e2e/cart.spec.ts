@@ -22,7 +22,7 @@ test.describe('Cart and Item Selection', () => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/restaurants/green-salad');
     await page.getByRole('button', {
-      name: 'افزودن سالاد سزار فیله مرغ گریل به سبد خرید',
+      name: 'افزودن سالاد سزار با مرغ کبابی به سبد خرید',
       exact: true,
     }).click();
     await page.goto('/cart');
@@ -32,7 +32,7 @@ test.describe('Cart and Item Selection', () => {
     const increase = main.getByRole('button', { name: 'افزایش تعداد', exact: true });
     await expect(increase).toBeVisible();
     await expect.poll(async () => {
-      const item = await main.getByRole('heading', { name: 'سالاد سزار فیله مرغ گریل' }).boundingBox();
+      const item = await main.getByRole('heading', { name: 'سالاد سزار با مرغ کبابی' }).boundingBox();
       const button = await remove.boundingBox();
       return item && button && button.x >= 16 && button.x + button.width <= 359
         && button.y > item.y + item.height;
