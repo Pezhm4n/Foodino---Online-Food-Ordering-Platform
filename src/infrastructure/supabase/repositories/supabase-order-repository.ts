@@ -85,6 +85,7 @@ export class SupabaseOrderRepository implements OrderRepository {
     if (error) throw error;
     const result = data[0];
     return result ? {
+      isDemo: result.is_demo,
       status: result.status,
       restaurantName: result.restaurant_name,
       createdAt: result.created_at,

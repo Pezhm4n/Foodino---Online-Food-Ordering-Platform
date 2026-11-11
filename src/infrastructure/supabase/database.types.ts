@@ -62,6 +62,7 @@ export type Database = {
         Args: { p_token: string }
         Returns: {
           created_at: string
+          is_demo: boolean
           restaurant_name: string
           status: Database["public"]["Enums"]["order_status"]
           updated_at: string

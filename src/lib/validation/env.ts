@@ -12,7 +12,7 @@ const baseEnvSchema = z.object({
   SUPABASE_URL: z.url(),
   SUPABASE_PUBLISHABLE_KEY: z.string().min(20),
   SUPABASE_SECRET_KEY: z.string().min(20),
-  PAYMENT_PROVIDER: z.enum(['development', 'disabled']),
+  PAYMENT_PROVIDER: z.enum(['development', 'demo', 'disabled']),
   PAYMENT_CALLBACK_SECRET: z.string().min(32),
   RATE_LIMIT_ADAPTER: z.preprocess(
     emptyToUndefined,
@@ -33,15 +33,21 @@ const baseEnvSchema = z.object({
 });
 
 export const serverEnvSchema = baseEnvSchema.superRefine((env, context) => {
-  if (env.NODE_ENV !== 'production' || env.DEMO_MODE === 'true') return;
-
-  if (env.PAYMENT_PROVIDER === 'development') {
+  if (env.PAYMENT_PROVIDER === 'demo' && env.DEMO_MODE !== 'true') {
+    context.addIssue({
+      code: 'custom',
+      path: ['PAYMENT_PROVIDER'],
+      message: 'Demo payments require DEMO_MODE=true.',
+    });
+  }
+  if (env.NODE_ENV === 'production' && env.PAYMENT_PROVIDER === 'development') {
     context.addIssue({
       code: 'custom',
       path: ['PAYMENT_PROVIDER'],
       message: 'Development payment provider is forbidden in production.',
     });
   }
+  if (env.NODE_ENV !== 'production' || env.DEMO_MODE === 'true') return;
   if (!env.RATE_LIMIT_ADAPTER) {
     context.addIssue({
       code: 'custom',

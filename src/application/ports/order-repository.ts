@@ -8,6 +8,7 @@ export type PendingOrderResult = Readonly<{
 }>;
 
 export type PublicTracking = Readonly<{
+  isDemo: boolean;
   status: OrderStatus;
   restaurantName: string;
   createdAt: string;

@@ -17,6 +17,16 @@ const labels: Record<OrderStatus, string> = {
   canceled: 'سفارش لغو شد',
 };
 
+const demoLabels: Record<OrderStatus, string> = {
+  pending_payment: 'در انتظار پرداخت آزمایشی',
+  confirmed: 'سفارش آزمایشی تأیید شد',
+  preparing: 'نمایش آماده‌سازی غذا',
+  ready: 'نمایش آمادگی ارسال',
+  delivering: 'نمایش مسیر پیک',
+  delivered: 'نمایش تحویل تکمیل شد',
+  canceled: 'سفارش آزمایشی لغو شد',
+};
+
 const PageContainer = styled.div`
   max-width: 760px;
   margin: 0 auto;
@@ -301,6 +311,14 @@ const steps = [
   { key: 'delivered', description: 'سفارش به مقصد رسیده است. نوش جان!' },
 ] as const;
 
+const demoDescriptions: Record<(typeof steps)[number]['key'], string> = {
+  confirmed: 'پرداخت آزمایشی موفق ثبت شد. هیچ پولی جابه‌جا نشده است.',
+  preparing: 'این مرحله فقط نمایش آماده‌سازی است؛ غذای واقعی آماده نمی‌شود.',
+  ready: 'نمایش آماده بودن سفارش؛ ارسال واقعی انجام نمی‌شود.',
+  delivering: 'مسیر پیک فقط نمایشی است؛ پیک واقعی اعزام نمی‌شود.',
+  delivered: 'روند نمایشی تحویل پایان یافته است؛ تحویل واقعی انجام نشده است.',
+};
+
 const progressNodes = [
   { step: 0, title: 'رستوران', icon: StoreIcon },
   { step: 1, title: 'آماده‌سازی', icon: UtensilsIcon },
@@ -375,10 +393,11 @@ export default function TrackView({ token }: Readonly<{ token: string }>) {
   const currentStep = steps.findIndex((step) => step.key === tracking?.status);
   const reachedNodes = progressNodes.filter((node) => node.step <= currentStep).length;
   const progress = Math.max(0, reachedNodes - 1) / (progressNodes.length - 1);
+  const statusLabels = tracking?.isDemo ? demoLabels : labels;
 
   return (
     <PageContainer>
-      <Title>پیگیری سفارش</Title>
+      <Title>{tracking?.isDemo ? 'پیگیری سفارش آزمایشی' : 'پیگیری سفارش'}</Title>
       <TrackingCard aria-label="وضعیت سفارش">
         {problem === 'missing' ? (
           <TrackingNotice $tone="error" role="alert">این سفارش پیدا نشد. کد رهگیری را بررسی کنید.</TrackingNotice>
@@ -390,9 +409,12 @@ export default function TrackView({ token }: Readonly<{ token: string }>) {
             {!tracking && !problem && <p role="status">در حال بررسی وضعیت سفارش…</p>}
             {tracking && (
               <>
+                {tracking.isDemo && <TrackingNotice $tone="warning">
+                  <strong>این سفارش آزمایشی است.</strong> هیچ پولی جابه‌جا نشده است. مراحل آماده‌سازی، مسیر پیک و تحویل فقط نمایشی هستند و ارسال واقعی انجام نمی‌شود.
+                </TrackingNotice>}
                 <RestaurantHeader>
                   <h2>{tracking.restaurantName}</h2>
-                  <StatusPill role="status" $status={tracking.status}><TrackRadarIcon size={16} />{labels[tracking.status]}</StatusPill>
+                  <StatusPill role="status" $status={tracking.status}><TrackRadarIcon size={16} />{statusLabels[tracking.status]}</StatusPill>
                 </RestaurantHeader>
                 <TrackingSummary>
                   <SummaryTime>
@@ -421,8 +443,8 @@ export default function TrackView({ token }: Readonly<{ token: string }>) {
                           <StepItem key={step.key} $state={state} aria-current={index === currentStep ? 'step' : undefined}>
                             <span className="step-icon" aria-hidden="true">{state === 'completed' ? <CheckCircleIcon size={16} /> : null}</span>
                             <div className="step-content">
-                              <h3>{step.key === 'preparing' ? 'آماده‌سازی غذا' : labels[step.key]}</h3>
-                              {state !== 'upcoming' && <p>{step.description}</p>}
+                              <h3>{!tracking.isDemo && step.key === 'preparing' ? 'آماده‌سازی غذا' : statusLabels[step.key]}</h3>
+                              {state !== 'upcoming' && <p>{tracking.isDemo ? demoDescriptions[step.key] : step.description}</p>}
                             </div>
                           </StepItem>
                         );

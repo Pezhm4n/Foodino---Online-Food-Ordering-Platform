@@ -2,8 +2,10 @@ import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { routeUuidParamsSchema } from '@/lib/validation/common';
 import { createSupabaseServerClient, requireClaims } from '@/infrastructure/supabase/server';
+import { createSupabaseAdminClient } from '@/infrastructure/supabase/admin';
 import { irrToToman, money } from '@/domain/money/money';
 import TrackingLink from '@/app/orders/[id]/TrackingLink';
+import CompleteCheckoutCart from '@/app/orders/[id]/CompleteCheckoutCart';
 import {
   CheckCircleIcon,
   StoreIcon,
@@ -65,8 +67,13 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
     .from('orders')
     .select('id,status,restaurant_name_snapshot,subtotal_irr,delivery_fee_irr,tax_irr,coupon_code,discount_irr,total_irr,order_note,address_snapshot,created_at,order_items(id,product_name_snapshot,quantity,line_total_irr,note)')
     .eq('id', parsed.data.id)
+    .eq('user_id', claims.sub)
     .maybeSingle();
   if (error || !order) notFound();
+  const { data: payment, error: paymentError } = await createSupabaseAdminClient().from('payments')
+    .select('provider,status').eq('order_id', order.id).maybeSingle();
+  if (paymentError || !payment) throw new Error('PAYMENT_RECEIPT_UNAVAILABLE');
+  const isDemo = payment?.provider === 'demo';
 
   const address = (order.address_snapshot as AddressSnapshot) || {};
   const recipientName = address.recipientName || address.recipient_name || '';
@@ -97,6 +104,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
 
   return (
     <div style={{ maxWidth: '820px', margin: '0 auto', padding: 'clamp(1.5rem, 3vw, 2.75rem) clamp(1rem, 3vw, 1.5rem) clamp(3rem, 5vw, 4.5rem)', direction: 'rtl' }}>
+      {payment && <CompleteCheckoutCart orderId={order.id} paymentStatus={payment.status} />}
       <div style={{ background: '#ffffff', borderRadius: '1.5rem', padding: 'clamp(1.25rem, 3vw, 2.25rem)', boxShadow: '0 8px 24px rgba(22, 18, 15, 0.06)', border: '1px solid #E6DDD0', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         
         {/* Header with status */}
@@ -122,20 +130,27 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
           </span>
         </div>
 
+        {isDemo && <div style={{ background: '#FAF6F0', border: '1px solid #E6DDD0', borderRadius: '1rem', padding: '1rem 1.15rem', color: '#52483E', lineHeight: 1.9 }}>
+          <strong style={{ display: 'block', color: '#16120F' }}>رسید پرداخت آزمایشی{payment?.status === 'succeeded' ? ' موفق' : payment?.status === 'failed' ? ' ناموفق' : ''}</strong>
+          هیچ پولی جابه‌جا نشده است. این سفارش و روند تحویل آن نمایشی هستند و ارسال واقعی انجام نمی‌شود.
+          {order.status === 'canceled' && <div><Link href="/checkout" style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', color: '#96210F', fontWeight: 800 }}>تلاش دوباره با سبد خرید حفظ‌شده</Link></div>}
+          {order.status === 'pending_payment' && <div><Link href={`/payments/demo/${order.id}`} style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', color: '#96210F', fontWeight: 800 }}>ادامه پرداخت آزمایشی</Link></div>}
+        </div>}
+
         {/* Delivery window banner */}
         {order.status !== 'canceled' && (
           <div style={{ background: 'linear-gradient(135deg, #1F1814 0%, #31251E 100%)', color: '#FAF6F0', borderRadius: '1rem', padding: '1.15rem 1.35rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
             <div>
               <div style={{ fontSize: '0.8rem', color: 'rgba(250, 246, 240, 0.75)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                 <ClockIcon size={15} />
-                <span>زمان تقریبی تحویل سفارش</span>
+                <span>{isDemo ? 'بازهٔ نمایشی تحویل سفارش' : 'زمان تقریبی تحویل سفارش'}</span>
               </div>
               <div style={{ fontSize: '1.3rem', fontWeight: 900, color: '#FBBF24', marginTop: '0.2rem' }}>
                 {deliveryWindow.start} تا {deliveryWindow.end}
               </div>
             </div>
             <div style={{ fontSize: '0.8rem', color: '#FAF6F0', background: 'rgba(255,255,255,0.12)', padding: '0.35rem 0.85rem', borderRadius: '9999px', fontWeight: 700 }}>
-              ارسال اکسپرس فودینو
+              {isDemo ? 'نمایش روند سفارش فودینو' : 'ارسال اکسپرس فودینو'}
             </div>
           </div>
         )}
@@ -224,7 +239,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
             </div>
           )}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #E6DDD0', paddingTop: '0.85rem', marginTop: '0.25rem' }}>
-            <span style={{ fontSize: '1.05rem', fontWeight: 800, color: '#16120F' }}>مبلغ کل پرداختی:</span>
+            <span style={{ fontSize: '1.05rem', fontWeight: 800, color: '#16120F' }}>{isDemo ? 'مبلغ نمایشی سفارش:' : 'مبلغ کل پرداختی:'}</span>
             <span style={{ fontSize: '1.25rem', fontWeight: 900, color: '#D9381E' }}>{formatToman(order.total_irr)} تومان</span>
           </div>
         </div>

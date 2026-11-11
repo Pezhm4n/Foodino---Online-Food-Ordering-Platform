@@ -134,13 +134,15 @@ Examples live in [.env.example](.env.example); the actual rules live in [environ
 | `SUPABASE_PUBLISHABLE_KEY` | Project public key, consumed on the server in this architecture |
 | `SUPABASE_SECRET_KEY` | Secret key for privileged server operations |
 | `DEMO_MODE` | `true` selects demo catalog data; it does not emulate accounts or persistent orders |
-| `PAYMENT_PROVIDER` | Only `development` or `disabled` |
+| `PAYMENT_PROVIDER` | `development` for local use, `demo` with `DEMO_MODE=true` for simulated payments, or `disabled` |
 | `PAYMENT_CALLBACK_SECRET` | Development payment signing secret, at least 32 characters |
 | `RATE_LIMIT_ADAPTER` | `vercel` or `trusted-reverse-proxy`, matching the deployment |
 | `TRUSTED_PROXY_HOPS` | Trusted proxy depth, from 1 to 10 |
 | `SMTP_CONFIGURED` | Declares SMTP readiness; this flag does not configure an email service by itself |
 
-**Payments:** the repository implements a development provider with signed callbacks. It does not contain a real bank gateway adapter. The provider factory does not offer development payments in production; publishing the site and enabling real ordering and payments are separate steps.
+**Payments:** the demo gateway lets you choose a successful or failed outcome and try ordering and tracking without moving money. Enable it with `PAYMENT_PROVIDER=demo` and `DEMO_MODE=true`. The local development provider remains forbidden in production. This repository does not contain a real bank gateway adapter.
+
+**Cloud setup:** after running the migrations, expose the `public` and `api` schemas in the Supabase project's Data API settings; keep `private` unexposed. `/api/health/ready` checks both catalog and order API access. See [demo payment boundaries and cloud configuration](docs/adr/0007-explicit-demo-checkout.md).
 
 **Tracking:** order status is polled; it is not live courier GPS. Retry delays increase after connection failures, and requests pause while the tab is hidden.
 

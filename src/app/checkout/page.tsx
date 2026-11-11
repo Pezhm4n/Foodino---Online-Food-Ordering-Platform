@@ -9,6 +9,7 @@ import { useCart } from '@/contexts/CartContext';
 import type { CheckoutQuote } from '@/application/ports/order-repository';
 import type { CheckoutQuoteInput } from '@/lib/validation/checkout';
 import { irrToToman, money } from '@/domain/money/money';
+import { CART_REVISION_KEY, CHECKOUT_ATTEMPT_KEY, checkoutSubmissionKey, checkoutCartFingerprint } from '@/domain/cart/checkout-completion';
 import {
   DishArtwork,
   resolveFoodKind,
@@ -25,7 +26,7 @@ import {
 type Address = Readonly<{ id: string; title: string; city: string; addressLine: string }>;
 type QuoteResult = { key: string } & ({ quote: CheckoutQuote } | { error: string });
 type CheckoutAttempt = { request: string; id: string; addressId: string };
-const ATTEMPT_KEY = 'foodino:checkout-attempt';
+const ATTEMPT_KEY = CHECKOUT_ATTEMPT_KEY;
 
 function readAttempt(): CheckoutAttempt | null {
   try {
@@ -51,6 +52,7 @@ function isClosedAttempt(code?: string) {
 
 function checkoutMessage(code: string) {
   switch (code) {
+    case 'ADDRESS_UNAVAILABLE': return 'این نشانی دیگر در دسترس نیست. نشانی دیگری انتخاب کنید.';
     case 'INVALID_COUPON': return 'کد تخفیف معتبر نیست. آن را در سبد خرید تغییر دهید.';
     case 'COUPON_MINIMUM_NOT_MET': return 'مبلغ سفارش به حداقل لازم برای این کد تخفیف نمی‌رسد.';
     case 'COUPON_FIRST_ORDER_ONLY': return 'این کد فقط برای اولین سفارش قابل استفاده است.';
@@ -469,7 +471,6 @@ export default function CheckoutPage() {
   const router = useRouter();
   const {
     state,
-    clearCart,
     appliedCoupon,
   } = useCart();
   const attempt = useRef<CheckoutAttempt | null>(null);
@@ -572,6 +573,9 @@ export default function CheckoutPage() {
     }
     const previous = attempt.current ?? storedAttempt;
     const id = previous?.request === request ? previous.id : crypto.randomUUID();
+    const submittedFingerprint = checkoutCartFingerprint(state);
+    let submittedRevision: string | null = null;
+    try { submittedRevision = localStorage.getItem(CART_REVISION_KEY); } catch { /* Preserve the cart if storage is unavailable. */ }
     attempt.current = { request, id, addressId };
     try {
       localStorage.setItem(ATTEMPT_KEY, JSON.stringify(attempt.current));
@@ -602,6 +606,12 @@ export default function CheckoutPage() {
         code?: string;
       };
       if (!response.ok || !result.paymentUrl) {
+        if (result.code === 'ADDRESS_UNAVAILABLE') {
+          setAddressId('');
+          setAddressError(false);
+          setLoading(true);
+          setAddressRevision(value => value + 1);
+        }
         if (isClosedAttempt(result.code)) {
           forgetAttempt();
           attempt.current = null;
@@ -617,11 +627,14 @@ export default function CheckoutPage() {
         if (result.orderId && result.trackingToken) {
           sessionStorage.setItem(`foodino:tracking:${result.orderId}`, result.trackingToken);
         }
+        if (result.orderId && submittedRevision) {
+          localStorage.setItem(checkoutSubmissionKey(result.orderId), JSON.stringify({
+            fingerprint: submittedFingerprint, revision: submittedRevision, attemptId: id,
+          }));
+        }
       } catch {
         // Storage availability must not interrupt a successful checkout.
       }
-      forgetAttempt();
-      clearCart();
       window.location.assign(result.paymentUrl);
     } catch (error) {
       toast.error(checkoutMessage(error instanceof Error ? error.message : 'CHECKOUT_FAILED'));

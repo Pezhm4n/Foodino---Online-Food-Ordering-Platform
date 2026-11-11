@@ -8,6 +8,7 @@ import { toast } from 'react-hot-toast';
 
 import { validateAndApplyCoupon, type Coupon } from '@/domain/pricing/coupons';
 import { money } from '@/domain/money/money';
+import { CART_REVISION_KEY, checkoutCartFingerprint, canCompleteCheckoutCart, type CheckoutSubmission } from '@/domain/cart/checkout-completion';
 
 export const CART_ESTIMATED_DELIVERY_TOMAN = 15_000;
 const QUANTITY_LIMIT_MESSAGE = 'به حداکثر تعداد مجاز این غذا در سبد خرید رسیده‌اید.';
@@ -32,6 +33,7 @@ interface CartState {
 }
 
 interface CartContextType {
+  hydrated: boolean;
   state: CartState;
   cartItems: CartItem[];
   appliedCoupon: Coupon | null;
@@ -44,6 +46,7 @@ interface CartContextType {
   applyCouponCode: (code: string, deliveryFeeToman?: number) => { success: boolean; message: string };
   removeCoupon: () => void;
   clearCart: () => void;
+  clearSubmittedCart: (submission: CheckoutSubmission) => boolean;
   calculateSubtotal: () => number;
   calculateDiscount: () => number;
   calculateTotal: (deliveryFee?: number) => number;
@@ -248,8 +251,17 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     if (!hydrated) return;
-    if (state.items.length === 0) localStorage.removeItem('cart');
-    else localStorage.setItem('cart', JSON.stringify(persistedCart(state)));
+    try {
+      const saved = localCartSchema.safeParse(JSON.parse(localStorage.getItem('cart') ?? 'null'));
+      const previousFingerprint = saved.success ? checkoutCartFingerprint(saved.data) : null;
+      if (!localStorage.getItem(CART_REVISION_KEY) || previousFingerprint !== checkoutCartFingerprint(state)) {
+        localStorage.setItem(CART_REVISION_KEY, crypto.randomUUID());
+      }
+      if (state.items.length === 0) localStorage.removeItem('cart');
+      else localStorage.setItem('cart', JSON.stringify(persistedCart(state)));
+    } catch {
+      // Without durable storage, payment completion conservatively keeps the active cart.
+    }
   }, [hydrated, state]);
 
   useEffect(() => {
@@ -272,11 +284,22 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     dispatch({ type: 'UPDATE_ITEM', payload: { id, quantity } });
   const clearCart = () => {
     try {
+      localStorage.setItem(CART_REVISION_KEY, crypto.randomUUID());
       localStorage.removeItem('cart');
     } catch {
       // The active cart can still be cleared when storage is unavailable.
     }
     dispatch({ type: 'CLEAR_CART' });
+  };
+  const clearSubmittedCart = (submission: CheckoutSubmission) => {
+    if (!hydrated) return false;
+    try {
+      const saved = localCartSchema.safeParse(JSON.parse(localStorage.getItem('cart') ?? 'null'));
+      if (!canCompleteCheckoutCart(submission, checkoutCartFingerprint(state),
+        saved.success ? checkoutCartFingerprint(saved.data) : null, localStorage.getItem(CART_REVISION_KEY))) return false;
+      clearCart();
+      return true;
+    } catch { return false; }
   };
   const calculateSubtotal = () => subtotalToman(state.items);
   const calculateDiscount = () => state.discountToman;
@@ -309,6 +332,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   return (
     <CartContext.Provider value={{
+      hydrated,
       state,
       cartItems: state.items,
       appliedCoupon: state.appliedCoupon ?? null,
@@ -341,6 +365,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       applyCouponCode,
       removeCoupon,
       clearCart,
+      clearSubmittedCart,
       calculateSubtotal,
       calculateDiscount,
       calculateTotal,
